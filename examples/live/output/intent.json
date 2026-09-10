@@ -1,0 +1,15 @@
+{
+  "version": "CGEP/1",
+  "chainId": "1114",
+  "signer": "0xda37ccecbb2d7c83ae27ee2bebfe8ebce162c600",
+  "nonce": "1593490",
+  "validAfter": "0",
+  "validUntil": "4999999999",
+  "action": "CALL",
+  "target": "0x0000000000000000000000000000000000001000",
+  "selector": "0xf340fa01",
+  "asset": "0x0000000000000000000000000000000000001000",
+  "amount": "0",
+  "recipient": "0x0000000000000000000000000000000000001000",
+  "inferred": true
+}

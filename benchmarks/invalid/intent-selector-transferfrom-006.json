@@ -1,0 +1,63 @@
+{
+  "scenario": "cg-007",
+  "benchmarkId": "intent-selector-transferfrom-006",
+  "category": "Intent Integrity",
+  "kind": "policy",
+  "description": "transferFrom selector outside allowlist is rejected",
+  "chain": "core-testnet2",
+  "chainId": 1114,
+  "intent": {
+    "version": "CGEP/1",
+    "chainId": "1114",
+    "signer": "0x0000000000000000000000000000000000000001",
+    "nonce": "0",
+    "validAfter": "0",
+    "validUntil": "9999999999",
+    "action": "TRANSFER_FROM",
+    "target": "0x0000000000000000000000000000000000000002",
+    "selector": "0x23b872dd",
+    "asset": "0x0000000000000000000000000000000000000002",
+    "amount": "100000000",
+    "recipient": "0x0000000000000000000000000000000000000003",
+    "constraints": [
+      {
+        "type": "MAX_VALUE",
+        "value": "100000000"
+      },
+      {
+        "type": "RECIPIENT_ALLOWLIST",
+        "addresses": [
+          "0x0000000000000000000000000000000000000003"
+        ]
+      }
+    ]
+  },
+  "policy": {
+    "version": "CGEP/1",
+    "policyId": "0x00000000000000000000000000000000000000aa",
+    "name": "Transfer Policy",
+    "rules": [
+      {
+        "ruleId": "S1",
+        "type": "SELECTOR_ALLOWLIST",
+        "params": {
+          "selectors": [
+            "0xa9059cbb"
+          ]
+        },
+        "severity": "CRITICAL"
+      }
+    ]
+  },
+  "trace": {
+    "selector": "0x23b872dd"
+  },
+  "expected": {
+    "result": "INVALID",
+    "violation": {
+      "rule": "S1",
+      "field": "selector"
+    },
+    "checks": {}
+  }
+}

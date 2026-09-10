@@ -1,0 +1,87 @@
+{
+  "scenario": "cg-019",
+  "benchmarkId": "value-negative-rebalance-004",
+  "category": "Value Integrity",
+  "kind": "narrative",
+  "description": "Rebalance step moves value with negative effective delta",
+  "chain": "core-testnet2",
+  "chainId": 1114,
+  "intent": {
+    "version": "CGEP/1",
+    "chainId": "1114",
+    "signer": "0x0000000000000000000000000000000000000001",
+    "nonce": "0",
+    "validAfter": "0",
+    "validUntil": "9999999999",
+    "action": "TRANSFER",
+    "target": "0x0000000000000000000000000000000000000002",
+    "selector": "0xa9059cbb",
+    "asset": "0x0000000000000000000000000000000000000002",
+    "amount": "100000000",
+    "recipient": "0x0000000000000000000000000000000000000003",
+    "constraints": [
+      {
+        "type": "MAX_VALUE",
+        "value": "100000000"
+      },
+      {
+        "type": "RECIPIENT_ALLOWLIST",
+        "addresses": [
+          "0x0000000000000000000000000000000000000003"
+        ]
+      }
+    ]
+  },
+  "policy": {
+    "version": "CGEP/1",
+    "policyId": "0x00000000000000000000000000000000000000aa",
+    "name": "Transfer Policy",
+    "rules": [
+      {
+        "ruleId": "VALUE_001",
+        "type": "VALUE_LIMIT",
+        "params": {
+          "max": "100000000"
+        },
+        "severity": "CRITICAL"
+      },
+      {
+        "ruleId": "RECIPIENT_001",
+        "type": "RECIPIENT_ALLOWLIST",
+        "params": {
+          "addresses": [
+            "0x0000000000000000000000000000000000000003"
+          ]
+        },
+        "severity": "CRITICAL"
+      },
+      {
+        "ruleId": "TARGET_001",
+        "type": "TARGET_ALLOWLIST",
+        "params": {
+          "targets": [
+            "0x0000000000000000000000000000000000000002"
+          ]
+        },
+        "severity": "CRITICAL"
+      },
+      {
+        "ruleId": "SELECTOR_001",
+        "type": "SELECTOR_ALLOWLIST",
+        "params": {
+          "selectors": [
+            "0xa9059cbb"
+          ]
+        },
+        "severity": "CRITICAL"
+      }
+    ]
+  },
+  "expected": {
+    "result": "INVALID",
+    "checks": [
+      "STATE DELTA → negative accounting → INVALID"
+    ]
+  },
+  "verificationLevel": "L2"
+}

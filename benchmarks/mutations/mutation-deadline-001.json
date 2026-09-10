@@ -1,0 +1,18 @@
+{
+  "scenario": "cg-055",
+  "benchmarkId": "mutation-deadline-001",
+  "category": "Adversarial Mutation",
+  "kind": "mutation",
+  "description": "Mutate valid transfer deadline — must flip to INVALID",
+  "base": "valid/transfer-valid-001",
+  "mutations": [
+    "blockTimestamp"
+  ],
+  "mutateTo": {
+    "blockTimestamp": "6000"
+  },
+  "expected": {
+    "before": "VALID",
+    "after": "INVALID"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "receiptId": "0xa43762833eecc148b6304f14e9910996081e3916aea82d2973395f19d49f83f6",
+  "result": "VERIFIED",
+  "checks": [
+    {
+      "check": "RECEIPT_COMMITMENT",
+      "result": "PASS",
+      "detail": "Receipt commitment matches"
+    },
+    {
+      "check": "INTENT_HASH",
+      "result": "PASS",
+      "detail": "Intent hash matches"
+    },
+    {
+      "check": "POLICY_HASH",
+      "result": "PASS",
+      "detail": "Policy hash matches"
+    },
+    {
+      "check": "TRACE_HASH",
+      "result": "PASS",
+      "detail": "Execution trace hash matches"
+    },
+    {
+      "check": "INTENT_EXECUTION_BINDING",
+      "result": "PASS",
+      "detail": "Execution matches committed intent"
+    },
+    {
+      "check": "STATE_PINNING",
+      "result": "PASS",
+      "detail": "State pinning is consistent"
+    }
+  ],
+  "verifierVersion": "0.1.0",
+  "timestamp": "1789016684"
+}

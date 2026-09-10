@@ -1,0 +1,29 @@
+{
+  "receiptId": "0xa53f44d25ee07d13ebd9a1f744d5c39c0ce8a74142ee31ad0e1a01e8f693ce19",
+  "receipt": {
+    "version": "CGEP/1",
+    "chainId": "1114",
+    "txHash": "0x00000000000000000000000000000000000000000000000000000000000000aa",
+    "blockHash": "0x00000000000000000000000000000000000000000000000000000000000000bb",
+    "blockNumber": "123456",
+    "intentHash": "0xb89190226d99e83d6b57bd90a7008152c550c73738f824ab50317b7c20424d66",
+    "policyHash": "0x07c80175de2ff4ac76e60253de44af7fa1d42b836983afef887bc9af59b7c7e6",
+    "executionTraceHash": "0x799e66150226da6fcdd1f9aeefead3ae2550e6809cff5f3e6997eaa35191ed50",
+    "stateDeltaHash": "0x1111111111111111111111111111111111111111111111111111111111111111",
+    "evidenceRoot": "0xceea3ef9be1cca19eb837f162221abdc2b5a82b451405795102978a2f2916301",
+    "simulation": {
+      "blockNumber": "123450",
+      "blockHash": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "execution": {
+      "blockNumber": "123456",
+      "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "verifierVersion": "0.1.0",
+    "verificationLevel": "L2",
+    "result": "VALID",
+    "timestamp": "1789016231",
+    "checks": [],
+    "receiptId": "0xa53f44d25ee07d13ebd9a1f744d5c39c0ce8a74142ee31ad0e1a01e8f693ce19"
+  }
+}

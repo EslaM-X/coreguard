@@ -1,0 +1,25 @@
+{
+  "scenario": "cg-059",
+  "benchmarkId": "tamper-intent-hash-004",
+  "category": "Tamper",
+  "kind": "tamper",
+  "description": "Replace intent hash with a foreign value",
+  "steps": [
+    {
+      "step": "generate",
+      "action": "Create evidence bundle for a valid execution"
+    },
+    {
+      "step": "tamper",
+      "action": "Modify receipt.intentHash"
+    },
+    {
+      "step": "verify",
+      "expected": "INVALID",
+      "reason": "commitment mismatch"
+    }
+  ],
+  "expected": {
+    "result": "INVALID"
+  }
+}

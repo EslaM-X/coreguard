@@ -1,0 +1,12 @@
+﻿{
+    "deployTx":  "0xe3b176bd17d2a89a2a4876e680680a5a1c90a9227c28cfaa0e7ba90cc24c170f",
+    "registry":  "0xcbeaf3bde82155f56486fb5a1072cb8baaf547cc",
+    "intentId":  "0xa53f44d25ee07d13ebd9a1f744d5c39c0ce8a74142ee31ad0e1a01e8f693ce19",
+    "verifyCommitment":  true,
+    "isCommitted":  true,
+    "timestamp":  "2026-09-10T08:12:18.5407501+03:00",
+    "verifyProofCommitment":  true,
+    "network":  "localhost (anvil fork of core-testnet2 1114)",
+    "commitment":  "0xabababababababababababababababababababababababababababababababab",
+    "proofId":  "0xcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+}

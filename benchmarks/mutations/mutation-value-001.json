@@ -1,0 +1,18 @@
+{
+  "scenario": "cg-052",
+  "benchmarkId": "mutation-value-001",
+  "category": "Adversarial Mutation",
+  "kind": "mutation",
+  "description": "Mutate valid transfer value — must flip to INVALID",
+  "base": "valid/transfer-valid-001",
+  "mutations": [
+    "value"
+  ],
+  "mutateTo": {
+    "value": "500000000"
+  },
+  "expected": {
+    "before": "VALID",
+    "after": "INVALID"
+  }
+}

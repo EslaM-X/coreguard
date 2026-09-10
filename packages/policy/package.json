@@ -1,0 +1,8 @@
+{
+  "name": "@coreguard/policy",
+  "version": "0.1.0",
+  "description": "Deterministic policy rule engine",
+  "type": "module",
+  "main": "index.js",
+  "license": "MIT"
+}

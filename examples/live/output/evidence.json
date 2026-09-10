@@ -1,0 +1,22 @@
+{
+  "version": "CGEP/1",
+  "intentHash": "0xacaa8b0fc49e398a5fea11d3f8db11c9a319ba326b80fea99010350605586d42",
+  "policyHash": "0x75eac146eb276d75457d1e229ca324fc2fa675d4629b991d7f28b903574a7b2f",
+  "traceHash": "0xa9c81f941f3304c970d32c91be1c4115be75797e8fd0f96e521102167cd4bce2",
+  "stateDeltaHash": "0xeb4c71a5aea60a03d7faf85bc91d9f40b602f23e2b0579b581cbdb462a0e9688",
+  "result": "VALID",
+  "verifications": [
+    {
+      "level": "L1",
+      "engine": "coreguard-v0.1.0"
+    }
+  ],
+  "simulation": {
+    "blockNumber": "18592684",
+    "blockHash": "0xb3ffe432bccffc3fd320e6957f70420a31f4ee98dd37af2b6659ec7d00040db0"
+  },
+  "execution": {
+    "blockNumber": "18592684",
+    "blockHash": "0xb3ffe432bccffc3fd320e6957f70420a31f4ee98dd37af2b6659ec7d00040db0"
+  }
+}

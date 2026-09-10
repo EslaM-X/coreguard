@@ -1,0 +1,8 @@
+{
+  "name": "@coreguard/evidence",
+  "version": "0.1.0",
+  "description": "Evidence bundle and execution receipt generation",
+  "type": "module",
+  "main": "index.js",
+  "license": "MIT"
+}

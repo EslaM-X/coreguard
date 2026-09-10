@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0-draft",
+  "generatedBy": "benchmarks/generate-corpus.js",
+  "total": 61,
+  "categoryCounts": {
+    "Intent Integrity": 10,
+    "Target Integrity": 5,
+    "Value Integrity": 5,
+    "Recipient Integrity": 5,
+    "Calldata Integrity": 5,
+    "Deadline/Nonce": 5,
+    "Slippage": 5,
+    "Oracle Bound": 5,
+    "Multi-step": 5,
+    "Adversarial Mutation": 5,
+    "Tamper": 5,
+    "Performance": 1
+  }
+}

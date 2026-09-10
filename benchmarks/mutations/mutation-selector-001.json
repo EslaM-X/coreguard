@@ -1,0 +1,18 @@
+{
+  "scenario": "cg-054",
+  "benchmarkId": "mutation-selector-001",
+  "category": "Adversarial Mutation",
+  "kind": "mutation",
+  "description": "Mutate valid transfer selector — must flip to INVALID",
+  "base": "valid/transfer-valid-001",
+  "mutations": [
+    "selector"
+  ],
+  "mutateTo": {
+    "selector": "0x23b872dd"
+  },
+  "expected": {
+    "before": "VALID",
+    "after": "INVALID"
+  }
+}

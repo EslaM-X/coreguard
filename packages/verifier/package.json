@@ -1,0 +1,8 @@
+{
+  "name": "@coreguard/verifier",
+  "version": "0.1.0",
+  "description": "Independent execution receipt verification",
+  "type": "module",
+  "main": "index.js",
+  "license": "MIT"
+}

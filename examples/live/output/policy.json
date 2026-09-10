@@ -1,0 +1,44 @@
+{
+  "version": "CGEP/1",
+  "policyId": "0xffffffffffffffffffffffffffffffffffffffff",
+  "name": "Inferred Live Policy",
+  "rules": [
+    {
+      "ruleId": "VALUE_001",
+      "type": "VALUE_LIMIT",
+      "params": {
+        "max": "0"
+      },
+      "severity": "CRITICAL"
+    },
+    {
+      "ruleId": "TARGET_001",
+      "type": "TARGET_ALLOWLIST",
+      "params": {
+        "targets": [
+          "0x0000000000000000000000000000000000001000"
+        ]
+      },
+      "severity": "CRITICAL"
+    },
+    {
+      "ruleId": "DEADLINE_001",
+      "type": "DEADLINE",
+      "params": {
+        "deadline": "4999999999"
+      },
+      "severity": "HIGH"
+    },
+    {
+      "ruleId": "SELECTOR_001",
+      "type": "SELECTOR_ALLOWLIST",
+      "params": {
+        "selectors": [
+          "0xf340fa01"
+        ]
+      },
+      "severity": "CRITICAL"
+    }
+  ],
+  "inferred": true
+}

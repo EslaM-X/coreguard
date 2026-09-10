@@ -1,0 +1,28 @@
+{
+  "version": "CGEP/1",
+  "chainId": "1114",
+  "signer": "0x0000000000000000000000000000000000000001",
+  "nonce": "0",
+  "validAfter": "0",
+  "validUntil": "9999999999",
+  "action": "CUSTOM",
+  "target": "0x0000000000000000000000000000000000000002",
+  "selector": "0x6a761202",
+  "asset": "0x0000000000000000000000000000000000000003",
+  "amount": "2000000000",
+  "recipient": "0x0000000000000000000000000000000000000001",
+  "constraints": [
+    {
+      "type": "MAX_VALUE",
+      "value": "2000000000"
+    },
+    {
+      "type": "TARGET_ALLOWLIST",
+      "addresses": ["0x0000000000000000000000000000000000000002"]
+    },
+    {
+      "type": "SELECTOR_ALLOWLIST",
+      "value": "0x6a761202"
+    }
+  ]
+}

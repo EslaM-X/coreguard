@@ -1,0 +1,37 @@
+{
+  "version": "CGEP/1",
+  "policyId": "0x00000000000000000000000000000000000000cc",
+  "name": "Batch Strategy Policy (execTransaction)",
+  "rules": [
+    {
+      "ruleId": "VALUE_001",
+      "type": "VALUE_LIMIT",
+      "params": { "max": "2000000000" },
+      "severity": "CRITICAL"
+    },
+    {
+      "ruleId": "TARGET_001",
+      "type": "TARGET_ALLOWLIST",
+      "params": { "targets": ["0x0000000000000000000000000000000000000002"] },
+      "severity": "CRITICAL"
+    },
+    {
+      "ruleId": "SELECTOR_001",
+      "type": "SELECTOR_ALLOWLIST",
+      "params": { "selectors": ["0x6a761202"] },
+      "severity": "CRITICAL"
+    },
+    {
+      "ruleId": "SLIPPAGE_001",
+      "type": "SLIPPAGE_BPS",
+      "params": { "bps": "500" },
+      "severity": "HIGH"
+    },
+    {
+      "ruleId": "DEADLINE_001",
+      "type": "DEADLINE",
+      "params": { "deadline": "9999999999" },
+      "severity": "HIGH"
+    }
+  ]
+}

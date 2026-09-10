@@ -1,0 +1,10 @@
+{
+  "name": "@coreguard/cli",
+  "version": "0.1.0",
+  "description": "CoreGuard command-line interface",
+  "type": "module",
+  "bin": {
+    "coreguard": "src/index.js"
+  },
+  "license": "MIT"
+}

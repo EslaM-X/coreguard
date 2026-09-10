@@ -1,0 +1,18 @@
+{
+  "scenario": "cg-051",
+  "benchmarkId": "mutation-recipient-001",
+  "category": "Adversarial Mutation",
+  "kind": "mutation",
+  "description": "Mutate valid transfer recipient — must flip to INVALID",
+  "base": "valid/transfer-valid-001",
+  "mutations": [
+    "recipient"
+  ],
+  "mutateTo": {
+    "recipient": "0x0000000000000000000000000000000000000099"
+  },
+  "expected": {
+    "before": "VALID",
+    "after": "INVALID"
+  }
+}

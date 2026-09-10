@@ -1,0 +1,8 @@
+{
+  "name": "@coreguard/trace",
+  "version": "0.1.0",
+  "description": "Trace normalization and state delta computation",
+  "type": "module",
+  "main": "index.js",
+  "license": "MIT"
+}
