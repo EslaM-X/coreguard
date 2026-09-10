@@ -8,7 +8,7 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "node --test \"test/canonicalization/*.test.js\" \"test/tamper/*.test.js\"",
+    "test": "node scripts/run-tests.mjs",
     "benchmark": "node test/adversarial/benchmark-runner.js",
     "corpus": "node benchmarks/generate-corpus.js",
     "analyze": "node packages/cli/src/index.js analyze",
