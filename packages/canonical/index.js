@@ -4,6 +4,8 @@
  * Ensures identical logical data always produces identical bytes.
  */
 
+import { createHash } from "node:crypto";
+
 const ENCODING_VERSION = "CGEP/1";
 
 /**
@@ -53,10 +55,8 @@ export async function domainHash(domain, data) {
   combined.set(domainBytes);
   combined.set(dataBytes, domainBytes.length);
 
-  const hashBuffer = await crypto.subtle.digest("SHA-256", combined);
-  return "0x" + Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  const digest = createHash("sha256").update(combined).digest("hex");
+  return "0x" + digest;
 }
 
 /**

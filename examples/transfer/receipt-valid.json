@@ -1,5 +1,5 @@
 {
-  "receiptId": "0xa53f44d25ee07d13ebd9a1f744d5c39c0ce8a74142ee31ad0e1a01e8f693ce19",
+  "receiptId": "0xd4ddd02204f55662ef7db62b7a720c7e8dbff8d92a1cc621df22cf1b5dc22627",
   "receipt": {
     "version": "CGEP/1",
     "chainId": "1114",
@@ -22,8 +22,8 @@
     "verifierVersion": "0.1.0",
     "verificationLevel": "L2",
     "result": "VALID",
-    "timestamp": "1789016231",
+    "timestamp": "1789017669",
     "checks": [],
-    "receiptId": "0xa53f44d25ee07d13ebd9a1f744d5c39c0ce8a74142ee31ad0e1a01e8f693ce19"
+    "receiptId": "0xd4ddd02204f55662ef7db62b7a720c7e8dbff8d92a1cc621df22cf1b5dc22627"
   }
 }
