@@ -27,9 +27,10 @@ every swap, strategy, vault interaction and BTCFI position is executed by code �
 mutated calldata can make the transaction "go through" while doing something
 completely different from what was authorized.
 
-Today there is **no production-grade evidence layer** that lets a user, a protocol,
-an auditor or a regulator *prove* — cheaply, independently and on-chain — that an
-execution conformed to a declared intent and policy. That is the gap CoreGuard fills.
+Existing transaction-security and simulation systems address important parts of this
+problem, but CoreGuard focuses on the missing end-to-end evidence workflow:
+predeclared intent and policy → observed execution → independently reproducible
+evidence → Core-native commitment anchoring.
 
 ## What CoreGuard is
 
