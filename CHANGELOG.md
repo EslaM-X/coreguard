@@ -44,6 +44,22 @@ All notable changes to CoreGuard v0.1.
 - On-chain anchor flow proven on `anvil` fork of Testnet2
   (`scripts/anchor-local.ps1|.sh`).
 
+### Anchor integrity semantics (pre-broadcast correction)
+
+- `proofId = H("CGEP/1:ANCHOR", {chainId, receiptId, commitment})` — derived
+  from the engine artifact, **never** a placeholder and never assumed
+  `proofId == receiptId` (removed `cdcd…`/`abab…` placeholders).
+- Three-proofs verifier keys Proof B on the **anchor ID**: `verifyCommitment(
+  proofId, commitment) == true`; optional deep `AnchorTx` check matches
+  `ProofAnchored[proofId, commitment, result]`, `to == registry`, status 1.
+- Result codes aligned with spec: `0=INVALID, 1=VALID, 2=INCONCLUSIVE`
+  (`anchorProof(…, result=1)` for a VERIFIED anchor).
+- `A+B+C = VERIFIED ANCHOR INTEGRITY` — not "execution truth"; the execution
+  claim is carried by the receipt/evidence/replay bound to the commitment.
+- `verify-live.json` now records `registry · deployTx · anchorTx · block ·
+  proofId · receiptId · commitment · evidenceRoot`.
+- CI uses `npm ci` only (lockfile drift fails instead of falling back).
+
 ### Not yet
 
 - Testnet2 broadcast (awaiting deployer funding via faucet).

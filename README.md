@@ -142,7 +142,9 @@ node packages/cli/src/index.js report  --receipt <...>                          
 ```bash
 forge build                                   # 0.1 evidence registry (clean)
 powershell -File scripts/anchor-local.ps1      # or: bash scripts/anchor-local.sh
-                                              # deploy + anchor on anvil fork → artifact
+                                              # deploy + anchor on anvil fork → scripts/anchor-proof.json
+                                              # (real commitment/proofId, provenance-clean)
+npm run anchor:plan                           # → scripts/live-anchor-planned.json (offline proofId plan)
 ```
 
 ## Repository layout

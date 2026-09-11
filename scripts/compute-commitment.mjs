@@ -1,9 +1,11 @@
 /**
  * CoreGuard — Compute on-chain commitment (offline, independent)
  *
- * Rebuilds the receipt ID and the CGEP/1:PROOF commitment purely from the
- * receipt payload — no RPC, no trust. The output must match what the
- * EvidenceRegistry reads back from the chain (Proof C in docs/COMMUNITY.md).
+ * Rebuilds the receipt ID, the CGEP/1:PROOF commitment and the
+ * CGEP/1:ANCHOR proofId purely from the receipt payload — no RPC, no trust.
+ * The outputs must match what the EvidenceRegistry reads back from the chain
+ * (Proofs B + C in docs/COMMUNITY.md). proofId is domain-separated and never
+ * assumed equal to receiptId.
  *
  * Usage:  node scripts/compute-commitment.mjs --receipt examples/transfer/receipt-valid.json
  */
@@ -35,6 +37,13 @@ const commitmentData = {
   evidenceRoot: receipt.evidenceRoot,
 };
 const commitment = await domainHash("CGEP/1:PROOF", commitmentData);
+const proofId = await domainHash("CGEP/1:ANCHOR", {
+  chainId: receipt.chainId,
+  receiptId: computedReceiptId,
+  commitment,
+});
+
+const result = "VALID";
 
 const planned = {
   receiptFile: receiptPath,
@@ -42,7 +51,9 @@ const planned = {
   receiptId: computedReceiptId,
   evidenceRoot: receipt.evidenceRoot,
   commitment,
-  result: "VALID",
+  proofId,
+  result,
+  resultCode: { VALID: 1, INVALID: 0, UNVERIFIABLE: 2, INCOMPLETE: 2 }[result] ?? 1,
 };
 
 const outFile = join(root, "scripts", "live-anchor-planned.json");

@@ -1,12 +1,12 @@
 ﻿{
     "deployTx":  "0xe3b176bd17d2a89a2a4876e680680a5a1c90a9227c28cfaa0e7ba90cc24c170f",
     "registry":  "0xcbeaf3bde82155f56486fb5a1072cb8baaf547cc",
-    "intentId":  "0xa53f44d25ee07d13ebd9a1f744d5c39c0ce8a74142ee31ad0e1a01e8f693ce19",
-    "verifyCommitment":  true,
+    "verifyIntentCommitment":  true,
     "isCommitted":  true,
-    "timestamp":  "2026-09-10T08:12:18.5407501+03:00",
+    "receiptId":  "0xd4ddd02204f55662ef7db62b7a720c7e8dbff8d92a1cc621df22cf1b5dc22627",
+    "timestamp":  "2026-09-11T04:38:44.1594806+03:00",
     "verifyProofCommitment":  true,
     "network":  "localhost (anvil fork of core-testnet2 1114)",
-    "commitment":  "0xabababababababababababababababababababababababababababababababab",
-    "proofId":  "0xcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+    "commitment":  "0xcabce2bbba1581983dd524a70497746ece4aa791b0bbab14f1559ab525b000f3",
+    "proofId":  "0x172ba0a6ba483e05943f3cf1f42562c2f0d300192a80fbb697bcb602c735b2cd"
 }

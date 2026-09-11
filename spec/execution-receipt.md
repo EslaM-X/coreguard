@@ -120,14 +120,35 @@ This prevents false negatives when state changes between simulation and executio
 
 ## 7. Anchoring
 
+Two distinct identities are recorded on-chain — **never assumed equal**:
+
+- `intentId` (== `receiptId`): bound to the commitment by `commitIntent` BEFORE
+  execution (the authorization/intent commitment).
+- `proofId`: the anchor identity for an execution proof, bound by
+  `anchorProof` AFTER verification.
+
 ```
-EvidenceRegistry.anchorProof(receiptId, commitment, result)
+proofId = H("CGEP/1:ANCHOR", { chainId, receiptId, commitment })
+
+EvidenceRegistry.commitIntent(receiptId, commitment, ...)
+EvidenceRegistry.anchorProof(proofId, commitment, result)
 ```
 
+`proofId` is domain-separated (`CGEP/1:ANCHOR`) from the receipt identity
+(`CGEP/1:RECEIPT`) and from the commitment domain (`CGEP/1:PROOF`), and is
+derived deterministically from the actual artifact — never a placeholder or an
+assumption that `proofId == receiptId`.
+
 On-chain stores only:
-- receiptId (indexed)
+- proofId (indexed) — the anchor ID
+- receiptId / intentId (indexed) — the committed intent
 - commitment (bytes32)
 - result (uint8: 0=INVALID, 1=VALID, 2=INCONCLUSIVE)
+
+Registry verification reads back:
+`verifyCommitment(proofId, commitment) == true` (anchor integrity).
+A+B+C = **VERIFIED ANCHOR INTEGRITY**, not execution truth — the execution
+claim is carried by the receipt/evidence/replay bound to the commitment.
 
 Full receipt is off-chain.
 

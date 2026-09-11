@@ -1,13 +1,17 @@
 # CoreGuard Local On-Chain Proof (Windows / PowerShell)
 #
 # Deploys EvidenceRegistry on an ANVIL FORK of Core Testnet2 and anchors a
-# sample execution receipt — then reads the commitment back. This proves the
+# sample execution receipt - then reads the commitment back. This proves the
 # full on-chain anchor flow (deploy -> commitIntent -> anchorProof ->
-# verifyCommitment) without needing testnet funds. The exact same commands,
-# pointed at the live RPC, perform the real Testnet2 deployment.
+# verifyCommitment) without needing testnet funds.
+#
+# All anchored values are REAL engine outputs (not placeholders):
+#   commitment = H("CGEP/1:PROOF",  {protocol, chainId, receiptId, evidenceRoot})
+#   proofId    = H("CGEP/1:ANCHOR", {chainId, receiptId, commitment})
+# proofId is never assumed equal to receiptId. The exact same commands, pointed
+# at the live RPC, perform the real Testnet2 deployment.
 #
 # Prereq: Foundry (anvil, forge, cast) + Node.js on PATH.
-#
 # Usage:   powershell -ExecutionPolicy Bypass -File scripts/anchor-local.ps1
 
 param([string]$Rpc = "https://rpc.test2.btcs.network")
@@ -28,39 +32,44 @@ $anvil = Start-Process -FilePath "anvil" -ArgumentList "--fork-url", $Rpc, "--si
 try {
   Start-Sleep -Seconds 4
 
-  Write-Host "[2/5] Fetching compiled EvidenceRegistry bytecode ..."
-  $bytecode = & forge inspect EvidenceRegistry bytecode
-  if ($LASTEXITCODE -ne 0) { throw "forge inspect failed" }
+  Write-Host "[2/5] Computing engine values (receiptId / commitment / proofId) ..."
+  $planned = node scripts/compute-commitment.mjs --receipt examples\transfer\receipt-valid.json | ConvertFrom-Json
+  if ($LASTEXITCODE -ne 0) { throw "compute-commitment failed" }
+  $receiptId = $planned.receiptId
+  $commitment = $planned.commitment
+  $proofId = $planned.proofId
+  Write-Host "      receiptId : $receiptId"
+  Write-Host "      commitment: $commitment"
+  Write-Host "      proofId   : $proofId"
 
   Write-Host "[3/5] Deploying EvidenceRegistry on the local fork ..."
+  $bytecode = & forge inspect EvidenceRegistry bytecode
+  if ($LASTEXITCODE -ne 0) { throw "forge inspect failed" }
   $deployOut = & cast send --rpc-url $ForkRpc --private-key $Pk --legacy --json --create $bytecode | ConvertFrom-Json
   $registry = $deployOut.contractAddress
   Write-Host "      Registry:  $registry"
   Write-Host "      Tx:        $($deployOut.transactionHash)"
 
-  Write-Host "[4/5] Anchoring a CoreGuard execution receipt ..."
-  $receiptId = (node --input-type=module -e "import('./examples/transfer/receipt-valid.json',{with:{type:'json'}}).then(m=>process.stdout.write(m.default.receiptId))").Trim()
-  $proofId = "0x" + ("cd" * 32) # distinct anchor id (derived from evidence root in prod)
-  $commitment = "0x" + ("ab" * 32) # deterministic demo commitment (keccak(evidenceRoot) in prod)
+  Write-Host "[4/5] Anchoring (commitIntent + anchorProof, result=$($planned.resultCode)) ..."
   & cast send --rpc-url $ForkRpc --private-key $Pk --legacy $registry "commitIntent(bytes32,bytes32)" $receiptId $commitment | Out-Null
-  & cast send --rpc-url $ForkRpc --private-key $Pk --legacy $registry "anchorProof(bytes32,bytes32,uint8)" $proofId $commitment 0 | Out-Null
+  & cast send --rpc-url $ForkRpc --private-key $Pk --legacy $registry "anchorProof(bytes32,bytes32,uint8)" $proofId $commitment $planned.resultCode | Out-Null
 
-  Write-Host "[5/5] Reading the commitment back from the chain ..."
-  $committed = (& cast call --rpc-url $ForkRpc $registry "verifyCommitment(bytes32,bytes32)(bool)" $receiptId $commitment).Trim()
-  $proofCommitted = (& cast call --rpc-url $ForkRpc $registry "verifyCommitment(bytes32,bytes32)(bool)" $proofId $commitment).Trim()
+  Write-Host "[5/5] Reading commitments back from the chain ..."
+  $verifyProof = (& cast call --rpc-url $ForkRpc $registry "verifyCommitment(bytes32,bytes32)(bool)" $proofId $commitment).Trim()
+  $verifyIntent = (& cast call --rpc-url $ForkRpc $registry "verifyCommitment(bytes32,bytes32)(bool)" $receiptId $commitment).Trim()
   $isCommitted = (& cast call --rpc-url $ForkRpc $registry "isCommitted(bytes32)(bool)" $proofId).Trim()
-  Write-Host "      verifyCommitment (intent): $committed"
-  Write-Host "      verifyCommitment (proof):  $proofCommitted"
-  Write-Host "      isCommitted:               $isCommitted"
+  Write-Host "      verifyCommitment(proofId,  commitment): $verifyProof"
+  Write-Host "      verifyCommitment(receiptId, commitment): $verifyIntent"
+  Write-Host "      isCommitted(proofId):                  $isCommitted"
 
   $proof = @{
     network = "localhost (anvil fork of core-testnet2 1114)"
     registry = $registry
-    intentId = $receiptId
+    receiptId = $receiptId
     proofId = $proofId
     commitment = $commitment
-    verifyCommitment = ($committed -eq "true")
-    verifyProofCommitment = ($proofCommitted -eq "true")
+    verifyProofCommitment = ($verifyProof -eq "true")
+    verifyIntentCommitment = ($verifyIntent -eq "true")
     isCommitted = ($isCommitted -eq "true")
     deployTx = $deployOut.transactionHash
     timestamp = (Get-Date -Format o)
@@ -71,7 +80,7 @@ try {
   Write-Host "`n  [OK] On-chain anchor flow PROVEN on a local fork."
   Write-Host "  Artifact: $outFile`n"
 
-  if ($proof.verifyCommitment -eq $false -or $proof.verifyProofCommitment -eq $false) { throw "commitment verification failed" }
+  if ($proof.verifyProofCommitment -eq $false -or $proof.isCommitted -eq $false) { throw "commitment verification failed" }
 }
 finally {
   Stop-Process -Id $anvil.Id -Force -ErrorAction SilentlyContinue

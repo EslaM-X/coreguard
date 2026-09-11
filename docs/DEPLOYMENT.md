@@ -27,23 +27,28 @@ predicted address `0xC7f2Cf4845C6db0e1a1e91ED41Bcd0FcC1b0E141`.
 
 ## 2. Anchoring a receipt on Testnet2
 
-The commitment must be the **CGEP-computed** value so the three proofs close:
+Values come from `compute-commitment` (the engine artifact), never from memory:
 
 ```bash
-# 1) Plan: recompute receiptId + commitment purely offline (deterministic).
+# 1) Plan: recompute receiptId + commitment + proofId purely offline.
 npm run anchor:plan                      # → scripts/live-anchor-planned.json
+#    proofId = H("CGEP/1:ANCHOR", {chainId, receiptId, commitment}) — ALWAYS
+#    from the artifact; never assume proofId == receiptId.
 
-# 2) Anchor on-chain with those exact values.
+# 2) Commit the intent BEFORE execution, then anchor the proof AFTER it.
 cast send --rpc-url "$RPC_TESTNET2" --private-key "$PRIVATE_KEY" --legacy \
-  <Registry> "commitIntent(bytes32,bytes32)" \
-  <receiptId> <commitment>
+  <Registry> "commitIntent(bytes32,bytes32)" <receiptId> <commitment>
+cast send --rpc-url "$RPC_TESTNET2" --private-key "$PRIVATE_KEY" --legacy \
+  <Registry> "anchorProof(bytes32,bytes32,uint8)" <proofId> <commitment> 1
+#    result: 0=INVALID, 1=VALID, 2=INCONCLUSIVE (1 for a VERIFIED anchor)
 
 # 3) Three independent proofs (docs/COMMUNITY.md):
-#    A = deployment TX, B = verifyCommitment == true, C = offline recompute.
+#    A = deployment evidence · B = verifyCommitment(proofId, commitment) == true
+#    C = offline recompute == on-chain commitment.
 powershell -ExecutionPolicy Bypass -File scripts/verify-anchor.ps1 \
-  -Registry <Registry> -DeployTx <deployTxHash> [-AnchorTx <anchorTxHash>]
-# or: bash scripts/verify-anchor.sh <Registry> <deployTxHash> [<anchorTxHash>]
-# artifact → scripts/verify-live.json · verdict → VERIFIED when 0 failures
+  -Registry <Registry> -DeployTx <deployTxHash> -AnchorTx <anchorTxHash>
+# or: bash scripts/verify-anchor.sh <Registry> <deployTxHash> <anchorTxHash>
+# artifact → scripts/verify-live.json · verdict → VERIFIED ANCHOR INTEGRITY
 ```
 
 ## 3. Local on-chain proof (no funds needed)

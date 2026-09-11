@@ -113,9 +113,13 @@ When any tCORE2 lands on the deployer and the broadcast succeeds, we must show
 
 | # | Proof | How verified |
 |---|---|---|
-| A | **Deployment TX** → registry exists on Testnet2 | Fetch the deployment tx receipt by hash; assert status = success and `contractAddress` = registry |
-| B | **Anchor TX** → commitment recorded | Read `verifyCommitment(id, commitment)` from the chain (RPC) → `true`; match the anchor tx receipt/log |
-| C | **Independent verification** → commitment == local evidence | Recompute `receiptId` + `commitment` **off-chain** from the receipt/evidence and compare to what the chain returns |
+| A | **Deployment evidence** → registry exists on Testnet2 | Fetch the deployment tx receipt by hash; assert status = success and `contractAddress` = registry |
+| B | **Registry commitment verification** → anchor recorded | Read `verifyCommitment(proofId, commitment)` from the chain (RPC) → `true`; with the anchor tx, also match `ProofAnchored[proofId, commitment, result]` |
+| C | **Independent recomputation** → offline == on-chain | Recompute `receiptId` + `commitment` + `proofId` **off-chain** from the receipt/evidence (`proofId = H("CGEP/1:ANCHOR", {chainId, receiptId, commitment})`) and compare to what the chain returns |
+
+A+B+C = **VERIFIED ANCHOR INTEGRITY** — not execution truth. The execution claim
+is supported by the independently verifiable evidence/replay bound to that
+commitment.
 
 Run: `scripts/verify-anchor.ps1` (or `scripts/anchor-local.sh`) after the live
 broadcast to produce this report automatically.
