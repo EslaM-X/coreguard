@@ -76,6 +76,36 @@ issue on the faucet**, not to our environment alone. (Confirmed by probing:
 Use the server search for "faucet" and check Developers/Builders/Testnet
 categories; some servers require a `#verify` role before writing.
 
+## Larger tCORE2 request (more than the daily 1)
+
+The public faucet gives up to **1 tCORE2/day**. Core also has a
+**developer request form** for larger amounts (a baseline grant is ~10 tCORE2,
+with a justification field when you need more than 10). The official docs only
+publicize the faucet + Discord, so the form URL is distributed by Core's team
+— ask for it in the Discord/Telegram builder channels (pinned messages or a
+moderator). Fill-ready answers (adjust to whatever the form actually asks):
+
+| Form field | Answer |
+|---|---|
+| Wallet address (tCORE2) | `0x6cB4796D54ED72105ec617c8850C91972a0d9469` |
+| GitHub / project URL | `https://github.com/EslaM-X/coreguard` |
+| Reason (technical, no marketing) | I am developing CoreGuard, an open-source verification infrastructure project for Core-native Bitcoin DeFi. I need Testnet2 tCORE2 to deploy and test the EvidenceRegistry contract and perform real on-chain proof anchoring. The project already has a public GitHub repository, 30/30 engine tests, 61/61 benchmarks, live Testnet2 transaction verification, local fork-based anchoring, and a reproducible CI pipeline. The remaining v0.1 integration step is a real Testnet2 deployment and on-chain anchorProof transaction. I need additional testnet funds to repeatedly deploy, test, and verify the contract under realistic conditions, including failed/tampered proof cases and independent verification. |
+| How many tokens do you need? | 20–50 tCORE2 — deploy EvidenceRegistry once, then repeated integration + adversarial (tampered/failed proof) anchoring and independent on-chain verification. |
+
+Verifiable on request: the repo, CI, benchmarks, and the local fork anchor
+transcript are all public. **Never** paste a private key / `.env` / seed — only
+the public address above.
+
+## Post-funding sequence (no code changes until it completes)
+
+```
+Balance → Deploy → Deployment TX → Anchor → Anchor TX → Event →
+On-chain verification → README LIVE CORE TESTNET2 ANCHOR → v0.1 freeze
+```
+
+The deployment uses `script/Deploy.s.sol` (`--legacy`, chain 1114) and the
+deployment/anchor is validated by `scripts/verify-anchor.ps1` (three proofs).
+
 ## What "done" means — three independent proofs
 
 When any tCORE2 lands on the deployer and the broadcast succeeds, we must show
