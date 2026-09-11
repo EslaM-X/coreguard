@@ -122,7 +122,8 @@ Verdict:        VERIFIED ANCHOR INTEGRITY  (A+B+C)
 Independent cross-RPC verification (rpc.coredao.org + rpc.ankr.com) confirms the
 contract bytecode, both `commitIntent`/`anchorProof` receipts, their events, and
 `verifyCommitment(receiptId|proofId, commitment) == true` on-chain.
-Full evidence bundle: [scripts/verify-live.json](scripts/verify-live.json).
+Full evidence bundle: [scripts/verify-live.json](scripts/verify-live.json)
+(frozen historical record; live re-runs write to `scripts/verify-live.regenerated.json`).
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 
 ## Quick start
@@ -163,7 +164,7 @@ forge build                                   # 0.1 evidence registry (clean)
 powershell -File scripts/anchor-local.ps1      # or: bash scripts/anchor-local.sh
                                               # local anvil fork anchor → scripts/anchor-proof.json
 npm run anchor:plan                           # → scripts/live-anchor-planned.json (offline proofId plan)
-npm run anchor:verify                         # → scripts/verify-live.json (VERIFIED ANCHOR INTEGRITY)
+npm run anchor:verify                         # → scripts/verify-live.regenerated.json (frozen bundle stays)
 ```
 
 ## Repository layout

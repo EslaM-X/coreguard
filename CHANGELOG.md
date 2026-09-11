@@ -2,6 +2,25 @@
 
 All notable changes to CoreGuard v0.1.
 
+## [Unreleased] — P0 anchor verification semantics
+
+### Closed: verdict semantics (single source of truth)
+
+- New `scripts/anchor-verdict.mjs` — pure, zero-dep evaluator producing
+  `VERIFIED / INVALID / INCONCLUSIVE / UNVERIFIED` from a **required-evidence
+  profile** per proof level (L0/L1/L2). Shared by both verifier scripts so they
+  cannot drift.
+- **Missing ANY required evidence → `UNVERIFIED`** — never `VERIFIED`.
+- **Any run check that FAILs → `INVALID`** (contradiction dominates).
+- `VERIFIED` only when every required check PASSes and nothing FAILs.
+- `L3`/`L4` not claimable in v0.1 (`INCONCLUSIVE`, no runtime pathway).
+- `verify-anchor.ps1`/`.sh` rewired to record every check state explicitly
+  (PASS/FAIL/NOT_RUN) and defer the verdict to the module; they no longer
+  hardcode `VERIFIED` (bash previously wrote `VERIFIED` unconditionally).
+- `verify-live.json` artifact now includes `level · verdict · verdictCode ·
+  required · requiredMissing · failing · states`.
+- New suite: `test/anchor/verdict.test.js` (mutation/adversarial semantics).
+
 ## [0.1.0] — 2026-09-10
 
 ### Added — v0.1 Evidence Protocol (MVP scope)

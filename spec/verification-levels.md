@@ -22,7 +22,33 @@ Defines the verification levels a CoreGuard Execution Receipt can claim. Levels 
 ## 3. MVP Scope (v0.1)
 
 - **Result:** `L2` when trace + archive state allow deterministic replay; else `L1` when only receipt evidence is committed; else `L0` for commitment-only.
-- **Result enum:** `VERIFIED` / `INVALID` / `UNVERIFIABLE` / `INCOMPLETE`.
+- **Claimable levels in v0.1:** `L0`, `L1`, `L2`. `L3`/`L4` are not claimable (no runtime pathway).
+- **Result enum (P0):** `VERIFIED` / `INVALID` / `INCONCLUSIVE` / `UNVERIFIED`.
+
+### Verdict semantics (P0 — closed)
+
+The verdict is produced by `scripts/anchor-verdict.mjs` (single source of truth,
+shared by `verify-anchor.ps1` and `verify-anchor.sh`) from a **required-evidence
+profile** per level:
+
+| Level | Required evidence (all must PASS) |
+|---|---|
+| L0 | offline recompute (C) · registry code present (A) · `verifyCommitment(proofId, commitment)==true` (B) |
+| L1 | L0 + deploy tx deep (status 0x1, contractAddress) + commit tx deep (`IntentCommitted[receiptId, commitment]`) |
+| L2 | L1 + anchor tx deep (`ProofAnchored[proofId, commitment, result]`) |
+
+Rules:
+- **Missing ANY required evidence → `UNVERIFIED`** — never `VERIFIED`. Evidence
+  that never ran, errored, or was not supplied counts as missing.
+- **Any run check that FAILs → `INVALID`** (contradiction) — dominates all else.
+- **`VERIFIED` only when** every required check PASSes **and** no run check FAILs.
+  Optional evidence (`storage slot`, `cross-RPC`, `bytecode`) that is simply not
+  run does not block; a FAILing optional check is still a contradiction.
+- **`INCONCLUSIVE`** is reserved for post-v0.1 levels (L3 partial disclosure);
+  it has no runtime path in v0.1.
+- on-chain result codes align: `0=INVALID, 1=VALID, 2=INCONCLUSIVE` — the
+  on-chain `VALID` is one *evidence item* (B), never a substitute for the
+  offline verdict.
 
 ## 4. Verification Axes
 

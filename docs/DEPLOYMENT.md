@@ -34,7 +34,8 @@ reads) lives in [`../scripts/verify-live.json`](../scripts/verify-live.json).
 ```bash
 # Verify the live registry from any Core RPC:
 npm run anchor:verify
-# artifact → scripts/verify-live.json · verdict → VERIFIED ANCHOR INTEGRITY
+# artifact → scripts/verify-live.regenerated.json · verdict → VERIFIED ANCHOR INTEGRITY
+# (the frozen scripts/verify-live.json is never rewritten by the verifier)
 ```
 
 ## 2. Anchoring a receipt (deployer of Testnet2 / new anchor)
@@ -60,7 +61,7 @@ cast send --rpc-url "$RPC" --private-key "$PRIVATE_KEY" --legacy \
 powershell -ExecutionPolicy Bypass -File scripts/verify-anchor.ps1 \
   -Registry <Registry> -DeployTx <deployTxHash> -AnchorTx <anchorTxHash>
 # or: bash scripts/verify-anchor.sh <Registry> <deployTxHash> <anchorTxHash>
-# artifact → scripts/verify-live.json · verdict → VERIFIED ANCHOR INTEGRITY
+# artifact → scripts/verify-live.regenerated.json · verdict → VERIFIED ANCHOR INTEGRITY
 ```
 
 ## 3. Local on-chain proof (no funds needed)

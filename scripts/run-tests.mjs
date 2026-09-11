@@ -10,7 +10,7 @@ import { readdirSync } from "fs";
 import { join } from "path";
 import { spawnSync } from "child_process";
 
-const suites = ["test/canonicalization", "test/tamper"];
+const suites = ["test/canonicalization", "test/tamper", "test/anchor"];
 const files = [];
 
 for (const dir of suites) {
