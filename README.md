@@ -13,7 +13,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Spec](https://img.shields.io/badge/CGEP%2F1-Draft-yellow.svg)](spec/CGEP-1.md)
 
-*Off-chain engine · Solidity registry · CGEP/1 draft spec · Core Testnet2 verified live*
+*Off-chain engine · Solidity registry · CGEP/1 draft spec. Real Core Testnet2 execution verified · on-chain anchor local-fork proven · live registry anchor pending funding*
 
 </div>
 
@@ -167,8 +167,8 @@ docs/        deployment · funding · contributing · security
 
 | Milestone | Status |
 |---|---|
-| **v0.1 — Evidence protocol** (intent → trace → evidence → receipt → verifier → anchor) | ✅ built, tested, verified live |
-| **v0.1 — On-chain anchor on Core Testnet2** | 🔜 deployer funding required |
+| **v0.1 — Evidence protocol** (intent → trace → evidence → receipt → verifier → anchor) | ✅ real Core Testnet2 execution verified |
+| **v0.1 — On-chain anchor on Core Testnet2** | On-chain anchor: local fork proven · live registry anchor: 🔜 pending funding |
 | **v0.2 — Execution Firewall** (simulation-gated smart accounts, intent-based authorization) | 📋 designed |
 | **v0.3 — Passport / reputation + risk findings** | 📋 designed |
 | **v0.4 — ZK privacy proofs (L4)** | 🔬 research |
