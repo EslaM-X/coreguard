@@ -50,3 +50,5 @@ jobs:
       - run: node examples/multistep/run-demo.js
       - name: Offline verifier sanity (no RPC)
         run: node packages/cli/src/index.js verify --receipt examples/transfer/receipt-valid.json --intent examples/transfer/intent.json --policy examples/transfer/policy.json --trace examples/transfer/trace.json
+      - name: Offline commitment recompute matches fixture
+        run: node scripts/compute-commitment.mjs --receipt examples/transfer/receipt-valid.json | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const p=JSON.parse(d);if(p.receiptId!=='0xd4ddd02204f55662ef7db62b7a720c7e8dbff8d92a1cc621df22cf1b5dc22627'){console.error('receiptId mismatch: '+p.receiptId);process.exit(1)}console.log('offline recompute OK: '+p.commitment)})"

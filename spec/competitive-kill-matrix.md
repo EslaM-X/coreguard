@@ -53,6 +53,24 @@
 | **Fireblocks** | ✅ Policy engine | ✅ Transaction monitoring | ◐ Co-signer verification | ✅ MPC + TEE proofs | ◐ Signing callbacks | ❌ | ❌ | ❌ |
 | **Chainalysis** | ✅ Risk scoring | ✅ Real-time alerts | ❌ Forensic, not execution | ✅ Daubert-admissible | ✅ Court-validated | ❌ Surveillance model | ❌ | ❌ |
 
+### F. Adjacent Security Infrastructure (NOT direct competitors)
+
+Same market (security infrastructure on EVM/Core), different security primitive. Listed for
+positioning clarity — catalogued as *adjacent*, not as challengers to the execution-truth wedge.
+
+| Project | Risk Scoring | Real-time Monitoring | Execution Verification | Cryptographic Evidence | Independent Verification | Privacy | Core-native | Open Standard |
+|---|---|---|---|---|---|---|---|---|
+| **QRYPTA** | ❌ | ❌ | ◐ ZK proof + PQC signature verification (authentication-focused) | ✅ ZK (SP1/Binius) + ML-DSA-44 | ◐ docs-provided proof tx on Core | ✅ ZK | ✅ Core contracts + proof tx | ❌ |
+| **Attestation / proof systems** (generic) | ❌ | ❌ | ◐ attestation of computation | ◐ generic proofs | ◐ | ◐ | ❌ | ❌ |
+
+> **Adjacency check — QRYPTA vs CoreGuard.** QRYPTA asks *"is this authorization/signature valid
+> post-quantum?"* (quantum-resistant auth + ZK proof verification). CoreGuard asks *"did the actual
+> on-chain execution conform to what was declared and committed?"* (pre/post-execution conformance
+> evidence). Different primitive: authentication-liveness vs execution-truth. QRYPTA is strong
+> evidence that Core now hosts specialized security **infrastructure** projects — good for the
+> CoreGuard narrative — but it does not build post-execution conformance/evidence, so the gap
+> analysis below is unchanged.
+
 ---
 
 ## 2. The Gap Analysis
@@ -124,6 +142,15 @@ No project in production today combines all 8:
 - They do: ZK execution circuits (in development)
 - They don't: Production deployment, Core-native, security-focused
 - Our advantage: We ship first on Core, focused specifically on security evidence
+
+**QRYPTA** (adjacent, NOT a direct competitor):
+- They say: Post-quantum authentication/authorization over EVM
+- They do: ML-DSA-44 + ZK (SP1/Binius) proof verification with Core on-chain artifacts
+- They don't: Post-execution conformance evidence, expected-vs-actual trace comparison,
+  policy-driven execution truth, offline independent receipt verification
+- Our advantage: Different primitive entirely. We never fight the same wedge. Their existence
+  proves Core rewards specialized security infrastructure; our honest framing (never copy their
+  "absolute/unbreakable" marketing, and never under-claim our own scope) keeps the categories clean.
 
 **Chainalysis** (closest evidence model):
 - They say: "Blockchain analytics with court-admissible evidence"

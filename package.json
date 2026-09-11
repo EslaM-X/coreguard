@@ -18,7 +18,9 @@
     "demo:swap": "node examples/swap/run-demo.js",
     "demo:multistep": "node examples/multistep/run-demo.js",
     "live": "node examples/live/live-verify.js",
-    "anchor": "powershell -ExecutionPolicy Bypass -File scripts/anchor-local.ps1"
+    "anchor": "powershell -ExecutionPolicy Bypass -File scripts/anchor-local.ps1",
+    "anchor:plan": "node scripts/compute-commitment.mjs",
+    "anchor:verify": "powershell -ExecutionPolicy Bypass -File scripts/verify-anchor.ps1"
   },
   "engines": {
     "node": ">=18"

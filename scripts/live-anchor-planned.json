@@ -1,0 +1,8 @@
+{
+  "receiptFile": "examples/transfer/receipt-valid.json",
+  "chainId": "1114",
+  "receiptId": "0xd4ddd02204f55662ef7db62b7a720c7e8dbff8d92a1cc621df22cf1b5dc22627",
+  "evidenceRoot": "0xceea3ef9be1cca19eb837f162221abdc2b5a82b451405795102978a2f2916301",
+  "commitment": "0xcabce2bbba1581983dd524a70497746ece4aa791b0bbab14f1559ab525b000f3",
+  "result": "VALID"
+}

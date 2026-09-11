@@ -27,12 +27,23 @@ predicted address `0xC7f2Cf4845C6db0e1a1e91ED41Bcd0FcC1b0E141`.
 
 ## 2. Anchoring a receipt on Testnet2
 
+The commitment must be the **CGEP-computed** value so the three proofs close:
+
 ```bash
+# 1) Plan: recompute receiptId + commitment purely offline (deterministic).
+npm run anchor:plan                      # → scripts/live-anchor-planned.json
+
+# 2) Anchor on-chain with those exact values.
 cast send --rpc-url "$RPC_TESTNET2" --private-key "$PRIVATE_KEY" --legacy \
   <Registry> "commitIntent(bytes32,bytes32)" \
-  <receiptId from examples/transfer/receipt-valid.json> <commitment>   # commitment = keccak(evidenceRoot) in prod
+  <receiptId> <commitment>
 
-cast call --rpc-url "$RPC_TESTNET2" <Registry> "verifyCommitment(bytes32,bytes32)(bool)" <receiptId> <commitment>
+# 3) Three independent proofs (docs/COMMUNITY.md):
+#    A = deployment TX, B = verifyCommitment == true, C = offline recompute.
+powershell -ExecutionPolicy Bypass -File scripts/verify-anchor.ps1 \
+  -Registry <Registry> -DeployTx <deployTxHash> [-AnchorTx <anchorTxHash>]
+# or: bash scripts/verify-anchor.sh <Registry> <deployTxHash> [<anchorTxHash>]
+# artifact → scripts/verify-live.json · verdict → VERIFIED when 0 failures
 ```
 
 ## 3. Local on-chain proof (no funds needed)
@@ -54,6 +65,12 @@ Testnet2 validation and community review.
 ## Funding / faucet status
 
 The web faucet (`scan.test2.btcs.network/faucet`) currently rejects requests with
-an invalid-domain reCAPTCHA error (site-side). Testnet2 tCORE2 is otherwise
-available through official Core channels (Telegram/Discord). See
-[docs/FUNDING.md](docs/FUNDING.md) for the project funding ask.
+an invalid-domain reCAPTCHA error (site-side), and its API layer
+(`GET/POST /api/faucet*`) returns **401** for every body/header we tried —
+confirmed as an access-layer issue, not a funds problem (the faucet wallet holds
+~991k tCORE2 with 8,000+ on-chain claims). An earlier developer report
+(2026-07-31 → 2026-08-08) in the Core community describes persistent CAPTCHA
+failures too, so this affects other Testnet2 users, not just our environment.
+Testnet2 tCORE2 is otherwise available through official Core channels
+(Telegram/Discord). See [docs/FUNDING.md](docs/FUNDING.md) for the project
+funding ask and [docs/COMMUNITY.md](docs/COMMUNITY.md) for the outreach message.
