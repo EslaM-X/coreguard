@@ -1,0 +1,81 @@
+﻿{
+    "schema":  "coreguard/v0.1-live-anchor",
+    "network":  "core-mainnet",
+    "chainId":  1116,
+    "anchorStatus":  "VERIFIED ANCHOR INTEGRITY",
+    "verifiedAt":  "2026-09-11T08:12:36.6980769+03:00",
+    "verdict":  "A+B+C = VERIFIED ANCHOR INTEGRITY",
+    "wording":  "The registry proves that a specific commitment was anchored on Core. The execution claim is supported by the independently verifiable evidence/replay bound to that commitment.",
+    "registry":  {
+                     "address":  "0x037dF08F2d43c5D03759279Fe35664f6AFf9EA6E",
+                     "deployedTx":  "0xe186646b584b0e17b19058a0dd2b579f6abc4d2fe5ade0d228fbe140d19b64e3",
+                     "deployedBlock":  38597312,
+                     "deployedBlockHash":  "0x70a0fe73472324ddec0c23c04fedc6ba191bb325e25c6ef2f07880956cf17b3b",
+                     "bytecodeVerified":  true
+                 },
+    "keys":  {
+                 "receiptId":  "0xeaa87ec1e8d8f60457bb12969f233dd5ada6526d5ee9f51afa693eb8d8f44eb6",
+                 "commitment":  "0xc0dbfb45b6c8e13b3738822360ea737adfc045d4acb808bdaeac563c8af31052",
+                 "proofId":  "0xecd9e6b3d8780c55ca3d60e88b7ff79317b3cba187e43240a540891e4cada6b8",
+                 "evidenceRoot":  "0xceea3ef9be1cca19eb837f162221abdc2b5a82b451405795102978a2f2916301",
+                 "evidenceRootSource":  "testnet2-deterministic-reference (NOT part of mainnet anchor inputs; retained for hash-context continuity only)"
+             },
+    "evidence":  {
+                     "tx":  "0x3b04216084e1e7bc6e90ffb94fadd3b79862cca712614ea3afc52fc30b082714",
+                     "block":  38594923,
+                     "blockHash":  "0xc4b4f66dab2bdcc42491250fea6fdf44d15839203b0c8d861776f5c3a64f8a12",
+                     "status":  1,
+                     "gasUsed":  21000,
+                     "effectiveGasPrice":  60000000000,
+                     "from":  "0xEa41BecDeb612d8625bF3060809964F1DAB43244",
+                     "to":  "0xEa41BecDeb612d8625bF3060809964F1DAB43244"
+                 },
+    "commitStep":  {
+                       "tx":  "0xe224f58a38106d2e63a74ec277eda2075fad656ff30a3519aab6228d03384ee1",
+                       "block":  38597647,
+                       "blockHash":  "0x582e60ca6b224bf368aa8634adb5ff79f2af992be9b710cd4fd15661db3f9a68",
+                       "intentId":  "0xeaa87ec1e8d8f60457bb12969f233dd5ada6526d5ee9f51afa693eb8d8f44eb6",
+                       "commitment":  "0xc0dbfb45b6c8e13b3738822360ea737adfc045d4acb808bdaeac563c8af31052",
+                       "event":  "IntentCommitted",
+                       "topic0":  "0x56a2b6506b90d822d75d1b4267b743b5e05fb15361f0393f58f223d0329cf6b4",
+                       "status":  1,
+                       "gasUsed":  48542
+                   },
+    "anchorStep":  {
+                       "tx":  "0xc6229c768704a78ef21734561d40cf7c86fc7a12c8d4ad02e27023a1a225fbdc",
+                       "block":  38597679,
+                       "blockHash":  "0xe8b7dc476405b2be908fb2ebf2d35b40e8115c58c3ffa2870a271049c3aedd95",
+                       "proofId":  "0xecd9e6b3d8780c55ca3d60e88b7ff79317b3cba187e43240a540891e4cada6b8",
+                       "commitment":  "0xc0dbfb45b6c8e13b3738822360ea737adfc045d4acb808bdaeac563c8af31052",
+                       "result":  1,
+                       "event":  "ProofAnchored",
+                       "topic0":  "0x0c33ee02e1b358686f70819be25e8d45c5c15ca5d9b48c790441b349b30f3475",
+                       "status":  1,
+                       "gasUsed":  49088
+                   },
+    "verification":  {
+                         "verifyCommitmentIntent":  true,
+                         "verifyCommitmentAnchor":  true,
+                         "mappingSlotIntent":  "0xdd3bb297f02c5268ed6b0a5c3e34c1b3133b5eb6c51792705c9ee108538b9c16",
+                         "mappingSlotAnchor":  "0x3d0001f9095d4bfa91575c47af8d8bd8fad9a4acd946102665ef67139effb708",
+                         "storageIntentMatchesCommitment":  true,
+                         "storageAnchorMatchesCommitment":  true,
+                         "deterministicRecompute":  "VALID",
+                         "receiptIdRecomputeMatch":  true,
+                         "commitmentRecomputeMatch":  true,
+                         "proofIdRecomputeMatch":  true,
+                         "crossRpcVerified":  true,
+                         "bytecodeVerified":  true
+                     },
+    "cost":  {
+                 "deployGas":  211104,
+                 "commitGas":  48542,
+                 "anchorGas":  49088,
+                 "evidenceGas":  21000,
+                 "totalGas":  329734,
+                 "effectiveGasPriceGwei":  60,
+                 "totalCoreCost":  "0.019784040",
+                 "actualLimitUsed":  true
+             },
+    "observationMetadata":  "This file\u0027s timestamps, RPC sources and verification runs are observation metadata. They are NOT part of the cryptographic commitment; the commitment binds only the canonical receipt payload (chainId, blockHash, blockNumber, txHash, from, to, gasUsed, effectiveGasPrice, status)."
+}

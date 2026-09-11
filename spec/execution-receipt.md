@@ -62,7 +62,7 @@ The Execution Receipt is the central artifact of CoreGuard. It connects intent, 
 | Field | Type | Description |
 |---|---|---|
 | version | string | Protocol version |
-| receiptId | bytes32 | `H("CGEP/1:RECEIPT" \|\| intentHash \|\| txHash \|\| timestamp)` |
+| receiptId | bytes32 | `H("CGEP/1:RECEIPT" \|\| canonicalize(receiptPayload))` (see §4) |
 | chainId | uint256 | Core chain ID (1116 or 1114) |
 | txHash | bytes32 | On-chain transaction hash |
 | blockHash | bytes32 | Block containing the transaction |
@@ -85,15 +85,23 @@ The Execution Receipt is the central artifact of CoreGuard. It connects intent, 
 ```
 receiptId = H(
   "CGEP/1:RECEIPT" ||
-  chainId ||
-  intentHash ||
-  policyHash ||
-  txHash ||
-  executionTraceHash ||
-  stateDeltaHash ||
-  timestamp
+  canonicalize(receiptPayload)
 )
 ```
+
+`receiptPayload` is the full canonical receipt object **with the embedded
+`receiptId` field removed** (matching `compute-commitment.mjs`). The canonical
+encoding is defined in [`canonical-encoding.md`](canonical-encoding.md) (§4:
+`H("CGEP/1:RECEIPT" || canonicalize(receipt))`).
+
+> **Compatibility note:** earlier drafts described a simplified
+> `H("CGEP/1:RECEIPT" || intentHash || txHash || timestamp)`. The shipped
+> implementation computes the receiptId from the **canonicalized receipt
+> payload** (`H("CGEP/1:RECEIPT" || canonicalize(receipt))`). The v0.1.0
+> Mainnet anchor (`receiptId 0xeaa87ec1…44eb6` at chain 1116) was produced
+> and verified with the payload-based formula; this document now matches the
+> shipped code. This is a **documentation-only** correction — no hash
+> algorithm, contract, or verification path changed.
 
 ## 5. State Pinning
 

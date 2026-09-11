@@ -13,7 +13,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Spec](https://img.shields.io/badge/CGEP%2F1-Draft-yellow.svg)](spec/CGEP-1.md)
 
-*Off-chain engine · Solidity registry · CGEP/1 draft spec. Real Core Testnet2 execution verified · on-chain anchor local-fork proven · live registry anchor pending funding*
+*Off-chain engine · Solidity registry · CGEP/1 draft spec. Real Core Mainnet execution verified · on-chain anchor live on Core (chainId 1116) · VERIFIED ANCHOR INTEGRITY*
 
 </div>
 
@@ -60,7 +60,7 @@ RPC, zero trust in the issuer, and an on-chain anchor on Core.
          ┌─────────────────────────────┴──────────────┐
          ▼                                           ▼
   INDEPENDENT VERIFIER                    EVIDENCE ANCHOR
-  (no RPC, no trust)                      on Core Testnet2
+  (no RPC, no trust)                      on Core (commitments only)
 ```
 
 ### Verification levels
@@ -78,6 +78,9 @@ RPC, zero trust in the issuer, and an on-chain anchor on Core.
 - **VERIFIED ≠ SAFE.** CoreGuard answers *"did execution conform to authorization?"* —
   never *"is this strategy profitable / safe?"* Risk is reported as discrete findings,
   never a fuzzy score.
+- **Anchor ≠ execution proof.** The registry proves that a specific commitment was
+  anchored on Core. The execution claim is supported by the independently verifiable
+  evidence/replay bound to that commitment.
 - `v0.1` ships deterministic, evaluation-free rules: VALUE_LIMIT · TARGET_ALLOWLIST ·
   RECIPIENT_ALLOWLIST · SELECTOR_ALLOWLIST · DEADLINE · SLIPPAGE_BPS (+ ORACLE_BOUND guardrail).
 - On-chain `v0.1` is a **single contract** storing commitments only — evidence lives
@@ -103,9 +106,24 @@ Re-run it yourself (no node tracing required — plain public RPC):
 node examples/live/live-verify.js --hash 0x01d6f346786c5cba5140bd0a81263f89b46605c4f1f899cac4a83f9b062e2801
 ```
 
-The on-chain **anchor flow** (deploy → commitIntent → anchorProof → verifyCommitment)
-is proven on a local `anvil` fork of Testnet2; the same commands target live Testnet2
-as soon as the deployer wallet is funded (see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)).
+### On-chain anchor: live on Core Mainnet
+
+The anchor flow (deploy → commitIntent → anchorProof → verifyCommitment) is
+**live on Core Mainnet (chainId 1116)**:
+
+```
+Registry:       0x037dF08F2d43c5D03759279Fe35664f6AFf9EA6E
+Receipt ID:     0xeaa87ec1…44eb6   (deterministically recomputable)
+Commitment:     0xc0dbfb45…1052
+Proof ID:       0xecd9e6b3…a6b8
+Verdict:        VERIFIED ANCHOR INTEGRITY  (A+B+C)
+```
+
+Independent cross-RPC verification (rpc.coredao.org + rpc.ankr.com) confirms the
+contract bytecode, both `commitIntent`/`anchorProof` receipts, their events, and
+`verifyCommitment(receiptId|proofId, commitment) == true` on-chain.
+Full evidence bundle: [scripts/verify-live.json](scripts/verify-live.json).
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 
 ## Quick start
 
@@ -143,9 +161,9 @@ node packages/cli/src/index.js report  --receipt <...>                          
 ```bash
 forge build                                   # 0.1 evidence registry (clean)
 powershell -File scripts/anchor-local.ps1      # or: bash scripts/anchor-local.sh
-                                              # deploy + anchor on anvil fork → scripts/anchor-proof.json
-                                              # (real commitment/proofId, provenance-clean)
+                                              # local anvil fork anchor → scripts/anchor-proof.json
 npm run anchor:plan                           # → scripts/live-anchor-planned.json (offline proofId plan)
+npm run anchor:verify                         # → scripts/verify-live.json (VERIFIED ANCHOR INTEGRITY)
 ```
 
 ## Repository layout
@@ -169,7 +187,7 @@ docs/        deployment · funding · contributing · security
 | Milestone | Status |
 |---|---|
 | **v0.1 — Evidence protocol** (intent → trace → evidence → receipt → verifier → anchor) | ✅ real Core Testnet2 execution verified |
-| **v0.1 — On-chain anchor on Core Testnet2** | On-chain anchor: local fork proven · live registry anchor: 🔜 pending funding |
+| **v0.1 — On-chain anchor on Core** | ✅ live on Mainnet `0x037dF08F2d43c5D03759279Fe35664f6AFf9EA6E` (VERIFIED ANCHOR INTEGRITY) |
 | **v0.2 — Execution Firewall** (simulation-gated smart accounts, intent-based authorization) | 📋 designed |
 | **v0.3 — Passport / reputation + risk findings** | 📋 designed |
 | **v0.4 — ZK privacy proofs (L4)** | 🔬 research |

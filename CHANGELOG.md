@@ -43,6 +43,16 @@ All notable changes to CoreGuard v0.1.
   `0x01d6f346786c5cba5140bd0a81263f89b46605c4f1f899cac4a83f9b062e2801` → VERIFIED.
 - On-chain anchor flow proven on `anvil` fork of Testnet2
   (`scripts/anchor-local.ps1|.sh`).
+- **Mainnet live anchor (chainId 1116)** — registry
+  `0x037dF08F2d43c5D03759279Fe35664f6AFf9EA6E`:
+  - Deploy `0xe186646b…64e3` blk 38,597,312 · commitIntent `0xe224f58a…84ee1`
+    blk 38,597,647 · anchorProof `0xc6229c76…fbdc` blk 38,597,679 — all status 1.
+  - receiptId `0xeaa87ec1…44eb6` · commitment `0xc0dbfb45…1052` ·
+    proofId `0xecd9e6b3…a6b8` — **VERIFIED ANCHOR INTEGRITY (A+B+C)**.
+  - Cross-RPC (rpc.coredao.org + rpc.ankr.com) bytecode + `verifyCommitment`
+    (intent & anchor) confirmed true.
+  - Offline recompute (from the same canonical receipt) matches.
+  - Freeze: `scripts/verify-live.json` (full bundle).
 
 ### Anchor integrity semantics (pre-broadcast correction)
 
@@ -62,6 +72,7 @@ All notable changes to CoreGuard v0.1.
 
 ### Not yet
 
-- Testnet2 broadcast (awaiting deployer funding via faucet).
+- Testnet2 broadcast as a standalone deployment (Mainnet is the live anchor;
+  Testnet2 remains the lighter-weight CI/local playground).
 - v0.2 Execution Firewall — designed, not started (scope discipline).
 - L3/L4 privacy proofs — research phase.

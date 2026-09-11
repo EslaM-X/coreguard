@@ -7,25 +7,37 @@ CoreGuard v0.1 ships a single on-chain contract: **EvidenceRegistry**.
 - Zero constructor args. Solidity 0.8.24, Shanghai, `--legacy` transactions
   (Core is a public EVM — no type-2 txs).
 
-## 1. Live Core Testnet2 deploy (once the deployer holds tCORE2)
+## 0. Live Core Mainnet (current)
+
+Anchor is **live on Core Mainnet (chainId 1116)** — registry
+`0x037dF08F2d43c5D03759279Fe35664f6AFf9EA6E`.
+
+Absolute evidence bundle (values from chain, never from memory):
+
+| Step | Value |
+|---|---|
+| Registry | `0x037dF08F2d43c5D03759279Fe35664f6AFf9EA6E` |
+| Deploy tx | `0xe186646b584b0e17b19058a0dd2b579f6abc4d2fe5ade0d228fbe140d19b64e3` blk 38,597,312 |
+| Evidence tx | `0x3b04216084e1e7bc6e90ffb94fadd3b79862cca712614ea3afc52fc30b082714` blk 38,594,923 |
+| commitIntent tx | `0xe224f58a38106d2e63a74ec277eda2075fad656ff30a3519aab6228d03384ee1` blk 38,597,647 |
+| anchorProof tx | `0xc6229c768704a78ef21734561d40cf7c86fc7a12c8d4ad02e27023a1a225fbdc` blk 38,597,679 |
+| receiptId | `0xeaa87ec1e8d8f60457bb12969f233dd5ada6526d5ee9f51afa693eb8d8f44eb6` |
+| commitment | `0xc0dbfb45b6c8e13b3738822360ea737adfc045d4acb808bdaeac563c8af31052` |
+| proofId | `0xecd9e6b3d8780c55ca3d60e88b7ff79317b3cba187e43240a540891e4cada6b8` |
+| Verdict | **VERIFIED ANCHOR INTEGRITY** |
+
+Full provenance (all txHashes, blockHashes, gas, storage slots, cross-RPC
+reads) lives in [`../scripts/verify-live.json`](../scripts/verify-live.json).
+
+## 1. Reproduce the check (read-only)
 
 ```bash
-# Deployer wallet is 0x6cB4796D54ED72105ec617c8850C91972a0d9469
-# Balance must be > 0 (faucet / official channels).
-export RPC_TESTNET2=https://rpc.test2.btcs.network
-export PRIVATE_KEY=<deployer pk from .env — never commit this>
-
-forge script script/Deploy.s.sol:DeployEvidenceRegistry \
-  --rpc-url "$RPC_TESTNET2" \
-  --private-key "$PRIVATE_KEY" \
-  --legacy \
-  --broadcast --verify
+# Verify the live registry from any Core RPC:
+npm run anchor:verify
+# artifact → scripts/verify-live.json · verdict → VERIFIED ANCHOR INTEGRITY
 ```
 
-Expected (from an earlier simulated run, not yet broadcast):
-predicted address `0xC7f2Cf4845C6db0e1a1e91ED41Bcd0FcC1b0E141`.
-
-## 2. Anchoring a receipt on Testnet2
+## 2. Anchoring a receipt (deployer of Testnet2 / new anchor)
 
 Values come from `compute-commitment` (the engine artifact), never from memory:
 
@@ -36,9 +48,9 @@ npm run anchor:plan                      # → scripts/live-anchor-planned.json
 #    from the artifact; never assume proofId == receiptId.
 
 # 2) Commit the intent BEFORE execution, then anchor the proof AFTER it.
-cast send --rpc-url "$RPC_TESTNET2" --private-key "$PRIVATE_KEY" --legacy \
+cast send --rpc-url "$RPC" --private-key "$PRIVATE_KEY" --legacy \
   <Registry> "commitIntent(bytes32,bytes32)" <receiptId> <commitment>
-cast send --rpc-url "$RPC_TESTNET2" --private-key "$PRIVATE_KEY" --legacy \
+cast send --rpc-url "$RPC" --private-key "$PRIVATE_KEY" --legacy \
   <Registry> "anchorProof(bytes32,bytes32,uint8)" <proofId> <commitment> 1
 #    result: 0=INVALID, 1=VALID, 2=INCONCLUSIVE (1 for a VERIFIED anchor)
 
@@ -61,11 +73,6 @@ bash scripts/anchor-local.sh              # unix / CI
 powershell -ExecutionPolicy Bypass -File scripts/anchor-local.ps1   # windows
 # artifact → scripts/anchor-proof.json
 ```
-
-## 4. Mainnet (future)
-
-Same flow, `--rpc-url https://rpc.coredao.org`, chainId 1116. Deploy after
-Testnet2 validation and community review.
 
 ## Funding / faucet status
 

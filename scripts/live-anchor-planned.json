@@ -1,10 +1,9 @@
 {
-  "receiptFile": "examples\\transfer\\receipt-valid.json",
-  "chainId": "1114",
-  "receiptId": "0xd4ddd02204f55662ef7db62b7a720c7e8dbff8d92a1cc621df22cf1b5dc22627",
-  "evidenceRoot": "0xceea3ef9be1cca19eb837f162221abdc2b5a82b451405795102978a2f2916301",
-  "commitment": "0xcabce2bbba1581983dd524a70497746ece4aa791b0bbab14f1559ab525b000f3",
-  "proofId": "0x172ba0a6ba483e05943f3cf1f42562c2f0d300192a80fbb697bcb602c735b2cd",
+  "receiptFile": "..\\cg-mainnet-receipt-valid.json",
+  "chainId": "1116",
+  "receiptId": "0xeaa87ec1e8d8f60457bb12969f233dd5ada6526d5ee9f51afa693eb8d8f44eb6",
+  "commitment": "0xc0dbfb45b6c8e13b3738822360ea737adfc045d4acb808bdaeac563c8af31052",
+  "proofId": "0xecd9e6b3d8780c55ca3d60e88b7ff79317b3cba187e43240a540891e4cada6b8",
   "result": "VALID",
   "resultCode": 1
 }
