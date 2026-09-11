@@ -155,8 +155,9 @@ contracts/   EvidenceRegistry.sol — commitment registry (deployable, `--legacy
 benchmarks/  generator + 61-scenario corpus: valid/invalid/mutations/tamper/performance
 test/        canonicalization · policy · tamper suites + adversarial runner
 examples/    transfer · swap · multistep · live (runnable, with READMEs + artifacts)
-scripts/     anchor-local — local fork proof · compute-commitment — offline plan ·
-             verify-anchor — three-proofs live checker
+scripts/     anchor-local.ps1/.sh — local fork anchor proof ·
+             compute-commitment — offline commitment plan ·
+             verify-anchor — three-proofs anchor checker
 docs/        deployment · funding · contributing · security
 ```
 
