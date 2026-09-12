@@ -16,6 +16,7 @@
  *   node examples/live/live-verify.js                 # latest block, first eligible tx
  *   node examples/live/live-verify.js --hash 0x...    # specific transaction
  *   node examples/live/live-verify.js --rpc <url>     # custom RPC
+ *   node examples/live/live-verify.js --out <dir>     # output dir (default ./output)
  */
 
 import { writeFile, mkdir } from "fs/promises";
@@ -32,19 +33,19 @@ import { verifyReceipt } from "../../packages/verifier/index.js";
 import { extractRecipient } from "../../packages/cli/src/index.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const OUT_DIR = resolve(here, "output");
-
-const toDecimal = (hex) => String(BigInt(hex));
-const keccakLike = (s) => "0x" + createHash("sha256").update(s).digest("hex");
 
 function parseArgs(argv) {
   const args = { rpc: "https://rpc.test2.btcs.network", hash: null };
   for (let i = 2; i < argv.length; i++) {
     if (argv[i] === "--hash") args.hash = argv[i + 1];
     if (argv[i] === "--rpc") args.rpc = argv[i + 1];
+    if (argv[i] === "--out") args.out = argv[i + 1];
   }
   return args;
 }
+
+const toDecimal = (hex) => String(BigInt(hex));
+const keccakLike = (s) => "0x" + createHash("sha256").update(s).digest("hex");
 
 function inferIntent(tx, chainId) {
   const isTransfer = tx.value && tx.value !== "0x0" && tx.value !== "0";
@@ -122,6 +123,7 @@ async function captureState(adapter, blockNumber, addresses) {
 
 async function main() {
   const args = parseArgs(process.argv);
+  const OUT_DIR = resolve(here, args.out || "output");
   const adapter = new CoreTestnet2Adapter(args.rpc);
 
   console.log("");

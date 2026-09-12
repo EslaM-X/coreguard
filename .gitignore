@@ -7,3 +7,4 @@ broadcast/
 *.log
 .DS_Store
 scripts/verify-live.regenerated.json
+scripts/testnet2/artifacts/

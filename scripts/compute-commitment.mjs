@@ -7,12 +7,12 @@
  * (Proofs B + C in docs/COMMUNITY.md). proofId is domain-separated and never
  * assumed equal to receiptId.
  *
- * Usage:  node scripts/compute-commitment.mjs --receipt examples/transfer/receipt-valid.json
+ * Usage:  node scripts/compute-commitment.mjs --receipt examples/transfer/receipt-valid.json [--out <file>]
  */
 
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { domainHash, computeReceiptId } from "../packages/canonical/index.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -23,6 +23,12 @@ function arg(name, fallback) {
 }
 
 const receiptPath = arg("--receipt", join("examples", "transfer", "receipt-valid.json"));
+// --out writes the planned artifact to the given path (default keeps the
+// historical scripts/live-anchor-planned.json location).
+const outArg = arg("--out", "");
+const outFile = outArg
+  ? resolve(root, outArg)
+  : join(root, "scripts", "live-anchor-planned.json");
 const payload = JSON.parse(await readFile(join(root, receiptPath), "utf8"));
 
 if (!payload.receipt) throw new Error("expected { receipt: ... } payload");
@@ -56,7 +62,6 @@ const planned = {
   resultCode: { VALID: 1, INVALID: 0, UNVERIFIABLE: 2, INCOMPLETE: 2 }[result] ?? 1,
 };
 
-const outFile = join(root, "scripts", "live-anchor-planned.json");
 const { writeFile } = await import("node:fs/promises");
 await writeFile(outFile, JSON.stringify(planned, null, 2) + "\n", "utf8");
 
