@@ -7,9 +7,9 @@ layer Core's BTCFI ecosystem builds on.
 
 ## Ask (milestone-gated, Core-native)
 
-1. **Bridge grant / seed** — take v0.1 (built, tested, execution-verified
-   against a real Testnet2 transaction; on-chain anchor local-fork proven, live
-   pending funding) to production: achieve a genuine pre-declared commitment
+1. **Bridge grant / seed** — take v0.1 (built, tested; on-chain anchor **live on
+   Core Mainnet**; Testnet2 staged-hardening campaign `PREPARED / FUNDING-BLOCKED`
+   pending tCORE2) to production: achieve a genuine pre-declared commitment
    flow for real users.
 2. **Core Guard integration** — the core team's public infrastructure layer.
 3. **Post-MS1: Execution Firewall (v0.2)** — simulation-gated smart accounts
@@ -30,10 +30,10 @@ CoreGuard is Core-native by design:
 ## Why us
 
 - **We already built it.** Not a pitch deck — a deterministic, tested, 
-adversarially benchmarked engine. 30/30 tests, 61/61 adversarial benchmarks,
-   execution verified against a real Testnet2 transaction, along with a proven
-   on-chain anchor flow (local `anvil` fork of Testnet2; live Testnet2 anchor
-   pending funding).
+adversarially benchmarked engine. **49/49 tests, 61/61 adversarial benchmarks,
+   anchor integrity VERIFIED live on Core Mainnet**, and a staged Testnet2
+   hardening campaign (controlled validation) ready to run — `PREPARED /
+   FUNDING-BLOCKED`, waiting on tCORE2 funding.
 - **Auditor-honest.** VERIFIED ≠ SAFE is in our README baseline. We will not
   sell you "prevents all exploits". That credibility is worth more than hype.
 - **Scope-disciplined.** v0.1 = evidence + anchor. No dashboard theater, no

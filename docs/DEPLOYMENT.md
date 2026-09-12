@@ -29,6 +29,24 @@ Absolute evidence bundle (values from chain, never from memory):
 Full provenance (all txHashes, blockHashes, gas, storage slots, cross-RPC
 reads) lives in [`../scripts/verify-live.json`](../scripts/verify-live.json).
 
+### Gas baseline (historical observed, Mainnet single-anchor)
+
+Recorded from the live Mainnet anchor above. This is a **historical observed
+baseline — NOT a promise of future costs** (Core is a public EVM; gas prices
+and contract sizes can change).
+
+| Step | Gas used |
+|---|---|
+| Evidence tx (tiny value transfer) | 21,000 |
+| Registry deploy | 211,104 |
+| commitIntent | 48,542 |
+| anchorProof | 49,088 |
+| **Total** | **329,734** |
+
+Observed effective gas price: **60 gwei** → total cost **0.019784040 CORE**
+(the exact figures above come from the frozen `scripts/verify-live.json`,
+`cost` section; `actualLimitUsed: true`).
+
 ## 1. Reproduce the check (read-only)
 
 ```bash
