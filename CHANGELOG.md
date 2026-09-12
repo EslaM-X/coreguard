@@ -21,6 +21,20 @@ All notable changes to CoreGuard v0.1.
   required · requiredMissing · failing · states`.
 - New suite: `test/anchor/verdict.test.js` (mutation/adversarial semantics).
 
+### Closed: offline receipt verifier required-evidence profile
+
+- `packages/verifier/index.js`: the former `skippedChecks <= 2` leniency is
+  **removed**. A receipt can never be `VERIFIED` when required evidence for its
+  claimed `verificationLevel` (L0/L1/L2) is missing → `UNVERIFIED`.
+- Added `REQUIRED_BY_LEVEL` / `evaluateCheckVerdict()` (same closed semantics as
+  the anchor module): any FAIL → `INVALID`; missing required → `UNVERIFIED`;
+  unknown level → `UNVERIFIED`; all required PASS and no FAIL → `VERIFIED`.
+  `EVIDENCE_COMMITMENT` is optional (advisory) advice at every level.
+- Verifier result now exposes `verdict · verdictCode · verificationLevel ·
+  required · requiredMissing · failing` alongside the legacy `result`.
+- New suite: `test/anchor/verifier-evidence.test.js` (missing-evidence never
+  VERIFIED; FAIL dominates; L1-without-trace; unknown level).
+
 ## [0.1.0] — 2026-09-10
 
 ### Added — v0.1 Evidence Protocol (MVP scope)

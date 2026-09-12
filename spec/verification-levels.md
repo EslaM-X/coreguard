@@ -21,7 +21,7 @@ Defines the verification levels a CoreGuard Execution Receipt can claim. Levels 
 
 ## 3. MVP Scope (v0.1)
 
-- **Result:** `L2` when trace + archive state allow deterministic replay; else `L1` when only receipt evidence is committed; else `L0` for commitment-only.
+- **Result:** `L2` when trace + archive state allow deterministic replay; `L1` when receipt hashes (intent + policy) bind to provided documents; `L0` for commitment-only (no documents required).
 - **Claimable levels in v0.1:** `L0`, `L1`, `L2`. `L3`/`L4` are not claimable (no runtime pathway).
 - **Result enum (P0):** `VERIFIED` / `INVALID` / `INCONCLUSIVE` / `UNVERIFIED`.
 
@@ -52,15 +52,34 @@ Rules:
 
 ## 4. Verification Axes
 
-| Check | Level | Meaning |
+The axes below describe what each check *means*; the requirement profile (when a
+check is **required** vs **optional**) is defined separately in the verifier:
+`packages/verifier/index.js` → `REQUIRED_BY_LEVEL` (offline receipt verifier),
+mirroring the anchor profile in section 3. The former `skippedChecks <= 2`
+leniency is **removed** — a receipt can never be `VERIFIED` when required
+evidence for its claimed level is missing.
+
+| Check | Required at | Meaning |
 |---|---|---|
 | RECEIPT_COMMITMENT | L0+ | recomputed ID equals stored ID |
-| INTENT_HASH | L0+ | committed intent hash matches provided intent |
-| POLICY_HASH | L0+ | committed policy hash matches provided policy |
-| TRACE_HASH | L1+ | normalized trace commits to its digest |
-| EVIDENCE_COMMITMENT | L1+ | evidence bundle rehashes to stored root |
+| INTENT_HASH | L1+ | committed intent hash matches provided intent |
+| POLICY_HASH | L1+ | committed policy hash matches provided policy |
+| TRACE_HASH | L2 | normalized trace commits to its digest |
+| EVIDENCE_COMMITMENT | (optional) | evidence bundle rehashes to stored root when supplied |
 | INTENT_EXECUTION_BINDING | L2 | trace fields conform to intent fields |
-| STATE_PINNING | L2 | simulation vs execution block are explicitly distinct |
+| STATE_PINNING | L0+ | simulation vs execution block are explicitly distinct |
+
+Offline verifier `REQUIRED_BY_LEVEL` (single source of truth in code):
+
+| Level | Required evidence (all must PASS) |
+|---|---|
+| L0 | RECEIPT_COMMITMENT · STATE_PINNING |
+| L1 | L0 + INTENT_HASH · POLICY_HASH |
+| L2 | L1 + TRACE_HASH · INTENT_EXECUTION_BINDING |
+
+Missing any required item → `UNVERIFIED`; any FAIL (required or optional) →
+`INVALID`; all required PASS and no FAIL → `VERIFIED`; unknown level →
+`UNVERIFIED`.
 
 ## 5. Interpretation Contract
 
