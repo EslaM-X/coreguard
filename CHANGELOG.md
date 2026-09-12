@@ -4,6 +4,29 @@ All notable changes to CoreGuard v0.1.
 
 ## [Unreleased] — P1 protocol-correctness engineering
 
+### Closed: intent signer authentication (zero-dependency)
+
+- New `packages/crypto/index.js` — intent authentication using **Node built-in
+  WebCrypto ECDSA (P-256 / SHA-256)**. No external crypto library, no native
+  bindings, no network. Fully deterministic and independently re-verifiable.
+- CGEP-native prover identity: `signerAddress = "0x" + sha256(uncompressed
+  public key).slice(0, 40 hex)` — chain-agnostic by design. Ethereum-style
+  secp256k1/`ecrecover` is documented as an intentionally unsupported future
+  adapter seam (Node exposes no secp256k1; a dependency would contradict the
+  zero-dependency, independently-auditable verification model). Honest
+  signatures fail-closed on material, never silently skip.
+- `signIntent` binds the ENTIRE canonical intent — including `signer` and
+  `signerPubKey` — under domain `CGEP/1:INTENT_AUTH`; identity substitution or
+  any single-field tamper invalidates the signature.
+- `verifyIntentSignature` is fully structural: scheme pinning (only
+  `ECDSA_P256_SHA256`), 32-byte r/s, low-S mal­leability guard (scalar in
+  [1, n-1]), identity derivation check, SPKI import + raw IEEE-P1363 verify.
+- Verifier adds optional `SIGNER_AUTHENTICATION` check: whenever an intent
+  carries a signature it is re-verified; FAIL → INVALID (contradiction
+  dominates) — a forged or self-inconsistent signature is never ignored.
+  Unsigned intents remain fully verifiable at L0/L1 (check omitted).
+- New suite: `test/p1/crypto.test.js`, `test/p1/signer-auth-verifier.test.js`.
+
 ### Closed: canonical integer safety + multi-account state delta
 
 - New `packages/canonical/uint.js` — single canonical CGEP/1 decimal-string

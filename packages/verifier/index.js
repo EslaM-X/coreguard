@@ -16,6 +16,7 @@ import {
 } from "../canonical/index.js";
 import { evaluatePolicy } from "../policy/index.js";
 import { computeCanonicalStateDelta } from "../trace/index.js";
+import { verifyIntentSignature } from "../crypto/index.js";
 
 /**
  * Verification check result
@@ -246,6 +247,23 @@ export async function verifyReceipt(receipt, evidenceBundle, intent, policy, tra
         : `Policy violated: ${failing
             .map((r) => `${r.ruleId}(${r.expected})`)
             .join(", ")}`,
+    });
+  }
+
+  // 5d. Signer authentication (P1) — when the intent carries full
+  //     authentication material (signature + signerPubKey), the signature MUST
+  //     be valid, in-range, bound to the intent digest and derived from the
+  //     committed signer. Empty/partial material -> fail-closed FAIL (the
+  //     presence of a signature is never silently ignored). Absent material ->
+  //     check omitted (intents are verifiable unsigned at L0/L1).
+  if (intent?.signature) {
+    const auth = await verifyIntentSignature(intent);
+    checks.push({
+      check: "SIGNER_AUTHENTICATION",
+      result: auth.valid ? CheckResult.PASS : CheckResult.FAIL,
+      detail: auth.valid
+        ? `Intent signature valid (${auth.recovered})`
+        : `Intent signature invalid: ${auth.reason}`,
     });
   }
 
