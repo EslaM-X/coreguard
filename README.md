@@ -175,7 +175,7 @@ spec/        CGEP/1 (draft) · master spec · canonical encoding · receipt · l
 packages/    canonical · intent · policy · trace · evidence · verifier · cli   (ESM, zero deps)
 contracts/   EvidenceRegistry.sol — commitment registry (deployable, `--legacy`)
 benchmarks/  generator + 73-scenario corpus: valid/invalid/mutations/tamper/performance
-test/        canonicalization · policy · tamper suites + adversarial runner
+test/        canonicalization · policy · tamper suites + adversarial runner + P1 suites
 examples/    transfer · swap · multistep · live (runnable, with READMEs + artifacts)
 scripts/     anchor-local.ps1/.sh — local fork anchor proof ·
              compute-commitment — offline commitment plan ·

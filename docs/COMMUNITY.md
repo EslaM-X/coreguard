@@ -29,7 +29,7 @@ issue on the faucet**, not to our environment alone. (Confirmed by probing:
 > I'm building **CoreGuard**, an open-source, Core-native execution-verification
 > layer. The v0.1 implementation is public and CI-green:
 >
-> • 30/30 engine tests
+> • 112/112 engine tests
 > • 73/73 adversarial benchmarks
 > • a real Core Testnet2 transaction analyzed end-to-end
 > • deterministic trace normalization
