@@ -1,11 +1,11 @@
 {
-  "scenario": "cg-073",
-  "benchmarkId": "perf-hash-throughput-001",
-  "category": "Performance",
-  "kind": "performance",
-  "description": "Policy evaluation + hashing throughput budget",
-  "rounds": 1000,
-  "maxMs": 5000,
+  "scenario": "cg-056",
+  "benchmarkId": "denylist-target-denied-001",
+  "category": "Denylist",
+  "kind": "policy",
+  "description": "TARGET_DENYLIST: committed execution targets a denied contract",
+  "chain": "core-testnet2",
+  "chainId": 1114,
   "intent": {
     "version": "CGEP/1",
     "chainId": "1114",
@@ -46,35 +46,26 @@
         "severity": "CRITICAL"
       },
       {
-        "ruleId": "RECIPIENT_001",
-        "type": "RECIPIENT_ALLOWLIST",
-        "params": {
-          "addresses": [
-            "0x0000000000000000000000000000000000000003"
-          ]
-        },
-        "severity": "CRITICAL"
-      },
-      {
-        "ruleId": "TARGET_001",
-        "type": "TARGET_ALLOWLIST",
+        "ruleId": "TD1",
+        "type": "TARGET_DENYLIST",
         "params": {
           "targets": [
-            "0x0000000000000000000000000000000000000002"
-          ]
-        },
-        "severity": "CRITICAL"
-      },
-      {
-        "ruleId": "SELECTOR_001",
-        "type": "SELECTOR_ALLOWLIST",
-        "params": {
-          "selectors": [
-            "0xa9059cbb"
+            "0x00000000000000000000000000000000000000dd"
           ]
         },
         "severity": "CRITICAL"
       }
     ]
+  },
+  "trace": {
+    "target": "0x00000000000000000000000000000000000000dd"
+  },
+  "expected": {
+    "result": "INVALID",
+    "violation": {
+      "rule": "TD1",
+      "field": "target"
+    },
+    "checks": {}
   }
 }

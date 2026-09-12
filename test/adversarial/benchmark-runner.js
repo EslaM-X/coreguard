@@ -47,6 +47,7 @@ function contextFrom(scenario, overrides = {}) {
       scenario.trace?.blockTimestamp || overrides.blockTimestamp || "1000",
     slippageBps: scenario.trace?.slippageBps || overrides.slippageBps || "0",
     priceBps: scenario.trace?.priceBps || overrides.priceBps || "10000",
+    gasUsed: scenario.trace?.gasUsed || overrides.gasUsed || "0",
   };
 }
 

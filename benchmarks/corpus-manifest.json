@@ -1,7 +1,7 @@
 {
   "version": "1.0.0-draft",
   "generatedBy": "benchmarks/generate-corpus.js",
-  "total": 61,
+  "total": 73,
   "categoryCounts": {
     "Intent Integrity": 10,
     "Target Integrity": 5,
@@ -13,6 +13,10 @@
     "Oracle Bound": 5,
     "Multi-step": 5,
     "Adversarial Mutation": 5,
+    "Denylist": 6,
+    "Gas Bound": 2,
+    "Integer Hygiene": 2,
+    "Signer Auth": 2,
     "Tamper": 5,
     "Performance": 1
   }

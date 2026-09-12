@@ -1,11 +1,11 @@
 {
-  "scenario": "cg-073",
-  "benchmarkId": "perf-hash-throughput-001",
-  "category": "Performance",
-  "kind": "performance",
-  "description": "Policy evaluation + hashing throughput budget",
-  "rounds": 1000,
-  "maxMs": 5000,
+  "scenario": "cg-062",
+  "benchmarkId": "max-gas-over-ceiling-001",
+  "category": "Gas Bound",
+  "kind": "policy",
+  "description": "MAX_GAS: committed execution burns gas above the ceiling",
+  "chain": "core-testnet2",
+  "chainId": 1114,
   "intent": {
     "version": "CGEP/1",
     "chainId": "1114",
@@ -46,35 +46,24 @@
         "severity": "CRITICAL"
       },
       {
-        "ruleId": "RECIPIENT_001",
-        "type": "RECIPIENT_ALLOWLIST",
+        "ruleId": "G1",
+        "type": "MAX_GAS",
         "params": {
-          "addresses": [
-            "0x0000000000000000000000000000000000000003"
-          ]
+          "maxGas": "300000"
         },
-        "severity": "CRITICAL"
-      },
-      {
-        "ruleId": "TARGET_001",
-        "type": "TARGET_ALLOWLIST",
-        "params": {
-          "targets": [
-            "0x0000000000000000000000000000000000000002"
-          ]
-        },
-        "severity": "CRITICAL"
-      },
-      {
-        "ruleId": "SELECTOR_001",
-        "type": "SELECTOR_ALLOWLIST",
-        "params": {
-          "selectors": [
-            "0xa9059cbb"
-          ]
-        },
-        "severity": "CRITICAL"
+        "severity": "HIGH"
       }
     ]
+  },
+  "trace": {
+    "gasUsed": "310000"
+  },
+  "expected": {
+    "result": "INVALID",
+    "violation": {
+      "rule": "G1",
+      "field": "gasUsed"
+    },
+    "checks": {}
   }
 }

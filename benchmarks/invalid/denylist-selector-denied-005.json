@@ -1,11 +1,11 @@
 {
-  "scenario": "cg-073",
-  "benchmarkId": "perf-hash-throughput-001",
-  "category": "Performance",
-  "kind": "performance",
-  "description": "Policy evaluation + hashing throughput budget",
-  "rounds": 1000,
-  "maxMs": 5000,
+  "scenario": "cg-060",
+  "benchmarkId": "denylist-selector-denied-005",
+  "category": "Denylist",
+  "kind": "policy",
+  "description": "SELECTOR_DENYLIST: denied function is invoked",
+  "chain": "core-testnet2",
+  "chainId": 1114,
   "intent": {
     "version": "CGEP/1",
     "chainId": "1114",
@@ -38,43 +38,26 @@
     "name": "Transfer Policy",
     "rules": [
       {
-        "ruleId": "VALUE_001",
-        "type": "VALUE_LIMIT",
-        "params": {
-          "max": "100000000"
-        },
-        "severity": "CRITICAL"
-      },
-      {
-        "ruleId": "RECIPIENT_001",
-        "type": "RECIPIENT_ALLOWLIST",
-        "params": {
-          "addresses": [
-            "0x0000000000000000000000000000000000000003"
-          ]
-        },
-        "severity": "CRITICAL"
-      },
-      {
-        "ruleId": "TARGET_001",
-        "type": "TARGET_ALLOWLIST",
-        "params": {
-          "targets": [
-            "0x0000000000000000000000000000000000000002"
-          ]
-        },
-        "severity": "CRITICAL"
-      },
-      {
-        "ruleId": "SELECTOR_001",
-        "type": "SELECTOR_ALLOWLIST",
+        "ruleId": "SD1",
+        "type": "SELECTOR_DENYLIST",
         "params": {
           "selectors": [
-            "0xa9059cbb"
+            "0x23b872dd"
           ]
         },
         "severity": "CRITICAL"
       }
     ]
+  },
+  "trace": {
+    "selector": "0x23b872dd"
+  },
+  "expected": {
+    "result": "INVALID",
+    "violation": {
+      "rule": "SD1",
+      "field": "selector"
+    },
+    "checks": {}
   }
 }

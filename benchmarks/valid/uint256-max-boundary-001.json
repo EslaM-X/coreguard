@@ -1,0 +1,57 @@
+{
+  "scenario": "cg-064",
+  "benchmarkId": "uint256-max-boundary-001",
+  "category": "Integer Hygiene",
+  "kind": "policy",
+  "description": "Value exactly at uint256 max is representable and conformant",
+  "chain": "core-testnet2",
+  "chainId": 1114,
+  "intent": {
+    "version": "CGEP/1",
+    "chainId": "1114",
+    "signer": "0x0000000000000000000000000000000000000001",
+    "nonce": "0",
+    "validAfter": "0",
+    "validUntil": "9999999999",
+    "action": "TRANSFER",
+    "target": "0x0000000000000000000000000000000000000002",
+    "selector": "0xa9059cbb",
+    "asset": "0x0000000000000000000000000000000000000002",
+    "amount": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+    "recipient": "0x0000000000000000000000000000000000000003",
+    "constraints": [
+      {
+        "type": "MAX_VALUE",
+        "value": "100000000"
+      },
+      {
+        "type": "RECIPIENT_ALLOWLIST",
+        "addresses": [
+          "0x0000000000000000000000000000000000000003"
+        ]
+      }
+    ]
+  },
+  "policy": {
+    "version": "CGEP/1",
+    "policyId": "0x00000000000000000000000000000000000000aa",
+    "name": "Transfer Policy",
+    "rules": [
+      {
+        "ruleId": "V1",
+        "type": "VALUE_LIMIT",
+        "params": {
+          "max": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+        },
+        "severity": "CRITICAL"
+      }
+    ]
+  },
+  "trace": {
+    "value": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+  },
+  "expected": {
+    "result": "VALID",
+    "checks": {}
+  }
+}

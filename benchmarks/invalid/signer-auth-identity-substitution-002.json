@@ -1,11 +1,11 @@
 {
-  "scenario": "cg-073",
-  "benchmarkId": "perf-hash-throughput-001",
-  "category": "Performance",
-  "kind": "performance",
-  "description": "Policy evaluation + hashing throughput budget",
-  "rounds": 1000,
-  "maxMs": 5000,
+  "scenario": "cg-067",
+  "benchmarkId": "signer-auth-identity-substitution-002",
+  "category": "Signer Auth",
+  "kind": "narrative",
+  "description": "Re-pointing intent.signer to an unrelated address without re-signing is INVALID",
+  "chain": "core-testnet2",
+  "chainId": 1114,
   "intent": {
     "version": "CGEP/1",
     "chainId": "1114",
@@ -76,5 +76,13 @@
         "severity": "CRITICAL"
       }
     ]
-  }
+  },
+  "expected": {
+    "result": "INVALID",
+    "checks": [
+      "signerAddress must derive from signerPubKey",
+      "identity substitution → FAIL → INVALID"
+    ]
+  },
+  "verificationLevel": "L2"
 }

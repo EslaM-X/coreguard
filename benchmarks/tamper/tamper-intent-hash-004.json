@@ -1,5 +1,5 @@
 {
-  "scenario": "cg-059",
+  "scenario": "cg-071",
   "benchmarkId": "tamper-intent-hash-004",
   "category": "Tamper",
   "kind": "tamper",

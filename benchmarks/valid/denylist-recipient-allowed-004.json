@@ -1,11 +1,11 @@
 {
-  "scenario": "cg-073",
-  "benchmarkId": "perf-hash-throughput-001",
-  "category": "Performance",
-  "kind": "performance",
-  "description": "Policy evaluation + hashing throughput budget",
-  "rounds": 1000,
-  "maxMs": 5000,
+  "scenario": "cg-059",
+  "benchmarkId": "denylist-recipient-allowed-004",
+  "category": "Denylist",
+  "kind": "policy",
+  "description": "RECIPIENT_DENYLIST: any non-denied recipient is conformant",
+  "chain": "core-testnet2",
+  "chainId": 1114,
   "intent": {
     "version": "CGEP/1",
     "chainId": "1114",
@@ -38,43 +38,20 @@
     "name": "Transfer Policy",
     "rules": [
       {
-        "ruleId": "VALUE_001",
-        "type": "VALUE_LIMIT",
-        "params": {
-          "max": "100000000"
-        },
-        "severity": "CRITICAL"
-      },
-      {
-        "ruleId": "RECIPIENT_001",
-        "type": "RECIPIENT_ALLOWLIST",
+        "ruleId": "RD1",
+        "type": "RECIPIENT_DENYLIST",
         "params": {
           "addresses": [
-            "0x0000000000000000000000000000000000000003"
-          ]
-        },
-        "severity": "CRITICAL"
-      },
-      {
-        "ruleId": "TARGET_001",
-        "type": "TARGET_ALLOWLIST",
-        "params": {
-          "targets": [
-            "0x0000000000000000000000000000000000000002"
-          ]
-        },
-        "severity": "CRITICAL"
-      },
-      {
-        "ruleId": "SELECTOR_001",
-        "type": "SELECTOR_ALLOWLIST",
-        "params": {
-          "selectors": [
-            "0xa9059cbb"
+            "0x0000000000000000000000000000000000000099"
           ]
         },
         "severity": "CRITICAL"
       }
     ]
+  },
+  "trace": {},
+  "expected": {
+    "result": "VALID",
+    "checks": {}
   }
 }

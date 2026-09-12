@@ -1,11 +1,11 @@
 {
-  "scenario": "cg-073",
-  "benchmarkId": "perf-hash-throughput-001",
-  "category": "Performance",
-  "kind": "performance",
-  "description": "Policy evaluation + hashing throughput budget",
-  "rounds": 1000,
-  "maxMs": 5000,
+  "scenario": "cg-065",
+  "benchmarkId": "uint256-overflow-canonical-002",
+  "category": "Integer Hygiene",
+  "kind": "narrative",
+  "description": "uint256 overflow (max + 1) is unrepresentable — a coerced evidence value is INVALID",
+  "chain": "core-testnet2",
+  "chainId": 1114,
   "intent": {
     "version": "CGEP/1",
     "chainId": "1114",
@@ -76,5 +76,13 @@
         "severity": "CRITICAL"
       }
     ]
-  }
+  },
+  "expected": {
+    "result": "INVALID",
+    "checks": [
+      "canonical uint256 bound enforced (fail-closed)",
+      "value > UINT256_MAX → canonicalize throws → commitment cannot form → INVALID"
+    ]
+  },
+  "verificationLevel": "L2"
 }

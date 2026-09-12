@@ -15,6 +15,10 @@
  *   Multi-step          5
  *   Adversarial Mutation 5
  *   Oracle Bound        5
+ *   Denylist            6  (P1: TARGET/RECIPIENT/SELECTOR deny pairs)
+ *   Gas Bound           2  (P1: MAX_GAS rule)
+ *   Integer Hygiene     2  (P1: uint256 boundary + overflow narrative)
+ *   Signer Auth         2  (P1: signature tamper narratives)
  *   (performance budget fixture) 1
  */
 
@@ -112,6 +116,10 @@ const CAT = {
   ORACLE: "Oracle Bound",
   MULTI: "Multi-step",
   MUTATION: "Adversarial Mutation",
+  DENY: "Denylist",
+  GAS: "Gas Bound",
+  UINT: "Integer Hygiene",
+  SIGNER: "Signer Auth",
 };
 
 let seq = 0;
@@ -664,6 +672,166 @@ corpus.push(
     mutateTo: { blockTimestamp: "6000" },
     expected: { before: "VALID", after: "INVALID" },
   },
+);
+
+// ── Denylist (6) — P1: deny rules actually evaluate (allow-list is NOT the only route ────────────────────
+const deniedToken = "0x00000000000000000000000000000000000000dd";
+corpus.push(
+  policy({
+    name: "denylist-target-denied-001",
+    category: CAT.DENY,
+    description: "TARGET_DENYLIST: committed execution targets a denied contract",
+    policy: basePolicy({
+      rules: [
+        { ruleId: "VALUE_001", type: "VALUE_LIMIT", params: { max: MAX }, severity: "CRITICAL" },
+        { ruleId: "TD1", type: "TARGET_DENYLIST", params: { targets: [deniedToken] }, severity: "CRITICAL" },
+      ],
+    }),
+    trace: { target: deniedToken },
+    expectedResult: "INVALID",
+    violation: { rule: "TD1", field: "target" },
+  }),
+  policy({
+    name: "denylist-target-allowed-002",
+    category: CAT.DENY,
+    description: "TARGET_DENYLIST: a target outside the deny set is conformant",
+    policy: basePolicy({
+      rules: [
+        { ruleId: "VALUE_001", type: "VALUE_LIMIT", params: { max: MAX }, severity: "CRITICAL" },
+        { ruleId: "TD1", type: "TARGET_DENYLIST", params: { targets: [deniedToken] }, severity: "CRITICAL" },
+      ],
+    }),
+    expectedResult: "VALID",
+  }),
+  policy({
+    name: "denylist-recipient-denied-003",
+    category: CAT.DENY,
+    description: "RECIPIENT_DENYLIST: execution routes value to a denied address",
+    policy: basePolicy({
+      rules: [
+        { ruleId: "RD1", type: "RECIPIENT_DENYLIST", params: { addresses: [ADDR.attacker] }, severity: "CRITICAL" },
+      ],
+    }),
+    trace: { recipient: ADDR.attacker },
+    expectedResult: "INVALID",
+    violation: { rule: "RD1", field: "recipient" },
+  }),
+  policy({
+    name: "denylist-recipient-allowed-004",
+    category: CAT.DENY,
+    description: "RECIPIENT_DENYLIST: any non-denied recipient is conformant",
+    policy: basePolicy({
+      rules: [
+        { ruleId: "RD1", type: "RECIPIENT_DENYLIST", params: { addresses: [ADDR.attacker] }, severity: "CRITICAL" },
+      ],
+    }),
+    expectedResult: "VALID",
+  }),
+  policy({
+    name: "denylist-selector-denied-005",
+    category: CAT.DENY,
+    description: "SELECTOR_DENYLIST: denied function is invoked",
+    policy: basePolicy({
+      rules: [
+        { ruleId: "SD1", type: "SELECTOR_DENYLIST", params: { selectors: [SEL.transferFrom] }, severity: "CRITICAL" },
+      ],
+    }),
+    trace: { selector: SEL.transferFrom },
+    expectedResult: "INVALID",
+    violation: { rule: "SD1", field: "selector" },
+  }),
+  policy({
+    name: "denylist-selector-allowed-006",
+    category: CAT.DENY,
+    description: "SELECTOR_DENYLIST: any non-denied selector is conformant",
+    policy: basePolicy({
+      rules: [
+        { ruleId: "SD1", type: "SELECTOR_DENYLIST", params: { selectors: [SEL.transferFrom] }, severity: "CRITICAL" },
+      ],
+    }),
+    expectedResult: "VALID",
+  }),
+);
+
+// ── Gas Bound (2) — P1: MAX_GAS rule re-evaluated from trace gasUsed ─────
+const MAX_GAS = "300000";
+corpus.push(
+  policy({
+    name: "max-gas-over-ceiling-001",
+    category: CAT.GAS,
+    description: "MAX_GAS: committed execution burns gas above the ceiling",
+    policy: basePolicy({
+      rules: [
+        { ruleId: "VALUE_001", type: "VALUE_LIMIT", params: { max: MAX }, severity: "CRITICAL" },
+        { ruleId: "G1", type: "MAX_GAS", params: { maxGas: MAX_GAS }, severity: "HIGH" },
+      ],
+    }),
+    trace: { gasUsed: "310000" },
+    expectedResult: "INVALID",
+    violation: { rule: "G1", field: "gasUsed" },
+  }),
+  policy({
+    name: "max-gas-at-ceiling-002",
+    category: CAT.GAS,
+    description: "MAX_GAS: execution exactly at the ceiling is conformant",
+    policy: basePolicy({
+      rules: [
+        { ruleId: "G1", type: "MAX_GAS", params: { maxGas: MAX_GAS }, severity: "HIGH" },
+      ],
+    }),
+    trace: { gasUsed: MAX_GAS },
+    expectedResult: "VALID",
+  }),
+);
+
+// ── Integer Hygiene (2) — P1: uint256 safety surfaced in execution context ──
+const UINT256_MAX =
+  "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+corpus.push(
+  policy({
+    name: "uint256-max-boundary-001",
+    category: CAT.UINT,
+    description: "Value exactly at uint256 max is representable and conformant",
+    intent: baseIntent({ amount: UINT256_MAX }),
+    policy: basePolicy({
+      rules: [
+        { ruleId: "V1", type: "VALUE_LIMIT", params: { max: UINT256_MAX }, severity: "CRITICAL" },
+      ],
+    }),
+    trace: { value: UINT256_MAX },
+    expectedResult: "VALID",
+  }),
+  narrative({
+    name: "uint256-overflow-canonical-002",
+    category: CAT.UINT,
+    description: "uint256 overflow (max + 1) is unrepresentable — a coerced evidence value is INVALID",
+    pipeline: [
+      "canonical uint256 bound enforced (fail-closed)",
+      "value > UINT256_MAX → canonicalize throws → commitment cannot form → INVALID",
+    ],
+  }),
+);
+
+// ── Signer Auth (2) — P1: signed-intent tampering is contradiction ───────
+corpus.push(
+  narrative({
+    name: "signer-auth-tampered-signature-001",
+    category: CAT.SIGNER,
+    description: "A single flipped byte in the intent signature fails re-verification",
+    pipeline: [
+      "SIGNER_AUTHENTICATION re-verifies signature over whole canonical intent",
+      "any byte flip → FAIL → INVALID (contradiction dominates)",
+    ],
+  }),
+  narrative({
+    name: "signer-auth-identity-substitution-002",
+    category: CAT.SIGNER,
+    description: "Re-pointing intent.signer to an unrelated address without re-signing is INVALID",
+    pipeline: [
+      "signerAddress must derive from signerPubKey",
+      "identity substitution → FAIL → INVALID",
+    ],
+  }),
 );
 
 // ── Tamper suite (5) ─────────────────────────────────────────────────────

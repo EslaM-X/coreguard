@@ -1,5 +1,5 @@
 {
-  "scenario": "cg-060",
+  "scenario": "cg-072",
   "benchmarkId": "tamper-state-pinning-005",
   "category": "Tamper",
   "kind": "tamper",
