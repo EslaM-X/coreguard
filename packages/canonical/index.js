@@ -6,6 +6,16 @@
 
 import { createHash } from "node:crypto";
 
+export {
+  canonicalUintString,
+  isCanonicalUintString,
+  uintToBigInt,
+  UINT256_MAX,
+  UINT256_MAX_BI,
+  UINT64_MAX,
+  UINT64_MAX_BI,
+} from "./uint.js";
+
 const ENCODING_VERSION = "CGEP/1";
 
 /**
@@ -18,12 +28,21 @@ const ENCODING_VERSION = "CGEP/1";
  * - Null → null
  * - Objects → keys sorted alphabetically
  * - Arrays → elements in order, no trailing commas
+ *
+ * P1 (integer safety): JS Numbers are only accepted when they are safe
+ * integers (|n| <= 2^53-1). Anything larger is an ambiguity hazard and FAILS
+ * CLOSED — big integers MUST arrive as canonical decimal strings (uint.js).
  */
 export function canonicalize(obj) {
   if (obj === null || obj === undefined) return "null";
   if (typeof obj === "boolean") return obj ? "true" : "false";
   if (typeof obj === "number") {
     if (!Number.isInteger(obj)) throw new Error("Non-integer numbers not supported");
+    if (!Number.isSafeInteger(obj)) {
+      throw new Error(
+        `Unsafe JS Number ${obj}: pass large integers as canonical decimal strings (CGEP/1 uint)`
+      );
+    }
     return String(obj);
   }
   if (typeof obj === "string") {
@@ -85,6 +104,13 @@ export async function hashTrace(trace) {
  */
 export async function hashEvidence(evidence) {
   return domainHash("CGEP/1:EVIDENCE", evidence);
+}
+
+/**
+ * Compute canonical state-delta commitment (P1)
+ */
+export async function hashStateDelta(stateDelta) {
+  return domainHash("CGEP/1:STATEDELTA", stateDelta);
 }
 
 /**
