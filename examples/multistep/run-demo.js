@@ -104,7 +104,7 @@ async function main() {
   console.log("\n── STEP 2: Independent verification ─────────────────────");
   const verification = await verifyReceipt(validReceipt, null, intent, policy, trace);
   for (const c of verification.checks) {
-    const mark = c.result === "PASS" ? "✓" : c.result === "SKIP" ? "·" : "✗";
+    const mark = c.result === "PASS" ? "✓" : c.result === "NOT_RUN" ? "·" : "✗";
     console.log(`  ${mark} ${c.check}`);
   }
   console.log(`Result: ${verification.result}`);
@@ -126,7 +126,7 @@ async function main() {
   };
   const spoofVerification = await verifyReceipt(spoofed, null, intent, policy, swappedTrace);
   for (const c of spoofVerification.checks) {
-    const mark = c.result === "PASS" ? "✓" : c.result === "SKIP" ? "·" : "✗";
+    const mark = c.result === "PASS" ? "✓" : c.result === "NOT_RUN" ? "·" : "✗";
     console.log(`  ${mark} ${c.check}${c.result === "FAIL" ? ` — ${c.detail}` : ""}`);
   }
   console.log(`Result: ${spoofVerification.result}`);
@@ -135,7 +135,7 @@ async function main() {
   const tampered = { ...validReceipt, result: "INVALID" };
   const tamperedVerification = await verifyReceipt(tampered, null, intent, policy, trace);
   for (const c of tamperedVerification.checks) {
-    const mark = c.result === "PASS" ? "✓" : c.result === "SKIP" ? "·" : "✗";
+    const mark = c.result === "PASS" ? "✓" : c.result === "NOT_RUN" ? "·" : "✗";
     console.log(`  ${mark} ${c.check} — ${c.detail}`);
   }
   console.log(`Result: ${tamperedVerification.result}`);

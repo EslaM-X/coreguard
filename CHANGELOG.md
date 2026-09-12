@@ -4,6 +4,18 @@ All notable changes to CoreGuard v0.1.
 
 ## [Unreleased] — P1 protocol-correctness engineering
 
+### Closed: single verdict vocabulary (verifier ↔ anchor-verdict ↔ toolchain)
+
+- Offline verifier `SKIP` is renamed **`NOT_RUN`** — the exact spelling of
+  `scripts/anchor-verdict.mjs`, so all levels (offline and on-chain) speak one
+  vocabulary: `PASS / FAIL / NOT_RUN`. Verdict codes remain the shared set
+  `VERIFIED / INVALID / INCONCLUSIVE / UNVERIFIED` (single source of truth).
+- `scripts/compute-commitment.mjs` resultCode map now covers the full shared
+  vocabulary (`VERIFIED|VALID → 1`, `INVALID → 0`,
+  `INCONCLUSIVE|UNVERIFIED|UNVERIFIABLE|INCOMPLETE → 2`) — the proof artifact
+  can no longer drift into home-grown enum names.
+- Renderers (CLI, live-verify, all three demos) aligned to `NOT_RUN`.
+
 ### Closed: L2 deterministic replay consistency
 
 - New `packages/replay/index.js` — a **structural impossibility proof** for a

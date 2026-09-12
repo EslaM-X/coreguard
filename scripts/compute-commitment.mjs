@@ -51,6 +51,21 @@ const proofId = await domainHash("CGEP/1:ANCHOR", {
 
 const result = "VALID";
 
+// resultCode keys follow the shared anchor-verdict vocabulary
+// (VERIFIED / INVALID / INCONCLUSIVE / UNVERIFIED — single source of truth):
+//   VERIFIED | VALID      -> 1  (claim consistent with the recomputed proof)
+//   INVALID                -> 0  (contradiction dominates)
+//   INCONCLUSIVE | UNVERIFIED | UNVERIFIABLE | INCOMPLETE -> 2 (cannot claim)
+const _RESULT_CODES = {
+  VERIFIED: 1,
+  VALID: 1,
+  INVALID: 0,
+  INCONCLUSIVE: 2,
+  UNVERIFIED: 2,
+  UNVERIFIABLE: 2,
+  INCOMPLETE: 2,
+};
+
 const planned = {
   receiptFile: receiptPath,
   chainId: receipt.chainId,
@@ -59,7 +74,7 @@ const planned = {
   commitment,
   proofId,
   result,
-  resultCode: { VALID: 1, INVALID: 0, UNVERIFIABLE: 2, INCOMPLETE: 2 }[result] ?? 1,
+  resultCode: _RESULT_CODES[result] ?? 1,
 };
 
 const { writeFile } = await import("node:fs/promises");

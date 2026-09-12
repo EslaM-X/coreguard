@@ -253,7 +253,7 @@ async function main() {
   console.log("  ── VERIFICATION ─────────────────────────");
   const verification = await verifyReceipt({ ...execReceipt, receiptId }, null, intent, policy, normalizedTrace);
   for (const c of verification.checks) {
-    const mark = c.result === "PASS" ? "✓" : c.result === "SKIP" ? "·" : "✗";
+    const mark = c.result === "PASS" ? "✓" : c.result === "NOT_RUN" ? "·" : "✗";
     console.log(`  ${mark} ${c.check}${c.result === "FAIL" ? ` — ${c.detail}` : ""}`);
   }
   console.log(`  Verifier result: ${verification.result}`);

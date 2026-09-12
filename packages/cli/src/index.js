@@ -194,7 +194,7 @@ async function cmdVerify(args) {
   console.log(`Result:        ${verification.result}`);
   console.log(`${"─".repeat(56)}`);
   for (const check of verification.checks) {
-    const mark = check.result === "PASS" ? "✓" : check.result === "SKIP" ? "·" : "✗";
+    const mark = check.result === "PASS" ? "✓" : check.result === "NOT_RUN" ? "·" : "✗";
     console.log(`  ${mark} ${check.check} — ${check.detail}`);
   }
   console.log(`${"─".repeat(56)}`);

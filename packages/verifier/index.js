@@ -25,12 +25,12 @@ import { planTraceReplay } from "../replay/index.js";
 export const CheckResult = {
   PASS: "PASS",
   FAIL: "FAIL",
-  SKIP: "SKIP",
+  NOT_RUN: "NOT_RUN",
 };
 
 /**
  * Required-evidence profile per claimed verification level (P0, closed).
- * Any required check that is not PASS (SKIP/absent) -> UNVERIFIED, never VERIFIED.
+ * Any required check that is not PASS (NOT_RUN/absent) -> UNVERIFIED, never VERIFIED.
  */
 export const REQUIRED_BY_LEVEL = {
   L0: ["RECEIPT_COMMITMENT", "STATE_PINNING"],
@@ -66,7 +66,7 @@ export const CLAIMABLE_LEVELS_V = Object.keys(REQUIRED_BY_LEVEL);
  * Determine the receipt verdict from the executed checks and the claimed level.
  * Mirrors scripts/anchor-verdict.mjs semantics (single source of truth):
  *   - Any FAIL (required or optional) -> INVALID (contradiction dominates).
- *   - Missing ANY required evidence (SKIP/absent) -> UNVERIFIED.
+ *   - Missing ANY required evidence (NOT_RUN/absent) -> UNVERIFIED.
  *   - Unknown / unclaimable level    -> UNVERIFIED (never silently VERIFIED).
  *   - VERIFIED only when every required check PASSes and nothing FAILs.
  */
@@ -163,7 +163,7 @@ export async function verifyReceipt(receipt, evidenceBundle, intent, policy, tra
   } else {
     checks.push({
       check: "INTENT_HASH",
-      result: CheckResult.SKIP,
+      result: CheckResult.NOT_RUN,
       detail: "Intent not provided for verification",
     });
   }
@@ -182,7 +182,7 @@ export async function verifyReceipt(receipt, evidenceBundle, intent, policy, tra
   } else {
     checks.push({
       check: "POLICY_HASH",
-      result: CheckResult.SKIP,
+      result: CheckResult.NOT_RUN,
       detail: "Policy not provided for verification",
     });
   }
@@ -201,7 +201,7 @@ export async function verifyReceipt(receipt, evidenceBundle, intent, policy, tra
   } else {
     checks.push({
       check: "TRACE_HASH",
-      result: CheckResult.SKIP,
+      result: CheckResult.NOT_RUN,
       detail: "Trace not provided for verification",
     });
   }

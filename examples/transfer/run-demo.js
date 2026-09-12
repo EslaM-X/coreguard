@@ -91,7 +91,7 @@ async function main() {
   console.log("\n── STEP 2: Independent verification ─────────────────────");
   const verification = await verifyReceipt(validReceipt, null, intent, policy, trace);
   for (const c of verification.checks) {
-    const mark = c.result === "PASS" ? "✓" : c.result === "SKIP" ? "·" : "✗";
+    const mark = c.result === "PASS" ? "✓" : c.result === "NOT_RUN" ? "·" : "✗";
     console.log(`  ${mark} ${c.check}`);
   }
   console.log(`Result: ${verification.result}`);
@@ -115,7 +115,7 @@ async function main() {
   const mutatedReceipt = await buildReceipt(intent, policy, mutatedTrace, mutated.result);
   const mutatedVerification = await verifyReceipt(mutatedReceipt, null, intent, policy, mutatedTrace);
   for (const c of mutatedVerification.checks) {
-    const mark = c.result === "PASS" ? "✓" : c.result === "SKIP" ? "·" : "✗";
+    const mark = c.result === "PASS" ? "✓" : c.result === "NOT_RUN" ? "·" : "✗";
     console.log(`  ${mark} ${c.check}`);
   }
   console.log(`Result: ${mutatedVerification.result}`);
@@ -131,7 +131,7 @@ async function main() {
     trace
   );
   for (const c of tamperedVerification.checks) {
-    const mark = c.result === "PASS" ? "✓" : c.result === "SKIP" ? "·" : "✗";
+    const mark = c.result === "PASS" ? "✓" : c.result === "NOT_RUN" ? "·" : "✗";
     console.log(`  ${mark} ${c.check} — ${c.detail}`);
   }
   console.log(`Result: ${tamperedVerification.result}`);
