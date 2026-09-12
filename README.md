@@ -133,9 +133,9 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 30 tests — canonicalization, policy, tamper
-npm run corpus        # deterministic 61-scenario adversarial corpus
-npm run benchmark     # 61/61 pass
+npm test              # 112 tests — canonicalization, policy, tamper, P1 suites
+npm run corpus        # deterministic 73-scenario adversarial corpus
+npm run benchmark     # 73/73 pass
 
 # 3. Runnable demos
 node examples/transfer/run-demo.js    # transfer: valid → mutate → tamper → INVALID
@@ -174,7 +174,7 @@ spec/        CGEP/1 (draft) · master spec · canonical encoding · receipt · l
              threat model · privacy model · competitive kill matrix · killer memos
 packages/    canonical · intent · policy · trace · evidence · verifier · cli   (ESM, zero deps)
 contracts/   EvidenceRegistry.sol — commitment registry (deployable, `--legacy`)
-benchmarks/  generator + 61-scenario corpus: valid/invalid/mutations/tamper/performance
+benchmarks/  generator + 73-scenario corpus: valid/invalid/mutations/tamper/performance
 test/        canonicalization · policy · tamper suites + adversarial runner
 examples/    transfer · swap · multistep · live (runnable, with READMEs + artifacts)
 scripts/     anchor-local.ps1/.sh — local fork anchor proof ·

@@ -4,6 +4,20 @@ All notable changes to CoreGuard v0.1.
 
 ## [Unreleased] — P1 protocol-correctness engineering
 
+### Closed: adversarial corpus expansion (61 → 73 scenarios)
+
+- Denylist (P1): TARGET/RECIPIENT/SELECTOR_DENYLIST denied-vs-allowed pairs —
+  the benchmark runner now also feeds `gasUsed` so MAX_GAS is evaluated for
+  real (ceiling + at-ceiling).
+- Integer Hygiene (P1): value exactly at `uint256` max is representable and
+  conformant; overflow and unsafe JS Number coercion are documented INVALID
+  (canonical uint boundary is fail-closed).
+- Signer Auth (P1): signature-flip and identity-substitution narratives surface
+  the SIGNER_AUTHENTICATION contradiction rule.
+- Coverage: `benchmarks/generate-corpus.js` 73 scenarios; `npm run benchmark`
+  reports **73/73 PASS**. README/CONTRIBUTING/FUNDING/COMMUNITY and spec §11
+  refreshed from 61 → 73.
+
 ### Closed: single verdict vocabulary (verifier ↔ anchor-verdict ↔ toolchain)
 
 - Offline verifier `SKIP` is renamed **`NOT_RUN`** — the exact spelling of

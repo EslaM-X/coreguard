@@ -324,7 +324,12 @@ No SecurityPassport. No Firewall. No PolicyVerifier in v0.1.
 
 ## 11. Benchmarks
 
-### Categories (55 scenarios)
+### Categories (55+ scenarios)
+
+Current generated corpus ships **73** scenarios (see
+`benchmarks/generate-corpus.js`); the category targets below are the guaranteed
+minimum. P1 added Denylist, Gas Bound, Integer Hygiene and Signer Auth
+scenarios (executed by the benchmark runner, not merely documented).
 
 | Category | Count |
 |---|---|
@@ -338,6 +343,10 @@ No SecurityPassport. No Firewall. No PolicyVerifier in v0.1.
 | Oracle Bound | 5 |
 | Multi-step | 5 |
 | Adversarial Mutation | 5 |
+| Denylist (P1) | 6 |
+| Gas Bound (P1) | 2 |
+| Integer Hygiene (P1) | 2 |
+| Signer Auth (P1) | 2 |
 
 ### Golden Corpus Structure
 

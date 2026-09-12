@@ -17,13 +17,13 @@ tiny Solidity contract.
 
 ```bash
 npm install
-npm test          # node --test — canonicalization, policy, tamper suites
+npm test          # node --test — canonicalization, policy, tamper, P1 suites
 npm run corpus    # regenerate the deterministic benchmark corpus
-npm run benchmark # run all 61 adversarial scenarios
+npm run benchmark # run all 73 adversarial scenarios
 forge build       # Solidity registry
 ```
 
-Tests must stay green and the benchmark count must stay 61/61 before merging.
+Tests must stay green and the benchmark count must stay 73/73 before merging.
 
 ## Conventional commits
 

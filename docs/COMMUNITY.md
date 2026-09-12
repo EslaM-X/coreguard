@@ -30,7 +30,7 @@ issue on the faucet**, not to our environment alone. (Confirmed by probing:
 > layer. The v0.1 implementation is public and CI-green:
 >
 > • 30/30 engine tests
-> • 61/61 adversarial benchmarks
+> • 73/73 adversarial benchmarks
 > • a real Core Testnet2 transaction analyzed end-to-end
 > • deterministic trace normalization
 > • intent → policy → execution comparison
@@ -89,7 +89,7 @@ moderator). Fill-ready answers (adjust to whatever the form actually asks):
 |---|---|
 | Wallet address (tCORE2) | `0x6cB4796D54ED72105ec617c8850C91972a0d9469` |
 | GitHub / project URL | `https://github.com/EslaM-X/coreguard` |
-| Reason (technical, no marketing) | I am developing CoreGuard, an open-source verification infrastructure project for Core-native Bitcoin DeFi. I need Testnet2 tCORE2 to deploy and test the EvidenceRegistry contract and perform real on-chain proof anchoring. The project already has a public GitHub repository, 30/30 engine tests, 61/61 benchmarks, live Testnet2 transaction verification, local fork-based anchoring, and a reproducible CI pipeline. The remaining v0.1 integration step is a real Testnet2 deployment and on-chain anchorProof transaction. I need additional testnet funds to repeatedly deploy, test, and verify the contract under realistic conditions, including failed/tampered proof cases and independent verification. |
+| Reason (technical, no marketing) | I am developing CoreGuard, an open-source verification infrastructure project for Core-native Bitcoin DeFi. I need Testnet2 tCORE2 to deploy and test the EvidenceRegistry contract and perform real on-chain proof anchoring. The project already has a public GitHub repository, 112/112 engine tests and 73/73 benchmarks, live Testnet2 transaction verification, local fork-based anchoring, and a reproducible CI pipeline. The remaining v0.1 integration step is a real Testnet2 deployment and on-chain anchorProof transaction. I need additional testnet funds to repeatedly deploy, test, and verify the contract under realistic conditions, including failed/tampered proof cases and independent verification. |
 | How many tokens do you need? | 20–50 tCORE2 — deploy EvidenceRegistry once, then repeated integration + adversarial (tampered/failed proof) anchoring and independent on-chain verification. |
 
 Verifiable on request: the repo, CI, benchmarks, and the local fork anchor
