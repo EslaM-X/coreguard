@@ -86,25 +86,16 @@ RPC, zero trust in the issuer, and an on-chain anchor on Core.
 - On-chain `v0.1` is a **single contract** storing commitments only — evidence lives
   off-chain, in the receipt. No surveillance, no oracles, no protocol custody.
 
-## Live proof (v0.1 engine, real data)
+## Testnet2 validation (funding-gated, not yet executed)
 
-The pipeline was run against a **real Core Testnet2 transaction**:
+The on-chain Core Testnet2 (1114) hardening campaign is **`PREPARED /
+FUNDING-BLOCKED`** — the operator wallet holds **0 tCORE2** (see
+[docs/COMMUNITY.md](docs/COMMUNITY.md)), so **no live broadcast has been made**.
+The staged campaign (deploy EvidenceRegistry → commitIntent → anchorProof →
+three-proof on-chain verification) is ready to run the moment funding arrives.
 
-```
-Chain ID:      1114 (Core Testnet2)
-Transaction:   0x01d6f346786c5cba5140bd0a81263f89b46605c4f1f899cac4a83f9b062e2801
-Block:         18592684 · 0xb3ffe432…
-State pinning: blockNumber + blockHash captured pre/post
-Policy:        4/4 rules PASS · SATISFIED
-Receipt ID:    0x5147e491…5ffd669 (deterministically recomputable)
-Verifier:      6/6 checks PASS · VERIFIED
-```
-
-Re-run it yourself (no node tracing required — plain public RPC):
-
-```bash
-node examples/live/live-verify.js --hash 0x01d6f346786c5cba5140bd0a81263f89b46605c4f1f899cac4a83f9b062e2801
-```
+The engine itself is proven on the **deterministic 73/73 adversarial corpus** and
+the **frozen live Core Mainnet anchor** below.
 
 ### On-chain anchor: live on Core Mainnet
 
@@ -141,7 +132,7 @@ npm run benchmark     # 73/73 pass
 node examples/transfer/run-demo.js    # transfer: valid → mutate → tamper → INVALID
 node examples/swap/run-demo.js        # swap: slippage guard + substitution → INVALID
 node examples/multistep/run-demo.js   # batch strategy: commitment binds one execution
-node examples/live/live-verify.js     # verify ANY real Testnet2 tx
+node examples/live/live-verify.js     # verify any on-chain tx via public RPC (read-only, needs no funds)
 ```
 
 ### CLI
@@ -187,7 +178,7 @@ docs/        deployment · funding · contributing · security
 
 | Milestone | Status |
 |---|---|
-| **v0.1 — Evidence protocol** (intent → trace → evidence → receipt → verifier → anchor) | ✅ real Core Testnet2 execution verified |
+| **v0.1 — Evidence protocol** (intent → trace → evidence → receipt → verifier → anchor) | 🔬 Testnet2 campaign PREPARED / FUNDING-BLOCKED (engine 73/73 PASS, live Mainnet anchor below) |
 | **v0.1 — On-chain anchor on Core** | ✅ live on Mainnet `0x037dF08F2d43c5D03759279Fe35664f6AFf9EA6E` (VERIFIED ANCHOR INTEGRITY) |
 | **v0.2 — Execution Firewall** (simulation-gated smart accounts, intent-based authorization) | 📋 designed |
 | **v0.3 — Passport / reputation + risk findings** | 📋 designed |
