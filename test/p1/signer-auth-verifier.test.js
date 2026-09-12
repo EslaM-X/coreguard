@@ -92,9 +92,15 @@ test("verifier: forged signature -> FAIL -> INVALID (never VERIFIED)", async () 
   const signed = await signIntent(INTENT, pair.privateKeyJwk);
   const trace = makeTrace({ from: signed.signer });
   const receipt = await buildReceipt(signed, trace);
+  // Deterministic forgery: flip a byte in the middle of s (bitwise XOR), which
+  // always changes the signature regardless of the random value produced. The
+  // old "last hex nibble -> 0" trick was flaky: ~1/16 of keys end s in "0", in
+  // which case the "forged" value equals the real signature and the test PASSED.
+  const sBytes = Buffer.from(signed.signature.s, "hex");
+  sBytes[Math.floor(sBytes.length / 2)] ^= 0x01;
   const forged = {
     ...signed,
-    signature: { ...signed.signature, s: signed.signature.s.slice(0, -1) + "0" },
+    signature: { ...signed.signature, s: sBytes.toString("hex") },
   };
   const r = await verifyReceipt(receipt, null, forged, POLICY, trace);
   const auth = r.checks.find((c) => c.check === "SIGNER_AUTHENTICATION");

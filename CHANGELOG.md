@@ -4,6 +4,16 @@ All notable changes to CoreGuard v0.1.
 
 ## [Unreleased] — P1 protocol-correctness engineering
 
+### Fixed: flaky SIGNER_AUTHENTICATION forgery test (deterministic int)
+
+- `test/p1/signer-auth-verifier.test.js` forged a signature by replacing the
+  last hex nibble of `s` with `"0"` — but ~1/16 of random signatures already end
+  in `"0"`, so the "forged" value occasionally equaled the real signature and the
+  test silently PASSED (observed on the Node 18 CI runner; locally the same
+  random draw produced a different key). The forgery now XORs one byte in the
+  middle of `s`, which changes the signature for **every** private key regardless
+  of randomness. Reproduced ~6% end-in-`0` rate over 5000 P-256 keys.
+
 ### Closed: adversarial corpus expansion (61 → 73 scenarios)
 
 - Denylist (P1): TARGET/RECIPIENT/SELECTOR_DENYLIST denied-vs-allowed pairs —
