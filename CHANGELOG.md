@@ -4,6 +4,27 @@ All notable changes to CoreGuard v0.1.
 
 ## [Unreleased] — P1 protocol-correctness engineering
 
+### Closed: L2 deterministic replay consistency
+
+- New `packages/replay/index.js` — a **structural impossibility proof** for a
+  committed trace, fully offline and zero-dependency. Re-derives the rule book
+  the chain MUST have followed if the recorded frames executed:
+  - Well-formed depth-first call tree (frame 0 at depth 0; consecutive depth
+    may never jump more than +1 — a child sits directly under its parent).
+  - Root identity: root frame and transaction-level from/to/selector must
+    agree, because a trace is ONE claim.
+  - Gas coherence: frame `gasUsed` may never exceed `tx gasUsed`, which may
+    never exceed the committed `gasLimit`.
+  - Integer hygiene: every numeric field must be a valid CGEP/1 uint
+    (negatives/floats/malformed rejected fail-closed).
+- Deterministic plan digest: `H("CGEP/1:REPLAY" || canonicalize(plan))` — the
+  same evidence always re-derives the same digest (commit/compare target).
+- Verifier adds optional `REPLAY_CONSISTENCY` check: a self-contradictory
+  trace → FAIL → `INVALID` at every level (optional is NOT permissive).
+  Result now exposes `replay: { digest, frames }`.
+- Spec: `spec/CGEP-1.md` §4.4 Replay Plan (`CGEP/1:REPLAY`).
+- New suites: `test/p1/replay.test.js`, `test/p1/replay-verifier.test.js`.
+
 ### Closed: intent signer authentication (zero-dependency)
 
 - New `packages/crypto/index.js` — intent authentication using **Node built-in

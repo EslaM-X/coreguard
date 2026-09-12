@@ -162,7 +162,42 @@ Key rules:
 }
 ```
 
-### 4.4 Evidence Bundle
+### 4.4 Replay Plan (`CGEP/1:REPLAY`)
+
+The **replay plan** is the deterministic structural digest a verifier re-derives
+from a committed Execution Trace alone — the rule book the chain MUST have
+followed if those frames really executed in that order. It is a pure
+self-consistency proof; no chain state or RPC is involved.
+
+```
+replayPlanDigest = H("CGEP/1:REPLAY" || canonicalize(plan))
+```
+
+`plan` is the normalized trace reduced to its structural skeleton:
+
+```
+{
+  "trace":    { "from", "to", "selector", "gasUsed", "gasLimit" },
+  "frames":   [ { "i", "depth", "from", "to", "selector", "value", "gasUsed", "status" } ]
+}
+```
+
+A trace whose plan is invalid is **self-contradictory and cannot be credible
+evidence**. The validators (all fail-closed):
+
+| Rule | Violation |
+|---|---|
+| Well-formed depth-first tree | frame 0 must be depth 0; depth may never rise by more than 1 between consecutive frames (a child sits directly under its parent); depth never negative |
+| Root identity | root frame `from`/`to`/calldata-selector must equal the transaction-level `from`/`to`/calldata-selector of the same trace |
+| Gas coherence | no frame `gasUsed` may exceed the transaction `gasUsed`; transaction `gasUsed` may not exceed its committed `gasLimit` |
+| Integer hygiene | every numeric field must be a valid CGEP/1 uint (decimal or RPC hex accepted; negatives, floats, malformed values rejected) |
+| Determinism | identical evidence re-derives an identical digest — a downstream commitment or comparison target |
+
+Surfaced through the verifier as the optional `REPLAY_CONSISTENCY` check
+(PASS/FAIL). Optional is NOT permissive: a FAIL is a contradiction and yields
+`INVALID` at every verification level.
+
+### 4.5 Evidence Bundle
 
 ```json
 {
@@ -206,7 +241,7 @@ Key rules:
 }
 ```
 
-### 4.5 Execution Receipt
+### 4.6 Execution Receipt
 
 The central artifact. See `execution-receipt.md`.
 

@@ -17,6 +17,7 @@ import {
 import { evaluatePolicy } from "../policy/index.js";
 import { computeCanonicalStateDelta } from "../trace/index.js";
 import { verifyIntentSignature } from "../crypto/index.js";
+import { planTraceReplay } from "../replay/index.js";
 
 /**
  * Verification check result
@@ -56,6 +57,7 @@ export const OPTIONAL_CHECKS_V = [
   "SIGNER_AUTHENTICATION",
   "POLICY_EVAL",
   "STATE_DELTA_CANONICAL",
+  "REPLAY_CONSISTENCY",
 ];
 
 export const CLAIMABLE_LEVELS_V = Object.keys(REQUIRED_BY_LEVEL);
@@ -133,6 +135,7 @@ export function evaluateCheckVerdict(level, checks = []) {
  */
 export async function verifyReceipt(receipt, evidenceBundle, intent, policy, trace) {
   const checks = [];
+  let replay = null;
 
   // 1. Verify receipt commitment (computed over payload WITHOUT the ID field)
   const { receiptId, ...payload } = receipt;
@@ -267,6 +270,21 @@ export async function verifyReceipt(receipt, evidenceBundle, intent, policy, tra
     });
   }
 
+  // 5e. Deterministic replay consistency (P1, L2 tier) — the committed trace
+  //     must re-derive a STRUCTURALLY POSSIBLE execution plan: legal DFS call
+  //     tree, root identity, gas coherence, canonical integers. A
+  //     self-contradictory trace can never be credible evidence.
+  if (trace) {
+    replay = await planTraceReplay(trace);
+    checks.push({
+      check: "REPLAY_CONSISTENCY",
+      result: replay.valid ? CheckResult.PASS : CheckResult.FAIL,
+      detail: replay.valid
+        ? `Replay plan coherent (${replay.frames} frame(s))`
+        : `Replay plan contradicts itself: ${replay.errors.join("; ")}`,
+    });
+  }
+
   // 6. Verify intent/execution binding
   if (intent && trace) {
     const bindingValid = verifyIntentExecutionBinding(intent, trace, receipt);
@@ -302,6 +320,7 @@ export async function verifyReceipt(receipt, evidenceBundle, intent, policy, tra
     requiredMissing: verdict.requiredMissing,
     failing: verdict.failing,
     checks,
+    replay: trace ? { digest: replay.digestHex, frames: replay.frames } : undefined,
     verifierVersion: "0.1.0",
     timestamp: String(Math.floor(Date.now() / 1000)),
   };
