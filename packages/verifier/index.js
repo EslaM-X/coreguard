@@ -11,8 +11,11 @@ import {
   hashPolicy,
   hashTrace,
   hashEvidence,
+  hashStateDelta,
   computeReceiptId,
 } from "../canonical/index.js";
+import { evaluatePolicy } from "../policy/index.js";
+import { computeCanonicalStateDelta } from "../trace/index.js";
 
 /**
  * Verification check result
@@ -40,8 +43,19 @@ export const REQUIRED_BY_LEVEL = {
   ],
 };
 
+/**
+ * Levels that exist in the protocol but are NOT claimable in v0.1 (no runtime
+ * pathway). Claiming one yields INCONCLUSIVE — matching scripts/anchor-verdict.mjs.
+ */
+export const UNCLAIMABLE_LEVELS_V = ["L3", "L4"];
+
 /** Evidence that improves confidence but is never required at any level. */
-export const OPTIONAL_CHECKS_V = ["EVIDENCE_COMMITMENT"];
+export const OPTIONAL_CHECKS_V = [
+  "EVIDENCE_COMMITMENT",
+  "SIGNER_AUTHENTICATION",
+  "POLICY_EVAL",
+  "STATE_DELTA_CANONICAL",
+];
 
 export const CLAIMABLE_LEVELS_V = Object.keys(REQUIRED_BY_LEVEL);
 
@@ -67,6 +81,17 @@ export function evaluateCheckVerdict(level, checks = []) {
   }
 
   if (!REQUIRED_BY_LEVEL[level]) {
+    // Exist-but-unclaimable levels inherit the anchor semantics: INCONCLUSIVE.
+    if (UNCLAIMABLE_LEVELS_V.includes(level)) {
+      return {
+        verdict: "INCONCLUSIVE",
+        code: "LEVEL_UNAVAILABLE",
+        required: [],
+        requiredMissing: [],
+        failing: [],
+        reason: `Level "${level}" is not claimable in v0.1 — INCONCLUSIVE (no runtime pathway).`,
+      };
+    }
     return {
       verdict: "UNVERIFIED",
       code: "UNSUPPORTED_LEVEL",
@@ -190,9 +215,43 @@ export async function verifyReceipt(receipt, evidenceBundle, intent, policy, tra
     });
   }
 
+  // 5b. Verify canonical state-delta commitment (P1) — only when the caller
+  //     committed via the CGEP/1:STATEDELTA scheme (explicit opt-in).
+  if (evidenceBundle?.stateDeltaScheme === "CGEP/1:STATEDELTA" && trace) {
+    const recomputedDelta = computeCanonicalStateDelta(trace);
+    const recomputedHash = await hashStateDelta(recomputedDelta);
+    const matches = recomputedHash === evidenceBundle.stateDeltaHash;
+    checks.push({
+      check: "STATE_DELTA_CANONICAL",
+      result: matches ? CheckResult.PASS : CheckResult.FAIL,
+      detail: matches
+        ? "Canonical state delta commitment matches (CGEP/1:STATEDELTA)"
+        : "State delta commitment mismatch — recomputed delta does not rehash",
+    });
+  }
+
+  // 5c. Deterministic policy re-evaluation (P1) — the committed policy must be
+  //     SATISFIED by the observed execution, evaluated from the trace alone.
+  if (policy && trace) {
+    const policyResult = evaluatePolicy(policy, policyContextFromTrace(intent, trace));
+    const satisfied = policyResult.result === "SATISFIED";
+    const failing = satisfied
+      ? []
+      : policyResult.rules.filter((r) => r.result === "FAIL");
+    checks.push({
+      check: "POLICY_EVAL",
+      result: satisfied ? CheckResult.PASS : CheckResult.FAIL,
+      detail: satisfied
+        ? "Policy re-evaluation satisfied against observed execution"
+        : `Policy violated: ${failing
+            .map((r) => `${r.ruleId}(${r.expected})`)
+            .join(", ")}`,
+    });
+  }
+
   // 6. Verify intent/execution binding
   if (intent && trace) {
-    const bindingValid = verifyIntentExecutionBinding(intent, trace);
+    const bindingValid = verifyIntentExecutionBinding(intent, trace, receipt);
     checks.push({
       check: "INTENT_EXECUTION_BINDING",
       result: bindingValid.valid ? CheckResult.PASS : CheckResult.FAIL,
@@ -232,8 +291,13 @@ export async function verifyReceipt(receipt, evidenceBundle, intent, policy, tra
 
 /**
  * Verify intent/execution binding
+ *
+ * Every intent field that has a machine-observable counterpart in the trace is
+ * enforced when BOTH sides are present (traces normalized before P1 may lack
+ * nonce/gas fields — absence is not a violation, but presence IS enforced).
+ * A committed field can never be silently skipped when the evidence is there.
  */
-function verifyIntentExecutionBinding(intent, trace) {
+function verifyIntentExecutionBinding(intent, trace, receipt) {
   const violations = [];
 
   // Check target
@@ -243,6 +307,29 @@ function verifyIntentExecutionBinding(intent, trace) {
         field: "target",
         expected: intent.target,
         observed: trace.to,
+      });
+    }
+  }
+
+  // Check signer/sender — the executor must be the committed signer
+  if (intent.signer && trace.from) {
+    if (intent.signer.toLowerCase() !== trace.from.toLowerCase()) {
+      violations.push({
+        field: "signer",
+        expected: intent.signer,
+        observed: trace.from,
+      });
+    }
+  }
+
+  // Check selector — the invoked function must be the committed selector
+  if (intent.selector && trace.calldata && trace.calldata.length >= 10) {
+    const observedSelector = trace.calldata.slice(0, 10).toLowerCase();
+    if (intent.selector.toLowerCase() !== observedSelector) {
+      violations.push({
+        field: "selector",
+        expected: intent.selector,
+        observed: observedSelector,
       });
     }
   }
@@ -275,6 +362,56 @@ function verifyIntentExecutionBinding(intent, trace) {
     }
   }
 
+  // Check nonce — anti-replay binding when the trace carries the sender nonce
+  if (
+    intent.nonce !== undefined &&
+    intent.nonce !== null &&
+    trace.nonce !== undefined &&
+    trace.nonce !== null
+  ) {
+    if (String(intent.nonce).toLowerCase() !== String(trace.nonce).toLowerCase()) {
+      violations.push({
+        field: "nonce",
+        expected: String(intent.nonce),
+        observed: String(trace.nonce),
+      });
+    }
+  }
+
+  // Check validity window — authorization freshness against the mined block
+  if (trace.blockTimestamp !== undefined && trace.blockTimestamp !== null) {
+    const mined = BigInt(trace.blockTimestamp || "0");
+    if (intent.validAfter !== undefined && intent.validAfter !== "") {
+      if (BigInt(intent.validAfter) > mined) {
+        violations.push({
+          field: "validAfter",
+          expected: `>= ${intent.validAfter}`,
+          observed: String(trace.blockTimestamp),
+        });
+      }
+    }
+    if (intent.validUntil !== undefined && intent.validUntil !== "") {
+      if (BigInt(intent.validUntil) < mined) {
+        violations.push({
+          field: "validUntil",
+          expected: `<= ${intent.validUntil}`,
+          observed: String(trace.blockTimestamp),
+        });
+      }
+    }
+  }
+
+  // Check chain binding — intent and receipt must commit to the same chainId
+  if (intent.chainId && receipt && receipt.chainId) {
+    if (String(intent.chainId) !== String(receipt.chainId)) {
+      violations.push({
+        field: "chainId",
+        expected: String(intent.chainId),
+        observed: String(receipt.chainId),
+      });
+    }
+  }
+
   if (violations.length > 0) {
     return {
       valid: false,
@@ -284,6 +421,32 @@ function verifyIntentExecutionBinding(intent, trace) {
   }
 
   return { valid: true, detail: "Execution matches committed intent" };
+}
+
+/**
+ * Build the deterministic policy context from the trace alone (P1).
+ * Mirrors the pipeline's evaluatePolicy context so the verifier re-evaluates
+ * the committed policy identically without trusting a stored evaluation.
+ */
+function policyContextFromTrace(intent, trace) {
+  const calldata = trace.calldata || "0x";
+  const selector = calldata.slice(0, 10).toLowerCase();
+  let recipient = null;
+  if (selector === "0xa9059cbb" && calldata.length >= 74) {
+    recipient = "0x" + calldata.slice(34, 74);
+  } else if (selector === "0x23b872dd" && calldata.length >= 138) {
+    recipient = "0x" + calldata.slice(98, 138);
+  }
+  return {
+    value: trace.value ?? intent?.amount ?? "0",
+    target: trace.to || "0x",
+    recipient: recipient || intent?.recipient || "0x",
+    selector,
+    blockTimestamp: trace.blockTimestamp || "0",
+    slippageBps: trace.slippageBps || "0",
+    gasUsed: trace.gasUsed || "0",
+    priceBps: trace.priceBps || "10000",
+  };
 }
 
 /**

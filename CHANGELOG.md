@@ -2,6 +2,61 @@
 
 All notable changes to CoreGuard v0.1.
 
+## [Unreleased] — P1 protocol-correctness engineering
+
+### Closed: canonical integer safety + multi-account state delta
+
+- New `packages/canonical/uint.js` — single canonical CGEP/1 decimal-string
+  form for every unsigned integer (`canonicalUintString`). RPC lower/upper hex,
+  decimal strings, safe integers and BigInt collapse to ONE representation;
+  leading zeros, case and sign ambiguity are destroyed. uint256 bound enforced
+  (fail-closed); anything unrepresentable throws.
+- `canonicalize()` now **rejects unsafe JS Numbers** (`> 2^53`) — large
+  integers must be canonical decimal strings, so a rounded Number can never
+  leak into a commitment.
+- `normalizeExecution` emits **canonical decimal strings** for value, gasUsed,
+  gasPrice, gasLimit, nonce, txType, blockNumber, blockTimestamp, call-frame
+  value/gasUsed, and balance/storage before/after values. Adds `nonce`,
+  `gasPrice`, `gasLimit`, `txType` to new traces (pre-P1 traces unaffected).
+- New `computeCanonicalStateDelta()` — deterministic multi-account delta
+  (accounts + storage sorted, signed decimal `delta` fields), committed via new
+  `hashStateDelta` domain `CGEP/1:STATEDELTA`.
+- `createEvidenceBundle` accepts `stateDeltaScheme: "CGEP/1:STATEDELTA"` so the
+  verifier can recompute the delta commitment (additive; existing bundles
+  unchanged).
+- New suites: `test/canonicalization/uint.test.js`,
+  `test/canonicalization/statedelta.test.js` (hex↔decimal no-collision proof,
+  uint256 boundary, unsafe-Number rejection, per-account capture).
+
+### Closed: complete intent→execution binding
+
+- `INTENT_EXECUTION_BINDING` now enforces **sender (signer==from), target,
+  selector, value, recipient, nonce (anti-replay), validity window
+  (validAfter/validUntil vs mined blockTimestamp) and chainId** whenever the
+  trace carries the observable — a committed field is never silently skipped
+  when evidence exists; absence of pre-P1 trace fields is not a violation.
+- New suite: `test/tamper/binding.test.js` (each binding axis, one failure at a
+  time, real committed receipts).
+
+### Closed: policy evaluation completeness
+
+- Rule registry now ships **TARGET_DENYLIST, RECIPIENT_DENYLIST,
+  SELECTOR_DENYLIST and MAX_GAS** alongside the original allow-list set —
+  vocabulary fully matches intent ConstraintType.
+- Verifier adds optional `POLICY_EVAL` check: the committed policy is
+  **re-evaluated from the trace alone** (no trusted stored evaluation) — a
+  VIOLATED policy → FAIL → INVALID, never VERIFIED.
+- New suite: `test/anchor/policy-eval.test.js`.
+
+### Closed: level semantics parity (offline verifier ↔ anchor-verdict)
+
+- `evaluateCheckVerdict` now maps unclaimable `L3/L4` → `INCONCLUSIVE
+  LEVEL_UNAVAILABLE` (previously `UNVERIFIED`) — inherited from
+  `scripts/anchor-verdict.mjs`, the single source of truth. Unknown levels stay
+  `UNVERIFIED UNSUPPORTED_LEVEL`. Never `VERIFIED`.
+- Offline optional checks: `EVIDENCE_COMMITMENT`, `SIGNER_AUTHENTICATION`,
+  `POLICY_EVAL`, `STATE_DELTA_CANONICAL`.
+
 ## [Unreleased] — P0 anchor verification semantics
 
 ### Closed: verdict semantics (single source of truth)

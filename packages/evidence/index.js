@@ -14,6 +14,7 @@ export async function createEvidenceBundle({
   policyHash,
   traceHash,
   stateDeltaHash,
+  stateDeltaScheme,
   result,
   verifications,
   simulation,
@@ -30,6 +31,10 @@ export async function createEvidenceBundle({
     simulation,
     execution,
   };
+
+  // P1: when the caller commits a canonical CGEP/1:STATEDELTA hash, mark the
+  // scheme so the verifier's STATE_DELTA_CANONICAL check can recompute it.
+  if (stateDeltaScheme) evidence.stateDeltaScheme = stateDeltaScheme;
 
   const canonical = canonicalize(evidence);
   const hash = await hashEvidence(evidence);

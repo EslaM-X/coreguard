@@ -184,8 +184,15 @@ test("verifier: unknown claim level -> UNVERIFIED, never silently VERIFIED", asy
   assert.equal(r.verdictCode, "UNSUPPORTED_LEVEL");
 });
 
-test("evaluateCheckVerdict: L3 not claimable -> UNVERIFIED", () => {
-  const checks = [{ check: "RECEIPT_COMMITMENT", result: "PASS" }];
-  const v = evaluateCheckVerdict("L3", checks);
+test("evaluateCheckVerdict: L3/L4 exist but are not claimable -> INCONCLUSIVE (matches anchor-verdict)", () => {
+  for (const level of ["L3", "L4"]) {
+    const checks = [{ check: "RECEIPT_COMMITMENT", result: "PASS" }];
+    const v = evaluateCheckVerdict(level, checks);
+    assert.equal(v.verdict, "INCONCLUSIVE");
+    assert.equal(v.code, "LEVEL_UNAVAILABLE");
+  }
+  // Unknown levels are UNVERIFIED — never silently VERIFIED.
+  const v = evaluateCheckVerdict("L9", [{ check: "RECEIPT_COMMITMENT", result: "PASS" }]);
   assert.equal(v.verdict, "UNVERIFIED");
+  assert.equal(v.code, "UNSUPPORTED_LEVEL");
 });

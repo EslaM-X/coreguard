@@ -30,9 +30,14 @@ export const Severity = {
 function evaluateRule(rule, context) {
   const { type, params } = rule;
 
+  const ctx = (key, fallback) => {
+    const v = context[key];
+    return v === undefined || v === null || v === "" ? fallback : v;
+  };
+
   switch (type) {
     case "VALUE_LIMIT": {
-      const value = BigInt(context.value);
+      const value = BigInt(ctx("value", "0"));
       const max = params.max ? BigInt(params.max) : null;
       const min = params.min ? BigInt(params.min) : null;
       if (max !== null && value > max) {
@@ -40,7 +45,7 @@ function evaluateRule(rule, context) {
           ruleId: rule.ruleId,
           result: RuleResult.FAIL,
           severity: rule.severity,
-          observed: context.value,
+          observed: ctx("value", "0"),
           expected: `<= ${params.max}`,
         };
       }
@@ -49,7 +54,7 @@ function evaluateRule(rule, context) {
           ruleId: rule.ruleId,
           result: RuleResult.FAIL,
           severity: rule.severity,
-          observed: context.value,
+          observed: ctx("value", "0"),
           expected: `>= ${params.min}`,
         };
       }
@@ -57,13 +62,13 @@ function evaluateRule(rule, context) {
         ruleId: rule.ruleId,
         result: RuleResult.PASS,
         severity: rule.severity,
-        observed: context.value,
+        observed: ctx("value", "0"),
       };
     }
 
     case "TARGET_ALLOWLIST": {
       const allowed = params.targets.map((t) => t.toLowerCase());
-      const target = context.target.toLowerCase();
+      const target = ctx("target", "").toLowerCase();
       if (!allowed.includes(target)) {
         return {
           ruleId: rule.ruleId,
@@ -81,9 +86,29 @@ function evaluateRule(rule, context) {
       };
     }
 
+    case "TARGET_DENYLIST": {
+      const denied = params.targets.map((t) => t.toLowerCase());
+      const target = ctx("target", "").toLowerCase();
+      if (denied.includes(target)) {
+        return {
+          ruleId: rule.ruleId,
+          result: RuleResult.FAIL,
+          severity: rule.severity,
+          observed: target,
+          expected: `not in [${denied.join(", ")}]`,
+        };
+      }
+      return {
+        ruleId: rule.ruleId,
+        result: RuleResult.PASS,
+        severity: rule.severity,
+        observed: target,
+      };
+    }
+
     case "RECIPIENT_ALLOWLIST": {
       const allowed = params.addresses.map((a) => a.toLowerCase());
-      const recipient = context.recipient.toLowerCase();
+      const recipient = ctx("recipient", "").toLowerCase();
       if (!allowed.includes(recipient)) {
         return {
           ruleId: rule.ruleId,
@@ -101,9 +126,29 @@ function evaluateRule(rule, context) {
       };
     }
 
+    case "RECIPIENT_DENYLIST": {
+      const denied = params.addresses.map((a) => a.toLowerCase());
+      const recipient = ctx("recipient", "").toLowerCase();
+      if (denied.includes(recipient)) {
+        return {
+          ruleId: rule.ruleId,
+          result: RuleResult.FAIL,
+          severity: rule.severity,
+          observed: recipient,
+          expected: `not in [${denied.join(", ")}]`,
+        };
+      }
+      return {
+        ruleId: rule.ruleId,
+        result: RuleResult.PASS,
+        severity: rule.severity,
+        observed: recipient,
+      };
+    }
+
     case "SELECTOR_ALLOWLIST": {
       const allowed = params.selectors.map((s) => s.toLowerCase());
-      const selector = context.selector.toLowerCase();
+      const selector = ctx("selector", "").toLowerCase();
       if (!allowed.includes(selector)) {
         return {
           ruleId: rule.ruleId,
@@ -118,6 +163,46 @@ function evaluateRule(rule, context) {
         result: RuleResult.PASS,
         severity: rule.severity,
         observed: selector,
+      };
+    }
+
+    case "SELECTOR_DENYLIST": {
+      const denied = params.selectors.map((s) => s.toLowerCase());
+      const selector = ctx("selector", "").toLowerCase();
+      if (denied.includes(selector)) {
+        return {
+          ruleId: rule.ruleId,
+          result: RuleResult.FAIL,
+          severity: rule.severity,
+          observed: selector,
+          expected: `not in [${denied.join(", ")}]`,
+        };
+      }
+      return {
+        ruleId: rule.ruleId,
+        result: RuleResult.PASS,
+        severity: rule.severity,
+        observed: selector,
+      };
+    }
+
+    case "MAX_GAS": {
+      const gasUsed = BigInt(ctx("gasUsed", "0"));
+      const maxGas = BigInt(params.maxGas);
+      if (gasUsed > maxGas) {
+        return {
+          ruleId: rule.ruleId,
+          result: RuleResult.FAIL,
+          severity: rule.severity,
+          observed: ctx("gasUsed", "0"),
+          expected: `<= ${params.maxGas}`,
+        };
+      }
+      return {
+        ruleId: rule.ruleId,
+        result: RuleResult.PASS,
+        severity: rule.severity,
+        observed: ctx("gasUsed", "0"),
       };
     }
 
