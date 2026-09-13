@@ -2,6 +2,45 @@
 
 All notable changes to CoreGuard v0.1.
 
+## [Unreleased] — P2 external verification surface
+
+### Added: verify-run — CGEP/1:VERIFY-RUN external surface
+
+- New `packages/verifier/run.js` — a pure, hermetic external verification
+  surface that turns one complete claim (receipt + optional evidence/intent/
+  policy/trace) into ONE deterministic verdict with three explicit layers:
+  **OBSERVED** (what was supplied, at face value) · **DERIVED** (independently
+  recomputed hashes) · **VERIFIED** (per-check `PASS/FAIL/NOT_RUN`).
+- Privacy floor: the report surfaces **commitments only** — intent/policy/
+  trace/evidence bodies are never re-printed.
+- Fail-closed, unchanged from the engine: missing required evidence →
+  UNVERIFIED (never VERIFIED); any FAIL (claim or RPC binding) → INVALID;
+  L3/L4 → INCONCLUSIVE; unknown level → UNVERIFIED. No path from missing
+  evidence to VERIFIED.
+- New CLI subcommand `verify-run` (`npm run verify-run -- …`) with
+  `--receipt/--evidence/--intent/--policy/--trace`, aggregate `--bundle`,
+  `--json`, and optional **read-only** `--rpc`
+  (chainId/transaction/receipt/block binding only — never sends or
+  broadcasts; unreachable RPC leaves the binding NOT_RUN, contradiction
+  still FAILs to INVALID).
+- Exit codes: `0=VERIFIED · 1=CLI/input error · 2=INVALID · 3=UNVERIFIED ·
+  4=INCONCLUSIVE`.
+- New suite: `test/anchor/verify-run.test.js` (13 tests) — fail-closed,
+  privacy, RPC-binding, exit-code and derived-hash coverage.
+- New `docs/VERIFY-RUN.md` and `examples/transfer/verify-bundle.json`
+  (self-consistent full L2 bundle → VERIFIED, all commitments recomputed
+  and matched).
+
+### Verified
+
+- `npm test` — 125/125 pass (previous 112 + 13 verify-run).
+- `npm run benchmark` — 73/73 pass.
+- `verify-run --bundle examples/transfer/verify-bundle.json` → VERIFIED,
+  exit 0 · dropping the trace → UNVERIFIED (requiredMissing:
+  TRACE_HASH, INTENT_EXECUTION_BINDING), exit 3 · live read-only binding
+  against core testnet RPC confirms a non-existent placeholder tx →
+  INVALID, exit 2.
+
 ## [Unreleased] — P1 protocol-correctness engineering
 
 ### Fixed: flaky SIGNER_AUTHENTICATION forgery test (deterministic int)

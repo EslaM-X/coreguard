@@ -13,6 +13,7 @@
     "corpus": "node benchmarks/generate-corpus.js",
     "analyze": "node packages/cli/src/index.js analyze",
     "verify": "node packages/cli/src/index.js verify",
+    "verify-run": "node packages/cli/src/index.js verify-run",
     "report": "node packages/cli/src/index.js report",
     "demo": "node examples/transfer/run-demo.js",
     "demo:swap": "node examples/swap/run-demo.js",

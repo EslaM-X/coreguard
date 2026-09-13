@@ -1,0 +1,145 @@
+{
+  "contract": "CGEP/1:VERIFY-RUN",
+  "version": "0.1.0",
+  "receipt": {
+    "receiptId": "0xd4ddd02204f55662ef7db62b7a720c7e8dbff8d92a1cc621df22cf1b5dc22627",
+    "receipt": {
+      "version": "CGEP/1",
+      "chainId": "1114",
+      "txHash": "0x00000000000000000000000000000000000000000000000000000000000000aa",
+      "blockHash": "0x00000000000000000000000000000000000000000000000000000000000000bb",
+      "blockNumber": "123456",
+      "intentHash": "0xb89190226d99e83d6b57bd90a7008152c550c73738f824ab50317b7c20424d66",
+      "policyHash": "0x07c80175de2ff4ac76e60253de44af7fa1d42b836983afef887bc9af59b7c7e6",
+      "executionTraceHash": "0x799e66150226da6fcdd1f9aeefead3ae2550e6809cff5f3e6997eaa35191ed50",
+      "stateDeltaHash": "0x1111111111111111111111111111111111111111111111111111111111111111",
+      "evidenceRoot": "0xceea3ef9be1cca19eb837f162221abdc2b5a82b451405795102978a2f2916301",
+      "simulation": {
+        "blockNumber": "123450",
+        "blockHash": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "execution": {
+        "blockNumber": "123456",
+        "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "verifierVersion": "0.1.0",
+      "verificationLevel": "L2",
+      "result": "VALID",
+      "timestamp": "1789017669",
+      "checks": []
+    }
+  },
+  "evidence": {
+    "version": "CGEP/1",
+    "intentHash": "0xb89190226d99e83d6b57bd90a7008152c550c73738f824ab50317b7c20424d66",
+    "policyHash": "0x07c80175de2ff4ac76e60253de44af7fa1d42b836983afef887bc9af59b7c7e6",
+    "traceHash": "0x799e66150226da6fcdd1f9aeefead3ae2550e6809cff5f3e6997eaa35191ed50",
+    "stateDeltaHash": "0x1111111111111111111111111111111111111111111111111111111111111111",
+    "result": "VALID",
+    "verifications": [
+      {
+        "level": "L1",
+        "engine": "coreguard-v0.1.0"
+      }
+    ],
+    "simulation": {
+      "blockNumber": 123450,
+      "blockHash": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "execution": {
+      "blockNumber": 123456,
+      "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  },
+  "intent": {
+    "version": "CGEP/1",
+    "chainId": "1114",
+    "signer": "0x0000000000000000000000000000000000000001",
+    "nonce": "0",
+    "validAfter": "0",
+    "validUntil": "9999999999",
+    "action": "TRANSFER",
+    "target": "0x0000000000000000000000000000000000000002",
+    "selector": "0xa9059cbb",
+    "asset": "0x0000000000000000000000000000000000000002",
+    "amount": "100000000",
+    "recipient": "0x0000000000000000000000000000000000000003",
+    "constraints": [
+      {
+        "type": "MAX_VALUE",
+        "value": "100000000"
+      },
+      {
+        "type": "RECIPIENT_ALLOWLIST",
+        "addresses": ["0x0000000000000000000000000000000000000003"]
+      }
+    ]
+  },
+  "policy": {
+    "version": "CGEP/1",
+    "policyId": "0x00000000000000000000000000000000000000aa",
+    "name": "Transfer Policy",
+    "rules": [
+      {
+        "ruleId": "VALUE_001",
+        "type": "VALUE_LIMIT",
+        "params": { "max": "100000000" },
+        "severity": "CRITICAL"
+      },
+      {
+        "ruleId": "RECIPIENT_001",
+        "type": "RECIPIENT_ALLOWLIST",
+        "params": { "addresses": ["0x0000000000000000000000000000000000000003"] },
+        "severity": "CRITICAL"
+      },
+      {
+        "ruleId": "TARGET_001",
+        "type": "TARGET_ALLOWLIST",
+        "params": { "targets": ["0x0000000000000000000000000000000000000002"] },
+        "severity": "CRITICAL"
+      },
+      {
+        "ruleId": "SELECTOR_001",
+        "type": "SELECTOR_ALLOWLIST",
+        "params": { "selectors": ["0xa9059cbb"] },
+        "severity": "CRITICAL"
+      }
+    ]
+  },
+  "trace": {
+    "version": "CGEP/1",
+    "txHash": "0x00000000000000000000000000000000000000000000000000000000000000aa",
+    "from": "0x0000000000000000000000000000000000000001",
+    "to": "0x0000000000000000000000000000000000000002",
+    "value": "100000000",
+    "calldata": "0xa9059cbb00000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000005f5e100",
+    "status": "SUCCESS",
+    "gasUsed": "70230",
+    "blockNumber": "123456",
+    "blockHash": "0x00000000000000000000000000000000000000000000000000000000000000bb",
+    "blockTimestamp": "1200",
+    "calls": [
+      {
+        "depth": 0,
+        "from": "0x0000000000000000000000000000000000000001",
+        "to": "0x0000000000000000000000000000000000000002",
+        "value": "0x0",
+        "calldata": "0xa9059cbb00000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000005f5e100",
+        "returnData": "0x",
+        "status": "SUCCESS",
+        "gasUsed": "70000"
+      }
+    ],
+    "events": [
+      {
+        "address": "0x0000000000000000000000000000000000000002",
+        "topics": [
+          "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+        ],
+        "data": "0x"
+      }
+    ],
+    "balanceChanges": [],
+    "storageChanges": []
+  }
+}

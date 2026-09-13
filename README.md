@@ -124,7 +124,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 112 tests — canonicalization, policy, tamper, P1 suites
+npm test              # 125 tests — canonicalization, policy, tamper, anchor, P1 suites
 npm run corpus        # deterministic 73-scenario adversarial corpus
 npm run benchmark     # 73/73 pass
 
@@ -138,10 +138,16 @@ node examples/live/live-verify.js     # verify any on-chain tx via public RPC (r
 ### CLI
 
 ```bash
-node packages/cli/src/index.js analyze --intent <...> --policy <...> --trace <...>   # on-chain or offline
-node packages/cli/src/index.js verify  --receipt <...> [--intent <...> --policy <...> --trace <...>]
-node packages/cli/src/index.js report  --receipt <...>                               # human-readable receipt
+node packages/cli/src/index.js analyze    --intent <...> --policy <...> --trace <...>   # on-chain or offline
+node packages/cli/src/index.js verify     --receipt <...> [--intent <...> --policy <...> --trace <...>]
+node packages/cli/src/index.js verify-run --receipt <...> [--evidence <...> --intent <...> --policy <...> --trace <...>] [--rpc <url>] [--json]
+                                           # CGEP/1:VERIFY-RUN surface; exit 0=VERIFIED 2=INVALID 3=UNVERIFIED 4=INCONCLUSIVE
+                                           # e.g. --bundle examples/transfer/verify-bundle.json
+node packages/cli/src/index.js report     --receipt <...>                               # human-readable receipt
 ```
+
+`verify-run` is read-only: `--rpc` performs chainId/transaction/receipt/block
+binding only — it never sends or broadcasts. See [docs/VERIFY-RUN.md](docs/VERIFY-RUN.md).
 
 ## On-chain
 
@@ -163,7 +169,7 @@ npm run anchor:verify                         # → scripts/verify-live.regenera
 ```
 spec/        CGEP/1 (draft) · master spec · canonical encoding · receipt · levels ·
              threat model · privacy model · competitive kill matrix · killer memos
-packages/    canonical · intent · policy · trace · evidence · verifier · cli   (ESM, zero deps)
+packages/    canonical · intent · policy · trace · evidence · verifier (engine + verify-run surface) · cli   (ESM, zero deps)
 contracts/   EvidenceRegistry.sol — commitment registry (deployable, `--legacy`)
 benchmarks/  generator + 73-scenario corpus: valid/invalid/mutations/tamper/performance
 test/        canonicalization · policy · tamper suites + adversarial runner + P1 suites

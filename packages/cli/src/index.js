@@ -1,14 +1,17 @@
 /**
  * CoreGuard CLI
  *
- * analyze — Analyze an execution against intent and policy (on-chain or offline)
- * verify  — Independently verify an execution receipt
- * report  — Render a human-readable report from a receipt
+ * analyze    — Analyze an execution against intent and policy (on-chain or offline)
+ * verify     — Independently verify an execution receipt
+ * verify-run — External verification surface (CGEP/1:VERIFY-RUN) with exit codes
+ * report     — Render a human-readable report from a receipt
  *
  * Examples:
  *   analyze --intent intent.json --policy policy.json --trace trace.json
  *   analyze --tx 0x... --intent intent.json --policy policy.json --rpc https://rpc.test2.btcs.network
  *   verify --receipt receipt.json [--intent intent.json --policy policy.json --trace trace.json]
+ *   verify-run --receipt receipt.json --intent intent.json --policy policy.json --trace trace.json --json
+ *   verify-run --bundle verify-bundle.json [--rpc https://rpc.test2.btcs.network] [--json]
  *   report --receipt receipt.json
  */
 
@@ -21,6 +24,7 @@ import { evaluatePolicy } from "../../policy/index.js";
 import { computeStateDelta, normalizeExecution } from "../../trace/index.js";
 import { createEvidenceBundle, createReceipt } from "../../evidence/index.js";
 import { verifyReceipt } from "../../verifier/index.js";
+import { runVerification, deriveRpcBindings } from "../../verifier/run.js";
 import { CoreTestnet2Adapter } from "../../canonical/chain-adapter.js";
 
 const VERIFIER_VERSION = "0.1.0";
@@ -49,12 +53,16 @@ Usage:
   coreguard analyze --intent <file> --policy <file> [--trace <file>]
   coreguard analyze --tx <hash> --intent <file> --policy <file> [--rpc <url>]
   coreguard verify  --receipt <file> [--intent <file> --policy <file> --trace <file>]
+  coreguard verify-run [--receipt <file>] [--evidence <file>] [--intent <file>] [--policy <file>]
+                       [--trace <file>] [--bundle <file>] [--rpc <url>] [--json]
   coreguard report  --receipt <file>
 
 Commands:
-  analyze   Analyze an execution against intent and policy
-  verify    Independently verify an execution receipt
-  report    Render a human-readable report from a receipt
+  analyze    Analyze an execution against intent and policy
+  verify     Independently verify an execution receipt
+  verify-run External verification surface (CGEP/1:VERIFY-RUN). Exit codes:
+             0=VERIFIED · 1=CLI/input error · 2=INVALID · 3=UNVERIFIED · 4=INCONCLUSIVE
+  report     Render a human-readable report from a receipt
 `);
 }
 
@@ -67,6 +75,8 @@ async function main() {
       return await cmdAnalyze(args.slice(1));
     case "verify":
       return await cmdVerify(args.slice(1));
+    case "verify-run":
+      return await cmdVerifyRun(args.slice(1));
     case "report":
       return await cmdReport(args.slice(1));
     default:
@@ -199,6 +209,121 @@ async function cmdVerify(args) {
   }
   console.log(`${"─".repeat(56)}`);
   return verification;
+}
+
+async function cmdVerifyRun(args) {
+  const json = args.includes("--json");
+  const bundleFile = getArg(args, "--bundle");
+  const receiptFile = getArg(args, "--receipt");
+  const intentFile = getArg(args, "--intent");
+  const policyFile = getArg(args, "--policy");
+  const traceFile = getArg(args, "--trace");
+  const evidenceFile = getArg(args, "--evidence");
+  const rpcUrl = getArg(args, "--rpc");
+
+  const bundleDoc = bundleFile ? await loadJson(bundleFile, "bundle") : null;
+  const receiptRaw = bundleFile ? readFileFromBundle(bundleDoc, "receipt") : await loadJson(receiptFile, "receipt");
+  const receipt = receiptRaw && (receiptRaw.receiptId && receiptRaw.receipt)
+    ? { receiptId: receiptRaw.receiptId, ...receiptRaw.receipt }
+    : receiptRaw;
+
+  const intent = bundleFile
+    ? readFileFromBundle(bundleDoc, "intent")
+    : intentFile
+      ? await loadJson(intentFile, "intent")
+      : null;
+  const policy = bundleFile
+    ? readFileFromBundle(bundleDoc, "policy")
+    : policyFile
+      ? await loadJson(policyFile, "policy")
+      : null;
+  const trace = bundleFile
+    ? readFileFromBundle(bundleDoc, "trace")
+    : traceFile
+      ? await loadJson(traceFile, "trace")
+      : null;
+  const evidence = bundleFile
+    ? readFileFromBundle(bundleDoc, "evidence")
+    : evidenceFile
+      ? await loadJson(evidenceFile, "evidence")
+      : null;
+
+  let rpcChecks = [];
+  if (rpcUrl) {
+    rpcChecks = await cmdRpcBindings(receipt, rpcUrl);
+  }
+
+  const report = await runVerification({
+    receipt,
+    evidence,
+    intent,
+    policy,
+    trace,
+    rpcChecks,
+  });
+
+  if (json) {
+    console.log(JSON.stringify(report, null, 2));
+  } else {
+    printHumanReport(report);
+  }
+
+  process.exitCode = report.exitCode;
+  return report;
+}
+
+async function cmdRpcBindings(receipt, rpcUrl) {
+  const adapter = new CoreTestnet2Adapter(rpcUrl);
+  const snapshot = {};
+  try {
+    snapshot.chainId = await adapter.getChainId();
+  } catch {
+    // read-only optional binding; failure leaves it NOT_RUN, never a contradiction
+  }
+  try {
+    snapshot.tx = await adapter.getTransaction(receipt.txHash);
+  } catch {
+    snapshot.tx = undefined;
+  }
+  try {
+    snapshot.receiptLog = await adapter.getReceipt(receipt.txHash);
+  } catch {
+    snapshot.receiptLog = undefined;
+  }
+  try {
+    const blockNumber = Number(receipt.blockNumber || "0");
+    snapshot.block = blockNumber > 0 ? await adapter.getBlock(blockNumber) : undefined;
+  } catch {
+    snapshot.block = undefined;
+  }
+  return deriveRpcBindings(receipt, snapshot);
+}
+
+function readFileFromBundle(doc, key) {
+  return doc && doc[key] !== undefined ? doc[key] : null;
+}
+
+function printHumanReport(report) {
+  console.log(`\nCoreGuard Verify-Run (${report.contract} v${report.version})`);
+  console.log(`${"─".repeat(56)}`);
+  console.log(`Receipt ID:    ${report.observed.receiptId}`);
+  console.log(`Level:         ${report.verdict.verificationLevel}`);
+  console.log(`Verdict:       ${report.verdict.verdict} (${report.verdict.code})`);
+  console.log(`Exit code:     ${report.exitCode}`);
+  console.log(`${"─".repeat(56)}`);
+  for (const check of report.verified) {
+    const mark = check.result === "PASS" ? "✓" : check.result === "NOT_RUN" ? "·" : "✗";
+    console.log(`  ${mark} ${check.check} — ${check.detail}`);
+  }
+  if (report.verdict.requiredMissing.length > 0) {
+    console.log(`${"─".repeat(56)}`);
+    console.log(`Missing required: ${report.verdict.requiredMissing.join(", ")}`);
+  }
+  if (report.verdict.failing.length > 0) {
+    console.log(`${"─".repeat(56)}`);
+    console.log(`Failing: ${report.verdict.failing.join(", ")}`);
+  }
+  console.log(`${"─".repeat(56)}`);
 }
 
 async function cmdReport(args) {
