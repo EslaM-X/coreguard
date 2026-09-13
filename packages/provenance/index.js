@@ -6,10 +6,19 @@
  *
  *   PROVENANCE_COMMITMENT       manifestId recomputed from manifestCore == declared
  *                               (with anchored commitment when evidence gives proofRef).
- *   MANIFEST_SIGNATURE          EIP-712 replay; recovered signer == declared signer.
+ *   MANIFEST_SIGNATURE          EIP-712 replay; recovered signer == declared signer
+ *                               (EOA kind). EIP-1271 kind: NOT_APPLICABLE — the
+ *                               signature envelope carries contract-supplied bytes
+ *                               and the authority check is CONTRACT_AUTHORIZATION.
+ *   CONTRACT_AUTHORIZATION      EIP-1271 read-only isValidSignature @ execution-block
+ *                               state (Phase B-1; magic ⇒ OK — NEVER executor proof).
+ *   CONTRACT_EXECUTION_BINDING  strict admissible-evidence attribution of the signing
+ *                               contract to this execution (Q-B1.3; tx.from ∉ proof).
  *   DECLARER_EXECUTION_BINDING  authority over THIS execution:
  *                                 STAMP: root authority == actual tx.from
  *                                        (direct or via delegation chain).
+ *                                 EIP1271 kind: NOT_APPLICABLE (binding via
+ *                                 CONTRACT_EXECUTION_BINDING instead).
  *   DELEGATION_CHAIN            ordered, scoped, non-expired, root-authority-correct.
  *   ATTESTATION_SIGNATURES      replayed vs issuer (crypto axis).
  *   ATTESTATION_RECOGNITION     trusted-issuer policy → ATTESTED/NOT_PROVEN.
@@ -36,6 +45,10 @@ import {
 } from "./attestation.js";
 import { normalizeExecutorType } from "./taxonomy.js";
 import { loadEvmAdapter } from "./evm-adapter.js";
+import {
+  evaluateContractAuthorization,
+  evaluateContractExecutionBinding,
+} from "./contract-auth.js";
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
@@ -59,11 +72,18 @@ const NOT_RUN_VERDICT = (label, reason) => ({
  *   @param {string} [evidence.executionBlock] decimal block number
  *   @param {object} [evidence.commitment]     { root, proof } anchor reference
  *   @param {Array}  [evidence.attestations]   signed attestation envelopes
- *   @param {object} [evidence.confidence]     { trustedAttestors [...] }
- *   @param {object} [evidence.revocationEvidence] { revocationProof {...} }
+* @param {object} [evidence.confidence]     { trustedAttestors [...] }
+ * @param {object} [evidence.revocationEvidence] { revocationProof {...} }
+ * @param {string} [evidence.contractCallerContext]  EIP-1271 eth_call `from` when the
+ *                                     verification profile states a caller context
+ *                                     (Q-B1.2; absent ⇒ not asserted, never substituted)
+ * @param {object} [evidence.executionBinding] { rule: "TRACE_CALLER"|"PROTOCOL_STATE_TRANSITION", ... }
+ *                                     CONTRACT_EXECUTION_BINDING admissible evidence
  * @param {object}  [options]
- *   @param {object}  [options.evm]  injected @coreguard/evm adapter (defaults
+ * @param {object}  [options.evm]  injected @coreguard/evm adapter (defaults
  *     to the memoized gate; pass null to force NOT_RUN deterministically)
+ * @param {object}  [options.contractAuth]  injected read-only providers for the
+ *     EIP-1271 path: { ethCall, getCode } (Q-B1.5 — never a package dependency)
  * @returns {{ verdicts: object, summary: string, errors: string[] }}
  */
 export async function verifyProvenance(manifest, evidence = {}, options = {}) {
@@ -131,11 +151,57 @@ export async function verifyProvenance(manifest, evidence = {}, options = {}) {
     errors.push("manifest.manifestId missing");
   }
 
-  // ── 2. MANIFEST_SIGNATURE ───────────────────────────────────────────────
+  // ── 2. MANIFEST_SIGNATURE / CONTRACT_AUTHORIZATION ───────────────────────
   const sig = manifest.signature || {};
-  const manifestSignature = { status: "NOT_PROVEN", label: "NO_SIGNATURE" };
+  const bindingKind = (manifest.declared?.signerBinding || {}).kind;
+  const isContractPath = bindingKind === "EIP1271" && sig.scheme === "EIP-1271";
+  const contractPathMismatch = (bindingKind === "EIP1271") !== (sig.scheme === "EIP-1271");
 
-  if (!evmReady) {
+  const manifestSignature = { status: "NOT_PROVEN", label: "NO_SIGNATURE" };
+  const contractAuthorization = { status: "NOT_APPLICABLE", label: "EOA_PATH" };
+  const contractExecutionBinding = { status: "NOT_APPLICABLE", label: "EOA_PATH" };
+
+  if (isContractPath) {
+    // Signature envelope carries contract-supplied bytes; the cryptographic
+    // authority check is CONTRACT_AUTHORIZATION (EIP-1271), not EOA recovery.
+    manifestSignature.status = "NOT_APPLICABLE";
+    manifestSignature.label = "CONTRACT_PATH (EIP-1271)";
+    manifestSignature.contract = (manifest.declared.signerBinding || {}).address || null;
+
+    const providers = options.contractAuth || {};
+    if (!evmReady) {
+      contractAuthorization.status = "NOT_RUN";
+      contractAuthorization.label = "EVM_ADAPTER_UNAVAILABLE";
+    } else {
+      const digest = "0x" + Buffer.from(
+        evm.typedDataDigest("ManifestDeclaration", MANIFEST_TYPES, { manifestId }, chainId),
+      ).toString("hex");
+      const caOut = await evaluateContractAuthorization({
+        digest,
+        signatureBytes: sig.bytes || "0x",
+        contract: manifest.declared.signerBinding.address,
+        blockNumber: executionBlock,
+        from: evidence.contractCallerContext, // profile-stated caller context; absent ⇒ not asserted
+        ethCall: providers.ethCall,
+        getCode: providers.getCode,
+        evm,
+      });
+      Object.assign(contractAuthorization, caOut);
+      if (caOut.status === "NOT_PROVEN") errors.push(`CONTRACT_AUTHORIZATION: ${caOut.label}`);
+    }
+
+    const ebOut = await evaluateContractExecutionBinding({
+      evidence,
+      signerBinding: manifest.declared.signerBinding,
+      executionFrom,
+    });
+    Object.assign(contractExecutionBinding, ebOut);
+    if (ebOut.status === "NOT_PROVEN") errors.push(`CONTRACT_EXECUTION_BINDING: ${ebOut.label}`);
+  } else if (contractPathMismatch) {
+    manifestSignature.status = "NOT_PROVEN";
+    manifestSignature.label = "CONTRACT_CONSISTENCY_MISMATCH";
+    errors.push("signerBinding.kind / signature.scheme EIP-1271 consistency violated");
+  } else if (!evmReady) {
     manifestSignature.status = "NOT_RUN";
     manifestSignature.label = "EVM_ADAPTER_UNAVAILABLE";
   } else if (typeof sig.r === "string" && /^[0-9a-fA-F]{64}$/.test(sig.r) &&
@@ -185,7 +251,13 @@ export async function verifyProvenance(manifest, evidence = {}, options = {}) {
   const declaredSigner = (manifest.declared?.signerBinding || {}).address || "";
   const chain = Array.isArray(manifest.declared?.delegationChain) ? manifest.declared.delegationChain : [];
 
-  if (schema.kind === "STAMP") {
+  // Contract path: EOA `tx.from` equality is irrelevant to contract execution
+  // binding (Q-B1.3 invariant: tx.from identifies the initiator, not the
+  // executor). Authority binding is carried by CONTRACT_EXECUTION_BINDING.
+  if (isContractPath) {
+    declarerBinding.status = "NOT_APPLICABLE";
+    declarerBinding.label = "CONTRACT_BINDING_PATH";
+  } else if (schema.kind === "STAMP") {
     if (chain.length === 0) {
       delegation.status = "NOT_PROVEN";
       delegation.label = "NO_DELEGATION_CHAIN";
@@ -311,6 +383,8 @@ export async function verifyProvenance(manifest, evidence = {}, options = {}) {
   const verdicts = {
     PROVENANCE_COMMITMENT: commitment,
     MANIFEST_SIGNATURE: manifestSignature,
+    CONTRACT_AUTHORIZATION: contractAuthorization,
+    CONTRACT_EXECUTION_BINDING: contractExecutionBinding,
     DECLARER_EXECUTION_BINDING: declarerBinding,
     DELEGATION_CHAIN: delegation,
     ATTESTATION_SIGNATURES: attestationSignatures,
@@ -320,18 +394,23 @@ export async function verifyProvenance(manifest, evidence = {}, options = {}) {
   };
 
   const criticalNotRun = manifestSignature.status === "NOT_RUN" ||
+    contractAuthorization.status === "NOT_RUN" ||
     declarerBinding.status === "NOT_RUN" ||
     delegation.status === "NOT_RUN";
 
   const criticalFail = manifestSignature.status === "NOT_PROVEN" ||
+    contractAuthorization.status === "NOT_PROVEN" ||
+    contractExecutionBinding.status === "NOT_PROVEN" ||
     declarerBinding.status === "NOT_PROVEN" ||
     commitment.status === "NOT_PROVEN";
 
   let summary;
   if (criticalNotRun && !criticalFail) {
-    summary = "FAIL_CLOSED: critical EVM checks NOT_RUN (adapter unavailable)";
+    summary = "FAIL_CLOSED: critical checks NOT_RUN (adapter/provider unavailable)";
   } else if (criticalFail) {
     summary = "FAIL_CLOSED: critical axis not proven";
+  } else if (isContractPath) {
+    summary = "MANIFEST_ID_PROVEN + CONTRACT_AUTHORIZED + CONTRACT_EXECUTION_BOUND";
   } else if (attestationRecognition.status === "OK") {
     summary = "MANIFEST_ID_PROVEN + ATTESTED";
   } else {
