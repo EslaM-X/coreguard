@@ -1,6 +1,6 @@
 # AgentProof Execution Roadmap (Post-P2-1)
 
-**Version**: 1.0.0-approved · **Status**: G-1 PASS, G-2/CAP-1 PASS, Phase A IMPLEMENTED (commits e0f9ff4, b951036, 86048c6, 9f5de66)
+**Version**: 1.1.0-approved · **Status**: G-1 PASS, G-2/CAP-1 PASS, Phase A IMPLEMENTED (commits e0f9ff4, b951036, 86048c6, 9f5de66), Phase B-1 EIP-1271 DESIGN v1.2 APPROVED → **GO GRANTED (2026-09-13)** — implementation workstream open (package paths only, additive)
 **Parent**: CGEP/1:AGENT-PROVENANCE
 
 **Frozen / untouchable (hard constraints):**
@@ -18,7 +18,8 @@
 | G-1 | Prior-art scan (see § prior-art gate) | analysis, doc | — |
 | G-2 | Approve protocol spec (CAP-1) + decisions Q1–Q7 | decision | G-1 |
 | A | Manifest canonicalization + hashing + domain separation | code (new `packages` only) | G-2 |
-| B | Registry (agent profile + delegation + attestation) | code/contracts (NEW, not touching EvidenceRegistry) | A |
+| B-1 | EIP-1271 Contract Authentication (MULTISIG/SMART_CONTRACT → VERIFIED; Q10 closure) | code/contracts (NEW, additive on v0.1.1; NOT through EOA path) | A, Q10 |
+| B-2 | Registry (agent profile + delegation + attestation) | code/contracts (deferred beyond B-1; not required for B-1) | B-1 |
 | C | `verify-provenance` surface + tests | code | B |
 | D | Execution Firewall design→impl (v0.2) | deferred design; no P2 contract | C |
 | E | AgentProof DApp (UX/branding as spec → impl) | front-end | C |
@@ -41,7 +42,7 @@
 | G-1 | prior-art check | dated scan note in repo; no novelty claim before it |
 | G-2 | spec approval (CAP-1) | user approves protocol spec + decisions Q1–Q7 |
 | G-3 | Phase A commit | `git log` shows one additive commit; tests 125/125 preserved (not enough — must stay 125, NOT counting new) |
-| G-4 | Phase B commit | new contract/package; registry tests pass; evidence frozen hash unchanged |
+| G-4 | Phase B-1 commit | new contract/package; B-1 EIP-1271 tests pass (additive on top of 184); evidence frozen hash unchanged |
 | G-5 | Phase C commit | `verify-provenance` surface tested; exit codes documented |
 | G-6 | DApp/EW | separately gated post-P2; explicit go/no-go |
 
@@ -135,8 +136,56 @@ tests committed, baseline preserved and counts grow additively on top.
    184/184 tests; benchmark 73/73 intact; `git diff --check` clean.
 4. **P2-1 (separate track):** commit external verify-run surface once user
    GOes — do NOT bundle with any provenance work.
-5. **Phase B (OPEN):** smart-contract / multisig authorization via explicit
-   path (e.g. EIP-1271) — NOT reachable by EOA-only verification (Q10).
+5. **Phase B-1 (EIP-1271) — GO GRANTED (2026-09-13):** spec
+   `agent-provenance-eip1271.md` v1.2 (approved, design as-is). Pipeline below.
+6. **Phase B-2 (Registry):** deferred beyond B-1.
+
+---
+
+## Phase B-1 (EIP-1271 Contract Authentication) — design & gates
+
+**Spec:** `spec/agent-provenance-eip1271.md` (v1.2.0-design) · **Closes Q10.**
+Release boundary: **v0.2.0** (new independent release — v0.1.0/v0.1.1 immutable).
+
+```
+Phase B-1 pipeline:
+
+Design v1.2 (Q-B1.1–Q-B1.6)
+        ↓
+Threat Model finalized (T1–T9, §3)
+        ↓
+Test Vectors V1–V10 + V9b/V9c/V9d (§4)
+        ↓
+FINAL DESIGN REVIEW
+        ↓
+GO  ← GRANTED (2026-09-13)
+        ↓
+Implementation  ←  CURRENT POSITION
+        ↓
+G-4 B-1 / v0.2.0 (additive on 184/184, no v0.1.1 change)
+```
+
+**Design status (approved mechanics):**
+- `CONTRACT_AUTHORIZATION` axis (read-only `eth_call`, execution-block pinned,
+  explicit caller context, no STATICCALL-opcode claim, no on-chain wrapper).
+- `CONTRACT_EXECUTION_BINDING` = strict admissible-evidence rule; invariant
+  `tx.from ≠ executor`; **EIP-1271 OK + binding NOT_PROVEN ⇒ overall NOT_PROVEN**
+  (authorization ≠ execution proof).
+- `signature` self-describing: `scheme: "EIP-712" | "EIP-1271"`; consistency
+  `kind` ⇔ `scheme`; mismatch ⇒ NOT_PROVEN.
+- NOT_RUN: no provider / historical state unavailable; no `latest` fallback.
+- T1–T9 single-version threat rows; vectors V1–V10 + V9b/V9c/V9d locked.
+
+**Decision:** GO GRANTED (2026-09-13) — implementation open as additive B-1
+workstream; atomic commit per logical unit: `npm test` → `git diff --check` →
+frozen-artifacts review → independent commit. Structured state: permission to
+edit — EIP-1271 impl, B-1 tests, adapter/provider injection, execution-binding
+per evidence contract, additive test counts.<br>
+**Prohibited (red lines, phase B-1):** ✗ editing v0.1.1 · ✗ `verify-live.json` ·
+✗ Mainnet/P0/P1 · ✗ `tx.from == contract` rule · ✗ on-chain wrapper in B-1 ·
+✗ `latest`-state fallback · ✗ turning NOT_RUN→NOT_PROVEN merely for missing
+historical RPC · ✗ treating `0x1626ba7e` as executor proof ·
+✗ any AI-detector semantics.
 
 ---
 
@@ -146,6 +195,7 @@ tests committed, baseline preserved and counts grow additively on top.
 - ✗ Do not bundle provenance commits with P2-1.
 - ✗ Do not claim MULTISIG/SMART_CONTRACT VERIFIED from EOA cryptography alone (Q10).
 - ✗ Do not claim novelty/patentability before prior-art + counsel.
+- ✗ Do not begin Phase B-1 code before FINAL DESIGN REVIEW → GO (design approval ≠ code GO).
 - ✗ Do not introduce any "AI detector" language into product/spec/marketing.
 
 ---
