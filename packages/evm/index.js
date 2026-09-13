@@ -29,3 +29,11 @@ export {
   to32,
 } from "./signer/secp256k1.js";
 export { addressFromPublicKey } from "./signer/address.js";
+export {
+  ERC1271_MAGIC,
+  ERC1271_FN_SIG,
+  erc1271Selector,
+  isValidSignatureCalldata,
+  decodeIsValidSignatureReturn,
+  isErc1271Magic,
+} from "./erc1271.js";
