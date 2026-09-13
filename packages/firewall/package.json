@@ -1,0 +1,8 @@
+{
+  "name": "@coreguard/firewall",
+  "version": "0.1.0",
+  "description": "CGEP/1 Phase D — Execution Firewall decision engine (ZERO-DEP CORE; EVM/transport injected per-call)",
+  "type": "module",
+  "main": "index.js",
+  "license": "MIT"
+}
