@@ -1,6 +1,6 @@
 # AgentProof Execution Roadmap (Post-P2-1)
 
-**Version**: 1.1.0-approved · **Status**: G-1 PASS, G-2/CAP-1 PASS, Phase A IMPLEMENTED (commits e0f9ff4, b951036, 86048c6, 9f5de66), Phase B-1 EIP-1271 DESIGN v1.2 APPROVED → **GO GRANTED (2026-09-13)** — implementation workstream open (package paths only, additive)
+**Version**: 1.1.0-approved · **Status**: G-1 PASS, G-2/CAP-1 PASS, Phase A IMPLEMENTED (commits e0f9ff4, b951036, 86048c6, 9f5de66), Phase B-1 EIP-1271 DESIGN v1.2 APPROVED → **GO GRANTED (2026-09-13)** → **Phase B-1 implementation review = PASS (2026-09-13)** — G-4 READY — v0.2.0 release boundary established (no tag)
 **Parent**: CGEP/1:AGENT-PROVENANCE
 
 **Frozen / untouchable (hard constraints):**
@@ -159,10 +159,12 @@ Test Vectors V1–V10 + V9b/V9c/V9d (§4)
 FINAL DESIGN REVIEW
         ↓
 GO  ← GRANTED (2026-09-13)
-        ↓
-Implementation  ←  CURRENT POSITION
-        ↓
-G-4 B-1 / v0.2.0 (additive on 184/184, no v0.1.1 change)
+↓
+Implementation  →  DONE (commits 199c745, f64766c, 87df335, cdcc43e; +1f3a42d docs, 8abac4d dependency-gate)
+            ↓
+B-1 implementation review = PASS (2026-09-13)
+            ↓
+G-4 READY / v0.2.0 release boundary (no tag; v0.1.0/v0.1.1 immutable)
 ```
 
 **Design status (approved mechanics):**
@@ -186,6 +188,16 @@ per evidence contract, additive test counts.<br>
 ✗ `latest`-state fallback · ✗ turning NOT_RUN→NOT_PROVEN merely for missing
 historical RPC · ✗ treating `0x1626ba7e` as executor proof ·
 ✗ any AI-detector semantics.
+
+**Review (2026-09-13):** **Phase B-1 implementation review = PASS** — gates:
+design v1.2 (go) · dependency gate 10/10 (Q-B1.5) · EIP-1271 primitives ·
+schema/kind↔scheme · contract authorization · independent execution binding ·
+`tx.from` relayer shape · historical-state pinning · NOT_RUN semantics ·
+V9/V9b/V9c/V9d · V10 chain separation · 214/214 tests · 73/73 benchmark ·
+`git diff --check` clean · frozen artifacts untouched · v0.1.0/v0.1.1 untouched ·
+no new on-chain deployment/wrapper. **Outcome:** G-4 READY — **v0.2.0 release
+boundary established (no tag)**. No technical reason to reopen design or redo
+B-1.
 
 ---
 
