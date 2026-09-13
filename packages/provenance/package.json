@@ -1,7 +1,7 @@
 {
   "name": "@coreguard/provenance",
   "version": "0.1.0",
-  "description": "CGEP/1:AGENT-PROVENANCE — declared execution provenance state machine (zero-dep core + optional @coreguard/evm signer adapter)",
+  "description": "CGEP/1:AGENT-PROVENANCE — declared execution provenance state machine (ZERO-DEP CORE PATH; optional @coreguard/evm EVM crypto adapter)",
   "type": "module",
   "main": "index.js",
   "optionalDependencies": {

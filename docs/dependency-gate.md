@@ -1,8 +1,25 @@
 # Dependency Gate — @coreguard/evm (CGEP/1:AGENT-PROVENANCE Phase A)
 
-The only NON-zero-dependency code introduced for AgentProof is the isolated
-EVM signer adapter (`packages/evm`). Before any `npm install` of it, every
+The only dependency-carrying code introduced for AgentProof is the isolated
+EVM crypto adapter (`packages/evm`). Before any `npm install` of it, every
 criterion below must hold. Verified: **2026-09-13**.
+
+## Terminology (precise)
+
+`@coreguard/provenance` is **NOT** a zero-dependency package in the literal
+npm sense: it declares `@coreguard/evm` under `optionalDependencies`, so npm
+may install it. The precise claim is:
+
+```
+@coreguard/crypto        ZERO DEP
+@coreguard/provenance    ZERO-DEP CORE PATH  +  OPTIONAL EVM CRYPTO ADAPTER
+@coreguard/evm           EVM CRYPTO ADAPTER  +  @noble/curves + @noble/hashes
+```
+
+"Zero-dep" ALWAYS refers to the **core path** (canonicalization, manifest
+model, delegation/attestation/orchestrator), never to the package as a whole.
+The optional adapter never participates in that core path's logic via a static
+import.
 
 ## Dependency rule (recorded architecture decision)
 
@@ -10,13 +27,11 @@ criterion below must hold. Verified: **2026-09-13**.
 > secp256k1/Keccak-256 are introduced only behind an isolated EVM signer adapter.**
 
 ```
-@coreguard/crypto        ZERO DEP   canonicalize, sha256, P-256
-@coreguard/provenance    ZERO-DEP core + OPTIONAL EVM adapter
-   ├── canonicalization
-   ├── manifest model
-   └── delegation / attestation / orchestrator
-@coreguard/evm           DEPENDENCY-ISOLATED
-   └── signer/ eip712, secp256k1, address   + keccak256
+@coreguard/crypto        ZERO DEP                      canonicalize, sha256, P-256
+@coreguard/provenance    ZERO-DEP CORE PATH            canonicalization, manifest model,
+                         + OPTIONAL EVM CRYPTO ADAPTER     delegation / attestation / orchestrator
+@coreguard/evm           EVM CRYPTO ADAPTER            signer/ eip712, secp256k1, address + keccak256
+                         @noble/curves + @noble/hashes
 ```
 
 - `packages/provenance` does **not** import `@coreguard/evm` statically. It
@@ -25,7 +40,8 @@ criterion below must hold. Verified: **2026-09-13**.
   it never fabricates a cryptographic result (no P-256 substitution, no
   invented signer binding).
 - `packages/provenance/package.json` keeps noble OUT; it declares
-  `@coreguard/evm` as an `optionalDependencies` workspace link.
+  `@coreguard/evm` as an `optionalDependencies` workspace link. The **zero-dep
+  claim is scoped to the core path only** — see Terminology above.
 - The verifier's `MANIFEST_SIGNATURE`, `DECLARER_EXECUTION_BINDING`,
   `DELEGATION_CHAIN`, `ATTESTATION_SIGNATURES`, `ATTESTATION_RECOGNITION`
   axes are `NOT_RUN` when the adapter is absent. `PROVENANCE_COMMITMENT`
@@ -59,5 +75,5 @@ criterion below must hold. Verified: **2026-09-13**.
 ## Verdict
 
 `@noble/curves@^1.9.0` + `@noble/hashes@^1.8.0` **pass all 10 criteria** and
-are the only non-zero-dep addition for Phase A. They live exclusively under
-`packages/evm`, never in the zero-dep core.
+are the only dependency-carrying addition for Phase A. They live exclusively
+under `packages/evm` (the EVM crypto adapter), never in the zero-dep core path.

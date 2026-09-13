@@ -7,8 +7,8 @@
  * reports NOT_RUN — it never invents a cryptographic result.
  *
  * Dependency rule (recorded in docs/dependency-gate.md):
- *   @coreguard/crypto (zero-dep) → @coreguard/provenance (zero-dep core
- *   + optional EVM adapter) → @coreguard/evm (isolated sekpg256k1/Keccak).
+ *   @coreguard/crypto (ZERO DEP) → @coreguard/provenance (ZERO-DEP CORE PATH
+ *   + OPTIONAL EVM CRYPTO ADAPTER) → @coreguard/evm (isolated secp256k1/Keccak).
  */
 
 let cached = null;
