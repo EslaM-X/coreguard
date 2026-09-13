@@ -1,6 +1,6 @@
 # AgentProof Execution Roadmap (Post-P2-1)
 
-**Version**: 1.1.0-approved · **Status**: G-1 PASS, G-2/CAP-1 PASS, Phase A IMPLEMENTED (commits e0f9ff4, b951036, 86048c6, 9f5de66), Phase B-1 EIP-1271 DESIGN v1.2 APPROVED → **GO GRANTED (2026-09-13)** → **Phase B-1 implementation review = PASS (2026-09-13)** — G-4 READY — v0.2.0 release boundary established (no tag)
+**Version**: 1.1.0-approved · **Status**: G-1 PASS, G-2/CAP-1 PASS, Phase A IMPLEMENTED (commits e0f9ff4, b951036, 86048c6, 9f5de66), Phase B-1 EIP-1271 DESIGN v1.2 APPROVED → **GO GRANTED (2026-09-13)** → **Phase B-1 implementation review = PASS (2026-09-13)** — G-4 READY — v0.2.0 release boundary established (no tag); Phase D Execution Firewall DESIGN v0.3.0 FINAL DESIGN REVIEW PASS → **GO GRANTED (2026-09-13)** — implementation NOT started (spec committed docs-only)
 **Parent**: CGEP/1:AGENT-PROVENANCE
 
 **Frozen / untouchable (hard constraints):**
@@ -21,7 +21,7 @@
 | B-1 | EIP-1271 Contract Authentication (MULTISIG/SMART_CONTRACT → VERIFIED; Q10 closure) | code/contracts (NEW, additive on v0.1.1; NOT through EOA path) | A, Q10 |
 | B-2 | Registry (agent profile + delegation + attestation) | code/contracts (deferred beyond B-1; not required for B-1) | B-1 |
 | C | `verify-provenance` surface + tests | code | B |
-| D | Execution Firewall design→impl (v0.2) | deferred design; no P2 contract | C |
+| D | Execution Firewall design→impl (v0.2) | design v0.3.0 APPROVED / **GO GRANTED**; impl NOT started; no P2 contract | C |
 | E | AgentProof DApp (UX/branding as spec → impl) | front-end | C |
 | F | Directory / explorer + account-abstraction integration | later | E |
 
@@ -139,6 +139,11 @@ tests committed, baseline preserved and counts grow additively on top.
 5. **Phase B-1 (EIP-1271) — GO GRANTED (2026-09-13):** spec
    `agent-provenance-eip1271.md` v1.2 (approved, design as-is). Pipeline below.
 6. **Phase B-2 (Registry):** deferred beyond B-1.
+7. **Phase D (Execution Firewall) — GO GRANTED (2026-09-13):** spec
+   `agent-provenance-firewall.md` v0.3.0-design (Q-FW1–Q-FW10 + amendments
+   approved; FINAL DESIGN REVIEW PASS). **Implementation NOT started** — the
+   design is committed docs-only; implementation proceeds as separate atomic
+   commits later.
 
 ---
 
@@ -201,6 +206,76 @@ B-1.
 
 ---
 
+## Phase D (Execution Firewall) — design & gate
+
+**Spec:** `spec/agent-provenance-firewall.md` (v0.3.0-design) · additive on
+CGEP/1 + B-1; consumes the verifier, never re-defines it.
+
+```
+Phase D pipeline:
+
+Design v0.3 (Q-FW1–Q-FW10 + amendments 1a/2a/3a/3b/3c/4a/6a/7a/8a/9a)
+        ↓
+Threat Model finalized (T-FW1–T-FW9, §10)
+        ↓
+Mutation Lab corpus (M1–M13, §11) + Invariants I1–I7 (§12)
+        ↓
+FINAL DESIGN REVIEW = PASS (2026-09-13)
+        ↓
+GO  ← GRANTED (2026-09-13)
+        ↓
+Implementation  →  NOT STARTED (separate atomic commits, later)
+```
+
+**Design status (approved mechanics):**
+- **Temporal split:** pre-execution decision uses declaration binding only
+  (`intentRef`+`bindingRef`+`chainId`/`nonce`+`executionScope`, Q-FW4); an
+  actual `executionRef`/`CONTRACT_EXECUTION_BINDING` is POST-execution evidence
+  (Q-FW10) — `ALLOW` is never gated on post-execution evidence.
+- **Deterministic predicate (Q-FW5):** `ALLOW ⇔ POLICY_SATISFIED ∧
+  AUTHORITY_PROBE_OK ∧ DECLARATION_BOUND ∧ SIMCONSISTENT ∧ ¬REVIEW_OBLIGATION`.
+- **Fail-closed closed set (Q-FW7/Q-FW7a):** any `NOT_RUN` in
+  **{POLICY, PROBE, BINDING, SIM}** ⇒ `DENY` (or configured
+  `REQUIRE_REVIEW`); never `ALLOW`; reason recorded.
+- **Immutability (Q-FW6/Q-FW6a):** `decisionRef = hash(canonical record)`;
+  conformance annotation is a separate linked record; `DENY` stays `DENY`.
+- **Delivery (Q-FW8/Q-FW8a):** `@coreguard/firewall` zero-dep core; EVM/transport
+  injected per-call; static imports only from local zero-dep core; dependency
+  gate 10/10 re-checked at implementation.
+- **Review resolution (Q-FW2a/Q-FW9a):** `REQUIRE_REVIEW → ALLOW` only as a new
+  authorized-writer frozen record; unauthorized writer ⇒ DENY-equivalent;
+  deny-vs-VERIFIED conflict via CGEP/1 `CONTRADICTION_SCAN`.
+- **T-FW3 honest scope:** decision-time EIP-1271 magic ≠ executor proof; the
+  rubber-stamp is NOT detectable pre-execution (M9/M10 = `ALLOW` at decision,
+  `NOT_PROVEN` post-hoc).
+- Q-FW3c boundary stands: **Authority↔Policy scope = OUT OF SCOPE** (no B-2 /
+  registry introduced to close it).
+
+**Decision:** GO GRANTED (2026-09-13) — permission to implement Phase D as
+additive workstream; atomic commit per logical unit: `npm test` → `git diff
+--check` → frozen-artifacts review → independent commit. Structured state:
+permission to edit — firewall decision engine, decision-record schema, Mutation
+Lab corpus/tests, additive test counts. **However, implementation is NOT
+started by this GO**: the GO authorizes the design record only; implementation
+commits are separate and later.<br>
+**Prohibited (red lines, phase D):** ✗ "Firewall ALLOW is a pre-execution policy
+decision, not proof execution will or did conform" · ✗ retroactively converting
+a denied execution into an allowed one · ✗ AI/behavioral inference · ✗ editing
+v0.1.1 / `verify-live.json` / P0/P1 / anchored evidence · ✗ on-chain
+contract/deployment/P2 in this phase · ✗ merging firewall vocabulary into
+verification verdicts (no new `VERIFIED`-style meaning) · ✗ static EVM/transport
+imports across the firewall boundary.
+
+**Review (2026-09-13):** **FINAL DESIGN REVIEW = PASS** — gates: Q-FW1–Q-FW10 +
+all amendments approved · threat model T-FW1–T-FW9 · Mutation Lab M1–M13 ·
+invariants I1–I7 · fail-closed closed critical set · content-derived
+`decisionRef` · injected EVM/transport boundary · authorized-writer resolution ·
+no B-2/registry · 3 review findings closed (M9/M10 honest-scope, M7 citation,
+version refs). **Outcome:** design v0.3.0 committed docs-only; GO GRANTED;
+implementation pending (not started).
+
+---
+
 ## Do NOT Do (guardrails)
 
 - ✗ Do not edit `verify-live.json`, P0/P1 files, or anchored evidence.
@@ -208,6 +283,7 @@ B-1.
 - ✗ Do not claim MULTISIG/SMART_CONTRACT VERIFIED from EOA cryptography alone (Q10).
 - ✗ Do not claim novelty/patentability before prior-art + counsel.
 - ✗ Do not begin Phase B-1 code before FINAL DESIGN REVIEW → GO (design approval ≠ code GO).
+- ✗ Do not begin Phase D implementation inside the design-GO commit (implementation = separate atomic commits, later).
 - ✗ Do not introduce any "AI detector" language into product/spec/marketing.
 
 ---
