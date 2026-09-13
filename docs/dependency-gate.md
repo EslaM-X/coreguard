@@ -1,8 +1,18 @@
-# Dependency Gate — @coreguard/evm (CGEP/1:AGENT-PROVENANCE Phase A)
+# Dependency Gate — @coreguard/evm (CGEP/1:AGENT-PROVENANCE Phase A / Phase B-1)
 
 The only dependency-carrying code introduced for AgentProof is the isolated
 EVM crypto adapter (`packages/evm`). Before any `npm install` of it, every
 criterion below must hold. Verified: **2026-09-13**.
+
+## Phase B-1 EIP-1271 addition (Q-B1.5 — no new dependencies)
+
+Phase B-1 extends `packages/evm` with **pure EIP-1271 primitives**
+(`erc1271.js`: selector, calldata builder, return decode — deterministic ABI
+encoding, zero new deps, noble unchanged). The **transport** for contract auth
+(`eth_call`/`getCode`) is **injected per call** (`options.contractAuth` in
+`verifyProvenance`), never a package dependency — provenance remains on the
+ZERO-DEP CORE PATH + OPTIONAL EVM CRYPTO ADAPTER rule below. Tests are hermetic
+(fake injected provider, no network). **Dependency gate stays 10/10.**
 
 ## Terminology (precise)
 
