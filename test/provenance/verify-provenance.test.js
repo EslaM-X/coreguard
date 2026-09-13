@@ -245,3 +245,28 @@ test("verify-provenance: adapters ommitted → EVM checks NOT_RUN, zero-dep comm
   assert.ok(out.errors.every((e) => !/recovered signer|DECLARER_EXECUTION_BINDING/.test(e)),
     "NOT_RUN must not fabricate a signer-failure error");
 });
+
+test("verify-provenance: EOA boundary (Q10) — MULTISIG/SMART_CONTRACT are NOT claimed VERIFIED in Phase A", async () => {
+  // An EOA-signed STAMP declaring a contract-based executor must NOT lift past
+  // DECLARED/MANIFEST_ID_PROVEN. Contract authorization (EIP-1271) is Phase B.
+  const { EXECUTOR_STRONGEST } = await import("../../packages/provenance/taxonomy.js");
+  assert.equal(EXECUTOR_STRONGEST.MULTISIG, "NOT_PROVEN");
+  assert.equal(EXECUTOR_STRONGEST.SMART_CONTRACT, "NOT_PROVEN");
+
+  for (const executorType of ["MULTISIG", "SMART_CONTRACT"]) {
+    const signer = seedKey(80);
+    const manifest = await stampManifest({ signer, executorType });
+    const out = await verifyProvenance(manifest, {
+      chainId: CHAIN_ID,
+      executionFrom: signer.address,
+      executionBlock: "12345",
+    });
+
+    // EOA identity still binds the declarer — but that is NOT "VERIFIED" for the
+    // smart-contract authorization itself.
+    assert.equal(out.verdicts.EXECUTOR_TYPE.executorType, executorType);
+    assert.equal(out.verdicts.EXECUTOR_TYPE.status, "DECLARED");
+    assert.equal(out.summary, "MANIFEST_ID_PROVEN");
+    assert.ok(!out.summary.includes("VERIFIED"), "EOA signature must not fabricate VERIFIED for contract authorization");
+  }
+});
