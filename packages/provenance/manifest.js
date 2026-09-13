@@ -78,18 +78,30 @@ export function validateManifest(manifest) {
   const executorType = normalizeExecutorType(manifest.declared?.executorType);
 
   const signerBinding = manifest.declared?.signerBinding;
+  let bindingKind = "EOA";
   if (!signerBinding || typeof signerBinding !== "object") {
     errors.push("declared.signerBinding is required");
-  } else if (!ADDRESS_RE.test(signerBinding.address || "")) {
-    errors.push("declared.signerBinding.address must be a 0x 20-byte address");
+  } else {
+    if (!ADDRESS_RE.test(signerBinding.address || "")) {
+      errors.push("declared.signerBinding.address must be a 0x 20-byte address");
+    }
+    const kind = signerBinding.kind;
+    if (kind === undefined || kind === "EOA") {
+      bindingKind = "EOA";
+    } else if (kind === "EIP1271") {
+      bindingKind = "EIP1271";
+    } else {
+      bindingKind = "INVALID";
+      errors.push('declared.signerBinding.kind must be "EOA" or "EIP1271"');
+    }
   }
 
   const signature = manifest.signature;
   if (!signature || typeof signature !== "object") {
     errors.push("signature envelope is required");
-  } else {
-    if (signature.scheme !== "EIP-712") {
-      errors.push('signature.scheme must be "EIP-712"');
+  } else if (signature.scheme === "EIP-712") {
+    if (bindingKind === "EIP1271") {
+      errors.push('scheme "EIP-712" is inconsistent with signerBinding.kind "EIP1271" (contract path)');
     }
     if (!ADDRESS_RE.test(signature.signer || "")) {
       errors.push("signature.signer must be a 0x 20-byte address");
@@ -112,6 +124,21 @@ export function validateManifest(manifest) {
     if (typeof signature.digest === "string" && !/^0x[0-9a-fA-F]{64}$/.test(signature.digest)) {
       errors.push("signature.digest, when present, must be a 0x 32-byte hex");
     }
+  } else if (signature.scheme === "EIP-1271") {
+    if (bindingKind !== "EIP1271") {
+      errors.push('scheme "EIP-1271" is inconsistent with signerBinding.kind (requires "EIP1271")');
+    }
+    if (!ADDRESS_RE.test(signature.signer || "")) {
+      errors.push("signature.signer must be a 0x 20-byte address");
+    }
+    if (typeof signature.bytes !== "string" || !/^0x(?:[0-9a-fA-F]{2})*$/.test(signature.bytes)) {
+      errors.push("signature.bytes must be an even-length 0x hex string");
+    }
+    if (typeof signature.digest === "string" && !/^0x[0-9a-fA-F]{64}$/.test(signature.digest)) {
+      errors.push("signature.digest, when present, must be a 0x 32-byte hex");
+    }
+  } else {
+    errors.push('signature.scheme must be "EIP-712" or "EIP-1271"');
   }
 
   return {
