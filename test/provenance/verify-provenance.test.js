@@ -15,9 +15,10 @@ import assert from "node:assert/strict";
 
 import { verifyProvenance } from "../../packages/provenance/index.js";
 import { makeManifest, signManifest, seedKey, makeAddress, makeTxHash } from "./helpers.js";
-import { signDigest, publicKeyFromPrivateKey, addressFromPublicKey } from "../../packages/provenance/eip712.js";
+import { signDigest } from "../../packages/evm/index.js";
 import { delegationDigest } from "../../packages/provenance/delegation.js";
 
+const EVM = await import("../../packages/evm/index.js");
 const CHAIN_ID = "1116";
 const TX_FROM = makeAddress(0x1); // actual execution from (per on-chain evidence)
 
@@ -43,9 +44,10 @@ async function stampManifest({ signer, chainId = CHAIN_ID, delegation = null, ex
 }
 
 async function signDelegationLink({ authority, grantedTo, priv, chainId = CHAIN_ID }) {
-  const digest = delegationDigest(
+  const digest = await delegationDigest(
     { authority, grantedTo, scopeActionHash: "0", maxValue: "0", validAfter: "0", expiresAt: "0" },
     chainId,
+    EVM,
   );
   const sig = await signDigest(digest, priv);
   return {
@@ -199,7 +201,7 @@ test("verify-provenance: attestation from trusted issuer lifts to ATTESTED", asy
     revokedAt: null,
   };
   const { attestationContentDigest } = await import("../../packages/provenance/attestation.js");
-  const digest = attestationContentDigest(attestation);
+  const digest = await attestationContentDigest(attestation, EVM);
   attestation.signature = await signDigest(digest, issuer.priv);
 
   const out = await verifyProvenance(manifest, {
@@ -218,4 +220,28 @@ test("verify-provenance: attestation from trusted issuer lifts to ATTESTED", asy
   assert.equal(out.verdicts.ATTESTATION_RECOGNITION.status, "OK");
   assert.equal(out.verdicts.ATTESTATION_RECOGNITION.label, "ATTESTED");
   assert.equal(out.summary, "MANIFEST_ID_PROVEN + ATTESTED");
+});
+
+test("verify-provenance: adapters ommitted → EVM checks NOT_RUN, zero-dep commitment still evaluated", async () => {
+  // Force the EVM adapter to be unavailable (options.evm = null) to prove the
+  // verifier reports NOT_RUN — it never invents a cryptographic result.
+  const signer = seedKey(71);
+  const manifest = await stampManifest({ signer });
+
+  const out = await verifyProvenance(manifest, {
+    chainId: CHAIN_ID,
+    executionFrom: signer.address,
+    executionBlock: "12345",
+  }, { evm: null });
+
+  // Zero-dep core (sha256 commitment) still evaluates; EVM axes are NOT_RUN.
+  assert.equal(out.verdicts.PROVENANCE_COMMITMENT.status, "OK");
+  assert.equal(out.verdicts.MANIFEST_SIGNATURE.status, "NOT_RUN");
+  assert.equal(out.verdicts.MANIFEST_SIGNATURE.label, "EVM_ADAPTER_UNAVAILABLE");
+  assert.equal(out.verdicts.DECLARER_EXECUTION_BINDING.status, "NOT_RUN");
+  assert.equal(out.verdicts.DELEGATION_CHAIN.status, "NOT_PROVEN");
+  assert.equal(out.verdicts.DELEGATION_CHAIN.label, "NO_DELEGATION_CHAIN");
+  assert.match(out.summary, /NOT_RUN/);
+  assert.ok(out.errors.every((e) => !/recovered signer|DECLARER_EXECUTION_BINDING/.test(e)),
+    "NOT_RUN must not fabricate a signer-failure error");
 });

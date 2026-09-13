@@ -17,9 +17,10 @@ import {
   attestationContentDigest,
   VERDICT_ATTESTED,
 } from "../../packages/provenance/attestation.js";
-import { signDigest } from "../../packages/provenance/eip712.js";
+import { signDigest } from "../../packages/evm/index.js";
 import { seedKey, makeAddress, makeTxHash } from "./helpers.js";
 
+const EVM = await import("../../packages/evm/index.js");
 const ISSUER = seedKey(60);
 const SUBJECT = makeAddress(0xaa);
 
@@ -33,64 +34,79 @@ async function makeAttestation({ issuer = ISSUER, subject = SUBJECT, credentialT
     expiresAt: "5000",
     revokedAt: revoke ? "2000" : null,
   };
-  const digest = attestationContentDigest(attestation);
+  const digest = await attestationContentDigest(attestation, EVM);
   attestation.signature = await signDigest(digest, issuer.priv);
   return attestation;
 }
 
 test("attestation: valid signed envelope passes replay", async () => {
   const att = await makeAttestation();
-  const r = verifyAttestationSignature(att);
+  const r = await verifyAttestationSignature(att, EVM);
   assert.equal(r.valid, true);
+  assert.equal(r.status, "OK");
   assert.equal(r.signer.toLowerCase(), ISSUER.address.toLowerCase());
 });
 
 test("attestation: issuer field substitution breaks replay (FAIL)", async () => {
   const att = await makeAttestation();
   const swapped = { ...att, issuer: SUBJECT };
-  const r = verifyAttestationSignature(swapped);
+  const r = await verifyAttestationSignature(swapped, EVM);
   assert.equal(r.valid, false);
+  assert.equal(r.status, "NOT_PROVEN");
   assert.match(r.reason, /issuer/);
 });
 
 test("attestation: tampered credentialType breaks replay", async () => {
   const att = await makeAttestation();
   const tampered = { ...att, credentialType: "AUDIT_REPORT" };
-  assert.equal(verifyAttestationSignature(tampered).valid, false);
+  assert.equal((await verifyAttestationSignature(tampered, EVM)).valid, false);
 });
 
 test("attestation: tampered scope.txHash breaks replay", async () => {
   const att = await makeAttestation();
   const tampered = { ...att, scope: { ...att.scope, txHash: makeTxHash(0xcc) } };
-  assert.equal(verifyAttestationSignature(tampered).valid, false);
+  assert.equal((await verifyAttestationSignature(tampered, EVM)).valid, false);
+});
+
+test("attestation: no EVM adapter → NOT_RUN (never fabricated)", async () => {
+  const att = await makeAttestation();
+  const r = await verifyAttestationSignature(att, null);
+  assert.equal(r.valid, false);
+  assert.equal(r.status, "NOT_RUN");
+
+  const recog = await recognizeAttestation(att, {
+    trustedAttestors: [{ issuer: ISSUER.address, credentialType: "AGENT_PROFILE" }],
+  }, null);
+  assert.equal(recog.verdict, "NOT_RUN");
+  assert.equal(recog.label, "EVM_ADAPTER_UNAVAILABLE");
 });
 
 test("recognition: unrecognized issuer stays NOT_PROVEN (fail-closed)", async () => {
   const att = await makeAttestation();
-  const r = recognizeAttestation(att, { trustedAttestors: [{ issuer: makeAddress(0x99), credentialType: "AGENT_PROFILE" }] });
+  const r = await recognizeAttestation(att, { trustedAttestors: [{ issuer: makeAddress(0x99), credentialType: "AGENT_PROFILE" }] }, EVM);
   assert.equal(r.verdict, "NOT_PROVEN");
   assert.match(r.reason, /trusted set/);
 });
 
 test("recognition: trusted issuer + type + scope → ATTESTED", async () => {
   const att = await makeAttestation();
-  const r = recognizeAttestation(att, {
+  const r = await recognizeAttestation(att, {
     trustedAttestors: [{ issuer: ISSUER.address, credentialType: "AGENT_PROFILE", chainId: "1116" }],
-  });
+  }, EVM);
   assert.equal(r.verdict, VERDICT_ATTESTED);
 });
 
 test("recognition: trusted for another chainId does NOT vouch", async () => {
   const att = await makeAttestation();
-  const r = recognizeAttestation(att, {
+  const r = await recognizeAttestation(att, {
     trustedAttestors: [{ issuer: ISSUER.address, credentialType: "AGENT_PROFILE", chainId: "10" }],
-  });
+  }, EVM);
   assert.equal(r.verdict, "NOT_PROVEN");
 });
 
 test("recognition: expired attestation is NOT_PROVEN", async () => {
   const att = await makeAttestation();
-  const r = recognizeAttestation(att, { trustedAttestors: [{ issuer: ISSUER.address, credentialType: "AGENT_PROFILE" }], currentBlock: "6000" });
+  const r = await recognizeAttestation(att, { trustedAttestors: [{ issuer: ISSUER.address, credentialType: "AGENT_PROFILE" }], currentBlock: "6000" }, EVM);
   assert.equal(r.verdict, "NOT_PROVEN");
   assert.equal(r.label, "EXPIRED");
 });

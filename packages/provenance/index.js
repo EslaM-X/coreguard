@@ -18,6 +18,12 @@
  *
  * The manifest is treated as untrusted input; everything is recomputed from
  * the rooted domainHash over the declared manifestCore.
+ *
+ * EVM CRYPTO BOUNDARY (docs/dependency-gate.md): EIP-712 replay, digests and
+ * signer recovery require the isolated @coreguard/evm adapter. When the
+ * adapter is unavailable the affected checks report status "NOT_RUN" — the
+ * verifier NEVER invents a cryptographic result (no P-256 substitution, no
+ * guessed signer binding).
  */
 
 import { validateManifest } from "./manifest.js";
@@ -29,12 +35,18 @@ import {
   revocationStatus,
 } from "./attestation.js";
 import { normalizeExecutorType } from "./taxonomy.js";
-import { typedDataDigest, recoverSignerAddress } from "./eip712.js";
+import { loadEvmAdapter } from "./evm-adapter.js";
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
 const MANIFEST_TYPES = Object.freeze({
   ManifestDeclaration: Object.freeze([{ name: "manifestId", type: "bytes32" }]),
+});
+
+const NOT_RUN_VERDICT = (label, reason) => ({
+  status: "NOT_RUN",
+  label,
+  reason,
 });
 
 /**
@@ -49,9 +61,12 @@ const MANIFEST_TYPES = Object.freeze({
  *   @param {Array}  [evidence.attestations]   signed attestation envelopes
  *   @param {object} [evidence.confidence]     { trustedAttestors [...] }
  *   @param {object} [evidence.revocationEvidence] { revocationProof {...} }
+ * @param {object}  [options]
+ *   @param {object}  [options.evm]  injected @coreguard/evm adapter (defaults
+ *     to the memoized gate; pass null to force NOT_RUN deterministically)
  * @returns {{ verdicts: object, summary: string, errors: string[] }}
  */
-export async function verifyProvenance(manifest, evidence = {}) {
+export async function verifyProvenance(manifest, evidence = {}, options = {}) {
   const { chainId, executionFrom, executionBlock } = evidence;
   const errors = [];
 
@@ -61,6 +76,19 @@ export async function verifyProvenance(manifest, evidence = {}) {
   if (typeof executionFrom !== "string" || !ADDRESS_RE.test(executionFrom)) {
     errors.push("evidence.executionFrom must be an EVM address");
   }
+
+  // EVM adapter: explicit injection wins; else the memoized optional gate.
+  let evm = null;
+  try {
+    evm = options.evm !== undefined ? options.evm : await loadEvmAdapter();
+  } catch {
+    evm = null;
+  }
+  const evmReady = Boolean(
+    evm &&
+    typeof evm.typedDataDigest === "function" &&
+    typeof evm.recoverSignerAddress === "function",
+  );
 
   // ── 1. PROVENANCE_COMMITMENT ────────────────────────────────────────────
   const commitment = { status: "NOT_PROVEN", label: "NOT_EVALUATED" };
@@ -107,17 +135,20 @@ export async function verifyProvenance(manifest, evidence = {}) {
   const sig = manifest.signature || {};
   const manifestSignature = { status: "NOT_PROVEN", label: "NO_SIGNATURE" };
 
-  if (typeof sig.r === "string" && /^[0-9a-fA-F]{64}$/.test(sig.r) &&
+  if (!evmReady) {
+    manifestSignature.status = "NOT_RUN";
+    manifestSignature.label = "EVM_ADAPTER_UNAVAILABLE";
+  } else if (typeof sig.r === "string" && /^[0-9a-fA-F]{64}$/.test(sig.r) &&
       typeof sig.s === "string" && /^[0-9a-fA-F]{64}$/.test(sig.s) &&
       (sig.v === 27 || sig.v === 28)) {
     try {
-      const digest = typedDataDigest(
+      const digest = evm.typedDataDigest(
         "ManifestDeclaration",
         MANIFEST_TYPES,
         { manifestId },
         chainId,
       );
-      const recovered = recoverSignerAddress(digest, { r: sig.r, s: sig.s, v: sig.v });
+      const recovered = evm.recoverSignerAddress(digest, { r: sig.r, s: sig.s, v: sig.v });
       if (String(recovered).toLowerCase() === String(sig.signer || "").toLowerCase()) {
         manifestSignature.status = "OK";
         manifestSignature.label = "RECOVERED_SIGNER";
@@ -159,27 +190,43 @@ export async function verifyProvenance(manifest, evidence = {}) {
       delegation.status = "NOT_PROVEN";
       delegation.label = "NO_DELEGATION_CHAIN";
     } else {
-      const chkV = verifyDelegationChain(chain, {
+      const chkV = await verifyDelegationChain(chain, {
         chainId,
         rootAuthority: declaredSigner,
         executionBlock,
+        evm,
       });
-      delegation.status = chkV.valid ? "OK" : "NOT_PROVEN";
-      delegation.label = chkV.valid ? "CHAIN_VALID" : `CHAIN_INVALID: ${chkV.reason}`;
-      delegation.links = chkV.links;
-      delegation.grantee = chkV.grantee || null;
-      if (!chkV.valid) errors.push(`DELEGATION_CHAIN: ${chkV.reason}`);
+      if (chkV.status === "NOT_RUN") {
+        delegation.status = "NOT_RUN";
+        delegation.label = "EVM_ADAPTER_UNAVAILABLE";
+        delegation.reason = chkV.reason;
+      } else {
+        delegation.status = chkV.valid ? "OK" : "NOT_PROVEN";
+        delegation.label = chkV.valid ? "CHAIN_VALID" : `CHAIN_INVALID: ${chkV.reason}`;
+        delegation.links = chkV.links;
+        delegation.grantee = chkV.grantee || null;
+        if (!chkV.valid) errors.push(`DELEGATION_CHAIN: ${chkV.reason}`);
+      }
     }
 
     // DECLARER_EXECUTION_BINDING: root authority == actual execution `from`.
-    if (declaredSigner && executionFrom &&
-        declaredSigner.toLowerCase() === executionFrom.toLowerCase()) {
+    if (!evmReady) {
+      declarerBinding.status = "NOT_RUN";
+      declarerBinding.label = "EVM_ADAPTER_UNAVAILABLE";
+    } else if (declaredSigner && executionFrom &&
+        declaredSigner.toLowerCase() === executionFrom.toLowerCase() &&
+        manifestSignature.status === "OK") {
       declarerBinding.status = "OK";
       declarerBinding.label = "DIRECT (signer = tx.from)";
     } else if (delegation.status === "OK" && delegation.grantee &&
         executionFrom && delegation.grantee.toLowerCase() === executionFrom.toLowerCase()) {
       declarerBinding.status = "OK";
       declarerBinding.label = "DELEGATED (grantee = tx.from)";
+    } else if (manifestSignature.status !== "OK") {
+      declarerBinding.status = manifestSignature.status === "NOT_RUN"
+        ? "NOT_RUN"
+        : "NOT_PROVEN";
+      declarerBinding.label = "DEPENDS_ON_MANIFEST_SIGNATURE";
     } else {
       declarerBinding.status = "NOT_PROVEN";
       declarerBinding.label = "NO (authority != tx.from)";
@@ -187,20 +234,30 @@ export async function verifyProvenance(manifest, evidence = {}) {
     }
   } else {
     // REGISTRATION — binds to an agent identity, no per-execution tx.from.
-    declarerBinding.status = "OK";
-    declarerBinding.label = "REGISTRATION (identity root)";
+    if (!evmReady || manifestSignature.status !== "OK") {
+      declarerBinding.status = manifestSignature.status;
+      declarerBinding.label = manifestSignature.status === "NOT_RUN"
+        ? "EVM_ADAPTER_UNAVAILABLE"
+        : "DEPENDS_ON_MANIFEST_SIGNATURE";
+    } else {
+      declarerBinding.status = "OK";
+      declarerBinding.label = "REGISTRATION (identity root)";
+    }
   }
 
   // ── 5. ATTESTATION (SIGNATURES / RECOGNITION) ───────────────────────────
   const attestationSignatures = { status: "OK", label: "NONE", list: [] };
   const attestationRecognition = { status: "NOT_PROVEN", label: "NONE", list: [] };
+  let attestationNotRun = false;
 
   for (const att of Array.isArray(evidence.attestations) ? evidence.attestations : []) {
-    const sigResult = verifyAttestationSignature(att);
-    const recog = recognizeAttestation(att, evidence.confidence);
+    const sigResult = await verifyAttestationSignature(att, evm);
+    const recog = await recognizeAttestation(att, evidence.confidence, evm);
+    if (sigResult.status === "NOT_RUN" || recog.verdict === "NOT_RUN") attestationNotRun = true;
     attestationSignatures.list.push({
       issuer: att.issuer,
       valid: sigResult.valid,
+      status: sigResult.status,
       reason: sigResult.reason || null,
     });
     attestationRecognition.list.push({
@@ -211,18 +268,34 @@ export async function verifyProvenance(manifest, evidence = {}) {
     });
   }
 
-  if (attestationSignatures.list.some((r) => !r.valid)) {
-    attestationSignatures.status = "NOT_PROVEN";
-    attestationSignatures.label = "BAD_SIGNATURES";
-  } else if (attestationSignatures.list.length > 0) {
-    attestationSignatures.status = "OK";
-    attestationSignatures.label = "ALL_REPLAY";
-  }
+  attestationSignatures.status = attestationNotRun
+    ? "NOT_RUN"
+    : attestationSignatures.list.some((r) => !r.valid)
+      ? "NOT_PROVEN"
+      : attestationSignatures.list.length > 0
+        ? "OK"
+        : "OK";
+  attestationSignatures.label = attestationNotRun
+    ? "EVM_ADAPTER_UNAVAILABLE"
+    : attestationSignatures.list.some((r) => !r.valid)
+      ? "BAD_SIGNATURES"
+      : attestationSignatures.list.length > 0
+        ? "ALL_REPLAY"
+        : "NONE";
 
   if (attestationRecognition.list.length > 0) {
+    const anyNotRun = attestationRecognition.list.some((r) => r.verdict === "NOT_RUN");
     const anyAttested = attestationRecognition.list.some((r) => r.verdict === "ATTESTED");
-    attestationRecognition.status = anyAttested ? "OK" : "NOT_PROVEN";
-    attestationRecognition.label = anyAttested ? "ATTESTED" : "NONE_RECOGNIZED";
+    attestationRecognition.status = anyNotRun
+      ? "NOT_RUN"
+      : anyAttested
+        ? "OK"
+        : "NOT_PROVEN";
+    attestationRecognition.label = anyNotRun
+      ? "EVM_ADAPTER_UNAVAILABLE"
+      : anyAttested
+        ? "ATTESTED"
+        : "NONE_RECOGNIZED";
   }
 
   // ── 6. REVOCATION (§5b — declared ≠ proven) ─────────────────────────────
@@ -246,12 +319,18 @@ export async function verifyProvenance(manifest, evidence = {}) {
     REVOCATION: revocations,
   };
 
-  const criticalFail = manifestSignature.status !== "OK" ||
-    declarerBinding.status !== "OK" ||
+  const criticalNotRun = manifestSignature.status === "NOT_RUN" ||
+    declarerBinding.status === "NOT_RUN" ||
+    delegation.status === "NOT_RUN";
+
+  const criticalFail = manifestSignature.status === "NOT_PROVEN" ||
+    declarerBinding.status === "NOT_PROVEN" ||
     commitment.status === "NOT_PROVEN";
 
   let summary;
-  if (criticalFail) {
+  if (criticalNotRun && !criticalFail) {
+    summary = "FAIL_CLOSED: critical EVM checks NOT_RUN (adapter unavailable)";
+  } else if (criticalFail) {
     summary = "FAIL_CLOSED: critical axis not proven";
   } else if (attestationRecognition.status === "OK") {
     summary = "MANIFEST_ID_PROVEN + ATTESTED";

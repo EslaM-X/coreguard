@@ -1,0 +1,12 @@
+{
+  "name": "@coreguard/evm",
+  "version": "0.1.0",
+  "description": "CGEP/1:AGENT-PROVENANCE — dependency-isolated EVM signer adapter (EIP-712, Keccak-256, secp256k1 recovery, EVM address derivation)",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "@noble/curves": "^1.9.0",
+    "@noble/hashes": "^1.8.0"
+  },
+  "license": "MIT"
+}

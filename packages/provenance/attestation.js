@@ -18,9 +18,13 @@
  * AUTHORITATIVE. An in-envelope `revokedAt` alone is a DECLARED fact at most;
  * PROVEN revocation requires corroborating evidence (on-chain/registry/
  * verifiable revoke signature). v0.1 never claims PROVEN revocation.
+ *
+ * EVM CRYPTO BOUNDARY: EIP-712 digest + signer recovery are provided by the
+ * injected `evm` adapter (@coreguard/evm). When the adapter is absent the
+ * verifier reports NOT_RUN — it never fabricates a replay result.
  */
 
-import { recoverSignerAddress, typedDataDigest } from "./eip712.js";
+import { loadEvmAdapter } from "./evm-adapter.js";
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 const TXHASH_RE = /^0x[0-9a-fA-F]{64}$/;
@@ -30,6 +34,8 @@ export const VERDICT_ATTESTED = "ATTESTED";       // XP (flows allow)
 export const VERDICT_VERIFIED = "VERIFIED";       // XP++ (bilinear, on-chain)
 export const VERDICT_UNRECOGNIZED = "UNRECOGNIZED";
 export const VERDICT_DECLARED = "DECLARED";       // storage-internal label
+
+export const VERDICT_NOT_RUN = "NOT_RUN";         // EVM adapter unavailable
 
 export const RECOGNITION_LEVELS = Object.freeze([
   VERDICT_NOT_PROVEN,
@@ -53,8 +59,22 @@ export const ATTESTATION_TYPES = Object.freeze([
   { name: "expiresAt", type: "uint256" },
 ]);
 
+/**
+ * Resolve the EVM adapter for a caller. Explicitly-passed adapter wins as-is
+ * (null intentionally means "not available" → NOT_RUN). Only `undefined`
+ * triggers the memoized gate auto-load, preserving the lazy optional adapter.
+ */
+export async function getEvmFor(evm) {
+  if (evm !== undefined) return evm;
+  return loadEvmAdapter();
+}
+
 /** The bytes32 the signer commits to inside the attestation envelope. */
-export function attestationContentDigest(attestation) {
+export async function attestationContentDigest(attestation, evm = undefined) {
+  const adapter = await getEvmFor(evm);
+  if (!adapter || typeof adapter.typedDataDigest !== "function") {
+    throw new Error("@coreguard/evm adapter unavailable — cannot compute attestation digest");
+  }
   const scope = attestation.scope || {};
   const data = {
     issuer: attestation.issuer,
@@ -65,7 +85,7 @@ export function attestationContentDigest(attestation) {
     issuedAt: BigInt(attestation.issuedAt ?? "0"),
     expiresAt: BigInt(attestation.expiresAt ?? "0"),
   };
-  return typedDataDigest(
+  return adapter.typedDataDigest(
     ATTESTATION_PRIMARY_TYPE,
     { Attestation: ATTESTATION_TYPES },
     data,
@@ -75,43 +95,55 @@ export function attestationContentDigest(attestation) {
 
 /**
  * ATTESTATION_SIGNATURES: replay the envelope against the EIP-712 root.
- * @returns {{ valid: boolean, signer: string|null, reason?: string }}
+ * @returns {{ valid: boolean, status: string, signer: string|null, reason?: string }}
+ *   status: "OK" | "NOT_PROVEN" | "NOT_RUN" (NOT_RUN only when the EVM
+ *   adapter is unavailable — the check was not evaluable, not a failure).
  */
-export function verifyAttestationSignature(attestation) {
+export async function verifyAttestationSignature(attestation, evm = undefined) {
   if (!attestation || typeof attestation !== "object") {
-    return { valid: false, signer: null, reason: "attestation missing" };
+    return { valid: false, status: "NOT_PROVEN", signer: null, reason: "attestation missing" };
   }
   const sig = attestation.signature;
   if (!sig || typeof sig !== "object") {
-    return { valid: false, signer: null, reason: "attestation.signature missing" };
+    return { valid: false, status: "NOT_PROVEN", signer: null, reason: "attestation.signature missing" };
   }
   if (!ADDRESS_RE.test(attestation.issuer || "")) {
-    return { valid: false, signer: null, reason: "attestation.issuer is not an address" };
+    return { valid: false, status: "NOT_PROVEN", signer: null, reason: "attestation.issuer is not an address" };
   }
   if (typeof sig.r !== "string" || !/^[0-9a-fA-F]{64}$/.test(sig.r) ||
       typeof sig.s !== "string" || !/^[0-9a-fA-F]{64}$/.test(sig.s) ||
       (sig.v !== 27 && sig.v !== 28)) {
-    return { valid: false, signer: null, reason: "attestation.signature r/s/v malformed" };
+    return { valid: false, status: "NOT_PROVEN", signer: null, reason: "attestation.signature r/s/v malformed" };
+  }
+
+  const adapter = await getEvmFor(evm);
+  if (!adapter || typeof adapter.recoverSignerAddress !== "function") {
+    return {
+      valid: false,
+      status: "NOT_RUN",
+      signer: null,
+      reason: "EVM adapter not loaded — signature replay NOT_RUN (never fabricated)",
+    };
   }
 
   let digest;
   try {
-    digest = attestationContentDigest(attestation);
+    digest = await attestationContentDigest(attestation, adapter);
   } catch (e) {
-    return { valid: false, signer: null, reason: `digest error: ${e.message}` };
+    return { valid: false, status: "NOT_PROVEN", signer: null, reason: `digest error: ${e.message}` };
   }
 
   let recovered;
   try {
-    recovered = recoverSignerAddress(digest, { r: sig.r, s: sig.s, v: sig.v });
+    recovered = adapter.recoverSignerAddress(digest, { r: sig.r, s: sig.s, v: sig.v });
   } catch (e) {
-    return { valid: false, signer: null, reason: `recovery error: ${e.message}` };
+    return { valid: false, status: "NOT_PROVEN", signer: null, reason: `recovery error: ${e.message}` };
   }
 
   if (recovered.toLowerCase() !== attestation.issuer.toLowerCase()) {
-    return { valid: false, signer: recovered, reason: "recovered signer != declared issuer" };
+    return { valid: false, status: "NOT_PROVEN", signer: recovered, reason: "recovered signer != declared issuer" };
   }
-  return { valid: true, signer: recovered };
+  return { valid: true, status: "OK", signer: recovered };
 }
 
 /**
@@ -135,13 +167,22 @@ export function isTrustedAttestor(confidence, issuer, credentialType, chainId) {
  *
  * @param {object}  attestation   verified-already envelope
  * @param {object}  confidence    { trustedAttestors: [{issuer, credentialType?, chainId?}] }
+ * @param {object}  [evm]         injected @coreguard/evm adapter (null → NOT_RUN)
  * @returns {{ verdict: string, label: string, reason: string }}
  */
-export function recognizeAttestation(attestation, confidence = {}) {
+export async function recognizeAttestation(attestation, confidence = {}, evm = undefined) {
   const scope = attestation.scope || {};
   const chainId = String(scope.chainId ?? "");
+  const sig = await verifyAttestationSignature(attestation, evm);
+  if (sig.status === "NOT_RUN") {
+    return {
+      verdict: VERDICT_NOT_RUN,
+      label: "EVM_ADAPTER_UNAVAILABLE",
+      reason: "EVM adapter not loaded — attestation recognition NOT_RUN (never fabricated)",
+    };
+  }
 
-  if (!verifyAttestationSignature(attestation).valid) {
+  if (!sig.valid) {
     return {
       verdict: VERDICT_NOT_PROVEN,
       label: "NOSIG_INVALID",

@@ -7,7 +7,7 @@
  *   signDelegation(link, priv, chainId)   => link + signature
  */
 
-import { signDigest, typedDataDigest, publicKeyFromPrivateKey, addressFromPublicKey, keccak } from "../../packages/provenance/eip712.js";
+import { signDigest, typedDataDigest, publicKeyFromPrivateKey, addressFromPublicKey, keccak } from "../../packages/evm/index.js";
 
 const pad = (n, len) => String(n).padStart(len, "0");
 

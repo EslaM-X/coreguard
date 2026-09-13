@@ -18,7 +18,7 @@ import {
   addressFromPublicKey,
   publicKeyFromPrivateKey,
   recoverSignerAddress,
-} from "../../packages/provenance/eip712.js";
+} from "../../packages/evm/index.js";
 
 const hex = (u) => Buffer.from(u).toString("hex");
 
