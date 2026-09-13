@@ -170,6 +170,45 @@ test("resolution: a resolution that re-decides to DENY is not admitted", async (
   assert.match(res.error, /did not yield ALLOW/);
 });
 
+test("resolution: re-deciding a DIFFERENT intent under the parent ref is not admitted (Q-FW9a integrity anchor)", async () => {
+  const intent = makeIntent({});
+  const declaration = await signDeclaration(await makeDeclaration({ intent }), seedKey(1).priv);
+  const review = await decideFirewall({
+    intent,
+    declaration,
+    policy: makePolicy([]),
+    activePolicyIds: ["pol-default"],
+    simulation: null,
+    authorityAtState: "1024",
+    blockTimestamp: "1",
+    evm: EVM,
+    reviewPath: DEFAULT_REVIEW_PATH([WRITER]),
+  });
+  assert.equal(review.decision, "REQUIRE_REVIEW");
+
+  const otherIntent = makeIntent({ nonce: "2" });
+  const otherDecl = await signDeclaration(await makeDeclaration({ intent: otherIntent }), seedKey(1).priv);
+  const res = await resolveReview({
+    parentRecord: review.record,
+    writer: WRITER,
+    reviewPath: DEFAULT_REVIEW_PATH([WRITER]),
+    resolvedSimulation: makeSimulation({}, otherIntent),
+    reason: "re-decided a DIFFERENT intent",
+    inputs: {
+      intent: otherIntent,
+      declaration: otherDecl,
+      policy: makePolicy([]),
+      activePolicyIds: ["pol-default"],
+      authorityAtState: "1024",
+      blockTimestamp: "2",
+      evm: EVM,
+      reviewPath: DEFAULT_REVIEW_PATH([WRITER]),
+    },
+  });
+  assert.equal(res.admitted, false);
+  assert.match(res.error, /does not match the parent record binding/);
+});
+
 test("resolution: ALLOW parent is not a review obligation", async () => {
   const intent = makeIntent({});
   const declaration = await signDeclaration(await makeDeclaration({ intent }), seedKey(1).priv);

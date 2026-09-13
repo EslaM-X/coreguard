@@ -217,6 +217,24 @@ test("FW-10 (temporal seam): post-execution inputs are rejected loudly at the de
   );
 });
 
+test("FW-10b (temporal seam, sim channel): post-execution keys smuggled INSIDE the simulation object are rejected — the closed model never records them", async () => {
+  const intent = makeIntent({});
+  const declaration = await signDeclaration(await makeDeclaration({ intent }), seedKey(1).priv);
+  const base = { intent, declaration, policy: makePolicy([]), activePolicyIds: ["pol-default"], authorityAtState: "1024", blockTimestamp: "1", evm: EVM };
+  await assert.rejects(
+    decideFirewall({ ...base, simulation: { ...makeSimulation({}, intent), executionRef: { chainId: "1116", txHash: makeTxHash(9), blockNumber: "1030" } } }),
+    /outside the closed model/
+  );
+  await assert.rejects(
+    decideFirewall({ ...base, simulation: { ...makeSimulation({}, intent), CONTRACT_EXECUTION_BINDING: true } }),
+    /outside the closed model/
+  );
+  await assert.rejects(
+    decideFirewall({ ...base, simulation: { ...makeSimulation({}, intent), note: "harmless-looking junk" } }),
+    /outside the closed model/
+  );
+});
+
 test("FW-11: firewall adds records only under its own frozen domains; conformance is a SEPARATE record (never a mutation)", async () => {
   const intent = makeIntent({});
   const declaration = await signDeclaration(await makeDeclaration({ intent }), seedKey(1).priv);

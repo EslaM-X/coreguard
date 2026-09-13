@@ -37,6 +37,36 @@ const POST_EXECUTION_INPUTS = [
 ];
 
 /**
+ * Closed simulation model: the ONLY fields that may be recorded into the
+ * (frozen) decision record. Any other key — notably anything post-execution —
+ * is rejected with a TypeError. This keeps `decisionRef` canonical-only (Q-FW6a)
+ * and guarantees no execution artifact can ride into a PRE decision record via
+ * the simulation object (I1/I4).
+ */
+const SIM_SUMMARY_KEYS = Object.freeze([
+  "target",
+  "selector",
+  "recipient",
+  "amount",
+  "received",
+  "minOut",
+  "gasUsed",
+  "blockTimestamp",
+  "slippageBps",
+  "priceBps",
+]);
+
+function guardPostExecutionInSimulation(simulation) {
+  if (!simulation || typeof simulation !== "object") return;
+  const unknown = Object.keys(simulation).filter((k) => !SIM_SUMMARY_KEYS.includes(k));
+  if (unknown.length > 0) {
+    throw new TypeError(
+      `firewall: simulation carries keys outside the closed model (${unknown.join(", ")}) — post-execution evidence cannot ride into a PRE decision record (Q-FW6a/I4)`
+    );
+  }
+}
+
+/**
  * Reject post-execution inputs at the decision boundary (Q-FW10 temporal seam;
  * I4/I7). Throws on programming error — an ALLOW must never be gated on
  * evidence that only exists after broadcast.
@@ -72,6 +102,7 @@ function guardNoPostExecutionInputs(inputs) {
  */
 export async function decideFirewall(inputs) {
   guardNoPostExecutionInputs(inputs || {});
+  guardPostExecutionInSimulation(inputs && inputs.simulation);
 
   const {
     intent,

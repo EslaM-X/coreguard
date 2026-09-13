@@ -30,6 +30,12 @@ test("I1: an ALLOW is a pre-execution policy decision; no execution artifact eve
   for (const key of ["executionRef", "executionBinding", "CONTRACT_AUTHORIZATION", "CONTRACT_EXECUTION_BINDING", "executionBlock"]) {
     assert.ok(!(key in out.record), `record must not carry ${key}`);
   }
+  // Deep invariant: NO post-execution token may exist anywhere in the record
+  // (in defense in depth — closed sim model + recorded whitelist).
+  const recordText = JSON.stringify(out.record);
+  for (const token of ["executionRef", "executionBinding", "CONTRACT_EXECUTION_BINDING", "executionBlock"]) {
+    assert.ok(!recordText.includes(token), `record text must not contain ${token}`);
+  }
 });
 
 test("I2: records are deeply frozen; a decision cannot be rewritten", async () => {

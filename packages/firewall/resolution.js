@@ -81,6 +81,23 @@ export async function resolveReview({
   const parentRef = parentRecord.decisionRef;
   const at = outcome.record.blockTimestamp || null;
 
+  // Q-FW9a integrity anchor: the re-decided outcome MUST be the SAME bound
+  // decision as the parent. Re-deciding a DIFFERENT intent/manifest under the
+  // parent's ref would let a REQUIRE_REVIEW on X be "resolved" by an ALLOW on Y.
+  const parentBinding = parentRecord.binding || {};
+  const redBinding = outcome.record && outcome.record.binding;
+  const sameBinding =
+    redBinding &&
+    redBinding.intentRef === parentBinding.intentRef &&
+    redBinding.manifestId === parentBinding.manifestId &&
+    redBinding.bindingRef === parentBinding.bindingRef;
+  if (!sameBinding) {
+    return {
+      admitted: false,
+      error: "resolution re-decision does not match the parent record binding (intentRef/manifestId/bindingRef) — Q-FW9a integrity anchor",
+    };
+  }
+
   if (outcome.decision !== "ALLOW") {
     return {
       admitted: false,
