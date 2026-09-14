@@ -1,0 +1,8 @@
+{
+  "name": "@coreguard/execution",
+  "version": "0.1.0",
+  "description": "CGEP/1 Core-native execution evidence extraction + binding + Execution Attestation (WS-4)",
+  "type": "module",
+  "main": "index.js",
+  "license": "MIT"
+}
