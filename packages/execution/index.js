@@ -23,6 +23,12 @@
  *   frozen PRE decision record (content-address re-verified, B-EXEC-5).
  * - No new crypto: digests are sha256 via `@coreguard/canonical` only; EVM
  *   crypto (secp256k1/Keccak-256) stays untouched behind the EVM adapter.
+ * - Evidence closure: `evidenceHash` closes over `executionEvidenceRef`
+ *   (H(CGEP/1:EVIDENCE, bundle) ⊇ executionEvidenceRef ⊇ {executionRef,
+ *   items[]}) — no unbound side-by-side commitments are ever emitted.
+ * - No simulation claim: WS-4 runs no simulation; receipts carry an explicit
+ *   `SIMULATION NOT_RUN / SIMULATION_NOT_PERFORMED` check and pin the
+ *   simulation leg to the execution block ONLY as a schema-required marker.
  *
  * Additive-only boundaries preserved: imports are local zero-dep cores only
  * (canonical / `@coreguard/intent` authorization / `@coreguard/trace`); the
@@ -511,6 +517,10 @@ export async function verifyExecutionEvidence({
     label = binding.label;
   }
 
+  // evidenceHash closure: the execution object embeds `executionEvidenceRef`, so
+  // H(CGEP/1:EVIDENCE, bundle) ⊇ executionEvidenceRef ⊇ { executionRef, items[] }.
+  // A change to any item/executionRef changes the ref, changes the bundle, changes
+  // evidenceHash — no independent/unbound side-by-side commitments (remediation A).
   const evidenceBundle = await createEvidenceBundle({
     intentHash: intentRef,
     policyHash: frozenDecision && frozenDecision.policy ? frozenDecision.policy.policyHash ?? null : null,
@@ -523,6 +533,7 @@ export async function verifyExecutionEvidence({
     execution: {
       blockNumber: extraction.executionRef ? extraction.executionRef.blockNumber : null,
       blockHash: extraction.executionRef ? extraction.executionRef.blockHash : null,
+      executionEvidenceRef: extraction.executionEvidenceRef,
     },
   });
 
@@ -544,8 +555,15 @@ export async function verifyExecutionEvidence({
 
 /**
  * Reference an existing @coreguard/evidence receipt (never re-implemented) for
- * the extractor's evidence — specs `execution-receipt.md`. Pins the same block
- * for simulation/execution legs and returns { receiptId, receipt } untouched.
+ * the extractor's evidence — specs `execution-receipt.md`.
+ *
+ * Simulation semantics: WS-4 executes NO simulation. The CGEP/1 receipt schema
+ * (`createReceipt`) requires a `simulation` pin object, so the receipt's
+ * `simulation` leg is pinned to the SAME execution block — a schema-required
+ * marker ONLY, never evidence that a simulation was performed. Every receipt
+ * records this explicitly as `{ check: "SIMULATION", result: "NOT_RUN",
+ * label: "SIMULATION_NOT_PERFORMED" }`; consumers must not read
+ * `receipt.simulation` as simulation evidence (spec §6).
  */
 export async function buildEvidenceReceipt({ chainId, txHash, blockHash, blockNumber, intentRef, executionEvidenceRef, traceHash, result, checks, conformancePath, verifierVersion = "coreguard-ws4/0.1.0" }) {
   const simExec = { blockNumber: String(blockNumber ?? ""), blockHash: (blockHash || "").toLowerCase() };
@@ -564,7 +582,10 @@ export async function buildEvidenceReceipt({ chainId, txHash, blockHash, blockNu
     verifierVersion,
     verificationLevel: conformancePath === "TRACE_LEVEL" ? "L2" : "L1",
     result,
-    checks,
+    checks: [
+      { check: "SIMULATION", result: "NOT_RUN", label: "SIMULATION_NOT_PERFORMED", reason: "WS-4 executes no simulation — the execution block pin is NOT simulation evidence" },
+      ...(checks ?? []),
+    ],
   });
 }
 

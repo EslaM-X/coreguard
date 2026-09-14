@@ -23,6 +23,7 @@ import {
 } from "../../packages/execution/index.js";
 import { decisionRecordRef } from "../../packages/firewall/decision-record.js";
 import { computeIntentRef, computeManifestId, computeBindingRef } from "../../packages/intent/authorization.js";
+import { hashEvidence } from "../../packages/canonical/index.js";
 import {
   executionFixture,
   makeProvider,
@@ -99,7 +100,10 @@ test("W4: verification reuses @coreguard/evidence createEvidenceBundle (Q-WS4-10
   assert.equal(res.evidenceBundle.hash, res.evidenceHash);
   assert.equal(res.evidenceHash.slice(0, 2), "0x");
   assert.equal(res.evidenceHash.length, 66);
-  assert.deepEqual(res.evidenceBundle.evidence.execution, { blockNumber: "480", blockHash: ("0x" + "ab".repeat(32)).toLowerCase() });
+  // Remediation A — the bundle's execution object closes over executionEvidenceRef.
+  assert.equal(res.evidenceBundle.evidence.execution.executionEvidenceRef, res.executionEvidenceRef);
+  assert.equal(res.evidenceBundle.evidence.execution.blockNumber, "480");
+  assert.equal(res.evidenceBundle.evidence.execution.blockHash, ("0x" + "ab".repeat(32)).toLowerCase());
 });
 
 test("W4: no `latest` fallback — reads pinned via block number+hash (IN-W4-3)", async () => {
@@ -470,6 +474,91 @@ test("W4: evidence receipt references @coreguard/evidence createReceipt — neve
   assert.equal(receipt.receipt.evidenceRoot, verification.executionEvidenceRef);
   assert.equal(receipt.receipt.chainId, "1116");
   assert.equal(receipt.receipt.txHash, f.tx.hash.toLowerCase());
+});
+
+test("W4: evidenceHash closes over executionEvidenceRef — same ref ⇒ same hash; ref change ⇒ hash change (remediation A)", async () => {
+  const f = await executionFixture();
+  const a = await verifyExecutionEvidence({
+    provider: f.provider,
+    chainId: "1116",
+    ref: { txHash: f.tx.hash },
+    intent: f.intent,
+    frozenDecision: f.record,
+    valuePredicate: defaultValuePredicate,
+  });
+  const b = await verifyExecutionEvidence({
+    provider: f.provider,
+    chainId: "1116",
+    ref: { txHash: f.tx.hash },
+    intent: f.intent,
+    frozenDecision: f.record,
+    valuePredicate: defaultValuePredicate,
+  });
+
+  // Same executionEvidenceRef ⇒ same evidenceHash (determinism, IN-W4-9).
+  assert.equal(a.executionEvidenceRef, b.executionEvidenceRef);
+  assert.equal(a.evidenceHash, b.evidenceHash);
+
+  // Independent recompute from the bundle matches the stored value (recompute closure).
+  assert.equal(await hashEvidence(a.evidenceBundle.evidence), a.evidenceHash);
+  assert.equal(a.evidenceBundle.evidence.execution.executionEvidenceRef, a.executionEvidenceRef);
+
+  // Changed items ⇒ changed executionEvidenceRef ⇒ changed evidenceHash (no unbound commitment).
+  const evilReceipt = { ...f.receipt, logs: [{ ...f.receipt.logs[0], data: "0x" + "11".repeat(32) }] };
+  const evil = await verifyExecutionEvidence({
+    provider: makeProvider({ tx: f.tx, receipt: evilReceipt }),
+    chainId: "1116",
+    ref: { txHash: f.tx.hash },
+    intent: f.intent,
+    frozenDecision: f.record,
+    valuePredicate: defaultValuePredicate,
+  });
+  assert.equal(evil.status, STATUS.VERIFIED);
+  assert.notEqual(evil.executionEvidenceRef, a.executionEvidenceRef);
+  assert.notEqual(evil.evidenceHash, a.evidenceHash);
+
+  // A stale pair where the bundle ref diverges from the attestation ref is now
+  // detectable: re-derive evidenceHash over the bundle and compare to the stored hash.
+  const diverge = { ...a.evidenceBundle.evidence, execution: { ...a.evidenceBundle.evidence.execution, executionEvidenceRef: flipRef(a.executionEvidenceRef) } };
+  assert.notEqual(await hashEvidence(diverge), a.evidenceHash);
+});
+
+test("W4: receipt documents SIMULATION NOT_RUN / SIMULATION_NOT_PERFORMED — execution pin is not simulation evidence (remediation 2)", async () => {
+  const f = await executionFixture();
+  const verification = await verifyExecutionEvidence({
+    provider: f.provider,
+    chainId: "1116",
+    ref: { txHash: f.tx.hash },
+    intent: f.intent,
+    frozenDecision: f.record,
+    valuePredicate: defaultValuePredicate,
+  });
+  const receipt = await buildEvidenceReceipt({
+    chainId: "1116",
+    txHash: f.tx.hash,
+    blockHash: f.tx.blockHash,
+    blockNumber: f.tx.blockNumber,
+    intentRef: verification.intentRef,
+    executionEvidenceRef: verification.executionEvidenceRef,
+    traceHash: verification.trace.traceHash ?? null,
+    result: verification.status,
+    checks: verification.checks,
+    conformancePath: verification.conformancePath,
+  });
+
+  const simCheck = receipt.receipt.checks.find((c) => c.check === "SIMULATION");
+  assert.ok(simCheck, "SIMULATION check must be present");
+  assert.equal(simCheck.result, "NOT_RUN");
+  assert.equal(simCheck.label, "SIMULATION_NOT_PERFORMED");
+
+  // Schema-required marker only: pin mirrors the execution block, explicitly NOT_RUN.
+  assert.equal(receipt.receipt.simulation.blockNumber, receipt.receipt.execution.blockNumber);
+  assert.equal(receipt.receipt.simulation.blockHash, receipt.receipt.execution.blockHash);
+  assert.notEqual(simCheck.result, "PASS");
+  assert.notEqual(simCheck.result, "VERIFIED");
+  // Verdict semantics unchanged — simulation is a NOT_RUN annotation, never a verdict input.
+  assert.equal(receipt.receipt.result, verification.status);
+  assert.equal(receipt.receipt.evidenceRoot, verification.executionEvidenceRef);
 });
 
 async function decodeRef(f) {

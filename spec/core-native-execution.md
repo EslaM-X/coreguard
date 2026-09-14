@@ -156,6 +156,15 @@ Every item carries the pinned `blockNumber`/`blockHash` it was read at;
   remain `@coreguard/evidence` receipts (referenced, never re-implemented).
 - `executionEvidenceRef = domainHash("CGEP/1:EXECUTION-EVIDENCE", executionEvidence)` —
   recomputable, tamper-evidence. A mismatched recompute ⇒ `INVALID`.
+- **evidenceHash closure:** the WS-4 evidence bundle embeds the
+  `executionEvidenceRef` inside its canonical `execution` object, so
+  `evidenceHash = H(CGEP/1:EVIDENCE, bundle)` closes over the reference:
+  `evidenceHash ⊇ executionEvidenceRef ⊇ {executionRef, items[]}`. Changing
+  any item or `executionRef` changes the ref, which changes the bundle input,
+  which changes `evidenceHash`. The attestation therefore never carries two
+  independent/unbound side-by-side commitments — the relationship is
+  cryptographically re-derivable and test-enforced (same ref ⇒ same hash;
+  ref change ⇒ hash change).
 - **Admissible-vs-claim rule:** evidence obtained by the adapter from the
   pinned provider = *admissible*. Any value supplied by the caller
   (`executionRef`, `caller`, a JSON trace object) = *claim*; it is only ever
@@ -163,8 +172,11 @@ Every item carries the pinned `blockNumber`/`blockHash` it was read at;
 - Evidence is held **off-chain / local**; only its commitment (hash / root)
   enters on-chain anchoring (§9).
 - Composed with the RECEIPT model of `execution-receipt.md` (state pinning
-  simulation vs execution): WS-4 keeps those two pins distinct and never
-  conflates them.
+  simulation vs execution): WS-4 never fabricates a simulation. Without a real
+  simulation the receipt's `simulation` leg is a schema-required marker pinned
+  to the execution state and is explicitly recorded as
+  `SIMULATION_NOT_PERFORMED` (`NOT_RUN`) — never presented as a distinct
+  simulation claim and never conflated into execution evidence.
 
 ---
 
@@ -222,6 +234,16 @@ level, single source of truth in code at implementation).
   implicit pass.
 - Trace-capable providers are detected and used **only** for the optional
   `TRACE` item; absence ⇒ `TRACE_UNAVAILABLE`.
+- **Simulation semantics:** WS-4 executes NO simulation. To satisfy the CGEP/1
+  receipt schema (`createReceipt` requires a `simulation` pin object),
+  `buildEvidenceReceipt` pins the receipt's `simulation` leg to the SAME
+  execution block — this is a schema-required marker ONLY and is **not**
+  evidence that a simulation was performed. Every WS-4 receipt carries an
+  explicit `{ check: "SIMULATION", result: "NOT_RUN",
+  label: "SIMULATION_NOT_PERFORMED" }` entry; consumers must not read
+  `receipt.simulation` as simulation evidence (T-W4-5). A real simulation in a
+  future workstream must carry its own distinct pin, per `execution-receipt.md`
+  §5 state pinning.
 
 ---
 
