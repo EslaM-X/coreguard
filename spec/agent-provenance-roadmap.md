@@ -1,6 +1,6 @@
 # AgentProof Execution Roadmap (Post-P2-1)
 
-**Version**: 1.1.0-approved · **Status**: G-1 PASS, G-2/CAP-1 PASS, Phase A IMPLEMENTED (commits e0f9ff4, b951036, 86048c6, 9f5de66), Phase B-1 EIP-1271 DESIGN v1.2 APPROVED → **GO GRANTED (2026-09-13)** → **Phase B-1 implementation review = PASS (2026-09-13)** — G-4 READY — v0.2.0 release boundary established (no tag); Phase D Execution Firewall DESIGN v0.3.0 FINAL DESIGN REVIEW PASS → **GO GRANTED (2026-09-13)** — implementation NOT started (spec committed docs-only)
+**Version**: 1.1.0-approved · **Status**: G-1 PASS, G-2/CAP-1 PASS, Phase A IMPLEMENTED (commits e0f9ff4, b951036, 86048c6, 9f5de66), Phase B-1 EIP-1271 DESIGN v1.2 APPROVED → **GO GRANTED (2026-09-13)** → **Phase B-1 implementation review = PASS (2026-09-13)** — G-4 READY — v0.2.0 release boundary established (no tag); Phase D Execution Firewall DESIGN v0.3.0 FINAL DESIGN REVIEW PASS → **GO GRANTED (2026-09-13)** — implementation NOT started (spec committed docs-only); **Phase D CLOSED / RELEASE-READY (e479caa, 2026-09-13)** — 293/293 tests, 73/73 benchmark; Attack / Mutation Lab DESIGN v0.1.2 **FINAL SECURITY REVIEW PASS → GO GRANTED (2026-09-13)** — implementation authorized (adversarial tests only, additive `test/firewall/attack-lab/`; SUT frozen at e479caa)
 **Parent**: CGEP/1:AGENT-PROVENANCE
 
 **Frozen / untouchable (hard constraints):**
@@ -22,6 +22,7 @@
 | B-2 | Registry (agent profile + delegation + attestation) | code/contracts (deferred beyond B-1; not required for B-1) | B-1 |
 | C | `verify-provenance` surface + tests | code | B |
 | D | Execution Firewall design→impl (v0.2) | design v0.3.0 APPROVED / **GO GRANTED**; impl NOT started; no P2 contract | C |
+| AL | Attack / Mutation Lab (adversarial workstream, post Phase D — SUT frozen at e479caa) | tests (additive, adversarial) **DESIGN v0.1.2 APPROVED / GO GRANTED** | D (CLOSED) |
 | E | AgentProof DApp (UX/branding as spec → impl) | front-end | C |
 | F | Directory / explorer + account-abstraction integration | later | E |
 
@@ -276,6 +277,58 @@ implementation pending (not started).
 
 ---
 
+## Attack / Mutation Lab (adversarial security workstream — post Phase D)
+
+**Spec:** `spec/agent-provenance-attack-lab.md` (v0.1.2-design) · SUT frozen at
+Phase D release boundary **e479caa** · adversarial tests ONLY (additive under
+`test/firewall/attack-lab/`).
+
+```
+Attack / Mutation Lab pipeline:
+
+Design v0.1 → v0.1.1 (review-gate NO-GO → 5 blockers + 4 notes closed)
+        ↓
+Design v0.1.2 (remaining A1.7/A1.9 post-signing seam closed)
+        ↓
+FINAL SECURITY REVIEW = PASS (2026-09-13)
+        ↓
+GO  ← GRANTED (2026-09-13)
+        ↓
+Implementation (adversarial tests ONLY, additive test/firewall/attack-lab/)
+        ↓
+Attack Lab review = PASS/FAIL
+```
+
+**Approved mechanics:**
+- Invariant oracle IN1–IN8: NOT_RUN ⇒ never `ALLOW` (`REQUIRE_REVIEW` only on
+  Phase-D review-eligible paths); no post-execution token in any PRE record;
+  frozen content-addressed records; canonical determinism (equivalence defined by
+  `packages/canonical`); policy commitment anti-rollback (caller values are
+  claims vs harness-owned anchor); authority by recompute only; resolution
+  anchored to the same bound intent/manifest; **unauthorized ALLOW = DEFEATED on
+  sight** (any ALLOW failing IN8).
+- Post-signing principle (A1.7/A1.9): intent mutation without a freshly valid
+  declaration/signature over the changed intent ⇒ DECLARATION_BOUND ⇒ DENY,
+  never ALLOW; a new consistent signature is a new authorization tested
+  canonically (A13/A16).
+
+**Decision:** GO GRANTED (2026-09-13) — implementation open as additive
+adversarial-test workstream; atomic commit per logical unit: `npm test` →
+`git diff --check` → frozen-artifacts review → independent commit.<br>
+**Prohibited (red lines, attack lab):** ✗ editing `packages/firewall/*` as part
+of the lab · ✗ editing e479caa except after a DEFEATED + deterministic
+reproduction + user-approved remediation (§11 protocol) · ✗ SDK · ✗ B-2 ·
+✗ on-chain work · ✗ `verify-live.json` / adversarial corpus / benchmark · ✗ any
+ALLOW failing IN8.
+
+**Review (2026-09-13):** **FINAL SECURITY REVIEW = PASS** — IN1–IN8 closed ·
+A1.7/A1.9 blocker closed (post-signing principle) · trust boundary harness-vs-
+claims · A3.3/A10.4/A12/A13/A14/A16 corrective notes closed · no SUT changes
+authorized. **Outcome:** design v0.1.2 committed docs-only; GO GRANTED;
+implementation pending (separate atomic commits, later).
+
+---
+
 ## Do NOT Do (guardrails)
 
 - ✗ Do not edit `verify-live.json`, P0/P1 files, or anchored evidence.
@@ -284,6 +337,7 @@ implementation pending (not started).
 - ✗ Do not claim novelty/patentability before prior-art + counsel.
 - ✗ Do not begin Phase B-1 code before FINAL DESIGN REVIEW → GO (design approval ≠ code GO).
 - ✗ Do not begin Phase D implementation inside the design-GO commit (implementation = separate atomic commits, later).
+- ✗ Do not edit `packages/firewall/*` as part of the Attack/Mutation Lab; the SUT is frozen at e479caa — any fix requires a DEFEATED + deterministic reproduction + user-approved remediation (§11 protocol).
 - ✗ Do not introduce any "AI detector" language into product/spec/marketing.
 
 ---
