@@ -143,20 +143,38 @@ export async function decideFirewall(inputs) {
     });
   }
 
+  // ── 2b. Intent gate (IN3/A8: every omission ⇒ DENY, never a crash) ────────
+  // An absent/invalid `intent` must fail closed with a NOT_RUN record, not
+  // throw while building the policy context / sim model (no `intent.amount`).
+  const intentOk = Boolean(intent && typeof intent === "object");
+
   // ── 3. Policy commitment + evaluation (Q-FW3/3a/3b) ──────────────────────
   const ts = simulation && simulation.blockTimestamp !== undefined ? String(simulation.blockTimestamp) : String(blockTimestamp ?? "");
-  const policyEval = await evaluatePolicyForDecision({
-    policy,
-    expectedPolicyHash,
-    activePolicyIds,
-    policyTrust,
-    intent,
-    simulation,
-    blockTimestamp: ts || undefined,
-  });
+  let policyEval;
+  if (intentOk) {
+    policyEval = await evaluatePolicyForDecision({
+      policy,
+      expectedPolicyHash,
+      activePolicyIds,
+      policyTrust,
+      intent,
+      simulation,
+      blockTimestamp: ts || undefined,
+    });
+  } else {
+    policyEval = {
+      status: "NOT_RUN",
+      label: "INTENT_MISSING",
+      policyId: policy ? policy.policyId : null,
+      policyHash: null,
+      reviewObligation: false,
+    };
+  }
 
   // ── 4. Simulation consistency (Q-FW5) ────────────────────────────────────
-  const sim = evaluateSimulation({ simulation, intent, policy });
+  const sim = intentOk
+    ? evaluateSimulation({ simulation, intent, policy })
+    : { consistent: false, unmodelable: false };
 
   // ── 5. Review obligation ─────────────────────────────────────────────────
   const reviewObligation = Boolean(policyEval.reviewObligation || sim.unmodelable);
