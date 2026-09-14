@@ -1,0 +1,18 @@
+[package]
+name = "independent_verifier"
+version = "0.1.0"
+edition = "2021"
+description = "CoreGuard WS-3 independent verifier — re-derives the CGEP/1 authorization chain (canonicalize -> refs -> scope -> authority) in WASM, independent of the JS reference. Fully self-contained: zero external dependencies, zero imports, self-implemented JSON engine, SHA-256, Keccak-256, and secp256k1 recovery."
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+overflow-checks = true
+strip = true

@@ -1,0 +1,15 @@
+{
+  "name": "@coreguard/independent-verifier",
+  "version": "0.1.0",
+  "description": "WS-3 Independent Verifier — Rust/WASM re-derivation of the CGEP/1 authorization chain (Three Verifiers Rule, Verifier B). Transport/marshalling JS only; never evaluates a protocol fact itself.",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./index.js"
+  },
+  "main": "./index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

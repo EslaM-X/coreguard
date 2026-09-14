@@ -1,6 +1,6 @@
 # AgentProof Execution Roadmap (Post-P2-1)
 
-**Version**: 1.1.0-approved · **Status**: G-1 PASS, G-2/CAP-1 PASS, Phase A IMPLEMENTED (commits e0f9ff4, b951036, 86048c6, 9f5de66), Phase B-1 EIP-1271 DESIGN v1.2 APPROVED → **GO GRANTED (2026-09-13)** → **Phase B-1 implementation review = PASS (2026-09-13)** — G-4 READY — v0.2.0 release boundary established (no tag); Phase D Execution Firewall DESIGN v0.3.0 FINAL DESIGN REVIEW PASS → **GO GRANTED (2026-09-13)** — implementation NOT started (spec committed docs-only); **Phase D CLOSED / RELEASE-READY (e479caa, 2026-09-13)** — 293/293 tests, 73/73 benchmark; Attack / Mutation Lab DESIGN v0.1.2 **FINAL SECURITY REVIEW PASS → GO GRANTED (2026-09-13)** — implementation authorized (adversarial tests only, additive `test/firewall/attack-lab/`; SUT frozen at e479caa)
+**Version**: 1.1.0-approved · **Status**: G-1 PASS, G-2/CAP-1 PASS, Phase A IMPLEMENTED (commits e0f9ff4, b951036, 86048c6, 9f5de66), Phase B-1 EIP-1271 DESIGN v1.2 APPROVED → **GO GRANTED (2026-09-13)** → **Phase B-1 implementation review = PASS (2026-09-13)** — G-4 READY — v0.2.0 release boundary established (no tag); Phase D Execution Firewall DESIGN v0.3.0 FINAL DESIGN REVIEW PASS → **GO GRANTED (2026-09-13)** — implementation NOT started (spec committed docs-only); **Phase D CLOSED / RELEASE-READY (e479caa, 2026-09-13)** — 293/293 tests, 73/73 benchmark; Attack / Mutation Lab DESIGN v0.1.2 **FINAL SECURITY REVIEW PASS → GO GRANTED (2026-09-13)** — implementation authorized (adversarial tests only, additive `test/firewall/attack-lab/`; SUT frozen at e479caa); **RELEASE DECISION REVIEW — Q-REL-1..6 RULED (2026-09-14)** — v0.2.0 release boundary realized as per-workstream commits (WS-1 → WS-2 → WS-3) + combined-state tag `v0.2.0`, local only (no push), git-only (no registry); `package-lock.json` regenerated (adds firewall/sdk/independent-verifier; +30/-0), `npm ci` clean, full gates 512/512 · 73/73 · `git diff --check` clean · WASM build gate PASS · **v0.2.0 FROZEN RELEASE-READY WITHOUT COMMIT/TAG (OWNER DECISION 2026-09-14)** — commit/tag PENDING OWNER DECISION, push NO, publish NO; next workstream decision independent; **C Verifier DESIGN LOCKED (2026-09-14)** — Dec-C-1..11 APPROVED as written (`spec/verifier-c.md`), stdlib-only Python 3.14 third verifier; awaiting SECURITY REVIEW → FINAL SECURITY REVIEW → OWNER GO / NO-GO; **C Verifier SECURITY REVIEW PASS (2026-09-14)** — C-SR-1..6 = 6/6 PASS · 0 findings; **FINAL SECURITY REVIEW PASS (2026-09-14)** — FSR-C-1..6 = 6/6 CLOSED · 0 findings; **C Verifier OWNER GO GRANTED (2026-09-14)** — implementation OPEN (additive only, `packages/verifier-c/` + `test/verifier-c/`); next: **IMPLEMENTATION → IMPLEMENTATION REVIEW → RELEASE BOUNDARY REVIEW**; **C Verifier IMPLEMENTATION DONE + REVIEW PASS (2026-09-14)** — 53/53 C tests, full suite 565/565 · 73/73 benchmark · `git diff --check` clean · A↔B↔C parity demonstrated · additive only; next: **RELEASE BOUNDARY REVIEW**; **C Verifier RELEASE BOUNDARY REVIEW = PASS (2026-09-14)** — additive-only boundary verified, protected/frozen paths untouched, no runtime/pip deps, no RPC/network, no decision participation, no AI semantics, Dec-C-9 wording preserved, no deviation/§7 finding → **C VERIFIER CLOSED · FROZEN WITHOUT COMMIT/TAG** — release still NOT authorized; v0.2.0 state unchanged
 **Parent**: CGEP/1:AGENT-PROVENANCE
 
 **Frozen / untouchable (hard constraints):**
@@ -326,6 +326,117 @@ A1.7/A1.9 blocker closed (post-signing principle) · trust boundary harness-vs-
 claims · A3.3/A10.4/A12/A13/A14/A16 corrective notes closed · no SUT changes
 authorized. **Outcome:** design v0.1.2 committed docs-only; GO GRANTED;
 implementation pending (separate atomic commits, later).
+
+---
+
+## Release Decision — v0.2.0 (2026-09-14, owner ruling from the record)
+
+**Trigger:** WS-1 (`signed-intent-authorization.md`), WS-2 (`signed-intent-sdk.md`),
+WS-3 (`independent-verifier.md`) all `CLOSED · IMPLEMENTED · REVIEWED · FROZEN
+WITHOUT COMMIT/TAG`. v0.2.0 was the established B-1 release boundary (no tag,
+2026-09-13); the current state adds WS-1/WS-2/WS-3 on top of it. This is the
+independent release decision — **not an automatic release**.
+
+```
+WS-1/WS-2/WS-3 CLOSED/FROZEN
+        ↓
+RELEASE DECISION REVIEW  (Q-REL-1..6 → RULED below)
+        ↓
+Release boundary execution (per-workstream commits → v0.2.0 tag, local only)
+```
+
+**Release Decision Review evidence (2026-09-14):** full gates green — `npm test`
+512/512, benchmark 73/73, `git diff --check` clean, WASM build gate PASS
+(regeneration byte-identical, artifact SHA-256
+`7CDA8E1B928DB3099579969FD614B8D8D5109988D24596550236537F9FD61C3D`). The only real
+tracked-content change in the working tree is `scripts/run-tests.mjs` (additive
+registration of the WS-1/WS-2/WS-3 suites); the remaining `git status -M` flags
+(anchor/testnet2/verify-live scripts) are stat-cache only — content-identical to
+HEAD, and as such are NOT part of the release (no artificial changes).
+
+- **Q-REL-1 — scope = B.** One atomic commit per workstream (WS-1, then WS-2,
+  then WS-3), then one tag on the combined state.
+- **Q-REL-2 — `run-tests.mjs` = updated.** Its suite registration is real,
+  required by `npm test`, and included in the release.
+- **Q-REL-3 — `package-lock.json` = regenerated** and included (a Release
+  Boundary action, not a silent WS-3 edit). The previous lock was stale: it
+  lacked `@coreguard/firewall` (Phase D), `@coreguard/sdk` (WS-2), and
+  `@coreguard/independent-verifier` (WS-3). Regeneration is purely additive
+  (+30/-0 lines): the three workspace `link` entries; `lockfileVersion` and the
+  two `@noble/*` registry entries untouched. `npm ci` verified clean from the
+  regenerated lock (27 audited, 0 vulnerabilities; all workspace symlinks
+  linked).
+- **Q-REL-4 — tag = v0.2.0** (owner release-semantic inference; v0.1.0/v0.1.1
+  immutable; content since B-1 is feature-scale, not a patch).
+- **Q-REL-5 — local commit + tag only.** No `git push` without an explicit
+  owner authorization.
+- **Q-REL-6 — git-only release.** No npm publish / registry action; "release"
+  = versioned Git state + tag.
+
+**Boundary (given, per owner):** staging by explicit paths only (never
+`git add -A`), so the stat-cache-only files cannot enter any release commit;
+release scope = net-new WS paths (+ their specs/tests), `scripts/run-tests.mjs`,
+regenerated `package-lock.json`, `scripts/build-verifier.mjs`,
+`packages/independent-verifier/.gitignore`. Frozen evidence, P0/P1, firewall
+source, WS-1/WS-2/WS-3 decision texts remain untouched.
+
+**Status (owner decision 2026-09-14):** **v0.2.0 = RELEASE-READY · FROZEN WITHOUT
+COMMIT/TAG.** The release decision review completed PASS; the owner chose the
+freeze path, not execution. COMMIT — PENDING OWNER DECISION; TAG — PENDING OWNER
+DECISION (commit/tag remain separately authorized via an explicit "نفّذ Release
+v0.2.0"); PUSH — NO; PUBLISH — NO. Transitioning to a new workstream is an
+independent decision following this freeze.
+
+---
+
+## C Verifier (Verifier C) — design & gates
+
+**Spec:** `spec/verifier-c.md` (v0.1.0-design) · third independent implementation
+of the CGEP/1 chain (Verifier C of the Three Verifiers Rule) in stdlib-only
+Python 3.14 · completes the start of the Three Verifiers Rule after
+A (JS reference) + B (Rust/WASM, closed/frozen).
+
+```
+C Verifier pipeline:
+
+Design (Dec-C-1..11)        → APPROVED as written (2026-09-14)
+        ↓
+SECURITY REVIEW             → PASS (2026-09-14; C-SR-1..6 = 6/6 · 0 findings)
+        ↓
+FINAL SECURITY REVIEW       → PASS (2026-09-14; FSR-C-1..6 = 6/6 CLOSED · 0 findings)
+        ↓
+GO / NO-GO                  → GO GRANTED (2026-09-14) — implementation only
+        ↓
+Implementation              → DONE (53/53 C tests; 565/565 full suite; 73/73 benchmark; git diff --check clean)
+        ↓
+IMPLEMENTATION REVIEW       → PASS (2026-09-14; owner-reviewed evidence; A↔B↔C parity demonstrated)
+        ↓
+RELEASE BOUNDARY REVIEW     → PASS (2026-09-14; additive-only boundary verified)
+        ↓
+CLOSE / FREEZE              → C VERIFIER CLOSED · FROZEN WITHOUT COMMIT/TAG (2026-09-14)
+```
+
+**Design status (approved mechanics, Dec-C-1..11):** stdlib-only Python,
+script (no exe) — App-Control safe; self-implemented Keccak-256 + secp256k1
+recovery, SHA-256 via `hashlib`; stdlib `json` + own CGEP/1 canonicalize rules;
+library-only `verify*` surface mirroring B's `verifyRaw`; injected RPC witness
+(C never calls RPC); three-way differential A↔B↔C; reproducibility metadata =
+pinned Python version + source checksums only (Dec-C-9 — NOT a runtime
+attestation). Red lines: no edits to A/B/WS-1..3/firewall/frozen, no RPC/
+network, C never decides, no publish, no AI semantics.
+
+**Status (2026-09-14):** **C VERIFIER CLOSED · FROZEN WITHOUT COMMIT/TAG.**
+Security Review PASS (6/6) · Final Security Review PASS (6/6 · 0 findings) ·
+**OWNER GO GRANTED (implementation only, additive)** — `packages/verifier-c/`
++ `test/verifier-c/` implemented, **IMPLEMENTATION REVIEW = PASS (2026-09-14)**
+(A↔B↔C envelope/canon parity; 53/53 C tests · 565/565 full suite · 73/73
+benchmark · `git diff --check` clean) · **RELEASE BOUNDARY REVIEW = PASS
+(2026-09-14)** (additive-only boundary verified; protected/frozen paths
+untouched; no runtime/pip deps; no RPC/network; no decision participation; no
+AI semantics; Dec-C-9 wording preserved; no deviation / §7 finding). Closure =
+freeze without commit/tag. This does NOT authorize release and does NOT change
+v0.2.0 state — the commit/tag/push/publish decision remains separate and
+RELEASE NOT AUTHORIZED stands.
 
 ---
 
