@@ -1,5 +1,9 @@
 <div align="center">
 
+<p align="center">
+  <img src="assets/core-guard-logo.png" alt="CoreGuard" width="78%">
+</p>
+
 # ⛨ CoreGuard
 
 ### Verifiable Execution Truth Layer for Bitcoin DeFi

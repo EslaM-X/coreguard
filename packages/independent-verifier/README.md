@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../../assets/core-guard-logo.png" alt="CoreGuard" width="180">
+</p>
+
 # @coreguard/independent-verifier
 
 **WS-3 — Independent Rust/WASM Verifier (Verifier B)**

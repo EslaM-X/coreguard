@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../../assets/core-guard-logo.png" alt="CoreGuard" width="180">
+</p>
+
 # Example 2: Multi-Step Swap Verification
 
 This example demonstrates detecting a violation in a multi-step swap where a hidden step sends funds to the wrong recipient.

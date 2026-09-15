@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../../assets/core-guard-logo.png" alt="CoreGuard" width="180">
+</p>
+
 # Example 3: Multi-Step DeFi Execution
 
 This example demonstrates the full flow for a complex multi-step DeFi execution.

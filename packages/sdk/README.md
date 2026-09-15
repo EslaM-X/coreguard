@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../../assets/core-guard-logo.png" alt="CoreGuard" width="180">
+</p>
+
 # @coreguard/sdk — Signed Intent SDK (WS-2)
 
 Consumer surface for the CoreGuard signed-intent authorization binding

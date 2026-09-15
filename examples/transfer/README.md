@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../../assets/core-guard-logo.png" alt="CoreGuard" width="180">
+</p>
+
 # Example 1: Transfer Verification
 
 This example demonstrates the simplest CoreGuard flow: verifying a basic ERC-20 transfer against a committed intent.
