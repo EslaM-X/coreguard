@@ -8,6 +8,10 @@
  * assumed equal to receiptId.
  *
  * Usage:  node scripts/compute-commitment.mjs --receipt examples/transfer/receipt-valid.json [--out <file>]
+ *
+ * Artifacts are only written when --out is given explicitly; read-only callers
+ * (CI offline recompute, verify-anchor, anchor-local) never touch the tracked
+ * scripts/live-anchor-planned.json by accident.
  */
 
 import { readFile } from "node:fs/promises";
@@ -23,12 +27,9 @@ function arg(name, fallback) {
 }
 
 const receiptPath = arg("--receipt", join("examples", "transfer", "receipt-valid.json"));
-// --out writes the planned artifact to the given path (default keeps the
-// historical scripts/live-anchor-planned.json location).
+// --out writes the planned artifact to the given path. Without it the script is
+// read-only (stdout only) and cannot clobber scripts/live-anchor-planned.json.
 const outArg = arg("--out", "");
-const outFile = outArg
-  ? resolve(root, outArg)
-  : join(root, "scripts", "live-anchor-planned.json");
 const payload = JSON.parse(await readFile(join(root, receiptPath), "utf8"));
 
 if (!payload.receipt) throw new Error("expected { receipt: ... } payload");
@@ -77,7 +78,9 @@ const planned = {
   resultCode: _RESULT_CODES[result] ?? 1,
 };
 
-const { writeFile } = await import("node:fs/promises");
-await writeFile(outFile, JSON.stringify(planned, null, 2) + "\n", "utf8");
+if (outArg) {
+  const { writeFile } = await import("node:fs/promises");
+  await writeFile(resolve(root, outArg), JSON.stringify(planned, null, 2) + "\n", "utf8");
+}
 
 process.stdout.write(JSON.stringify(planned, null, 2) + "\n");

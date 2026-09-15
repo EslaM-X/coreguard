@@ -33,7 +33,7 @@ machine-measured, not estimated. Last verified: **2026-09-15**.
 | Releases (local, per-workstream) | `v0.1.0` · `v0.1.1` · `v0.2.0` · `v0.2.1` · `v0.3.0` · `v0.4.0` · `attack-lab-v1.0.0-closed` |
 | Verifier version in receipts | `0.1.0` (release boundary locked) |
 | Verification levels | L0 · L1 · L2 claimable; L3/L4 exist but **not claimable** (INCONCLUSIVE, `REQUIRED_BY_LEVEL`) |
-| EvidenceRegistryV2 | implemented + `forge`-compilable (solc 0.8.24); mirror suite 12/12 |
+| EvidenceRegistryV2 | implemented; `forge build` clean (solc 0.8.24) + `forge test` 14/14 (local pass); mirror suite 12/12 |
 | Verification-level truth + Trace Availability | implemented (`levelTruth`, `TRACE_AVAILABILITY`, additive receipt fields); suite 9/9 |
 | Canonicalization hardening | `securityUint` — no security-critical integer as JS `Number`; hex-spelling preserved |
 | Execution Integrity Benchmark | 10,000 generated executions, deterministic (`scripts/benchmark-10k.mjs`) |

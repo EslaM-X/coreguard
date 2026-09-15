@@ -24,7 +24,7 @@
     "demo:90s:live": "node submission/demo-90s/run-demo-90s.mjs",
     "live": "node examples/live/live-verify.js",
     "anchor": "powershell -ExecutionPolicy Bypass -File scripts/anchor-local.ps1",
-    "anchor:plan": "node scripts/compute-commitment.mjs",
+    "anchor:plan": "node scripts/compute-commitment.mjs --out scripts/live-anchor-planned.json",
     "anchor:verify": "powershell -ExecutionPolicy Bypass -File scripts/verify-anchor.ps1"
   },
   "engines": {

@@ -30,10 +30,18 @@ interface Vm {
     function expectRevert(bytes calldata) external;
 }
 
-contract Mock1271 {
+interface IERC1271 {
+    function isValidSignature(bytes32 hash, bytes calldata signature) external view returns (bytes4);
+}
+
+contract Mock1271 is IERC1271 {
     bool private _valid;
 
     constructor(bool valid) {
+        _valid = valid;
+    }
+
+    function setValid(bool valid) external {
         _valid = valid;
     }
 
@@ -76,6 +84,34 @@ contract EvidenceRegistryV2Test {
         return abi.encodePacked(r, s, v);
     }
 
+    // The signing helpers exist so a test can build the authorization BEFORE
+    // vm.expectRevert: forge requires the next *immediate* external call after
+    // expectRevert to be the reverting one, so no digest-computation call may
+    // sit between the expectation and the anchor/commit submission.
+    function _commitSign(
+        EvidenceRegistryV2 reg,
+        bytes32 intentId,
+        bytes32 commitment,
+        address signer,
+        uint256 validUntil,
+        uint256 key
+    ) internal returns (bytes memory) {
+        return _sign(reg.commitIntentDigest(intentId, commitment, validUntil, signer), key);
+    }
+
+    function _anchorSign(
+        EvidenceRegistryV2 reg,
+        bytes32 proofId,
+        bytes32 intentId,
+        bytes32 receiptId,
+        bytes32 commitment,
+        uint8 result,
+        bytes32 verifierVersion,
+        uint256 key
+    ) internal returns (bytes memory) {
+        return _sign(reg.anchorProofDigest(proofId, intentId, receiptId, commitment, result, verifierVersion), key);
+    }
+
     function _commit(
         EvidenceRegistryV2 reg,
         bytes32 intentId,
@@ -84,7 +120,7 @@ contract EvidenceRegistryV2Test {
         uint256 validUntil,
         uint256 key
     ) internal {
-        reg.commitIntent(intentId, commitment, signer, validUntil, _sign(reg.commitIntentDigest(intentId, commitment, validUntil, signer), key));
+        reg.commitIntent(intentId, commitment, signer, validUntil, _commitSign(reg, intentId, commitment, signer, validUntil, key));
     }
 
     function _anchor(
@@ -97,6 +133,7 @@ contract EvidenceRegistryV2Test {
         bytes32 verifierVersion,
         uint256 key
     ) internal {
+        bytes memory sig = _anchorSign(reg, proofId, intentId, receiptId, commitment, result, verifierVersion, key);
         reg.anchorProof(
             proofId,
             intentId,
@@ -104,7 +141,7 @@ contract EvidenceRegistryV2Test {
             commitment,
             result,
             verifierVersion,
-            _sign(reg.anchorProofDigest(proofId, intentId, receiptId, commitment, result, verifierVersion), key)
+            sig
         );
     }
 
@@ -142,39 +179,8 @@ contract EvidenceRegistryV2Test {
 
     function testWrongSignerReverts() public {
         _commit(registry, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
-        // Bob signs the anchor authorization for Alice's intent -> validate rejects.
-        vm.expectRevert(EvidenceRegistryV2.InvalidAuthority.selector);
-        _anchor(registry, PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V1, BOB_KEY);
-    }
-
-    function testCommitExpiredReverts() public {
-        vm.expectRevert(abi.encodeWithSelector(EvidenceRegistryV2.Expired.selector, NOW, NOW - 1));
-        _commit(registry, INTENT_ID, INTENT_COMMITMENT, alice, NOW - 1, ALICE_KEY);
-    }
-
-    function testAnchorExpiredReverts() public {
-        _commit(registry, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
-        vm.warp(VALID_UNTIL + 1);
-        vm.expectRevert(abi.encodeWithSelector(EvidenceRegistryV2.Expired.selector, VALID_UNTIL + 1, VALID_UNTIL));
-        _anchor(registry, PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V1, ALICE_KEY);
-    }
-
-    function testIntentIdReuseReverts() public {
-        _commit(registry, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
-        vm.expectRevert(abi.encodeWithSelector(EvidenceRegistryV2.AlreadyCommitted.selector, INTENT_ID));
-        _commit(registry, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
-    }
-
-    function testProofIdReuseReverts() public {
-        _commit(registry, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
-        _anchor(registry, PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V1, ALICE_KEY);
-        vm.expectRevert(abi.encodeWithSelector(EvidenceRegistryV2.AlreadyCommitted.selector, PROOF_ID));
-        _anchor(registry, PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V1, ALICE_KEY);
-    }
-
-    function testVersionMismatchReverts() public {
-        _commit(registry, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
-        // Signed for verifier 0.2.0, submitted with 0.1.0 -> digest differs -> REJECT.
+        // Bob signs the anchor authorization; Alice is the authorized signer -> REJECT.
+        bytes memory sig = _anchorSign(registry, PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V1, BOB_KEY);
         vm.expectRevert(EvidenceRegistryV2.InvalidAuthority.selector);
         registry.anchorProof(
             PROOF_ID,
@@ -183,14 +189,80 @@ contract EvidenceRegistryV2Test {
             PROOF_COMMITMENT,
             uint8(EvidenceRegistryV2.ProofResult.VALID),
             VERIFIER_V1,
-            _sign(registry.anchorProofDigest(PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V2), ALICE_KEY)
+            sig
+        );
+    }
+
+    function testCommitExpiredReverts() public {
+        bytes memory sig = _commitSign(registry, INTENT_ID, INTENT_COMMITMENT, alice, NOW - 1, ALICE_KEY);
+        vm.expectRevert(abi.encodeWithSelector(EvidenceRegistryV2.Expired.selector, NOW, NOW - 1));
+        registry.commitIntent(INTENT_ID, INTENT_COMMITMENT, alice, NOW - 1, sig);
+    }
+
+    function testAnchorExpiredReverts() public {
+        _commit(registry, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
+        vm.warp(VALID_UNTIL + 1);
+        bytes memory sig = _anchorSign(registry, PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V1, ALICE_KEY);
+        vm.expectRevert(abi.encodeWithSelector(EvidenceRegistryV2.Expired.selector, VALID_UNTIL + 1, VALID_UNTIL));
+        registry.anchorProof(
+            PROOF_ID,
+            INTENT_ID,
+            RECEIPT_ID,
+            PROOF_COMMITMENT,
+            uint8(EvidenceRegistryV2.ProofResult.VALID),
+            VERIFIER_V1,
+            sig
+        );
+    }
+
+    function testIntentIdReuseReverts() public {
+        _commit(registry, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
+        bytes memory sig = _commitSign(registry, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
+        vm.expectRevert(abi.encodeWithSelector(EvidenceRegistryV2.AlreadyCommitted.selector, INTENT_ID));
+        registry.commitIntent(INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, sig);
+    }
+
+    function testProofIdReuseReverts() public {
+        _commit(registry, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
+        _anchor(registry, PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V1, ALICE_KEY);
+        bytes memory sig = _anchorSign(registry, PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V1, ALICE_KEY);
+        vm.expectRevert(abi.encodeWithSelector(EvidenceRegistryV2.AlreadyCommitted.selector, PROOF_ID));
+        registry.anchorProof(
+            PROOF_ID,
+            INTENT_ID,
+            RECEIPT_ID,
+            PROOF_COMMITMENT,
+            uint8(EvidenceRegistryV2.ProofResult.VALID),
+            VERIFIER_V1,
+            sig
+        );
+    }
+
+    function testVersionMismatchReverts() public {
+        _commit(registry, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
+        // Signed for verifier 0.2.0, submitted with 0.1.0 -> digest differs -> REJECT.
+        bytes memory sig = _anchorSign(registry, PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V2, ALICE_KEY);
+        vm.expectRevert(EvidenceRegistryV2.InvalidAuthority.selector);
+        registry.anchorProof(
+            PROOF_ID,
+            INTENT_ID,
+            RECEIPT_ID,
+            PROOF_COMMITMENT,
+            uint8(EvidenceRegistryV2.ProofResult.VALID),
+            VERIFIER_V1,
+            sig
         );
     }
 
     function testCrossRegistryReplayReverts() public {
         _commit(registry, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
         // Authorization signed for `registry`... re-submitted against a fresh instance.
+        // `other` must hold the same committed intent so the replay reaches the
+        // authority check; the domain separator differs (address(this)) so the
+        // signature recovered against `other` is not alice -> REJECT.
         EvidenceRegistryV2 other = new EvidenceRegistryV2();
+        _commit(other, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
+        bytes memory sig = _anchorSign(registry, PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V1, ALICE_KEY);
         vm.expectRevert(EvidenceRegistryV2.InvalidAuthority.selector);
         other.anchorProof(
             PROOF_ID,
@@ -199,12 +271,13 @@ contract EvidenceRegistryV2Test {
             PROOF_COMMITMENT,
             uint8(EvidenceRegistryV2.ProofResult.VALID),
             VERIFIER_V1,
-            _sign(registry.anchorProofDigest(PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V1), ALICE_KEY)
+            sig
         );
     }
 
     function testResultCodeOutOfRangeReverts() public {
         _commit(registry, INTENT_ID, INTENT_COMMITMENT, alice, VALID_UNTIL, ALICE_KEY);
+        bytes memory sig = _anchorSign(registry, PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, 3, VERIFIER_V1, ALICE_KEY);
         vm.expectRevert(abi.encodeWithSelector(EvidenceRegistryV2.InvalidResultCode.selector, 3));
         registry.anchorProof(
             PROOF_ID,
@@ -213,13 +286,22 @@ contract EvidenceRegistryV2Test {
             PROOF_COMMITMENT,
             3,
             VERIFIER_V1,
-            _sign(registry.anchorProofDigest(PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, 3, VERIFIER_V1), ALICE_KEY)
+            sig
         );
     }
 
     function testUnknownIntentReverts() public {
+        bytes memory sig = _anchorSign(registry, PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V1, ALICE_KEY);
         vm.expectRevert(abi.encodeWithSelector(EvidenceRegistryV2.UnauthorizedIntention.selector, INTENT_ID));
-        _anchor(registry, PROOF_ID, INTENT_ID, RECEIPT_ID, PROOF_COMMITMENT, uint8(EvidenceRegistryV2.ProofResult.VALID), VERIFIER_V1, ALICE_KEY);
+        registry.anchorProof(
+            PROOF_ID,
+            INTENT_ID,
+            RECEIPT_ID,
+            PROOF_COMMITMENT,
+            uint8(EvidenceRegistryV2.ProofResult.VALID),
+            VERIFIER_V1,
+            sig
+        );
     }
 
     function testEIP1271Accepted() public {
@@ -242,9 +324,13 @@ contract EvidenceRegistryV2Test {
     }
 
     function testEIP1271Rejected() public {
-        Mock1271 wallet = new Mock1271(false);
+        // Commit-time acceptance requires a valid 1271 wallet; only afterwards is
+        // the wallet flipped invalid so the ANCHOR authorization is the one that
+        // gets rejected (replay of an accepted commit is not the tested path).
+        Mock1271 wallet = new Mock1271(true);
         bytes32 walletIntentId = keccak256("intent-wallet-bad");
         _commit(registry, walletIntentId, INTENT_COMMITMENT, address(wallet), VALID_UNTIL, WALLET_KEY);
+        wallet.setValid(false);
         vm.expectRevert(EvidenceRegistryV2.InvalidAuthority.selector);
         registry.anchorProof(
             keccak256("proof-wallet-bad"),
