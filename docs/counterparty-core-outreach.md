@@ -21,9 +21,13 @@ described in `submission/README.md` is outreach/meeting, not building. We test
 
 - **PRIMARY — General contact / partnerships.** Function: does Core see the
   problem and the value? Routes internally if investment/funding fits.
+  **Address confirmed (owner-verified): `inquire@coredao.org`** — published on
+  Core's site under "Institutional inquiries". We treat it as the official
+  institutional contact route, not a fabricated "partnerships@" inbox.
 - **SECONDARY — Core Ventures (VC arm).** Function: is this worth an
-  ecosystem/investment conversation? Only used if a **distinct official
-  address/person** exists. Shorter, thesis-oriented, no direct funding ask.
+  ecosystem/investment conversation? **STATUS: NOT ACTIVATED** — no
+  independently verified current official contact address/person found; we do
+  not guess an email. Activates only on a verified distinct official channel.
 - We **do not send the same text verbatim to both**, and we do not send at the
   same time as an unprompted double-blast. Start General (primary); trigger
   Ventures (secondary) only once the official, independent channel is known.
@@ -34,9 +38,9 @@ described in `submission/README.md` is outreach/meeting, not building. We test
 
 | Field | Value |
 |---|---|
-| Status | PENDING → (SENT / NO_RESPONSE / REPLIED) per channel |
-| Recipient A (Primary) | General contact / partnerships — exact address TBD (owner) |
-| Recipient B (Secondary) | Core Ventures — only if distinct official address/person (owner) |
+| Status | A: READY for dispatch · PENDING → (SENT / NO_RESPONSE / REPLIED) |
+| Recipient A (Primary) | `inquire@coredao.org` — official Core "Institutional inquiries" address (owner-verified, published on Core site). Not claimed to be a "Partnerships inbox" by name; internal routing left to Core |
+| Recipient B (Secondary) | **NOT ACTIVATED** — reason: no independently verified current official contact address/person for Core Ventures |
 | Sent by | Owner's mail client (env has no mail channel) |
 | Sent date / sent UTC | TBD (owner-confirmed) |
 | Delivered / opened | TBD — never assumed, only owner-confirmed |
