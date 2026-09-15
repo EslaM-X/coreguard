@@ -17,6 +17,11 @@ described in `submission/README.md` is outreach/meeting, not building. We run
 **one** outreach to learn whether Core sees the value — not a campaign, not a
 funding ask, not "Core should fund us".
 
+**Channel chose (owner revision, 2026-09-15):** **Core Ventures (VC arm)** —
+targets someone who plausibly cares about infrastructure + investment thesis.
+Message framing stays **technical/value validation** (never a funding pitch);
+funding/partnership only follows a YES / proof / demo / meeting signal.
+
 ---
 
 ## Contact state (fills from owner-confirmed facts only)
@@ -24,7 +29,7 @@ funding ask, not "Core should fund us".
 | Field | Value |
 |---|---|
 | Status | PENDING → (SENT / NO_RESPONSE / REPLIED) |
-| Recipient / channel | General contact / partnerships (owner to provide exact address when dispatching) |
+| Recipient / channel | Core Ventures (VC arm) — owner to provide exact address when dispatching |
 | Sent by | Owner's mail client (env has no mail channel) |
 | Sent date | TBD |
 | Sent time UTC | TBD |
