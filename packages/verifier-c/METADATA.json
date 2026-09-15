@@ -1,0 +1,16 @@
+{
+  "verifier": "C",
+  "name": "CGEP/1 Verifier C (stdlib-only Python re-derivation, Verifier B mirror)",
+  "python": "3.14.6",
+  "pythonRange": "^3.14",
+  "sources": {
+    "__init__.py": "sha256:d4c2fa2e2b3f553133672f1dd3707341b5607115fe87d893e4739913d9244700",
+    "_canon.py": "sha256:820fb465f3ef7f15ea4ed29f2d7c4a83eed4b8bfe3106f232ff888ca6aa65815",
+    "_json.py": "sha256:1ec391b253a1f0b50908a72334fd3b96106ab0d4fd2ed4e38fc8d9d53daa8e90",
+    "_keccak.py": "sha256:c06f6d9fc8c0b5299c90396b33d38a11b25b3fb5660ced775ba3ee239d0e5bd8",
+    "_pipeline.py": "sha256:7d46df483c52123fc98c0993bdf82acba94f00a8a10b97b7a6f68ae04880bd0f",
+    "_secp.py": "sha256:d8a3bbeebc5ac55dc3829a400adcb2db6c002de303f68b06d8051999d451e1f6",
+    "bridge.py": "sha256:a3126353aaa077f8b0861c20acde2a92615526368954f3c0b4d57ec3c24e7eeb"
+  },
+  "note": "Dec-C-9: interpreter version + source checksums are REPRODUCIBILITY METADATA for the C implementation; they do NOT constitute a cryptographic attestation of the interpreter/runtime itself."
+}
