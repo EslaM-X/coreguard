@@ -38,20 +38,26 @@ described in `submission/README.md` is outreach/meeting, not building. We test
 
 | Field | Value |
 |---|---|
-| Status | A: READY for dispatch · PENDING → (SENT / NO_RESPONSE / REPLIED) |
+| Status | **A: SENT** (owner-confirmed dispatch, 2026-09-15) → NO_RESPONSE / REPLIED pending |
 | Recipient A (Primary) | `inquire@coredao.org` — official Core "Institutional inquiries" address (owner-verified, published on Core site). Not claimed to be a "Partnerships inbox" by name; internal routing left to Core |
+| Subject A | CoreGuard — independently verifiable execution provenance for autonomous agents on Core Mainnet |
 | Recipient B (Secondary) | **NOT ACTIVATED** — reason: no independently verified current official contact address/person for Core Ventures |
 | Sent by | Owner's mail client (env has no mail channel) |
-| Sent date / sent UTC | TBD (owner-confirmed) |
+| Sent date | 2026-09-15 (owner-confirmed dispatch statement; no delivery/open claim) |
+| Sent time UTC | PENDING — awaits owner's exact clock read |
 | Delivered / opened | TBD — never assumed, only owner-confirmed |
 
 ## Message variant A — General contact / partnerships (primary, kept short)
 
+Exact text **dispatched 2026-09-15** (owner-confirmed, sent verbatim):
+
+> Hi Core team —
+>
 > We built and verified a real Core Mainnet execution-verification primitive for
 > autonomous agents.
 >
 > It lets an authorized execution be independently checked against its declared
-> intent, signer, target, value and policy, with fail-closed outcomes and an
+> intent, signer, target, value, and policy, with fail-closed outcomes and an
 > auditable proof artifact.
 >
 > We have a reproducible Mainnet proof and a 90-second demo.
@@ -62,6 +68,12 @@ described in `submission/README.md` is outreach/meeting, not building. We test
 > problem Core wants solved at the infrastructure/protocol level?
 >
 > If yes, we'd be happy to show the actual proof rather than a deck.
+>
+> CoreGuard repository:
+> https://github.com/EslaM-X/coreguard
+>
+> Best,
+> CoreGuard
 
 ## Message variant B — Core Ventures (secondary, shorter, thesis-oriented)
 
