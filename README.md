@@ -182,6 +182,7 @@ scripts/     anchor-local.ps1/.sh — local fork anchor proof ·
              compute-commitment — offline commitment plan ·
              verify-anchor — three-proofs anchor checker
 docs/        deployment · funding · contributing · security
+docs/adoption/  WS-5 — adoption & institutional proof (demand/evidence layer)
 submission/  Investor / Core Submission Pack (13 items) — run `npm run demo:90s`
 ```
 
