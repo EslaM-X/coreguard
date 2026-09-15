@@ -68,9 +68,14 @@ three guarantees missing from logs:
 
 ## 6. Validation plan (what would confirm the hypothesis)
 
-1. **Positive pilot on Mainnet** (Pilot-1, funding-gated): the funded execution
-   returns L1 `VERIFIED` + WS-1 `RECOVERED_SIGNER` + `POLICY SATISFIED`, with a
-   recomputable attestation and the anti-blessing behavior shown on real data.
+1. **Positive pilot on Mainnet** — **DONE (L1 VERIFIED).** Pilot-1 executed a
+   real Core Mainnet transfer (tx
+   `0xe67c61fda81200bf026faee31c23a7b7e7f56ed24f06ffe24f071fa06891a9b8`, block
+   `38712625`) and returned L1 `VERIFIED` (`RECEIPT_INTEGRITY`), WS-1
+   `RECOVERED_SIGNER`, `POLICY SATISFIED`, and an intact Execution Attestation —
+   see [`docs/ws-5.md`](./ws-5.md) and the non-secret snapshot
+   `examples/pilot/proof-artifact-1.json`. The anti-blessing behavior is also
+   independently demonstrated on the historical non-conforming tx (rejected).
 2. **Counterparty conversation**: present the attestation artifact to one
    candidate from B1/B2/B3; the hypothesis is confirmed only if a counterparty
    names a loss/bill that this artifact directly reduces, and indicates a

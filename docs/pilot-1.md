@@ -1,6 +1,8 @@
 # Pilot-1 — Agent Execution Verification on Core Mainnet
 
-Status: **READY (funding-gated)**
+Status: **L1 VERIFIED — Proof Artifact #1** (real Core Mainnet execution,
+recorded in [`docs/ws-5.md`](./ws-5.md) and the non-secret snapshot
+`examples/pilot/proof-artifact-1.json`).
 Scope: **Pilot-first, one use case** — an AI/automated agent executes a small
 CORE transfer on **Core Mainnet**, and CoreGuard independently verifies the
 execution against the agent's pre-declared intent.
@@ -88,6 +90,30 @@ receipt,attestation,verification,broadcast}.json`.
 - No claim about a Firewall decision (B-EXEC-5 = `NOT_RUN`): the pilot is a
   direct EOA transfer, not a gated flow.
 
+## Execution result (Proof Artifact #1)
+
+Executed on Core Mainnet `1116` with the funded agent EOA:
+
+| | |
+|---|---|
+| txHash | `0xe67c61fda81200bf026faee31c23a7b7e7f56ed24f06ffe24f071fa06891a9b8` |
+| block | `38712625` · `0x4694bd58…` · status `1` |
+| from / to / value | `0xea41becd…` → `0x7b4ce1…` · `0.001 CORE` · nonce 4 |
+| intentRef / manifestId | `0xc3902b31…` / `0xc32be08d…` |
+| Verdict | **L1 VERIFIED** (`RECEIPT_INTEGRITY`) · receiptId `0x4f9d8586…` |
+| Attestation | `VERIFIED` · ref `0xfa71e0a1…` |
+| Snapshot | `examples/pilot/proof-artifact-1.json` (committed, no secrets) |
+
+## GO / NO-GO gate
+
+**GO achieved** — the funded positive path ran on Mainnet and `capture` returned
+L1 `VERIFIED` + WS-1 `RECOVERED_SIGNER` + `POLICY SATISFIED` against the real
+tx, with the anti-blessing behavior also demonstrated on the historical
+non-conforming tx. The fail-closed demos and the historical read-only binding
+remain evidence of the machinery; the positive execution (recorded above) is now
+the proof. Next step per owner: freeze (done) → WS-5 artifact (done) → Value
+Hypothesis validation → first counterparty.
+
 ## Funding status (resolved)
 
 The agent EOA (`0xea41becd…`, the funded Mainnet wallet) holds **≈ 0.98 CORE** —
@@ -107,13 +133,7 @@ L1 VERIFIED + RECOVERED_SIGNER + POLICY SATISFIED + Execution Attestation.
 No broadcast until the genuine pinned preflight succeeded AND the owner grants
 a separate broadcast GO.
 
-## GO / NO-GO gate
-
-**NO-GO (ship state)** until the funded-positive path is executed on Mainnet and
-`capture` returns the L1 `VERIFIED` + WS-1 `RECOVERED_SIGNER` result against the
-real tx. The fail-closed demos and the historical read-only binding (which
-correctly rejected a non-conforming tx) are evidence of the machinery, **not** a
-substitute for the positive Mainnet execution.
+## Related evidence (frozen)
 
 Evidence recorded (`docs/DEPLOYMENT.md`, frozen): Core Mainnet registrar
 `0x037df08f2d43c5d03759279fe35664f6aff9ea6e`; historical evidence tx

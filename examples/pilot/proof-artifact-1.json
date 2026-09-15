@@ -1,0 +1,149 @@
+{
+  "artifact": "coreguard Pilot-1 Proof Artifact #1",
+  "version": 1,
+  "verdict": "VERIFIED",
+  "network": "core-mainnet",
+  "chainId": "1116",
+  "executedAtBlock": {
+    "blockNumber": "38712625",
+    "blockHash": "0x4694bd584fdb3596216f7760dd568e8550edecae4e837b798b3e34adac22f671"
+  },
+  "execution": {
+    "txHash": "0xe67c61fda81200bf026faee31c23a7b7e7f56ed24f06ffe24f071fa06891a9b8",
+    "from": "0xea41becdeb612d8625bf3060809964f1dab43244",
+    "to": "0x7b4ce161d65e679c30ba738a522a09d63880992c",
+    "valueWei": "1000000000000000",
+    "valueCORE": "1",
+    "nonce": "4",
+    "gasLimit": "21000",
+    "status": "1 (success)",
+    "gasUsed": "21000"
+  },
+  "declaredIntent": {
+    "intentRef": "0xc3902b31aecde32f3022ecb6bcbcbba3536a72b9d479f02b118a0b69c8f21445",
+    "manifestId": "0xc32be08dbd55b346a22ccd7e2339792e2603a0477caa6b71d07edc586868f843",
+    "signer": "0xea41becdeb612d8625bf3060809964f1dab43244",
+    "recipient": "0x7b4ce161d65e679c30ba738a522a09d63880992c",
+    "valueWei": "1000000000000000",
+    "validUntil": "5000000000",
+    "policyRuleIds": [
+      "VALUE_001",
+      "TARGET_001",
+      "DEADLINE_001"
+    ]
+  },
+  "authorization": {
+    "status": "OK",
+    "label": "RECOVERED_SIGNER",
+    "path": "EOA",
+    "signatureRef": {
+      "scheme": "EIP-712",
+      "signer": "0xea41becdeb612d8625bf3060809964f1dab43244",
+      "r": "5da48d63e8943128cc13ad2f5a45f9f34ea631d5e2e034f3064a59b15adbf84b",
+      "s": "04fbfb1555bff4d27695a7c573aedfe3b9620ed48ad7e213f44556959c051176",
+      "v": 27
+    }
+  },
+  "conformance": {
+    "checks": [
+      {
+        "check": "B-EXEC-1",
+        "result": "PASS",
+        "label": "CHAIN_PIN",
+        "reason": null
+      },
+      {
+        "check": "B-EXEC-2",
+        "result": "NOT_RUN",
+        "label": "SELECTOR_UNAVAILABLE",
+        "reason": "no calldata selector extractable"
+      },
+      {
+        "check": "B-EXEC-3",
+        "result": "PASS",
+        "label": "VALUE_PIN",
+        "reason": null
+      },
+      {
+        "check": "B-EXEC-4",
+        "result": "PASS",
+        "label": "RECOVERED_CALLER",
+        "reason": null
+      },
+      {
+        "check": "B-EXEC-5",
+        "result": "NOT_RUN",
+        "label": "DECISION_RECORD_MISSING",
+        "reason": "frozen PRE decision record required"
+      }
+    ],
+    "policy": "SATISFIED",
+    "satisfied": true
+  },
+  "preflightPin": {
+    "blockNumber": "38712024",
+    "blockHash": "0x7a30f4fb494624a8f814e257ee04c6e15da824b03d3906059d5f947227806cc7",
+    "replay": "genuine eth_call replay at pinned pre-execution block",
+    "result": "0x"
+  },
+  "l1Verification": {
+    "result": "VERIFIED",
+    "verdictCode": "RECEIPT_INTEGRITY",
+    "receiptId": "0x4f9d85865b6c42e007496615a47309aa30579bd05f396ae801703447bb51767a",
+    "requiredMissing": [],
+    "checks": [
+      {
+        "check": "RECEIPT_COMMITMENT",
+        "result": "PASS",
+        "detail": "Receipt commitment matches"
+      },
+      {
+        "check": "INTENT_HASH",
+        "result": "PASS",
+        "detail": "Intent hash matches"
+      },
+      {
+        "check": "POLICY_HASH",
+        "result": "PASS",
+        "detail": "Policy hash matches"
+      },
+      {
+        "check": "TRACE_HASH",
+        "result": "NOT_RUN",
+        "detail": "Trace not provided for verification"
+      },
+      {
+        "check": "EVIDENCE_COMMITMENT",
+        "result": "PASS",
+        "detail": "Evidence commitment matches"
+      },
+      {
+        "check": "STATE_PINNING",
+        "result": "PASS",
+        "detail": "State pinning is consistent"
+      }
+    ]
+  },
+  "attestation": {
+    "attestationRef": "0xfa71e0a1ef12dd53cd5155920b16fe545f589d4b52945d01be070caafb737626",
+    "evidenceHash": "0x3588ed9e16c48ba9aa1dd1ed232d63609dfc0fc36928ea4c83b58f8ad0cadba9",
+    "executionEvidenceRef": "0x60550267a65c65ad04ffe8634d1df92a37a098e3e2748ed3c3bdbbb5b3fdb0a2",
+    "integrity": {
+      "status": "VERIFIED",
+      "label": "ATTESTATION_INTACT"
+    }
+  },
+  "commitment": "0x29ba9d7514fb86119eef00734f2a0e772227888aab054a0ea50ad7f1182cc3a4",
+  "proofId": "0x62c32dabcb5ef1962bdebd29834b6b049306b20196774704f59fb569e9fbe4b5",
+  "reverify": [
+    "node examples/pilot/run-pilot.mjs capture --tx 0xe67c61fda81200bf026faee31c23a7b7e7f56ed24f06ffe24f071fa06891a9b8"
+  ],
+  "provenance": "values from Mainnet RPC reads + local deterministic recompute (coreguard); assembled from gitignored local artifacts; every hash/ref independently present in capture/verification",
+  "truthfulness": {
+    "traceAvailable": false,
+    "traceReason": "TRACE_UNAVAILABLE on rpc.coredao.org — claims are L1/RECEIPT_LEVEL only",
+    "selector": "NOT_RUN (no calldata)",
+    "firewallDecision": "NOT_RUN (direct EOA transfer, no firewall gate)"
+  },
+  "frozenAt": "2026-09-15"
+}
