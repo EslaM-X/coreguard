@@ -1,0 +1,27 @@
+{
+  "status": "OK",
+  "chainId": "0x45a",
+  "rpcEndpointClass": "official-core-testnet2-readonly",
+  "rpcEndpoint": "https://rpc.test2.btcs.network",
+  "note": "READ_ONLY_CAPTURE — allowlist enforced; no eth_send*/eth_sign*/deploy/broadcast ever issued",
+  "methods": [
+    "eth_chainId",
+    "eth_blockNumber",
+    "eth_getBlockByNumber",
+    "eth_getTransactionByHash",
+    "eth_getTransactionReceipt"
+  ],
+  "pinnedBlockNumber": "0x11dd477",
+  "pinnedBlockHash": "0xcf52a571a786627bd565efa15abb9483541a2506cee36cef2825de8095c496f9",
+  "captureTimeUtc": "2026-09-15T01:25:13.209Z",
+  "crossBackReferences": {
+    "txBlockHash": "0xcf52a571a786627bd565efa15abb9483541a2506cee36cef2825de8095c496f9",
+    "receiptBlockHash": "0xcf52a571a786627bd565efa15abb9483541a2506cee36cef2825de8095c496f9"
+  },
+  "artifacts": {
+    "rpc-chainId.json": "e162545a0a003f308dd70dc4d509c0f77a9efa23258ccc1e162d6511d1158650",
+    "rpc-block-0x11dd477.json": "b84abc6203ae1efe20de13337805061155abd47b895b2214fc7143ddb27313ac",
+    "rpc-tx-0x534617b8ac129a0253f4645089366461a416c1b8443ab9ed96c80e2c145b1eba.json": "302b81f80ac4d6cd1bdb0ca3f34355243ef60dd58e0c4330347896322f7a8857",
+    "rpc-receipt-0x534617b8ac129a0253f4645089366461a416c1b8443ab9ed96c80e2c145b1eba.json": "fe4e1c006943ed166187ccfa419e4c918509dda62b1606b8cb6214ffb08c2a97"
+  }
+}

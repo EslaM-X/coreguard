@@ -93,6 +93,24 @@ function toLowerHex(v) {
   return String(v).toLowerCase();
 }
 
+/**
+ * WS-5R boundary normalization: a Core RPC returns the raw wire chainId
+ * ("0x45a" hex) while B-EXEC-1 compares the evidence item against the
+ * canonical DECIMAL `intent.chainId` ("1114"). Collapse ANY uint256
+ * representation (RPC hex "0x…", "0X…", decimal string, safe number, BigInt)
+ * to the ONE canonical CGEP/1 decimal string. Decimal input stays canonical
+ * decimal; malformed / out-of-range input FAILS CLOSED (returns null →
+ * chainId evidence unavailable → B-EXEC-1 NOT_RUN, never a fabricated match).
+ */
+function canonicalChainId(v) {
+  if (v === undefined || v === null) return null;
+  try {
+    return canonicalUintString(v);
+  } catch (e) {
+    return null;
+  }
+}
+
 function functionSelector(input) {
   const s = toLowerHex(input) || "";
   if (s.startsWith("0x") && s.length >= 10) return s.slice(0, 10);
@@ -154,7 +172,12 @@ export async function extractExecutionEvidence({ provider, chainId, ref }) {
   let chainIdItem = null;
   if (typeof provider.eth_chainId === "function") {
     try {
-      chainIdItem = { kind: "CHAIN_ID", source: "provider.eth_chainId", value: String(await provider.eth_chainId()), blockPin: null, txPin: null };
+      const chainId = canonicalChainId(await provider.eth_chainId());
+      if (chainId === null) {
+        errors.push("eth_chainId unparseable — CHAIN_ID unavailable (NOT_RUN)");
+      } else {
+        chainIdItem = { kind: "CHAIN_ID", source: "provider.eth_chainId", value: chainId, blockPin: null, txPin: null };
+      }
     } catch (e) {
       errors.push(`eth_chainId failed: ${e.message}`);
     }
