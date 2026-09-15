@@ -10,11 +10,41 @@
 |---|---|
 | Diagnose (audit) | PASS |
 | Verifier-C / test registration | CLOSED |
-| Publishability architecture (Phase B) | GO (executed, gate pending) |
-| Clean-clone publishability gate | EXIT GATE of Phase B |
-| Real npm publish | NO-GO / NOT YET AUTHORIZED |
+| Publishability architecture (Phase B) | PASS (executed) |
+| Clean-clone publishability gate | PASS — WS-NPM READY |
+| Real npm publish | NO-GO / NOT AUTHORIZED |
 | GitHub/source release | INDEPENDENT (unaffected) |
-| Publish pipeline | AFTER clean-clone gate |
+| Publish pipeline | AFTER gate (not started) |
+
+## WS-NPM-1 STATUS: WS-NPM READY
+
+Gate results registered (READY reflects proven publishability, NOT a publish
+decision — the two remain separate gates):
+
+- **Phase B: PASS**
+- **Gate A: PASS** — npm ci + npm test 588/588
+- **Gate B: PASS** — pack/publish dry-run ×13
+- **Gate C: PASS** — disposable tarball install + API smoke 18/18
+- **CI: PASS** — 254a57a, 5/5 jobs
+- **Real npm publish: NO-GO / NOT AUTHORIZED** (independent, separate GO required)
+- **Source release: INDEPENDENT**
+- **v0.4.0: FROZEN @ 280fcfd**
+- **verifier-c: FROZEN / OUT-OF-SCOPE FOR RELEASE**
+
+State after documentation:
+
+```
+main = origin/main = 254a57a
+v0.4.0             = 280fcfd  FROZEN
+verifier-c         = 4cdbf4c  FROZEN
+WS-NPM-1           = READY
+npm publish        = NO-GO
+work-tree          = CLEAN
+```
+
+WS-NPM READY is decoupled from npm publish GO by design: this document records
+that publishability became proven, while the real publish decision remains a
+separate gate awaiting an explicit new GO.
 
 ## Audit findings (WS-NPM-1, PASS)
 
