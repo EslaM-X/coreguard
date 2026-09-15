@@ -128,9 +128,10 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 125 tests — canonicalization, policy, tamper, anchor, P1 suites
+npm test              # 620 tests — canonicalization, policy, tamper, anchor, verifier, P1, attack-lab suites
 npm run corpus        # deterministic 73-scenario adversarial corpus
 npm run benchmark     # 73/73 pass
+# Authoritative numbers live in docs/STATUS.md (one source of truth).
 
 # 3. Runnable demos
 node examples/transfer/run-demo.js    # transfer: valid → mutate → tamper → INVALID

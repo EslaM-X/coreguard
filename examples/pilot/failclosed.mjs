@@ -85,6 +85,11 @@ async function buildReceiptLike(intent, policy, trace) {
     execution: { blockNumber: trace.blockNumber, blockHash: trace.blockHash },
     verifierVersion: "0.1.0",
     verificationLevel: "L1",
+    levelReason: "L1 = committed hashes + state pinning + intent/policy binding; not a trace proof.",
+    traceAvailability: {
+      status: "TRACE_UNAVAILABLE",
+      reason: "pilot env has no archive RPC in scope; L1 does not require a canonical trace.",
+    },
     result: "VALID",
     checks: [],
   });

@@ -4,7 +4,17 @@
  * Deterministic policy evaluation. No heuristics in verification.
  */
 
-import { canonicalize, hashPolicy } from "@coreguard/canonical";
+import { canonicalize, hashPolicy, securityUint } from "@coreguard/canonical";
+
+/**
+ * True when a param is actually present (not null/undefined/empty).
+ * NOTE: `params.max ? ...` is a correctness hazard — a max of "0" is falsy
+ * and would be treated as "no upper bound". Fixed here (P0.2 audit).
+ */
+function hasParam(params, key) {
+  const v = params[key];
+  return v !== undefined && v !== null && v !== "";
+}
 
 /**
  * Rule result
@@ -37,9 +47,9 @@ function evaluateRule(rule, context) {
 
   switch (type) {
     case "VALUE_LIMIT": {
-      const value = BigInt(ctx("value", "0"));
-      const max = params.max ? BigInt(params.max) : null;
-      const min = params.min ? BigInt(params.min) : null;
+      const value = BigInt(securityUint("value", ctx("value", "0")));
+      const max = hasParam(params, "max") ? BigInt(securityUint("max", params.max)) : null;
+      const min = hasParam(params, "min") ? BigInt(securityUint("min", params.min)) : null;
       if (max !== null && value > max) {
         return {
           ruleId: rule.ruleId,

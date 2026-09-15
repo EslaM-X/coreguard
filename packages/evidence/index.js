@@ -47,6 +47,33 @@ export async function createEvidenceBundle({
 }
 
 /**
+ * Build a Trace Availability Proof (Phase 0 P0.3).
+ *
+ * A positive claim says the canonical execution trace exists AND where it came
+ * from, so a consumer can assess provenance depth (provider capability, tree
+ * depth, frame count, per-frame coverage). Absence of this block is NOT a
+ * violation — but the verification-level self-declaration must then say why
+ * (see levelTruth / TRACE_UNAVAILABLE).
+ */
+export function buildTraceAvailability({ provider, depth = 0, frames = 0, coverage = [] }) {
+  return {
+    status: "TRACE_AVAILABLE",
+    provider,
+    depth: String(depth),
+    frames: String(frames),
+    coverage: coverage.map((c) => String(c)),
+  };
+}
+
+/**
+ * Explicit, honest negative claim: no canonical execution trace is available
+ * (or its provenance is unknown). Paired with a levelReason in the receipt.
+ */
+export function traceUnavailable(reason) {
+  return { status: "TRACE_UNAVAILABLE", reason };
+}
+
+/**
  * Create an Execution Receipt
  */
 export async function createReceipt({
@@ -63,6 +90,8 @@ export async function createReceipt({
   execution,
   verifierVersion,
   verificationLevel,
+  levelReason,
+  traceAvailability,
   result,
   checks,
 }) {
@@ -93,6 +122,11 @@ export async function createReceipt({
     timestamp,
     checks,
   };
+
+  // P0.3: trace availability + level self-declaration. ADDITIVE — omitted
+  // when the caller does not supply them, so existing receipts stay byte-identical.
+  if (traceAvailability) receipt.traceAvailability = traceAvailability;
+  if (levelReason) receipt.levelReason = levelReason;
 
   const receiptId = await computeReceiptId(receipt);
 

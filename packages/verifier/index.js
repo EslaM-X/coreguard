@@ -58,9 +58,43 @@ export const OPTIONAL_CHECKS_V = [
   "POLICY_EVAL",
   "STATE_DELTA_CANONICAL",
   "REPLAY_CONSISTENCY",
+  "TRACE_AVAILABILITY",
 ];
 
 export const CLAIMABLE_LEVELS_V = Object.keys(REQUIRED_BY_LEVEL);
+
+/**
+ * Level self-declaration truth (Phase 0 P0.3).
+ *
+ * L0/L1/L2 profiles are REQUIRED evidence sets (REQUIRED_BY_LEVEL); an L1
+ * claim is a claim about hashes + pinning, NOT a trace proof. L2 additionally
+ * requires the canonical execution trace. This helper makes the claim
+ * unambiguous: what the level requires, and — when a trace is needed but not
+ * available — the explicit reason (never silent).
+ */
+export function levelTruth(level, evidence = {}) {
+  const required = (REQUIRED_BY_LEVEL[level] || []).slice();
+  const traceAvailable = evidence.traceAvailability?.status === "TRACE_AVAILABLE";
+  const traceRequired = required.includes("TRACE_HASH");
+
+  let reason;
+  if (traceRequired && !traceAvailable) {
+    reason =
+      `L2 requires the canonical execution trace; ${evidence.traceAvailability?.status === "TRACE_UNAVAILABLE" && evidence.traceAvailability.reason
+        ? `TRACE_UNAVAILABLE (${evidence.traceAvailability.reason})`
+        : "TRACE_UNAVAILABLE"} — evidence cannot reach L2 without it.`;
+  } else if (level === "L1") {
+    reason = "L1 = committed hashes + state pinning + intent/policy binding; not a trace proof.";
+  } else if (level === "L0") {
+    reason = "L0 = receipt commitment + state pinning only.";
+  } else if (traceRequired) {
+    reason = "L2 = L1 evidence + canonical execution trace.";
+  } else {
+    reason = `Claimed level ${level}.`;
+  }
+
+  return { verificationLevel: level, levelReason: reason, required };
+}
 
 /**
  * Determine the receipt verdict from the executed checks and the claimed level.
@@ -283,6 +317,38 @@ export async function verifyReceipt(receipt, evidenceBundle, intent, policy, tra
         ? `Replay plan coherent (${replay.frames} frame(s))`
         : `Replay plan contradicts itself: ${replay.errors.join("; ")}`,
     });
+  }
+
+  // 5e2. Trace availability (P0.3) — optional, self-declared transparency.
+  //      TRACE_AVAILABLE => the block must be well-formed (provider + frames).
+  //      TRACE_UNAVAILABLE => declared honestly; the L2 profile then also
+  //      REQUIRES TRACE_HASH, so a trace-less L2 claim still lands UNVERIFIED.
+  if (receipt.traceAvailability) {
+    const ta = receipt.traceAvailability;
+    if (ta.status === "TRACE_AVAILABLE") {
+      const wellFormed = ta.provider && String(ta.frames) && BigInt(ta.frames || 0) > 0n;
+      checks.push({
+        check: "TRACE_AVAILABILITY",
+        result: wellFormed ? CheckResult.PASS : CheckResult.FAIL,
+        detail: wellFormed
+          ? `Trace available (provider=${ta.provider}, frames=${ta.frames}, depth=${ta.depth ?? "?"})`
+          : "traceAvailability declares TRACE_AVAILABLE but lacks a provider or frames>0 — malformed claim",
+      });
+    } else if (ta.status === "TRACE_UNAVAILABLE") {
+      checks.push({
+        check: "TRACE_AVAILABILITY",
+        result: ta.reason ? CheckResult.PASS : CheckResult.FAIL,
+        detail: ta.reason
+          ? `Trace unavailable: ${ta.reason}`
+          : "traceAvailability declares TRACE_UNAVAILABLE without a reason",
+      });
+    } else {
+      checks.push({
+        check: "TRACE_AVAILABILITY",
+        result: CheckResult.FAIL,
+        detail: `Unknown traceAvailability status "${ta.status}" — must be TRACE_AVAILABLE or TRACE_UNAVAILABLE`,
+      });
+    }
   }
 
   // 6. Verify intent/execution binding

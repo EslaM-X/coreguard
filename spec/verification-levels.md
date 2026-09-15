@@ -1,6 +1,6 @@
 # Verification Levels — CGEP/1 Core
 
-**Version**: 1.0.0-draft  
+**Version**: 1.1.0-p0
 **Parent**: CGEP/1 Core
 
 ---
@@ -86,6 +86,27 @@ Missing any required item → `UNVERIFIED`; any FAIL (required or optional) →
 - `VERIFIED` means: **execution conformed to committed intent/policy at the verified level**.
 - `VERIFIED` does NOT mean "safe". Policy result and risk findings are separate axes.
 - Expected-but-state-moved differences are not automatically failures — simulation block and execution block are pinned separately.
+
+## 6. Boundary Contract (P0 closure — 2026-09-15)
+
+The boundaries below are enforced in code, not just documented. Each is a line
+the product never crosses when making claims.
+
+| Boundary | Rule |
+|---|---|
+| **Anchor ≠ execution proof** | The registry proves a *commitment* was anchored on Core. The execution claim comes from the offline evidence/replay bound to that commitment — never from on-chain presence alone. |
+| **L1 ≠ trace proof** | An L1 verification-level claim means committed hashes + state pinning + intent/policy binding. It is **not** a trace/replay proof. Receipts self-declare `levelReason` saying exactly that. |
+| **L2 requires the trace** | `TRACE_HASH` is a required check at L2. A trace-less L2 claim is `UNVERIFIED` — never `VERIFIED`. Missing evidence is never silently skipped. |
+| **Honest `TRACE_UNAVAILABLE`** | When no canonical trace exists (or its provenance is unknown), the positive `TRACE_AVAILABLE` block must NOT be declared. Callers emit `{ status: "TRACE_UNAVAILABLE", reason }` paired with a `levelReason`, e.g. `L1 — no canonical execution trace`. |
+| **`TRACE_AVAILABLE` must be well-formed** | Declaring `TRACE_AVAILABLE` requires a provider + frames>0. A malformed positive claim FAILs closed (contradiction), never upgrades anything. |
+| **Optional never upgrades** | `OPTIONAL_CHECKS_V` items (EVIDENCE_COMMITMENT, SIGNER_AUTHENTICATION, POLICY_EVAL, STATE_DELTA_CANONICAL, REPLAY_CONSISTENCY, TRACE_AVAILABILITY) can only *fail* a receipt — they can never upgrade a level or turn an UNVERIFIED into VERIFIED. |
+| **Unclaimable levels** | L3/L4 exist in the protocol but have no v0.1 runtime pathway; claiming one yields `INCONCLUSIVE` (`LEVEL_UNAVAILABLE`). |
+| **Canonicalization boundary** | No security-critical integer (amount, gas, timestamp, block, nonce, chainId) may be a JS `Number` in the public API. `securityUint` rejects JS `Number` outright; hex spelling is preserved at the declaration layer (a declaration binds the exact spelling). |
+| **Registry V2 identity** | EvidenceRegistryV2 is immutable/versioned, keys are identity-based singletons (`intentId`/`proofId` reuse → `AlreadyCommitted`), and digests bind chainId + verifyingContract + verifierVersion + result. V1 stays frozen. |
+
+The requirement profile (`REQUIRED_BY_LEVEL`) and the verdict rules in section 4
+are the single source of truth in code (`packages/verifier/index.js`), mirrored
+by `scripts/anchor-verdict.mjs` for the on-chain anchor path.
 
 ---
 

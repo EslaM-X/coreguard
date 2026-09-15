@@ -10,6 +10,8 @@
   "scripts": {
     "test": "node scripts/run-tests.mjs",
     "benchmark": "node test/adversarial/benchmark-runner.js",
+    "benchmark:10k": "node scripts/benchmark-10k.mjs",
+    "mutation": "node scripts/mutation-lab.mjs",
     "corpus": "node benchmarks/generate-corpus.js",
     "analyze": "node packages/cli/src/index.js analyze",
     "verify": "node packages/cli/src/index.js verify",

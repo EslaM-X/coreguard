@@ -9,6 +9,7 @@ import { createHash } from "node:crypto";
 export {
   canonicalUintString,
   isCanonicalUintString,
+  securityUint,
   uintToBigInt,
   UINT256_MAX,
   UINT256_MAX_BI,

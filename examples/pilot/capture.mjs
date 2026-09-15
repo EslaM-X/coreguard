@@ -193,6 +193,11 @@ export async function capture({ txHash }) {
       execution: { blockNumber: blockItem.blockNumber, blockHash: blockItem.blockHash },
       verifierVersion: "0.1.0",
       verificationLevel: "L1",
+      levelReason: "L1 = committed hashes + state pinning + intent/policy binding; not a trace proof.",
+      traceAvailability: {
+        status: "TRACE_UNAVAILABLE",
+        reason: "capture pipeline has no archive RPC in scope; L1 does not require a canonical trace.",
+      },
       result: policyResult.result === "SATISFIED" ? "VALID" : "INVALID",
       checks: attestationChecks,
     });

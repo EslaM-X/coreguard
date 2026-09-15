@@ -4,7 +4,7 @@
  * Canonical representation of user intent.
  */
 
-import { canonicalize, hashIntent } from "@coreguard/canonical";
+import { canonicalize, hashIntent, securityUint } from "@coreguard/canonical";
 
 /**
  * Intent action types
@@ -41,12 +41,17 @@ export const ConstraintType = {
 
 /**
  * Create a canonical intent
+ *
+ * Security-critical integers (chainId, nonce, validAfter, validUntil, amount)
+ * are guarded by securityUint: JS Numbers are rejected outright (silent 2^53
+ * rounding hazard); canonical decimal strings and bigints are accepted and
+ * normalized. constraint.value shares the same rule where present.
  */
 export function createIntent({
   chainId,
   signer,
   nonce = "0",
-  validAfter = 0,
+  validAfter = "0",
   validUntil,
   action,
   target,
@@ -58,20 +63,20 @@ export function createIntent({
 }) {
   return {
     version: "CGEP/1",
-    chainId: String(chainId),
+    chainId: securityUint("chainId", chainId),
     signer: signer.toLowerCase(),
-    nonce: String(nonce),
-    validAfter: String(validAfter),
-    validUntil: String(validUntil),
+    nonce: securityUint("nonce", nonce),
+    validAfter: securityUint("validAfter", validAfter),
+    validUntil: validUntil === undefined || validUntil === null ? undefined : securityUint("validUntil", validUntil),
     action,
     target: target.toLowerCase(),
     selector: selector.toLowerCase(),
     asset: asset.toLowerCase(),
-    amount: String(amount),
+    amount: securityUint("amount", amount),
     recipient: recipient.toLowerCase(),
     constraints: constraints.map((c) => ({
       type: c.type,
-      value: c.value ? String(c.value) : undefined,
+      value: c.value === undefined || c.value === null ? undefined : securityUint("constraint.value", c.value),
       addresses: c.addresses
         ? c.addresses.map((a) => a.toLowerCase())
         : undefined,

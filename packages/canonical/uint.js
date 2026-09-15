@@ -89,6 +89,57 @@ export function isCanonicalUintString(value) {
 }
 
 /**
+ * Security-critical integer guard (canonicalization audit, P0.2).
+ *
+ * Public builder APIs for amount / gas / timestamp / block / nonce / chainId
+ * MUST receive a canonical decimal string or bigint. JS Numbers are rejected
+ * OUTRIGHT — a Number literal like `9007199254740993` has already been
+ * silently rounded by the runtime (2^53 wall) before any function sees it, so
+ * accepting any Number type makes silent precision loss possible.
+ *
+ * Valid string spellings (decimal, or RPC hex like "0x100") are VALIDATED —
+ * including the uint256 range — and returned UNCHANGED: the declaration layer
+ * binds exact spelling, so hex and its decimal twin are distinct records
+ * (see test/firewall/attack-lab/a14-numerics.test.js). Non-canonical decimal
+ * spellings ("007"), floats, exponent forms and malformed strings fail closed.
+ * bigints are collapsed to their canonical decimal form.
+ */
+export function securityUint(name, value) {
+  if (typeof value === "number") {
+    throw new TypeError(
+      `securityUint("${name}"): JS Number is forbidden for security-critical ` +
+        "integers; pass a canonical decimal string or bigint"
+    );
+  }
+  if (typeof value === "string") {
+    const s = value;
+    if (s === "") throw new TypeError(`uint: empty string`);
+    if (HEX_UINT_RE.test(s)) {
+      if (BigInt(s) > UINT256_MAX_BI) {
+        throw new TypeError("uint: exceeds uint256 range");
+      }
+      return s;
+    }
+    if (DEC_UINT_RE.test(s)) {
+      if (s.length > 1 && s.startsWith("0")) {
+        throw new TypeError(`uint: non-canonical decimal spelling "${s}"`);
+      }
+      if (BigInt(s) > UINT256_MAX_BI) {
+        throw new TypeError("uint: exceeds uint256 range");
+      }
+      return s;
+    }
+    throw new TypeError(`uint: unsupported integer string "${s}"`);
+  }
+  if (typeof value === "bigint") {
+    if (value < 0n) throw new TypeError("uint: negative value");
+    if (value > UINT256_MAX_BI) throw new TypeError("uint: exceeds uint256 range");
+    return value.toString();
+  }
+  throw new TypeError(`uint: unsupported type ${typeof value}`);
+}
+
+/**
  * Decode to BigInt (throws on malformed / out-of-range).
  */
 export function uintToBigInt(value) {

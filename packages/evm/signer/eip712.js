@@ -102,9 +102,11 @@ function encodeField(t, value, types) {
       return encodeString(value);
     case "bool":
       return encodeUint256(value ? 1 : 0);
-    default:
-      if (types[base]) return keccak(encodeData(base, types, value));
-      throw new Error(`encodeField: unknown type ${base}`);
+    default: {
+      if (/^(u?int)\d+$/.test(t)) return encodeUint256(value);
+      if (types[t]) return keccak(encodeData(t, types, value));
+      throw new Error(`encodeField: unknown type ${t}`);
+    }
   }
 }
 

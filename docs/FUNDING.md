@@ -30,9 +30,10 @@ CoreGuard is Core-native by design:
 ## Why us
 
 - **We already built it.** Not a pitch deck — a deterministic, tested,
-  adversarially benchmarked engine. **125/125 unit/integration tests,
+  adversarially benchmarked engine. **620/620 unit/integration tests,
   73/73 adversarial benchmarks, anchor integrity VERIFIED live on Core
-  Mainnet**, and a staged Testnet2 hardening campaign (controlled validation)
+  Mainnet** (authoritative numbers: [`docs/STATUS.md`](STATUS.md)), and a
+  staged Testnet2 hardening campaign (controlled validation)
   ready to run — `PREPARED / FUNDING-BLOCKED`, waiting on tCORE2 funding.
 - **Auditor-honest.** VERIFIED ≠ SAFE is in our README baseline. We will not
   sell you "prevents all exploits". That credibility is worth more than hype.
