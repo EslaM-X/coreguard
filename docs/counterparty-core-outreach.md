@@ -24,7 +24,7 @@ funding ask, not "Core should fund us".
 | Field | Value |
 |---|---|
 | Status | PENDING → (SENT / NO_RESPONSE / REPLIED) |
-| Recipient / channel | TBD (owner provides target address) |
+| Recipient / channel | General contact / partnerships (owner to provide exact address when dispatching) |
 | Sent by | Owner's mail client (env has no mail channel) |
 | Sent date | TBD |
 | Sent time UTC | TBD |
