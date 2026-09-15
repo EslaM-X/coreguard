@@ -26,9 +26,13 @@
  * - Evidence closure: `evidenceHash` closes over `executionEvidenceRef`
  *   (H(CGEP/1:EVIDENCE, bundle) ⊇ executionEvidenceRef ⊇ {executionRef,
  *   items[]}) — no unbound side-by-side commitments are ever emitted.
- * - No simulation claim: WS-4 runs no simulation; receipts carry an explicit
- *   `SIMULATION NOT_RUN / SIMULATION_NOT_PERFORMED` check and pin the
- *   simulation leg to the execution block ONLY as a schema-required marker.
+ * - No simulation claim: WS-4 runs no simulation. It emits NO legacy receipt —
+ *   the legacy `verifyStatePinning()` reads pin presence only and would
+ *   mis-read a fabricated `simulation` pin as simulation evidence.
+ *   `SIMULATION NOT_RUN / SIMULATION_NOT_PERFORMED` is represented in
+ *   `verification.checks`, the profile the attestation commits and
+ *   `verifyExecutionAttestation` recomputes. A legacy receipt is emitted only
+ *   with a GENUINE simulation pin (remediation A+2).
  *
  * Additive-only boundaries preserved: imports are local zero-dep cores only
  * (canonical / `@coreguard/intent` authorization / `@coreguard/trace`); the
@@ -437,6 +441,16 @@ function aggregateChecks(checks) {
   return { status: STATUS.VERIFIED, label: "EXECUTION_EVIDENCE_BOUND", reason: null };
 }
 
+/* Simulation semantics (remediation A+2 / semantic closure): WS-4 executes NO
+ * simulation. The state is typed, canonical and carried in the verification
+ * profile (checks) that the attestation commits and verifyExecutionAttestation
+ * recomputes — never a legacy-receipt-only annotation, because the legacy
+ * verifyStatePinning() check reads pin presence only and cannot reason about a
+ * check it never reads. */
+function simulationNotRun() {
+  return check("SIMULATION", STATUS.NOT_RUN, "SIMULATION_NOT_PERFORMED", "WS-4 executes no simulation — the pinned execution block is NOT simulation evidence");
+}
+
 /* ---------- orchestration ---------- */
 
 /**
@@ -463,11 +477,15 @@ export async function verifyExecutionEvidence({
   // Trace-level conformance requested but core/L2 provides no trace ⇒
   // capability/provider gap ⇒ TRACE_UNAVAILABLE (never VERIFIED, never fabricated).
   if (conformance === "TRACE_LEVEL" && !extraction.trace.available) {
+    const sim = simulationNotRun();
     return {
       status: STATUS.TRACE_UNAVAILABLE,
       label: "TRACE_UNAVAILABLE",
       reason: "no trace-capable provider — RECEIPT_LEVEL only; trace never synthesised",
-      checks: [{ check: "EXTRACTION:TRACE", result: "NOT_RUN", label: "TRACE_UNAVAILABLE", reason: "provider.supportsTrace !== true" }],
+      checks: [
+        { check: "EXTRACTION:TRACE", result: "NOT_RUN", label: "TRACE_UNAVAILABLE", reason: "provider.supportsTrace !== true" },
+        sim,
+      ],
       intentRef,
       executionEvidenceRef: extraction.executionEvidenceRef,
       evidenceBundle: null,
@@ -475,6 +493,7 @@ export async function verifyExecutionEvidence({
       conformancePath: "RECEIPT_LEVEL",
       trace: extraction.trace,
       executionRef: extraction.executionRef,
+      simulation: { status: sim.result, label: sim.label, reason: sim.reason },
       callerClaimsDiscarded: true,
     };
   }
@@ -492,6 +511,13 @@ export async function verifyExecutionEvidence({
     callerClaims,
   });
   checks.push(...binding.checks);
+
+  // Simulation NOT_RUN by construction: typed, canonical, and folded into the
+  // layers that are actually committed and recomputed (evidence bundle
+  // verifications + attestation verification profile) — never a side annotation
+  // the legacy verifyStatePinning() presence check would ignore (remediation A+2).
+  const sim = simulationNotRun();
+  checks.push(sim);
 
   let status;
   let label;
@@ -549,6 +575,7 @@ export async function verifyExecutionEvidence({
     conformancePath: extraction.trace.available ? "TRACE_LEVEL" : "RECEIPT_LEVEL",
     trace: extraction.trace,
     executionRef: extraction.executionRef,
+    simulation: { status: sim.result, label: sim.label, reason: sim.reason },
     callerClaimsDiscarded: true,
   };
 }
@@ -557,16 +584,25 @@ export async function verifyExecutionEvidence({
  * Reference an existing @coreguard/evidence receipt (never re-implemented) for
  * the extractor's evidence — specs `execution-receipt.md`.
  *
- * Simulation semantics: WS-4 executes NO simulation. The CGEP/1 receipt schema
- * (`createReceipt`) requires a `simulation` pin object, so the receipt's
- * `simulation` leg is pinned to the SAME execution block — a schema-required
- * marker ONLY, never evidence that a simulation was performed. Every receipt
- * records this explicitly as `{ check: "SIMULATION", result: "NOT_RUN",
- * label: "SIMULATION_NOT_PERFORMED" }`; consumers must not read
- * `receipt.simulation` as simulation evidence (spec §6).
+ * A legacy CGEP/1 receipt may ONLY be emitted when GENUINE pre-execution
+ * simulation evidence exists: `simulation` is the simulator's own pin
+ * (`{ blockNumber, blockHash }`), never the execution block. WS-4 executes no
+ * simulation, so WS-4 does NOT call this function — its attestation carries
+ * `receiptId: null` and the typed `SIMULATION / NOT_RUN` entry in
+ * `verification.checks`, which `verifyExecutionAttestation` commits and
+ * recomputes. Calling this function without a genuine simulation pin throws
+ * rather than fabricate a marker that the legacy `verifyStatePinning()` presence
+ * check would mis-read as simulation evidence (remediation A+2).
  */
-export async function buildEvidenceReceipt({ chainId, txHash, blockHash, blockNumber, intentRef, executionEvidenceRef, traceHash, result, checks, conformancePath, verifierVersion = "coreguard-ws4/0.1.0" }) {
-  const simExec = { blockNumber: String(blockNumber ?? ""), blockHash: (blockHash || "").toLowerCase() };
+export async function buildEvidenceReceipt({ chainId, txHash, blockHash, blockNumber, intentRef, executionEvidenceRef, traceHash, result, checks, conformancePath, simulation, verifierVersion = "coreguard-ws4/0.1.0" }) {
+  if (!simulation || !simulation.blockNumber || !simulation.blockHash) {
+    throw new Error(
+      "buildEvidenceReceipt requires GENUINE simulation evidence ({ blockNumber, blockHash }); " +
+        "WS-4 without simulation does not emit a legacy receipt — receiptId: null in the attestation"
+    );
+  }
+  const execPin = { blockNumber: String(blockNumber ?? ""), blockHash: (blockHash || "").toLowerCase() };
+  const simPin = { blockNumber: String(simulation.blockNumber ?? ""), blockHash: String(simulation.blockHash ?? "").toLowerCase() };
   return createReceipt({
     chainId,
     txHash,
@@ -577,15 +613,12 @@ export async function buildEvidenceReceipt({ chainId, txHash, blockHash, blockNu
     executionTraceHash: traceHash ?? null,
     stateDeltaHash: null,
     evidenceRoot: executionEvidenceRef,
-    simulation: simExec,
-    execution: simExec,
+    simulation: simPin,
+    execution: execPin,
     verifierVersion,
     verificationLevel: conformancePath === "TRACE_LEVEL" ? "L2" : "L1",
     result,
-    checks: [
-      { check: "SIMULATION", result: "NOT_RUN", label: "SIMULATION_NOT_PERFORMED", reason: "WS-4 executes no simulation — the execution block pin is NOT simulation evidence" },
-      ...(checks ?? []),
-    ],
+    checks: checks ?? [],
   });
 }
 

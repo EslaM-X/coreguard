@@ -172,11 +172,19 @@ Every item carries the pinned `blockNumber`/`blockHash` it was read at;
 - Evidence is held **off-chain / local**; only its commitment (hash / root)
   enters on-chain anchoring (§9).
 - Composed with the RECEIPT model of `execution-receipt.md` (state pinning
-  simulation vs execution): WS-4 never fabricates a simulation. Without a real
-  simulation the receipt's `simulation` leg is a schema-required marker pinned
-  to the execution state and is explicitly recorded as
-  `SIMULATION_NOT_PERFORMED` (`NOT_RUN`) — never presented as a distinct
-  simulation claim and never conflated into execution evidence.
+  simulation vs execution): WS-4 never fabricates a simulation — and therefore
+  never emits a legacy CGEP/1 receipt that would be read through the legacy
+  `verifyStatePinning()` presence check (which awards `STATE_PINNING` on the
+  mere existence of `simulation.blockNumber/blockHash` and cannot reason about
+  an annotation it never reads). WS-4 without a real simulation emits NO legacy
+  receipt: its attestation carries `receiptId: null` and the typed
+  `{ check: "SIMULATION", result: "NOT_RUN", label:
+  "SIMULATION_NOT_PERFORMED" }` entry inside `verification.checks` — the
+  profile the attestation commits and `verifyExecutionAttestation` recomputes,
+  so the absence of simulation is represented semantically in the consumed
+  artifact, never as a side annotation. `buildEvidenceReceipt` requires a
+  genuine simulation pin (`{blockNumber, blockHash}`) and throws without one
+  (remediation A+2).
 
 ---
 
@@ -234,16 +242,20 @@ level, single source of truth in code at implementation).
   implicit pass.
 - Trace-capable providers are detected and used **only** for the optional
   `TRACE` item; absence ⇒ `TRACE_UNAVAILABLE`.
-- **Simulation semantics:** WS-4 executes NO simulation. To satisfy the CGEP/1
-  receipt schema (`createReceipt` requires a `simulation` pin object),
-  `buildEvidenceReceipt` pins the receipt's `simulation` leg to the SAME
-  execution block — this is a schema-required marker ONLY and is **not**
-  evidence that a simulation was performed. Every WS-4 receipt carries an
-  explicit `{ check: "SIMULATION", result: "NOT_RUN",
-  label: "SIMULATION_NOT_PERFORMED" }` entry; consumers must not read
-  `receipt.simulation` as simulation evidence (T-W4-5). A real simulation in a
-  future workstream must carry its own distinct pin, per `execution-receipt.md`
-  §5 state pinning.
+- **Simulation semantics:** WS-4 executes NO simulation. Because the legacy
+  receipt consumer (`verifyStatePinning()` in `packages/verifier`) treats the
+  mere presence of `simulation.blockNumber/blockHash` as satisfied
+  `STATE_PINNING` and never reads receipt annotations, WS-4 does NOT emit a
+  legacy CGEP/1 receipt at all when no simulation was performed: its attestation
+  carries `receiptId: null`, and the absence of simulation is represented
+  semantically in the consumed artifact as `{ check: "SIMULATION", result:
+  "NOT_RUN", label: "SIMULATION_NOT_PERFORMED" }` inside `verification.checks`,
+  which the attestation commits (`attestationRef`) and
+  `verifyExecutionAttestation` recomputes (T-W4-5). A legacy receipt is emitted
+  ONLY via `buildEvidenceReceipt({ simulation: <genuine pin> })` — it requires
+  real simulation evidence and throws otherwise (remediation A+2). A real
+  simulation in a future workstream must carry its own distinct pin, per
+  `execution-receipt.md` §5 state pinning.
 
 ---
 

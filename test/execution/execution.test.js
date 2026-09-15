@@ -406,17 +406,13 @@ test("W4: Execution Attestation — commitment, recompute integrity, tamper-evid
     valuePredicate: defaultValuePredicate,
   });
 
-  const receipt = await buildEvidenceReceipt({
-    chainId: "1116",
-    txHash: f.tx.hash,
-    blockHash: f.tx.blockHash,
-    blockNumber: f.tx.blockNumber,
-    intentRef: verification.intentRef,
-    executionEvidenceRef: verification.executionEvidenceRef,
-    result: verification.status,
-    checks: verification.checks,
-    conformancePath: verification.conformancePath,
-  });
+  // Remediation A+2: WS-4 runs no simulation ⇒ no legacy receipt is emitted;
+  // the absence of simulation is represented in the consumed verification
+  // profile, never as a side annotation a legacy consumer would ignore.
+  const simCheck = find(verification.checks, "SIMULATION");
+  assert.ok(simCheck, "verification.checks must carry the SIMULATION state");
+  assert.equal(simCheck.result, "NOT_RUN");
+  assert.equal(simCheck.label, "SIMULATION_NOT_PERFORMED");
 
   const att = await buildExecutionAttestation({
     chainId: "1116",
@@ -426,7 +422,7 @@ test("W4: Execution Attestation — commitment, recompute integrity, tamper-evid
     decisionRef: f.record.decisionRef,
     executionEvidenceRef: verification.executionEvidenceRef,
     evidenceHash: verification.evidenceHash,
-    receiptId: receipt.receiptId,
+    receiptId: null,
     verification,
     conformancePath: verification.conformancePath,
     at: "20260914T120000",
@@ -436,18 +432,29 @@ test("W4: Execution Attestation — commitment, recompute integrity, tamper-evid
   assert.equal(commitmentOf(att.record), att.commitment);
   assert.equal(Object.isFrozen(att.record), true);
   assert.equal(att.record.evidenceHash, verification.evidenceHash);
-  assert.equal(att.record.receiptId, receipt.receiptId);
+  assert.equal(att.record.receiptId, null);
 
   const intact = await verifyExecutionAttestation(att.record);
   assert.equal(intact.status, STATUS.VERIFIED);
   assert.equal(intact.label, "ATTESTATION_INTACT");
+
+  // The SIMULATION NOT_RUN state is committed inside verification.checks and is
+  // genuinely consumed by verifyExecutionAttestation — removing it is tamper.
+  const attSim = att.record.verification.checks.find((c) => c.check === "SIMULATION");
+  assert.ok(attSim && attSim.result === "NOT_RUN", "attestation commits SIMULATION NOT_RUN in verification.checks");
+  const strippedSim = await verifyExecutionAttestation({
+    ...att.record,
+    verification: { ...att.record.verification, checks: att.record.verification.checks.filter((c) => c.check !== "SIMULATION") },
+  });
+  assert.equal(strippedSim.status, STATUS.INVALID, "stripping SIMULATION NOT_RUN is tamper-evident — the semantic is committed, not annotated");
+  assert.equal(strippedSim.label, "ATTESTATION_TAMPERED");
 
   const tampered = await verifyExecutionAttestation({ ...att.record, intentRef: flipRef(att.record.intentRef) });
   assert.equal(tampered.status, STATUS.INVALID);
   assert.equal(tampered.label, "ATTESTATION_TAMPERED");
 });
 
-test("W4: evidence receipt references @coreguard/evidence createReceipt — never re-implemented (spec §4.1)", async () => {
+test("W4: evidence receipt delegates to @coreguard/evidence createReceipt — only with a GENUINE simulation pin (spec §4.1/remediation A+2)", async () => {
   const f = await executionFixture();
   const verification = await verifyExecutionEvidence({
     provider: f.provider,
@@ -457,6 +464,11 @@ test("W4: evidence receipt references @coreguard/evidence createReceipt — neve
     frozenDecision: f.record,
     valuePredicate: defaultValuePredicate,
   });
+  // A genuine pre-execution simulation pin (fixture): the simulator's own
+  // block, distinct from the execution block. WS-4 today does not run
+  // simulations (production credentials carry receiptId: null); this models a
+  // future simulation-capable workstream exercising the createReceipt path.
+  const simPin = { blockNumber: "0x177", blockHash: ("0x" + "cd".repeat(32)).toLowerCase() };
   const receipt = await buildEvidenceReceipt({
     chainId: "1116",
     txHash: f.tx.hash,
@@ -468,12 +480,19 @@ test("W4: evidence receipt references @coreguard/evidence createReceipt — neve
     result: verification.status,
     checks: verification.checks,
     conformancePath: verification.conformancePath,
+    simulation: simPin,
   });
   assert.ok(receipt.receiptId.startsWith("0x") && receipt.receiptId.length === 66, "CGEP/1:RECEIPT content-address");
   assert.equal(receipt.receipt.version, "CGEP/1");
   assert.equal(receipt.receipt.evidenceRoot, verification.executionEvidenceRef);
   assert.equal(receipt.receipt.chainId, "1116");
   assert.equal(receipt.receipt.txHash, f.tx.hash.toLowerCase());
+  // The simulation pin is the genuine one and stays distinct from the
+  // execution pin (state pinning per execution-receipt.md §5).
+  assert.equal(receipt.receipt.simulation.blockNumber, "0x177");
+  assert.equal(receipt.receipt.simulation.blockHash, ("0x" + "cd".repeat(32)).toLowerCase());
+  assert.equal(receipt.receipt.execution.blockNumber, f.tx.blockNumber);
+  assert.notEqual(receipt.receipt.simulation.blockNumber, receipt.receipt.execution.blockNumber);
 });
 
 test("W4: evidenceHash closes over executionEvidenceRef — same ref ⇒ same hash; ref change ⇒ hash change (remediation A)", async () => {
@@ -523,7 +542,7 @@ test("W4: evidenceHash closes over executionEvidenceRef — same ref ⇒ same ha
   assert.notEqual(await hashEvidence(diverge), a.evidenceHash);
 });
 
-test("W4: receipt documents SIMULATION NOT_RUN / SIMULATION_NOT_PERFORMED — execution pin is not simulation evidence (remediation 2)", async () => {
+test("W4: no legacy receipt without genuine simulation — SIMULATION NOT_RUN lives in the consumed verification profile (remediation A+2)", async () => {
   const f = await executionFixture();
   const verification = await verifyExecutionEvidence({
     provider: f.provider,
@@ -533,32 +552,61 @@ test("W4: receipt documents SIMULATION NOT_RUN / SIMULATION_NOT_PERFORMED — ex
     frozenDecision: f.record,
     valuePredicate: defaultValuePredicate,
   });
-  const receipt = await buildEvidenceReceipt({
-    chainId: "1116",
-    txHash: f.tx.hash,
-    blockHash: f.tx.blockHash,
-    blockNumber: f.tx.blockNumber,
-    intentRef: verification.intentRef,
-    executionEvidenceRef: verification.executionEvidenceRef,
-    traceHash: verification.trace.traceHash ?? null,
-    result: verification.status,
-    checks: verification.checks,
-    conformancePath: verification.conformancePath,
-  });
 
-  const simCheck = receipt.receipt.checks.find((c) => c.check === "SIMULATION");
-  assert.ok(simCheck, "SIMULATION check must be present");
+  // WS-4 executes no simulation: the state is carried in the verification
+  // profile and the evidence bundle — the layers that are actually committed
+  // and recomputed — not as a side annotation a legacy consumer never reads.
+  const simCheck = find(verification.checks, "SIMULATION");
+  assert.ok(simCheck, "SIMULATION check must be present in verification.checks");
   assert.equal(simCheck.result, "NOT_RUN");
   assert.equal(simCheck.label, "SIMULATION_NOT_PERFORMED");
+  assert.equal(verification.simulation.status, "NOT_RUN");
+  assert.equal(verification.simulation.label, "SIMULATION_NOT_PERFORMED");
+  assert.equal(verification.simulation.reason, simCheck.reason);
 
-  // Schema-required marker only: pin mirrors the execution block, explicitly NOT_RUN.
-  assert.equal(receipt.receipt.simulation.blockNumber, receipt.receipt.execution.blockNumber);
-  assert.equal(receipt.receipt.simulation.blockHash, receipt.receipt.execution.blockHash);
-  assert.notEqual(simCheck.result, "PASS");
-  assert.notEqual(simCheck.result, "VERIFIED");
-  // Verdict semantics unchanged — simulation is a NOT_RUN annotation, never a verdict input.
-  assert.equal(receipt.receipt.result, verification.status);
-  assert.equal(receipt.receipt.evidenceRoot, verification.executionEvidenceRef);
+  // The evidence bundle documents it too — evidenceHash closes over verifications.
+  const bundleSim = find(verification.evidenceBundle.evidence.verifications, "SIMULATION");
+  assert.ok(bundleSim && bundleSim.result === "NOT_RUN", "bundle.verifications carries SIMULATION NOT_RUN");
+  assert.equal(await hashEvidence(verification.evidenceBundle.evidence), verification.evidenceHash);
+
+  // No legacy receipt is emitted without real simulation: the legacy receipt
+  // builder fails closed rather than fabricate a pin that a presence-only
+  // consumer (legacy verifyStatePinning()) would mis-read as simulation truth.
+  await assert.rejects(
+    buildEvidenceReceipt({
+      chainId: "1116",
+      txHash: f.tx.hash,
+      blockHash: f.tx.blockHash,
+      blockNumber: f.tx.blockNumber,
+      intentRef: verification.intentRef,
+      executionEvidenceRef: verification.executionEvidenceRef,
+      traceHash: verification.trace.traceHash ?? null,
+      result: verification.status,
+      checks: verification.checks,
+      conformancePath: verification.conformancePath,
+    }),
+    /GENUINE simulation/
+  );
+
+  // The attestation commits the state in verification.checks — the consumer it
+  // is meant for: verifyExecutionAttestation.
+  const manifestId = await computeManifestId(f.declaration);
+  const att = await buildExecutionAttestation({
+    chainId: "1116",
+    intentRef: verification.intentRef,
+    manifestId,
+    bindingRef: await computeBindingRef({ intentRef: verification.intentRef, manifestId, signature: f.declaration.signature }),
+    decisionRef: f.record.decisionRef,
+    executionEvidenceRef: verification.executionEvidenceRef,
+    evidenceHash: verification.evidenceHash,
+    receiptId: null,
+    verification,
+    conformancePath: verification.conformancePath,
+  });
+  const attSim = att.record.verification.checks.find((c) => c.check === "SIMULATION");
+  assert.ok(attSim && attSim.result === "NOT_RUN", "attestation verification.checks commits SIMULATION NOT_RUN");
+  const attached = await verifyExecutionAttestation(att.record);
+  assert.equal(attached.status, STATUS.VERIFIED);
 });
 
 async function decodeRef(f) {
