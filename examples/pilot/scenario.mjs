@@ -4,16 +4,36 @@
  * the scope and the execution envelope are authored here and committed as
  * CGEP/1 artifacts before any execution happens.
  *
- * Overrides (env): CG_PILOT_CHAIN_ID, CG_PILOT_RECIPIENT, CG_PILOT_AMOUNT,
- * CG_PILOT_VALID_UNTIL.
+ * Recipient defaults to the SEPARATE controlled recipient EOA in
+ * `recipient.local.json` (a distinct account from the agent — a commercial
+ * transfer, never a self-transfer). Falls back to the agent address only when
+ * no recipient file exists (bare machinery demo). Overrides (env):
+ * CG_PILOT_CHAIN_ID, CG_PILOT_RECIPIENT, CG_PILOT_AMOUNT, CG_PILOT_VALID_UNTIL.
  */
 
+import { readFileSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { canonicalUintString } from "@coreguard/canonical";
+
+const here = dirname(fileURLToPath(import.meta.url));
+
+function defaultRecipient(agentAddress) {
+  if (process.env.CG_PILOT_RECIPIENT) return process.env.CG_PILOT_RECIPIENT.toLowerCase();
+  try {
+    const local = JSON.parse(readFileSync(resolve(here, "recipient.local.json"), "utf8"));
+    if (local.address) return String(local.address).toLowerCase();
+  } catch {
+    /* no local recipient — fall through */
+  }
+  return agentAddress;
+}
 
 export function resolveScenario(agentAddress) {
   const chainId = String(process.env.CG_PILOT_CHAIN_ID || "1116");
   const amountWei = BigInt(process.env.CG_PILOT_AMOUNT || "1000000000000000"); // 0.001 CORE
-  const recipient = (process.env.CG_PILOT_RECIPIENT || agentAddress).toLowerCase();
+  const recipient = defaultRecipient(agentAddress);
   const validUntil = String(process.env.CG_PILOT_VALID_UNTIL || "5000000000");
 
   return {

@@ -30,7 +30,11 @@ execution against the agent's pre-declared intent.
 
 ## Scenario (pre-declared, never inferred)
 
-- Receiver: the agent itself (default; override `CG_PILOT_RECIPIENT`)
+- Receiver: a **separate controlled recipient EOA** (distinct from the agent —
+  a real transfer `agent -> recipient`, never a self-transfer). The recipient
+  key lives ONLY in the gitignored `examples/pilot/recipient.local.json`.
+  Current recipient: `0x7b4ce161d65e679c30ba738a522a09d63880992c`
+  (override `CG_PILOT_RECIPIENT`).
 - Amount: `0.001 CORE` = `1000000000000000` wei (override `CG_PILOT_AMOUNT`)
 - Action: `TRANSFER` — native asset, **no calldata** (a value transfer cannot
   claim selector binding; that claim is honestly `NOT_RUN`).
@@ -86,17 +90,25 @@ receipt,attestation,verification,broadcast}.json`.
 
 The agent EOA has **0 wei** on Mainnet. The stage/preflight correctly reports
 `insufficient funds` at the pinned block (that is the honest preflight result).
-To complete the positive path:
 
-- fund the agent EOA `0x6cb4796d54ed72105ec617c8850c91972a0d9469` with
-  **≥ ~0.001 CORE** (+ gas, i.e. a few thousand wei of headroom; the gate
-  computes the exact amount), then
-- re-run `staged`, verify the preflight now succeeds, then `broadcast` (owner
-  GO + double confirm), then `capture --tx <hash>`.
+**Approved plan (owner GO, Pilot-1):** fund the agent EOA
+`0x6cb4796d54ed72105ec617c8850c91972a0d9469` with **≈ 0.0015–0.002 CORE**
+(headroom over the 0.001 CORE transfer + 21000 gas — the goal is that funding is
+the ONLY blocker, never a missing margin). Funding is **NOT part of the proof**:
+the proof starts at the pre-declared intent and ends at the independent
+`capture` of the real Mainnet transaction. Funding simply unlocks the broadcast.
+
+Flow (literal): fund EOA → `gate` → `staged` (pinned eth_call = SUCCESS +
+signed tx = STAGED-NOT-SENT) → **await explicit broadcast GO** →
+`broadcast --confirm --confirm` → `capture --tx <real-mainnet-tx>` →
+L1 VERIFIED + RECOVERED_SIGNER + POLICY SATISFIED + Execution Attestation.
 
 Expected total cost ≈ 0.001 CORE + 21000 gas (≈ 0.001 CORE, gas ≈ 0.00002 CORE).
 Historical reference: a single value-transfer evidence tx on Mainnet was
 21,000 gas; the Registrar anchor cost ≈ 0.0198 CORE total.
+
+Security: no key/balance/.env artifact is ever committed; funding reaches only
+the agent address; all keys remain local.
 
 ## GO / NO-GO gate
 

@@ -9,6 +9,7 @@ broadcast/
 scripts/verify-live.regenerated.json
 scripts/testnet2/artifacts/
 examples/pilot/artifacts/
+examples/pilot/recipient.local.json
 
 __pycache__/
 *.pyc
