@@ -14,7 +14,7 @@
 import { signLegacyTransaction } from "./txsigner.mjs";
 
 export async function stageExecution({ scenario, agent, nonce, gasPrice, gasLimit, balance, preflight }) {
-  const { value } = scenario.execution;
+  const { value } = scenario.executionEnvelope;
   const gasCost = BigInt(gasLimit) * BigInt(gasPrice);
   const required = BigInt(value) + gasCost;
 
@@ -30,7 +30,7 @@ export async function stageExecution({ scenario, agent, nonce, gasPrice, gasLimi
     nonce,
     gasPrice,
     gasLimit,
-    to: scenario.execution.to,
+    to: scenario.executionEnvelope.to,
     value,
     data: "0x",
     chainId: scenario.intent.chainId,

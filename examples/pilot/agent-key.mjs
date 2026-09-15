@@ -28,11 +28,14 @@ function loadPrivateKey() {
   } catch {
     throw new Error("Pilot-1 gate: PRIVATE_KEY unavailable (no .env + no CG_PILOT_PRIVATE_KEY). No key material is ever read from anywhere else.");
   }
-  const match = content.match(/^PRIVATE_KEY=(0x[0-9a-fA-F]{64})/m);
-  if (!match) {
-    throw new Error("Pilot-1 gate: .env has no PRIVATE_KEY=0x<64 hex> line. The pilot refuses to fabricate an agent identity.");
+  // Precedence: the funded Core Mainnet wallet that performed the historical
+  // Mainnet anchor (MAINNET_PRIVATE_KEY) is the pilot agent; PRIVATE_KEY is a
+  // fallback. Keys are never printed, logged, or written to artifacts.
+  for (const varName of ["CG_PILOT_PRIVATE_KEY", "MAINNET_PRIVATE_KEY", "PRIVATE_KEY"]) {
+    const match = content.match(new RegExp(`^${varName}=(0x[0-9a-fA-F]{64})$`, "m"));
+    if (match) return match[1];
   }
-  return match[1];
+  throw new Error("Pilot-1 gate: .env has no MAINNET_PRIVATE_KEY=0x<64 hex> or PRIVATE_KEY=0x<64 hex>. The pilot refuses to fabricate an agent identity.");
 }
 
 export function agentFromEnv() {

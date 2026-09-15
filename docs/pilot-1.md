@@ -21,12 +21,14 @@ execution against the agent's pre-declared intent.
 
 ## Agent identity
 
-- Agent = a **Core Mainnet EOA** derived from the repository `.env` `PRIVATE_KEY`
-  (deployer account). The key is never printed, logged, or written to artifacts;
-  it is used only inside the EIP-712 signing closure and the broadcast-stage
-  signer. `CG_PILOT_PRIVATE_KEY` overrides `.env` when set.
-- Current agent address: `0x6cb4796d54ed72105ec617c8850c91972a0d9469`
-  (balance on Mainnet = 0 wei — see Funding).
+- Agent = a **Core Mainnet EOA** derived from `.env` — **`MAINNET_PRIVATE_KEY`**
+  first (the funded wallet that performed the historical Mainnet anchor,
+  nonce 4, balance ≥ 0.98 CORE), falling back to `PRIVATE_KEY`. The key is never
+  printed, logged, or written to artifacts; it is used only inside the EIP-712
+  signing closure and the broadcast-stage signer. `CG_PILOT_PRIVATE_KEY`
+  overrides both when set.
+- Current agent address: `0xea41becdeb612d8625bf3060809964f1dab43244`
+  (Mainnet, funded — readiness gate = READY).
 
 ## Scenario (pre-declared, never inferred)
 
@@ -86,32 +88,24 @@ receipt,attestation,verification,broadcast}.json`.
 - No claim about a Firewall decision (B-EXEC-5 = `NOT_RUN`): the pilot is a
   direct EOA transfer, not a gated flow.
 
-## Funding requirement (blocker)
+## Funding status (resolved)
 
-The agent EOA has **0 wei** on Mainnet. The stage/preflight correctly reports
-`insufficient funds` at the pinned block (that is the honest preflight result).
+The agent EOA (`0xea41becd…`, the funded Mainnet wallet) holds **≈ 0.98 CORE** —
+far above the exact readiness requirement (**0.00226 CORE** = 0.001 CORE transfer
++ 21000 gas). The readiness gate reports **READY**, and `staged` produced a
+**genuine pinned eth_call = SUCCESS** (`0x` at the pinned pre-execution block)
+with a signed tx in **STAGED-NOT-SENT** state.
 
-**Approved plan (owner GO, Pilot-1):** the controlling number is the exact
-requirement computed by the readiness gate — `required = 2260000000000000 wei`
-= **0.00226 CORE**. Fund the agent EOA with **0.0025 CORE**
-(`0x6cb4796d54ed72105ec617c8850c91972a0d9469`), leaving ≈ 0.00024 CORE
-headroom above the current requirement. Funding is **NOT part of the proof**:
-the proof starts at the pre-declared intent and ends at the independent
-`capture` of the real Mainnet transaction. Funding simply unlocks the broadcast.
+Funding is **NOT part of the proof**: the proof starts at the pre-declared
+intent and ends at the independent `capture` of the real Mainnet transaction.
+Funding simply unlocks the broadcast.
 
-Flow (literal): fund EOA (0.0025 CORE) → `gate` (**READY**) → `staged`
-(pinned eth_call = **SUCCESS** + signed tx = **STAGED-NOT-SENT**) → **STOP** →
-await explicit broadcast GO → `broadcast --confirm --confirm` →
-`capture --tx <real-mainnet-tx>` → L1 VERIFIED + RECOVERED_SIGNER +
-POLICY SATISFIED + Execution Attestation. No broadcast until the genuine
-pinned preflight succeeded AND the owner grants a separate broadcast GO.
-
-Expected total cost ≈ 0.001 CORE + 21000 gas (≈ 0.001 CORE, gas ≈ 0.00002 CORE).
-Historical reference: a single value-transfer evidence tx on Mainnet was
-21,000 gas; the Registrar anchor cost ≈ 0.0198 CORE total.
-
-Security: no key/balance/.env artifact is ever committed; funding reaches only
-the agent address; all keys remain local.
+Flow (literal): `gate` (**READY**) → `staged` (**PREFLIGHT SUCCESS** +
+**STAGED-NOT-SENT**) → **STOP** → await explicit broadcast GO →
+`broadcast --confirm --confirm` → `capture --tx <real-mainnet-tx>` →
+L1 VERIFIED + RECOVERED_SIGNER + POLICY SATISFIED + Execution Attestation.
+No broadcast until the genuine pinned preflight succeeded AND the owner grants
+a separate broadcast GO.
 
 ## GO / NO-GO gate
 
