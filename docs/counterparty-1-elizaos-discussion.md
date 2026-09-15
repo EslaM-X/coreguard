@@ -1,7 +1,12 @@
 # Counterparty #1 — ElizaOS Discussion Comment
 
-Status: **DRAFT — PENDING POST** (not posted; posting is the owner's action —
-this record is never treated as "Posted" without an explicit owner statement).
+Status: **POSTED** (posted by EslaM-X under the locked text via `addDiscussionComment`;
+not treated as archived until the owner confirms receipt/no-edits).
+
+URL: https://github.com/elizaOS/eliza/discussions/21788#discussioncomment-18444447
+Target discussion: [What's the most annoying unsolved thing about giving agents
+real payment ability right now?](https://github.com/orgs/elizaOS/discussions/21788)
+(#21788, Q&A, unanswered at time of post)
 
 **Relationship to `d777c29`:** separate claim surface. The email outreach
 (`d777c29`, **PENDING SEND**) and this discussion comment are independent
@@ -42,6 +47,16 @@ such assertion appears in this comment.
   (Pilot-1: pre-declared EIP-712 → recovered signer → target/value/policy
   conformance → L1 VERIFIED receipt-level attestation).
 - "if useful" leaves the choice to the reader instead of pushing engagement.
+
+## Post log
+
+| Item | Value |
+| --- | --- |
+| Posted by | EslaM-X (CoreGuard repo owner) |
+| Target discussion | elizaOS/eliza #21788 (Q&A — payment ability) |
+| Comment URL | https://github.com/elizaOS/eliza/discussions/21788#discussioncomment-18444447 |
+| Posted at (UTC) | 2026-09-15 05:44:00Z |
+| Text | verbatim from `8a141e2` (frozen below) |
 
 ## Boundaries
 
