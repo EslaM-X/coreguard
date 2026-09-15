@@ -91,17 +91,20 @@ receipt,attestation,verification,broadcast}.json`.
 The agent EOA has **0 wei** on Mainnet. The stage/preflight correctly reports
 `insufficient funds` at the pinned block (that is the honest preflight result).
 
-**Approved plan (owner GO, Pilot-1):** fund the agent EOA
-`0x6cb4796d54ed72105ec617c8850c91972a0d9469` with **≈ 0.0015–0.002 CORE**
-(headroom over the 0.001 CORE transfer + 21000 gas — the goal is that funding is
-the ONLY blocker, never a missing margin). Funding is **NOT part of the proof**:
+**Approved plan (owner GO, Pilot-1):** the controlling number is the exact
+requirement computed by the readiness gate — `required = 2260000000000000 wei`
+= **0.00226 CORE**. Fund the agent EOA with **0.0025 CORE**
+(`0x6cb4796d54ed72105ec617c8850c91972a0d9469`), leaving ≈ 0.00024 CORE
+headroom above the current requirement. Funding is **NOT part of the proof**:
 the proof starts at the pre-declared intent and ends at the independent
 `capture` of the real Mainnet transaction. Funding simply unlocks the broadcast.
 
-Flow (literal): fund EOA → `gate` → `staged` (pinned eth_call = SUCCESS +
-signed tx = STAGED-NOT-SENT) → **await explicit broadcast GO** →
-`broadcast --confirm --confirm` → `capture --tx <real-mainnet-tx>` →
-L1 VERIFIED + RECOVERED_SIGNER + POLICY SATISFIED + Execution Attestation.
+Flow (literal): fund EOA (0.0025 CORE) → `gate` (**READY**) → `staged`
+(pinned eth_call = **SUCCESS** + signed tx = **STAGED-NOT-SENT**) → **STOP** →
+await explicit broadcast GO → `broadcast --confirm --confirm` →
+`capture --tx <real-mainnet-tx>` → L1 VERIFIED + RECOVERED_SIGNER +
+POLICY SATISFIED + Execution Attestation. No broadcast until the genuine
+pinned preflight succeeded AND the owner grants a separate broadcast GO.
 
 Expected total cost ≈ 0.001 CORE + 21000 gas (≈ 0.001 CORE, gas ≈ 0.00002 CORE).
 Historical reference: a single value-transfer evidence tx on Mainnet was
