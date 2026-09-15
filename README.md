@@ -182,6 +182,7 @@ scripts/     anchor-local.ps1/.sh — local fork anchor proof ·
              compute-commitment — offline commitment plan ·
              verify-anchor — three-proofs anchor checker
 docs/        deployment · funding · contributing · security
+submission/  Investor / Core Submission Pack (13 items) — run `npm run demo:90s`
 ```
 
 ## Roadmap
@@ -198,6 +199,9 @@ docs/        deployment · funding · contributing · security
 
 CoreGuard is looking for funding and builders — milestone-based, Core-native,
 auditor-honest. Details: [docs/FUNDING.md](docs/FUNDING.md).
+
+Evaluating us? Start with the [Core Submission Pack (13 items)](submission/) —
+`npm install && npm run demo:90s` reproduces the Mainnet-verified demo in seconds.
 
 ## License
 

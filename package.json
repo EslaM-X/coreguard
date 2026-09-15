@@ -18,6 +18,8 @@
     "demo": "node examples/transfer/run-demo.js",
     "demo:swap": "node examples/swap/run-demo.js",
     "demo:multistep": "node examples/multistep/run-demo.js",
+    "demo:90s": "node submission/demo-90s/run-demo-90s.mjs --offline",
+    "demo:90s:live": "node submission/demo-90s/run-demo-90s.mjs",
     "live": "node examples/live/live-verify.js",
     "anchor": "powershell -ExecutionPolicy Bypass -File scripts/anchor-local.ps1",
     "anchor:plan": "node scripts/compute-commitment.mjs",
