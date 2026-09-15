@@ -1,8 +1,19 @@
 # Counterparty #1 — ElizaOS Outreach Draft (recorded before send)
 
-Status: **PENDING SEND** — validated and locked by owner; to be sent by the
-owner verbatim. This record is the exact claim set exposed to the counterparty
-(no other claims exist).
+Status: **SENT** — dispatched verbatim by the owner from the owner's mail
+client. Recorded as owner-reported fact. This record is the exact claim set
+exposed to the counterparty (no other claims exist).
+
+## Send log
+
+| Item | Value |
+| --- | --- |
+| Recipient | `inquiries@elizalabs.ai` |
+| Channel | owner's mail client (owner-dispatched; no pipeline mail channel exists) |
+| Sent date | 2026-09-15 (owner-confirmed) |
+| Sent time UTC | pending owner's exact clock read (to be appended) |
+| Text | verbatim from this file (`d777c29`), unchanged at send |
+| Status | SENT (recorded only upon owner's explicit confirmation) |
 
 ## Decision trail
 
