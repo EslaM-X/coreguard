@@ -30,7 +30,7 @@
  * without re-executing the chain.
  */
 
-import { canonicalize, domainHash, canonicalUintString, uintToBigInt } from "../canonical/index.js";
+import { canonicalize, domainHash, canonicalUintString, uintToBigInt } from "@coreguard/canonical";
 
 export const REPLAY_DOMAIN = "CGEP/1:REPLAY";
 

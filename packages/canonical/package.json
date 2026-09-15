@@ -3,6 +3,17 @@
   "version": "0.1.0",
   "description": "Canonical encoding + domain-separated hashing for CGEP/1",
   "type": "module",
-  "main": "index.js",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./uint.js": "./uint.js"
+  },
+  "files": ["index.js", "uint.js"],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT"
 }

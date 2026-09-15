@@ -3,9 +3,33 @@
   "version": "0.1.0",
   "description": "CGEP/1:AGENT-PROVENANCE — declared execution provenance state machine (ZERO-DEP CORE PATH; optional @coreguard/evm EVM crypto adapter)",
   "type": "module",
-  "main": "index.js",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./authorization-probe.js": "./authorization-probe.js"
+  },
+  "files": [
+    "index.js",
+    "attestation.js",
+    "authorization-probe.js",
+    "canonical.js",
+    "contract-auth.js",
+    "delegation.js",
+    "evm-adapter.js",
+    "manifest.js",
+    "taxonomy.js"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@coreguard/canonical": "^0.1.0"
+  },
   "optionalDependencies": {
-    "@coreguard/evm": "0.1.0"
+    "@coreguard/evm": "^0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "license": "MIT"
 }

@@ -1,7 +1,7 @@
 {
-  "name": "@coreguard/trace",
+  "name": "@coreguard/crypto",
   "version": "0.1.0",
-  "description": "Trace normalization and state delta computation",
+  "description": "CGEP/1 intent signing and signature verification (EIP-712 digest + secp256k1)",
   "type": "module",
   "main": "./index.js",
   "exports": {

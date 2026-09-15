@@ -27,12 +27,12 @@
  * zero-dep cores (canonical) and the two mandated WS-1 cores.
  */
 
-import { canonicalize, domainHash } from "../canonical/index.js";
+import { canonicalize, domainHash } from "@coreguard/canonical";
 import {
   buildAuthorization,
   scopeOfIntent,
-} from "../intent/authorization.js";
-import { probeAuthorization } from "../provenance/authorization-probe.js";
+} from "@coreguard/intent/authorization.js";
+import { probeAuthorization } from "@coreguard/provenance/authorization-probe.js";
 
 /** CGEP/1:FW-DECISION domain — shared convention, declared locally for
  * independent recomputation (cross-checked against the Firewall by tests so a

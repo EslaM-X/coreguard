@@ -26,7 +26,7 @@
 
 import { createHash, webcrypto } from "node:crypto";
 
-import { canonicalize, domainHash } from "../canonical/index.js";
+import { canonicalize, domainHash } from "@coreguard/canonical";
 
 const subtle = webcrypto.subtle;
 

@@ -15,8 +15,8 @@
  * (VIOLATED ⇒ DENY).
  */
 
-import { evaluatePolicy } from "../policy/index.js";
-import { hashPolicy } from "../canonical/index.js";
+import { evaluatePolicy } from "@coreguard/policy";
+import { hashPolicy } from "@coreguard/canonical";
 
 const ACTOR_KEYS = ["owner", "publisher", "attestor"];
 

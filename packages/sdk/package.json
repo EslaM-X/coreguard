@@ -3,6 +3,21 @@
   "version": "0.1.0",
   "description": "CGEP/1 signed-intent SDK — verifyBinding* recomputation surface (WS-2)",
   "type": "module",
-  "main": "index.js",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": ["index.js", "verify-binding.js"],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@coreguard/canonical": "^0.1.0",
+    "@coreguard/intent": "^0.1.0",
+    "@coreguard/provenance": "^0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT"
 }

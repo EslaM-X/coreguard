@@ -3,6 +3,23 @@
   "version": "0.1.0",
   "description": "Independent execution receipt verification",
   "type": "module",
-  "main": "index.js",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": ["index.js", "run.js"],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@coreguard/canonical": "^0.1.0",
+    "@coreguard/policy": "^0.1.0",
+    "@coreguard/trace": "^0.1.0",
+    "@coreguard/crypto": "^0.1.0",
+    "@coreguard/replay": "^0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT"
 }

@@ -13,7 +13,7 @@ import {
   canonicalize,
   hashTrace,
   canonicalUintString,
-} from "../canonical/index.js";
+} from "@coreguard/canonical";
 
 /**
  * Normalize raw transaction data into canonical execution trace

@@ -6,8 +6,9 @@
  * never appear as outputs.
  * W2-I5 (seam deep-scan): no PRE-execution path accepts execution evidence
  * (typed rejection), and no result carries execution/conformance artifacts.
- * W2-I9 (boundary-conserved): the SDK imports only local zero-dep cores; its
- * package declares no dependencies.
+ * W2-I9 (boundary-conserved): the SDK imports only CoreGuard cores as bare
+ * package specifiers and declares ONLY @coreguard/* dependencies (no external
+ * registry dependency, no workspace:*). WS-NPM-1 standalone policy.
  */
 
 import { test } from "node:test";
@@ -121,16 +122,26 @@ test("W2-I2: claim channels never change an OK result on the EIP-1271 path eithe
   void EVM;
 });
 
-test("W2-I9: the SDK declares no dependencies and exposes ESM only", async () => {
+test("W2-I9: the SDK declares only @coreguard/* dependencies and exposes ESM with an explicit exports map", async () => {
   const pkg = JSON.parse(readFileSync(join(SDK_DIR, "package.json"), "utf8"));
   assert.equal(pkg.name, "@coreguard/sdk");
   assert.equal(pkg.type, "module");
-  assert.equal(pkg.main, "index.js");
-  const depKeys = Object.keys(pkg).filter((k) => /dependencies$/i.test(k));
-  assert.deepEqual(depKeys, [], "SDK must declare zero dependencies (Q-SDK9)");
+  assert.equal(pkg.main, "./index.js");
+  assert.deepEqual(pkg.exports, { ".": "./index.js" }, "SDK exports map must be explicit");
+  assert.equal(pkg.private, undefined, "SDK must not be private");
+  assert.equal(pkg.publishConfig.access, "public", "SDK must be publishable (access public)");
+  const dep = pkg.dependencies || {};
+  const depKeys = Object.keys(dep).sort();
+  assert.ok(depKeys.length >= 1, "SDK must declare its CoreGuard dependencies");
+  for (const k of depKeys) {
+    assert.ok(k.startsWith("@coreguard/"), `SDK dependency must be a CoreGuard package, got: ${k}`);
+    assert.equal(dep[k], "^0.1.0", `SDK dependency range policy ^0.1.0 violated for ${k}`);
+  }
+  const otherDeps = Object.keys(pkg).filter((k) => /(optional|peer|dev)Dependencies$/.test(k));
+  assert.deepEqual(otherDeps, [], "SDK must have no optional/peer/dev dependencies");
 });
 
-test("W2-I9: static imports only from local zero-dep cores (no external/adapter reach)", async () => {
+test("W2-I9: static imports are bare @coreguard/* package specifiers (no cross-package relative reach)", async () => {
   const sources = ["index.js", "verify-binding.js"].map((f) =>
     readFileSync(join(SDK_DIR, f), "utf8"),
   );
@@ -140,9 +151,11 @@ test("W2-I9: static imports only from local zero-dep cores (no external/adapter 
   assert.ok(statements.length > 0, "expected static imports to exist");
   for (const spec of statements) {
     assert.ok(
-      spec.startsWith("../") && !spec.includes("node_modules"),
-      `SDK must import only local zero-dep cores, got: ${spec}`,
+      spec.startsWith("@coreguard/") || spec.startsWith("./"),
+      `SDK must import only bare @coreguard/* package specifiers or in-package files, got: ${spec}`,
     );
+    assert.ok(!spec.startsWith("../"), `SDK must not cross package boundaries relatively: ${spec}`);
+    assert.ok(!spec.includes("node_modules"), `SDK must not reach into node_modules directly: ${spec}`);
     assert.ok(!spec.includes("/evm/"), `SDK must not touch the EVM adapter path statically: ${spec}`);
   }
 });

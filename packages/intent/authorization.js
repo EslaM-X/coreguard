@@ -23,7 +23,7 @@
  * nonce-burning / replay registry (B-2, out of WS-1).
  */
 
-import { canonicalize, domainHash, hashIntent } from "../canonical/index.js";
+import { canonicalize, domainHash, hashIntent } from "@coreguard/canonical";
 
 export const WS1_DOMAINS = Object.freeze({
   INTENT: "CGEP/1:INTENT",
@@ -220,7 +220,7 @@ export async function authorizeForDecision({
     return { ok: false, stage: "binding", status: binding.status, label: binding.label, reason: binding.reason, decisionInputs: null };
   }
 
-  const { probeAuthorization } = await import("../provenance/authorization-probe.js");
+  const { probeAuthorization } = await import("@coreguard/provenance/authorization-probe.js");
   const authority = await probeAuthorization({
     signature: declaration.signature,
     signerBinding: declaration.signerBinding,

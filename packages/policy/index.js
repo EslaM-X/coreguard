@@ -4,7 +4,7 @@
  * Deterministic policy evaluation. No heuristics in verification.
  */
 
-import { canonicalize, hashPolicy } from "../canonical/index.js";
+import { canonicalize, hashPolicy } from "@coreguard/canonical";
 
 /**
  * Rule result

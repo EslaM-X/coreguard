@@ -13,11 +13,11 @@ import {
   hashEvidence,
   hashStateDelta,
   computeReceiptId,
-} from "../canonical/index.js";
-import { evaluatePolicy } from "../policy/index.js";
-import { computeCanonicalStateDelta } from "../trace/index.js";
-import { verifyIntentSignature } from "../crypto/index.js";
-import { planTraceReplay } from "../replay/index.js";
+} from "@coreguard/canonical";
+import { evaluatePolicy } from "@coreguard/policy";
+import { computeCanonicalStateDelta } from "@coreguard/trace";
+import { verifyIntentSignature } from "@coreguard/crypto";
+import { planTraceReplay } from "@coreguard/replay";
 
 /**
  * Verification check result

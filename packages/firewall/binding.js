@@ -17,8 +17,8 @@
  * zero-dep core (canonical/intent/policy) — Q-FW8a.
  */
 
-import { canonicalize, domainHash } from "../canonical/index.js";
-import { hashIntent } from "../canonical/index.js";
+import { canonicalize, domainHash } from "@coreguard/canonical";
+import { hashIntent } from "@coreguard/canonical";
 import { BINDING_DOMAIN } from "./decision-record.js";
 
 export const PROVENANCE_DOMAIN = "CGEP/1:AGENT-PROVENANCE";

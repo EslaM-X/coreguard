@@ -1,7 +1,7 @@
 {
-  "name": "@coreguard/trace",
+  "name": "@coreguard/replay",
   "version": "0.1.0",
-  "description": "Trace normalization and state delta computation",
+  "description": "Trace replay planning and replay-plan digest",
   "type": "module",
   "main": "./index.js",
   "exports": {

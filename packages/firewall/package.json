@@ -3,6 +3,30 @@
   "version": "0.1.0",
   "description": "CGEP/1 Phase D — Execution Firewall decision engine (ZERO-DEP CORE; EVM/transport injected per-call)",
   "type": "module",
-  "main": "index.js",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "authority.js",
+    "binding.js",
+    "conformance.js",
+    "decision.js",
+    "decision-record.js",
+    "policy.js",
+    "resolution.js",
+    "simulation.js"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@coreguard/canonical": "^0.1.0",
+    "@coreguard/policy": "^0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT"
 }

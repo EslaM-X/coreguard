@@ -12,7 +12,7 @@
  * required version field).
  */
 
-import { canonicalize, domainHash } from "../canonical/index.js";
+import { canonicalize, domainHash } from "@coreguard/canonical";
 
 export const PROVENANCE_DOMAIN = "CGEP/1:AGENT-PROVENANCE";
 export const DELEGATION_DOMAIN = "CGEP/1:DELEGATION";

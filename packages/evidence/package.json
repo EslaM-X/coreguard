@@ -3,6 +3,19 @@
   "version": "0.1.0",
   "description": "Evidence bundle and execution receipt generation",
   "type": "module",
-  "main": "index.js",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": ["index.js"],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@coreguard/canonical": "^0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT"
 }

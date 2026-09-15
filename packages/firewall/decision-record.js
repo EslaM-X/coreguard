@@ -16,7 +16,7 @@
  * likewise new frozen records (Q-FW2a).
  */
 
-import { canonicalize, domainHash } from "../canonical/index.js";
+import { canonicalize, domainHash } from "@coreguard/canonical";
 
 export const DECISION_DOMAIN = "CGEP/1:FW-DECISION";
 export const RESOLUTION_DOMAIN = "CGEP/1:FW-RESOLUTION";

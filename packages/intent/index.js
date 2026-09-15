@@ -4,7 +4,7 @@
  * Canonical representation of user intent.
  */
 
-import { canonicalize, hashIntent } from "../canonical/index.js";
+import { canonicalize, hashIntent } from "@coreguard/canonical";
 
 /**
  * Intent action types

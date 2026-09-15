@@ -22,14 +22,14 @@
  * UNVERIFIED→3 · INCONCLUSIVE→4.
  */
 
-import { canonicalUintString } from "../canonical/uint.js";
+import { canonicalUintString } from "@coreguard/canonical/uint.js";
 import {
   hashIntent,
   hashPolicy,
   hashTrace,
   hashEvidence,
   computeReceiptId,
-} from "../canonical/index.js";
+} from "@coreguard/canonical";
 import { verifyReceipt, evaluateCheckVerdict } from "./index.js";
 
 export const CONTRACT = "CGEP/1:VERIFY-RUN";

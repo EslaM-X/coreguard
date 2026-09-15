@@ -45,10 +45,10 @@ import {
   domainHash,
   canonicalUintString,
   hashTrace,
-} from "../canonical/index.js";
-import { scopeOfIntent, computeIntentRef } from "../intent/authorization.js";
-import { normalizeExecution } from "../trace/index.js";
-import { createEvidenceBundle, createReceipt } from "../evidence/index.js";
+} from "@coreguard/canonical";
+import { scopeOfIntent, computeIntentRef } from "@coreguard/intent/authorization.js";
+import { normalizeExecution } from "@coreguard/trace";
+import { createEvidenceBundle, createReceipt } from "@coreguard/evidence";
 
 export const EXECUTION_EVIDENCE_DOMAIN = "CGEP/1:EXECUTION-EVIDENCE";
 export const EXECUTION_ATTESTATION_DOMAIN = "CGEP/1:EXECUTION-ATTESTATION";

@@ -4,7 +4,7 @@
  * Generates evidence bundles and commitments.
  */
 
-import { canonicalize, hashEvidence, computeReceiptId } from "../canonical/index.js";
+import { canonicalize, hashEvidence, computeReceiptId } from "@coreguard/canonical";
 
 /**
  * Create an evidence bundle from intent, policy, and execution
