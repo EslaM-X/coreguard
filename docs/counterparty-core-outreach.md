@@ -1,26 +1,32 @@
-# Core Outreach #1 — one contact, one question
+# Core Outreach #1 — two-channel routing, one question
 
 **Track:** Core (the intended stakeholder of the original thesis) — first
-single contact. **This is NOT Counterparty #2** (not an opened second
-counterparty track) and NOT a pricing experiment.
+contact, designed as **two-channel routing inside Core**, not two blasts.
+**This is NOT Counterparty #2** (not an opened second counterparty track) and
+NOT a pricing experiment.
 
-**Status: PENDING** — draft ready for dispatch by owner (no mail/SMTP channel
+**Status: PENDING** — drafts ready for dispatch by owner (no mail/SMTP channel
 exists in this environment; owner sends from own client, then confirms SENT).
-DSPATCH metadata (to / from / sent-UTC) filled only from owner-confirmed facts.
+Dispatch metadata (to / from / sent-UTC) filled only from owner-confirmed facts.
 
 **Parallel track:** ElizaOS (Counterparty #1) stays **WAITING FOR RESPONSE** —
 separate path, untouched, kept in parallel. We do not serialize on it.
 
 **Strategy rationale (owner decision, 2026-09-15):** tech proof, 90s demo,
 13/13 Submission Pack, and WS-5 adoption layer are complete. The remaining step
-described in `submission/README.md` is outreach/meeting, not building. We run
-**one** outreach to learn whether Core sees the value — not a campaign, not a
-funding ask, not "Core should fund us".
+described in `submission/README.md` is outreach/meeting, not building. We test
+**fit/value first** — never assume eligibility or funding.
 
-**Channel chose (owner revision, 2026-09-15):** **Core Ventures (VC arm)** —
-targets someone who plausibly cares about infrastructure + investment thesis.
-Message framing stays **technical/value validation** (never a funding pitch);
-funding/partnership only follows a YES / proof / demo / meeting signal.
+**Routing (owner refinement, 2026-09-15):**
+
+- **PRIMARY — General contact / partnerships.** Function: does Core see the
+  problem and the value? Routes internally if investment/funding fits.
+- **SECONDARY — Core Ventures (VC arm).** Function: is this worth an
+  ecosystem/investment conversation? Only used if a **distinct official
+  address/person** exists. Shorter, thesis-oriented, no direct funding ask.
+- We **do not send the same text verbatim to both**, and we do not send at the
+  same time as an unprompted double-blast. Start General (primary); trigger
+  Ventures (secondary) only once the official, independent channel is known.
 
 ---
 
@@ -28,14 +34,14 @@ funding/partnership only follows a YES / proof / demo / meeting signal.
 
 | Field | Value |
 |---|---|
-| Status | PENDING → (SENT / NO_RESPONSE / REPLIED) |
-| Recipient / channel | Core Ventures (VC arm) — owner to provide exact address when dispatching |
+| Status | PENDING → (SENT / NO_RESPONSE / REPLIED) per channel |
+| Recipient A (Primary) | General contact / partnerships — exact address TBD (owner) |
+| Recipient B (Secondary) | Core Ventures — only if distinct official address/person (owner) |
 | Sent by | Owner's mail client (env has no mail channel) |
-| Sent date | TBD |
-| Sent time UTC | TBD |
+| Sent date / sent UTC | TBD (owner-confirmed) |
 | Delivered / opened | TBD — never assumed, only owner-confirmed |
 
-## The message (exact text, kept short)
+## Message variant A — General contact / partnerships (primary, kept short)
 
 > We built and verified a real Core Mainnet execution-verification primitive for
 > autonomous agents.
@@ -53,6 +59,18 @@ funding/partnership only follows a YES / proof / demo / meeting signal.
 >
 > If yes, we'd be happy to show the actual proof rather than a deck.
 
+## Message variant B — Core Ventures (secondary, shorter, thesis-oriented)
+
+> We built and verified a real Core Mainnet execution-verification primitive for
+> autonomous agents. We'd like to understand whether independently verifiable
+> execution provenance is relevant to Core's infrastructure and ecosystem
+> thesis. We can provide the reproducible proof and the 90-second demo.
+>
+> Who would be the right person, or the right next step, to explore this?
+
+(No "fund us" language. Funding/partnership is a **possible outcome**, never an
+assumption.)
+
 (Optional subject line, suggested: "CoreGuard — independently verifiable
 execution provenance for autonomous agents on Core Mainnet".)
 
@@ -60,7 +78,7 @@ execution provenance for autonomous agents on Core Mainnet".)
 
 | Question | Reading |
 |---|---|
-| Did it arrive? | PENDING |
+| Did it arrive? (per channel: A / B) | PENDING |
 | Who replied? (name/role) | PENDING |
 | Did they ask for a meeting? | PENDING |
 | Did they ask for the demo/proof? | PENDING |
@@ -68,6 +86,7 @@ execution provenance for autonomous agents on Core Mainnet".)
 | Did they say the problem exists? | PENDING |
 | Did they ask for technical details? | PENDING |
 | Did they point to a funding/accelerator/partnership path? | PENDING |
+| Did they route us internally (General → Ventures / relevant team)? | PENDING |
 
 **None of the above counts as customer, LOI, or revenue.** No numbers are
 invented; every reading is owner-confirmed fact.
@@ -77,6 +96,9 @@ invented; every reading is owner-confirmed fact.
 - No invented fit, eligibility, or funding status for Core programs.
 - No claim that a reply = interest in funding; a reply is data for the
   Decision Gate / thesis refinement only.
+- Openning both channels does NOT open pricing, Counterparty #2, or
+  customer/revenue/LOI claims — those stay locked.
+- ElizaOS track stays independent and untouched by this routing.
 - Frozen artifacts (`docs/ws-5.md`, `verify-live.json`, `verifier-c/*`,
   `docs/counterparty-*`), demo, and pack are untouched by this outreach.
 - Lineage: proof artifact = Mainnet tx
