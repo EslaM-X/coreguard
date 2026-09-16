@@ -1,0 +1,37 @@
+name: coreguard-verify
+description: >-
+  CoreGuard receipt verification with the public @coreguard/sdk guard.verify
+  surface. Recomputes the receiptId from the payload, verifies against
+  intent/policy/trace, prints `CoreGuard Verification: PASS` on success.
+
+inputs:
+  receipt:
+    description: >-
+      Path to the receipt JSON. Accepts `{ receiptId, receipt }` payloads
+      (e.g. examples/transfer/receipt-valid.json).
+    required: true
+  intent:
+    description: Path to the intent JSON (examples/transfer/intent.json).
+    required: true
+  policy:
+    description: Path to the policy JSON (examples/transfer/policy.json).
+    required: true
+  trace:
+    description: Path to the execution trace JSON (examples/transfer/trace.json).
+    required: true
+  chainId:
+    description: Chain id to assume when the receipt payload lacks one.
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: CoreGuard Verification
+      shell: bash
+      env:
+        CG_RECEIPT: ${{ inputs.receipt }}
+        CG_INTENT: ${{ inputs.intent }}
+        CG_POLICY: ${{ inputs.policy }}
+        CG_TRACE: ${{ inputs.trace }}
+        CG_CHAIN: ${{ inputs.chainId }}
+      run: node "${{ github.action_path }}/verify.mjs"

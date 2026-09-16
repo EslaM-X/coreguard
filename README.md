@@ -138,7 +138,34 @@ node examples/transfer/run-demo.js    # transfer: valid → mutate → tamper �
 node examples/swap/run-demo.js        # swap: slippage guard + substitution → INVALID
 node examples/multistep/run-demo.js   # batch strategy: commitment binds one execution
 node examples/live/live-verify.js     # verify any on-chain tx via public RPC (read-only, needs no funds)
+
+# 4. Phase 1 — Execution Firewall + protocol SDK (plan-90d-repo §2)
+npm run demo:vault                    # reference Vault ladder: deposit ALLOW → VERIFIED → anchor plan
+npm run demo:attack                   # re-runs the same intent; six attacks BLOCKED + post INVALID
+npm run create:integration -- my-dapp # scaffold a consumer integration (intent/policy/verifier/tests)
 ```
+
+### Phase 1 cheat sheet (`npx coreguard demo`, `@coreguard/sdk`)
+
+```bash
+npx coreguard demo allow     # DEPOSIT 1 BTC → Vault A, recipient = mine, slippage ≤ 50bps
+npx coreguard demo attack    # same intent, six attacks BLOCKED (target · recipient · amount
+                             # · callback · expired · calldata) + mutated execution → INVALID
+```
+
+The `@coreguard/sdk` guard surface drives this whole ladder in three calls:
+
+```js
+import { createGuard } from "@coreguard/sdk";
+const guard = createGuard();
+const pre   = await guard.authorize(intent, { declaration, policy, activePolicyIds, simulation, authorityAtState, evm });
+const v     = await guard.verify({ chain, intent, policy, trace });   // VERIFIED | INVALID | …
+const plan  = await guard.anchor(v.receipt);                          // CGEP/1:PROOF commitment + proofId
+```
+
+`authorize` is PRE-only and fail-closed (never ALLOWs unmodeled context); `verify`
+recomputes every receiptId from the payload; `anchor` is a pure offline commitment
+plan. See [docs/plan-90d-repo.md](docs/plan-90d-repo.md) §2.
 
 ### CLI
 
@@ -149,6 +176,8 @@ node packages/cli/src/index.js verify-run --receipt <...> [--evidence <...> --in
                                            # CGEP/1:VERIFY-RUN surface; exit 0=VERIFIED 2=INVALID 3=UNVERIFIED 4=INCONCLUSIVE
                                            # e.g. --bundle examples/transfer/verify-bundle.json
 node packages/cli/src/index.js report     --receipt <...>                               # human-readable receipt
+node packages/cli/src/index.js demo   allow|attack     # reference Vault ladder (allow | attack)
+npx create-coreguard-integration <name>                # scaffold a consumer integration project
 ```
 
 `verify-run` is read-only: `--rpc` performs chainId/transaction/receipt/block
@@ -174,11 +203,14 @@ npm run anchor:verify                         # → scripts/verify-live.regenera
 ```
 spec/        CGEP/1 (draft) · master spec · canonical encoding · receipt · levels ·
              threat model · privacy model · competitive kill matrix · killer memos
-packages/    canonical · intent · policy · trace · evidence · verifier (engine + verify-run surface) · cli   (ESM, zero deps)
+packages/    canonical · intent · policy · trace · evidence · firewall · verifier · evm · sdk · cli   (ESM)
+             — sdk/guard.js = guard.authorize/verify/anchor Phase-1 surface
 contracts/   EvidenceRegistry.sol — commitment registry (deployable, `--legacy`)
 benchmarks/  generator + 73-scenario corpus: valid/invalid/mutations/tamper/performance
 test/        canonicalization · policy · tamper suites + adversarial runner + P1 suites
-examples/    transfer · swap · multistep · live (runnable, with READMEs + artifacts)
+             · firewall/ (engine + ws1) · firewall/attack-lab · sdk (verifyBinding + guard)
+examples/    transfer · swap · multistep · live · vault (Phase-1 reference ladder) (runnable, with READMEs + artifacts)
+templates/   integration/ — consumer scaffold for create-coreguard-integration
 scripts/     anchor-local.ps1/.sh — local fork anchor proof ·
              compute-commitment — offline commitment plan ·
              verify-anchor — three-proofs anchor checker
@@ -193,7 +225,7 @@ submission/  Investor / Core Submission Pack (13 items) — run `npm run demo:90
 |---|---|
 | **v0.1 — Evidence protocol** (intent → trace → evidence → receipt → verifier → anchor) | 🔬 Testnet2 campaign PREPARED / FUNDING-BLOCKED (engine 73/73 PASS, live Mainnet anchor below) |
 | **v0.1 — On-chain anchor on Core** | ✅ live on Mainnet `0x037dF08F2d43c5D03759279Fe35664f6AFf9EA6E` (VERIFIED ANCHOR INTEGRITY) |
-| **v0.2 — Execution Firewall** (simulation-gated smart accounts, intent-based authorization) | 📋 designed |
+| **v0.2 — Execution Firewall** (simulation-gated smart accounts, intent-based authorization) | ✅ Phase 1 delivered: engine (`packages/firewall`, attack-lab) + `@coreguard/sdk` guard.* + reference Vault ladder (`npx coreguard demo allow|attack`) + `coreguard-verify` CI action (plan-90d-repo §2) |
 | **v0.3 — Passport / reputation + risk findings** | 📋 designed |
 | **v0.4 — ZK privacy proofs (L4)** | 🔬 research |
 

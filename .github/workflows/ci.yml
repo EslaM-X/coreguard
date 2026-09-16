@@ -31,6 +31,14 @@ jobs:
       - name: Offline commitment recompute matches fixture (pristine checkout)
         run: |
           node scripts/compute-commitment.mjs --receipt examples/transfer/receipt-valid.json | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const p=JSON.parse(d);if(p.receiptId!=='0xd4ddd02204f55662ef7db62b7a720c7e8dbff8d92a1cc621df22cf1b5dc22627'){console.error('receiptId mismatch: '+p.receiptId);process.exit(1)}console.log('offline recompute OK: '+p.commitment)})"
+      - name: CoreGuard receipt verification via composite action
+        uses: ./.github/actions/coreguard-verify
+        with:
+          receipt: examples/transfer/receipt-valid.json
+          intent: examples/transfer/intent.json
+          policy: examples/transfer/policy.json
+          trace: examples/transfer/trace.json
+          chainId: "1114"
 
   contracts:
     name: Contracts (foundry)
@@ -58,5 +66,9 @@ jobs:
       - run: node examples/transfer/run-demo.js
       - run: node examples/swap/run-demo.js
       - run: node examples/multistep/run-demo.js
+      - name: Reference Vault ladder (allow) — ALLOW → VERIFIED → anchor
+        run: node examples/vault/vault-demo.mjs --allow
+      - name: Reference Vault ladder (attack) — six attacks BLOCKED
+        run: node examples/vault/vault-demo.mjs --attack
       - name: Offline verifier sanity (no RPC)
         run: node packages/cli/src/index.js verify --receipt examples/transfer/receipt-valid.json --intent examples/transfer/intent.json --policy examples/transfer/policy.json --trace examples/transfer/trace.json

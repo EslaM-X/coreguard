@@ -11,3 +11,4 @@
 
 export { verifyBinding } from "./verify-binding.js";
 export { FW_DECISION_DOMAIN, FW_DECISION_RECORD_VERSION } from "./verify-binding.js";
+export { createGuard, authorize, verify, anchor, GUARD_VERSION } from "./guard.js";

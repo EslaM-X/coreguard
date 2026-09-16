@@ -4,7 +4,8 @@
   "description": "CoreGuard command-line interface",
   "type": "module",
   "bin": {
-    "coreguard": "src/index.js"
+    "coreguard": "src/index.js",
+    "create-coreguard-integration": "src/create-integration-bin.mjs"
   },
   "license": "MIT"
 }

@@ -5,6 +5,7 @@
  * verify     — Independently verify an execution receipt
  * verify-run — External verification surface (CGEP/1:VERIFY-RUN) with exit codes
  * report     — Render a human-readable report from a receipt
+ * demo       — Run the reference Vault demo ladder (allow | attack)
  *
  * Examples:
  *   analyze --intent intent.json --policy policy.json --trace trace.json
@@ -13,10 +14,11 @@
  *   verify-run --receipt receipt.json --intent intent.json --policy policy.json --trace trace.json --json
  *   verify-run --bundle verify-bundle.json [--rpc https://rpc.test2.btcs.network] [--json]
  *   report --receipt receipt.json
+ *   demo [allow|attack]
  */
 
 import { readFile } from "fs/promises";
-import { resolve } from "path";
+import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
 import { hashIntent, hashPolicy } from "../../canonical/index.js";
@@ -56,6 +58,7 @@ Usage:
   coreguard verify-run [--receipt <file>] [--evidence <file>] [--intent <file>] [--policy <file>]
                        [--trace <file>] [--bundle <file>] [--rpc <url>] [--json]
   coreguard report  --receipt <file>
+  coreguard demo [allow|attack]
 
 Commands:
   analyze    Analyze an execution against intent and policy
@@ -63,6 +66,8 @@ Commands:
   verify-run External verification surface (CGEP/1:VERIFY-RUN). Exit codes:
              0=VERIFIED · 1=CLI/input error · 2=INVALID · 3=UNVERIFIED · 4=INCONCLUSIVE
   report     Render a human-readable report from a receipt
+  demo       Reference Vault ladder: allow (deposit ALLOW → VERIFIED → anchor)
+             or attack (six blocked attacks + post-execution INVALID)
 `);
 }
 
@@ -79,10 +84,25 @@ async function main() {
       return await cmdVerifyRun(args.slice(1));
     case "report":
       return await cmdReport(args.slice(1));
+    case "demo":
+      return await cmdDemo(args.slice(1));
     default:
       printUsage();
       process.exit(command ? 1 : 0);
   }
+}
+
+/** `coreguard demo [allow|attack]` — runs the reference Vault ladder (§2.3). */
+async function cmdDemo(args) {
+  const mode = (args[0] || "allow").toLowerCase();
+  if (mode !== "allow" && mode !== "attack") {
+    console.error("Error: demo expects [allow|attack]");
+    process.exit(1);
+  }
+  const demoPath = resolve(dirname(fileURLToPath(import.meta.url)), "../../../examples/vault/vault-demo.mjs");
+  const { spawnSync } = await import("node:child_process");
+  const run = spawnSync(process.execPath, [demoPath, `--${mode}`], { stdio: "inherit" });
+  process.exit(run.status ?? 1);
 }
 
 async function cmdAnalyze(args) {

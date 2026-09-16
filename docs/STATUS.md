@@ -2,13 +2,13 @@
 
 **Authoritative status file.** All repo docs (`README`, `docs/FUNDING.md`) point
 here instead of duplicating numbers. Facts only — every metric below is
-machine-measured, not estimated. Last verified: **2026-09-15**.
+machine-measured, not estimated. Last verified: **2026-09-16**.
 
 ## Repo truth (measured this day)
 
 | Item | Value | How verified |
 |---|---|---|
-| Test suite | **620 / 620 pass** | `npm test` (node `--test`) |
+| Test suite | **637 / 637 pass** | `npm test` (node `--test`) |
 | Adversarial corpus | **73 / 73 pass** | `npm run corpus && npm run benchmark` |
 | Execution Integrity Benchmark | **10,000 runs · False Accept 0 · False Reject 0** | `npm run benchmark:10k` |
 | Mutation Laboratory | **1,000/1,000 mutants refused · 0 escaped** | `npm run mutation` |
@@ -38,6 +38,10 @@ machine-measured, not estimated. Last verified: **2026-09-15**.
 | Canonicalization hardening | `securityUint` — no security-critical integer as JS `Number`; hex-spelling preserved |
 | Execution Integrity Benchmark | 10,000 generated executions, deterministic (`scripts/benchmark-10k.mjs`) |
 | Mutation Laboratory | 1,000 deterministic mutants of one verified execution (`scripts/mutation-lab.mjs`) |
+| Phase 1 · `@coreguard/sdk` guard.* surface | `guard.test.js` 14/14 — authorize ALLOW/DENY (six attacks BLOCKED) · verify VERIFIED/INVALID · anchor = `compute-commitment.mjs` parity |
+| Phase 1 · Reference Vault ladder | `npm run demo:vault` ALLOW → VERIFIED → anchor PLAN; `npm run demo:attack` **7/7 blocked** (6 PRE + 1 POST) |
+| Phase 1 · consumer integration | `create-coreguard-integration` template smoke 3/3 (`test/p1/create-integration.test.js`) |
+| Phase 1 · CI exposure | `.github/actions/coreguard-verify` composite action → receipt VERIFIED → `CoreGuard Verification: PASS` (engine job) |
 
 ## Outreach truth (Decision-Gate inputs)
 
