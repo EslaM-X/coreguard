@@ -1,0 +1,22 @@
+{
+  "name": "@coreguard/consensus",
+  "version": "0.1.0",
+  "description": "CoreGuard Phase 2.1/WS-6 — Three-Independent-Verifier consensus/parity combiner (A=JS canonical SDK, B=Rust/WASM independent verifier, C=Python-stdlib verifier-c). Fail-closed combiner only: any INVALID dominates, combined VERIFIED requires every path VERIFIED with byte-identical recomputed evidence, disagreement => INCONCLUSIVE. No majority vote; a failure is never promoted (WS-2).",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./index.js"
+  },
+  "main": "./index.js",
+  "files": [
+    "index.js"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@coreguard/independent-verifier": "^0.1.0",
+    "@coreguard/verifier-c": "^0.1.0"
+  },
+  "license": "MIT"
+}
