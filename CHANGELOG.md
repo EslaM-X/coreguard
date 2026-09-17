@@ -1,4 +1,6 @@
-## [0.5.0] - 2026-09-17 — Phase 3 EXECUTED — Core Mainnet (chainId 1116) — EvidenceRegistryV2 live
+## [0.5.0] - 2026-09-17
+
+### Phase 3: EvidenceRegistryV2 Live on Core Mainnet (Chain ID 1116)
 
 - **3.1 Deploy**: `EvidenceRegistryV2` → `0x66268a47e81b8f657798d7b5bbedc956df7b13fd`, tx `0x75aabacc94abc10a04c553c04788d797315fee2c2debb35db3d6d9f37f597793`, block `38764383`.
 - **3.2 commitIntent**: intentId `0xe58574f4ab5b0ae67206625ce180f3dfb86eff56c9e79e4fb0c652eeeda9ac17`, tx `0x0cd2a8c0de1b030552da16052650ae3c1d74821c2dfa3a4b40afa18d7367715c`, block `38764405`.
