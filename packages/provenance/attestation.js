@@ -260,3 +260,141 @@ export function revocationStatus(attestation, evidence = {}) {
 
   return { revoked: false, provenance: undefined, reason: "no revocation declared" };
 }
+
+export const ATTESTATION_V2_PRIMARY_TYPE = "AttestationV2";
+
+export const ATTESTATION_TYPES_V2 = Object.freeze([
+  { name: "issuer", type: "address" },
+  { name: "subject", type: "address" },
+  { name: "credentialType", type: "string" },
+  { name: "scopeChainId", type: "uint256" },
+  { name: "scopeTxHash", type: "bytes32" },
+  { name: "issuedAt", type: "uint256" },
+  { name: "expiresAt", type: "uint256" },
+  { name: "claimSetHash", type: "bytes32" },
+]);
+
+const CLAIM_SET_HASH_RE = /^0x[0-9a-fA-F]{64}$/;
+
+export function classifyAttestationVersion(attestation) {
+  const value = attestation && attestation.claimSetHash;
+  if (value === undefined || value === null) {
+    return { version: "v1" };
+  }
+  if (typeof value === "string" && CLAIM_SET_HASH_RE.test(value)) {
+    return { version: "v2", claimSetHash: value.toLowerCase() };
+  }
+  return {
+    version: "INVALID",
+    error: {
+      code: "MALFORMED_INPUT",
+      reason: "claimSetHash must be null or a valid 0x 32-byte hex string; no v1 fallback",
+    },
+  };
+}
+
+export async function attestationContentDigestV2(attestation, evm = undefined) {
+  const adapter = await getEvmFor(evm);
+  if (!adapter || typeof adapter.typedDataDigest !== "function") {
+    throw new Error("@coreguard/evm adapter unavailable - cannot compute AttestationV2 digest");
+  }
+  const scope = attestation.scope || {};
+  const data = {
+    issuer: attestation.issuer,
+    subject: attestation.subject,
+    credentialType: attestation.credentialType,
+    scopeChainId: BigInt(scope.chainId ?? "0"),
+    scopeTxHash: scope.txHash ?? `0x${"0".repeat(64)}`,
+    issuedAt: BigInt(attestation.issuedAt ?? "0"),
+    expiresAt: BigInt(attestation.expiresAt ?? "0"),
+    claimSetHash: String(attestation.claimSetHash).toLowerCase(),
+  };
+  return adapter.typedDataDigest(
+    ATTESTATION_V2_PRIMARY_TYPE,
+    { AttestationV2: ATTESTATION_TYPES_V2 },
+    data,
+    String(scope.chainId ?? "0"),
+  );
+}
+
+export async function verifyAttestationVersioned(attestation, evm = undefined) {
+  if (!attestation || typeof attestation !== "object") {
+    return { valid: false, status: "NOT_PROVEN", signer: null, reason: "attestation missing" };
+  }
+  const version = classifyAttestationVersion(attestation);
+  if (version.version === "INVALID") {
+    return {
+      valid: false,
+      status: "INPUT_ERROR",
+      code: "MALFORMED_INPUT",
+      signer: null,
+      reason: version.error.reason,
+    };
+  }
+  const sig = attestation.signature;
+  if (!sig || typeof sig !== "object") {
+    return { valid: false, status: "NOT_PROVEN", signer: null, reason: "attestation.signature missing" };
+  }
+  if (!ADDRESS_RE.test(attestation.issuer || "")) {
+    return { valid: false, status: "NOT_PROVEN", signer: null, reason: "attestation.issuer is not an address" };
+  }
+  if (typeof sig.r !== "string" || !/^[0-9a-fA-F]{64}$/.test(sig.r) ||
+      typeof sig.s !== "string" || !/^[0-9a-fA-F]{64}$/.test(sig.s) ||
+      (sig.v !== 27 && sig.v !== 28)) {
+    return { valid: false, status: "NOT_PROVEN", signer: null, reason: "attestation.signature r/s/v malformed" };
+  }
+
+  const adapter = await getEvmFor(evm);
+  if (!adapter || typeof adapter.recoverSignerAddress !== "function") {
+    return {
+      valid: false,
+      status: "NOT_RUN",
+      signer: null,
+      reason: "EVM adapter not loaded - signature replay NOT_RUN (never fabricated)",
+    };
+  }
+
+  let digest;
+  try {
+    digest = version.version === "v2"
+      ? await attestationContentDigestV2(attestation, adapter)
+      : await attestationContentDigest(attestation, adapter);
+  } catch (e) {
+    return { valid: false, status: "NOT_PROVEN", signer: null, reason: `digest error: ${e.message}` };
+  }
+
+  let recovered;
+  try {
+    recovered = adapter.recoverSignerAddress(digest, { r: sig.r, s: sig.s, v: sig.v });
+  } catch (e) {
+    return { valid: false, status: "NOT_PROVEN", signer: null, reason: `recovery error: ${e.message}` };
+  }
+
+  if (recovered.toLowerCase() !== attestation.issuer.toLowerCase()) {
+    return { valid: false, status: "NOT_PROVEN", signer: recovered, reason: "recovered signer != declared issuer" };
+  }
+  return { valid: true, status: "OK", signer: recovered, version: version.version };
+}
+
+export function scopeCovers(scope, executionRef, chainId) {
+  if (!executionRef) {
+    if (scope === null || scope === undefined) {
+      return { result: "NOT_APPLICABLE", reason: "REGISTRATION requires scope null" };
+    }
+    return { result: "UNEVALUABLE", reason: "REGISTRATION requires scope null" };
+  }
+  if (!scope || typeof scope !== "object") {
+    return { result: "UNEVALUABLE", reason: "attestation scope missing or malformed" };
+  }
+  if (typeof scope.chainId !== "string" || !/^[0-9]+$/.test(scope.chainId)) {
+    return { result: "UNEVALUABLE", reason: "scope.chainId must be a decimal string" };
+  }
+  if (typeof scope.txHash !== "string" || !/^0x[0-9a-fA-F]{64}$/.test(scope.txHash)) {
+    return { result: "UNEVALUABLE", reason: "scope.txHash must be a 0x 32-byte hex string" };
+  }
+  const chainMatch = String(scope.chainId) === String(executionRef.chainId) &&
+    String(scope.chainId) === String(chainId);
+  const txMatch = String(scope.txHash).toLowerCase() === String(executionRef.txHash).toLowerCase();
+  if (chainMatch && txMatch) return { result: "COVERS" };
+  return { result: "NOT_COVERS", reason: "attestation scope does not cover this execution" };
+}

@@ -1,0 +1,31 @@
+{
+  "absent": {},
+  "nullIdentity": { "identity": null },
+  "empty": { "identity": {} },
+  "validFull": {
+    "identity": {
+      "manufacturer": "example-labs",
+      "model": "reasoner",
+      "modelVersion": "2.1.0"
+    }
+  },
+  "validCharsetFull": {
+    "identity": {
+      "manufacturer": "a.b-c_d.example-labs",
+      "model": "reasoner-2.x",
+      "modelVersion": "2.1.0"
+    }
+  },
+  "validPartial": { "identity": { "manufacturer": "example-labs" } },
+  "uppercase": { "identity": { "manufacturer": "Example-Labs" } },
+  "badCharset": { "identity": { "model": "reasoner!" } },
+  "emptyString": { "identity": { "modelVersion": "" } },
+  "longString": { "identity": { "modelVersion": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" } },
+  "overLimitManufacturer": { "identity": { "manufacturer": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" } },
+  "typeError": { "identity": { "model": 42 } },
+  "unknownField": { "identity": { "maker": "some-maker" } },
+  "nullField": { "identity": { "manufacturer": null } },
+  "nullAndValue": { "identity": { "manufacturer": "example-labs", "model": null } },
+  "malformedString": { "identity": "not-an-object" },
+  "malformedArray": { "identity": ["manufacturer"] }
+}
