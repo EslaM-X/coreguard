@@ -1,4 +1,4 @@
-﻿/**
+/**
  * CoreGuard — WS-6 / Phase 2.1 — THREE-INDEPENDENT-VERIFIER CONSENSUS.
  *
  * Vocabulary + fail-closed combiner over the three engines' envelopes

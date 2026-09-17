@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Phase 2.1 / WS-6 — consensus harness over the REAL three-path parity
  * substrate (identical evidence args -> A/B/C -> byte-identical envelopes,
  * WS-3 parity corpus proven by test/verifier-c/differential.test.js).

@@ -1,6 +1,6 @@
-﻿# G-1 â€” Prior-Art Gate (CGEP/1:AGENT-PROVENANCE)
+# G-1 — Prior-Art Gate (CGEP/1:AGENT-PROVENANCE)
 
-**Date**: 2026-09-13 Â· **Status**: COMPLETE (informational; affects positioning + 5 spec blockers)
+**Date**: 2026-09-13 · **Status**: COMPLETE (informational; affects positioning + 5 spec blockers)
 **Method**: direct review of ERC/EIP sources + ecosystem news; sources listed inline.
 **Decision gated**: NO novelty claim ships before this gate; NO "AI detector" framing anywhere.
 
@@ -10,9 +10,9 @@
 
 | Prior art | Source reviewed | Status |
 |---|---|---|
-| ERC-8004 Trustless Agents | `eips.ethereum.org/EIPS/eip-8004` â€” active **Draft** (Standards Track: ERC), creating-authority phase, not Final | Confirmed as Draft (NOT Final/mainnet) |
-| ERC-8126 AI Agent Verification | `eips.ethereum.org/EIPS/eip-8126` â€” Standards Track: ERC, **Final** (created 2026-01-15); built on ERC-8004, requires `agentId` | Confirmed Final |
-| Blockaid / Core | blockaid.io blog + docs | âš  Clarified (Â§2.1) |
+| ERC-8004 Trustless Agents | `eips.ethereum.org/EIPS/eip-8004` — active **Draft** (Standards Track: ERC), creating-authority phase, not Final | Confirmed as Draft (NOT Final/mainnet) |
+| ERC-8126 AI Agent Verification | `eips.ethereum.org/EIPS/eip-8126` — Standards Track: ERC, **Final** (created 2026-01-15); built on ERC-8004, requires `agentId` | Confirmed Final |
+| Blockaid / Core | blockaid.io blog + docs | ⚠ Clarified (§2.1) |
 | Sign Protocol / VC / C2PA | referenced as conceptual prior art | Referenced |
 
 **Open verification item:** Blockaid's published "Core" integration is with the
@@ -31,22 +31,22 @@ No further claim without a newer source proving otherwise.
 
 ### 2.1 Adjacent standards/players
 
-- **ERC-8004 (Trustless Agents, active Draft â€” NOT a mainnet "Final" status)** â€”
+- **ERC-8004 (Trustless Agents, active Draft — NOT a mainnet "Final" status)** —
   three per-chain registries: **Identity** (ERC-721 `agentId` + URI-registration
-  file), **Reputation** (signed feedback), **Validation** (validator hooks, 0â€“100
+  file), **Reputation** (signed feedback), **Validation** (validator hooks, 0–100
   response, TEE/zkML/stakers/judges). Uses EIP-712/EIP-1271 for wallet binding.
   Registration is cryptographically bound to the registry, but the standard
   alone does NOT guarantee advertised capabilities are functional or
-  non-malicious â€” that gap is where layered verification systems plug in.
-- **ERC-8126 (AI Agent Verification, Final, Jan 2026)** â€” defines per-agent
+  non-malicious — that gap is where layered verification systems plug in.
+- **ERC-8126 (AI Agent Verification, Final, Jan 2026)** — defines per-agent
   layered verification **on top of ERC-8004 identity**: ETV (token), MCV
   (media/C2PA-style), SCV (solidity), WAV (web app), WV (wallet) + PDV (ZKP)
-  + QCV (quantum) + a **unified 0â€“100 risk score**. Off-chain-first; may post
+  + QCV (quantum) + a **unified 0–100 risk score**. Off-chain-first; may post
   attestations to ERC-8004 Validation Registry. **Requires** an ERC-8004
-  `agentId` â€” it deliberately does NOT duplicate identity.
-- **Sign Protocol / VC systems** â€” generic attestation schemas; reusable concept
+  `agentId` — it deliberately does NOT duplicate identity.
+- **Sign Protocol / VC systems** — generic attestation schemas; reusable concept
   (attestation + schema + verification), not execution-bound.
-- **Blockaid** â€” transaction simulation/validation, malicious-address blocking,
+- **Blockaid** — transaction simulation/validation, malicious-address blocking,
   dApp scanning, policy/security infra, AI-assisted research. NOT our layer.
 
 ### 2.2 Positioning consequence
@@ -63,7 +63,7 @@ No further claim without a newer source proving otherwise.
 ## 3. CoreGuard Differentiation (the honest claim)
 
 > CoreGuard AgentProof verifies **declared execution provenance** and
-> **cryptographic authority** **for a specific execution** â€” who declared
+> **cryptographic authority** **for a specific execution** — who declared
 > responsibility, what executor type, who stands behind it, whether authority
 > was delegated, whether delegation was valid at execution, whether an
 > attestation was supplied, and whether the whole claim re-verifies.
@@ -84,7 +84,7 @@ Human/AI/automation states are **declared** (signer-bound) or **attested**
   BTCFi, relying on Core for gas + yield routing; automated execution is
   presented as activity-driving for CORE.
 - Core's official material already documents **AI agents and Smart Vaults on
-  Core**, incl. VaultLayer/Vaulter â€” so the positioning has real substrate, not
+  Core**, incl. VaultLayer/Vaulter — so the positioning has real substrate, not
   trend-jacking.
 - Core Developer Hub programs (Core Commit Program, Core Rev+, Core Ventures
   BTC-Fi Accelerator, Core Cartel) + an ecosystem AI classification are
@@ -97,24 +97,24 @@ Human/AI/automation states are **declared** (signer-bound) or **attested**
 
 ## 5. Red Lines (unchanged, non-negotiable)
 
-- âŒ "First in the world" / "no one does this" â€” blocked by this gate.
-- âŒ "AI detector" / "human vs bot detector" / "AI authentication" as product
+- ❌ "First in the world" / "no one does this" — blocked by this gate.
+- ❌ "AI detector" / "human vs bot detector" / "AI authentication" as product
   framing.
-- âŒ Claim novelty/patentability before prior-art + counsel (see
+- ❌ Claim novelty/patentability before prior-art + counsel (see
   `agent-provenance-ip.md`).
-- âŒ Tampering with `scripts/verify-live.json`, Mainnet anchor, P0/P1, or frozen
+- ❌ Tampering with `scripts/verify-live.json`, Mainnet anchor, P0/P1, or frozen
   evidence.
-- âŒ Fake metrics, fake partnerships, historical re-framing.
+- ❌ Fake metrics, fake partnerships, historical re-framing.
 
 ---
 
 ## 6. Gate Decision
 
-# G-1 â€” Prior-Art Gate
+# G-1 — Prior-Art Gate
 ## CGEP/1:AGENT-PROVENANCE
 
 Date: 2026-09-13
-Status: PASS â€” Boundary / Positioning Gate
+Status: PASS — Boundary / Positioning Gate
 Effect: Novelty claims blocked pending deeper prior-art + counsel
 Implementation: NOT AUTHORIZED BY THIS GATE
 
@@ -129,14 +129,14 @@ permitted.
 
 **Verified boundaries:**
 
-- ERC-8004 â€” Agent identity / discovery / reputation / validation. Status:
+- ERC-8004 — Agent identity / discovery / reputation / validation. Status:
   active Draft standard.
-- ERC-8126 â€” AI-agent technical verification. Status: **Final ERC**.
-- Blockaid â€” Transaction / threat security and simulation. Core clarification:
+- ERC-8126 — AI-agent technical verification. Status: **Final ERC**.
+- Blockaid — Transaction / threat security and simulation. Core clarification:
   published "Core" integration refers to **Core wallet on Avalanche**, not
   Core DAO/Core Chain.
-- Sign/VC-style systems â€” Generic attestation and credential primitives.
-- Core ecosystem â€” AI agents and autonomous BTCFi execution are an active
+- Sign/VC-style systems — Generic attestation and credential primitives.
+- Core ecosystem — AI agents and autonomous BTCFi execution are an active
   ecosystem direction on Core.
 
 **CoreGuard boundary:**

@@ -27,6 +27,13 @@ All notable changes to CoreGuard v0.1.
 
 ## [Unreleased] — P2 external verification surface
 
+### Fixed — repository encoding hygiene (2026-09-17)
+
+- Recovered `spec/agent-provenance-prior-art.md` from CP1252 double-encoding (88 glyphs) and removed its BOM.
+- Removed stray UTF-8 BOMs from JS/JSON sources and tests; `anchor-local.ps1` now writes `anchor-proof.json` as UTF-8 without BOM.
+- Added `test/encoding/encoding-hygiene.test.mjs` (BOM allowlist = frozen `scripts/verify-live.json` + PowerShell `.ps1`; zero U+FFFD / mojibake enforced).
+- Adopted `test/p2` into `scripts/run-tests.mjs`; `npm test` now **654/654** (was 637 — silently excluded 14 P2 tests; +3 hygiene tests).
+
 ### Added: verify-run — CGEP/1:VERIFY-RUN external surface
 
 - New `packages/verifier/run.js` — a pure, hermetic external verification

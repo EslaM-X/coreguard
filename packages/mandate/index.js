@@ -1,4 +1,4 @@
-﻿/**
+/**
  * WS-2.3 - Mandate Proof / fail-closed capability chain gate (byte-seam).
  *
  * Pure, deterministic, engine-free. The mandate fold binds the REAL WS-3

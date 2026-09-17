@@ -8,7 +8,7 @@ machine-measured, not estimated. Last verified: **2026-09-17**.
 
 | Item | Value | How verified |
 |---|---|---|
-| Test suite | **637 / 637 pass** | `npm test` (node `--test`) |
+| Test suite | **654 / 654 pass** | `npm test` (node `--test`) |
 | Adversarial corpus | **73 / 73 pass** | `npm run corpus && npm run benchmark` |
 | Execution Integrity Benchmark | **10,000 runs · False Accept 0 · False Reject 0** | `npm run benchmark:10k` |
 | Mutation Laboratory | **1,000/1,000 mutants refused · 0 escaped** | `npm run mutation` |

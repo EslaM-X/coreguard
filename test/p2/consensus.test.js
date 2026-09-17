@@ -1,4 +1,4 @@
-﻿/**
+/**
  * WS-6 / Phase 2.1 — FAIL-CLOSED three-verifier consensus gate (pure combiner
  * package ONLY — real A/B/C engine envelopes live in the WS-3 differential
  * corpus test/verifier-c/*; this gate asserts the WS-6 principles that fold

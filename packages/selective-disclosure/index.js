@@ -1,4 +1,4 @@
-﻿/**
+/**
  * WS-2.2 — Selective Disclosure / Merkle Evidence Commitment (fail-closed).
  *
  * Pure, deterministic, substrate-free gate. Evidence = an ordered array of

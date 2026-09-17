@@ -1,4 +1,4 @@
-﻿/**
+/**
  * WS-2.2 — Selective Disclosure / Merkle Evidence Commitment — GATE.
  * Pure, deterministic, engine-free (no substrate boot — the WS-3 parity
  * corpus already owns real A/B/C substrate; this gate verifies the WS-2.2

@@ -10,7 +10,7 @@ import { readdirSync } from "fs";
 import { join } from "path";
 import { spawnSync } from "child_process";
 
-const suites = ["test/canonicalization", "test/tamper", "test/anchor", "test/p1", "test/evm", "test/provenance", "test/firewall", "test/firewall/attack-lab", "test/firewall/ws1", "test/sdk", "test/independent-verifier", "test/verifier-c", "test/conformance/live"];
+const suites = ["test/canonicalization", "test/tamper", "test/anchor", "test/p1", "test/p2", "test/evm", "test/provenance", "test/firewall", "test/firewall/attack-lab", "test/firewall/ws1", "test/sdk", "test/independent-verifier", "test/verifier-c", "test/encoding", "test/conformance/live"];
 const files = [];
 
 for (const dir of suites) {

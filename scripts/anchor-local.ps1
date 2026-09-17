@@ -76,7 +76,7 @@ try {
   } | ConvertTo-Json
 
   $outFile = Join-Path $Root "scripts\anchor-proof.json"
-  Set-Content -Path $outFile -Value $proof -Encoding UTF8
+  [System.IO.File]::WriteAllText($outFile, $proof, (New-Object System.Text.UTF8Encoding($false)))
   Write-Host "`n  [OK] On-chain anchor flow PROVEN on a local fork."
   Write-Host "  Artifact: $outFile`n"
 
