@@ -1,3 +1,13 @@
+## [0.5.1] - 2026-09-17
+
+### Fixed — repository encoding hygiene
+
+- Recovered `spec/agent-provenance-prior-art.md` from CP1252 double-encoding (88 glyphs) and removed its BOM.
+- Removed stray UTF-8 BOMs from JS/JSON sources and tests (`packages/consensus`, `packages/mandate`, `packages/selective-disclosure`, `test/p2/*`, `scripts/anchor-proof.json`); `anchor-local.ps1` now writes `anchor-proof.json` as UTF-8 without BOM.
+- Added `test/encoding/encoding-hygiene.test.mjs` — permanent guard: any BOM outside the allowlist (frozen `scripts/verify-live.json` + PowerShell `.ps1`), any `U+FFFD`, or any double-encoded (mojibake) sequence fails the suite.
+- Adopted `test/p2` into `scripts/run-tests.mjs` (14 tests were silently not run); `npm test` now **654/654**.
+- Frozen artifacts untouched: `scripts/verify-live.json` bytes unchanged; `.ps1` UTF-8 BOM retained (required by PowerShell 5.1 for non-ASCII comments).
+
 ## [0.5.0] - 2026-09-17
 
 ### Phase 3: EvidenceRegistryV2 Live on Core Mainnet (Chain ID 1116)
@@ -26,13 +36,6 @@
 All notable changes to CoreGuard v0.1.
 
 ## [Unreleased] — P2 external verification surface
-
-### Fixed — repository encoding hygiene (2026-09-17)
-
-- Recovered `spec/agent-provenance-prior-art.md` from CP1252 double-encoding (88 glyphs) and removed its BOM.
-- Removed stray UTF-8 BOMs from JS/JSON sources and tests; `anchor-local.ps1` now writes `anchor-proof.json` as UTF-8 without BOM.
-- Added `test/encoding/encoding-hygiene.test.mjs` (BOM allowlist = frozen `scripts/verify-live.json` + PowerShell `.ps1`; zero U+FFFD / mojibake enforced).
-- Adopted `test/p2` into `scripts/run-tests.mjs`; `npm test` now **654/654** (was 637 — silently excluded 14 P2 tests; +3 hygiene tests).
 
 ### Added: verify-run — CGEP/1:VERIFY-RUN external surface
 

@@ -35,8 +35,9 @@ machine-measured, not estimated. Last verified: **2026-09-17**.
 
 | Item | Value |
 |---|---|
-| Releases (local, per-workstream) | `v0.1.0` · `v0.1.1` · `v0.2.0` · `v0.2.1` · `v0.3.0` · `v0.4.0` · `v0.5.0` · `attack-lab-v1.0.0-closed` |
+| Releases (local, per-workstream) | `v0.1.0` · `v0.1.1` · `v0.2.0` · `v0.2.1` · `v0.3.0` · `v0.4.0` · `v0.5.0` · `v0.5.1` · `attack-lab-v1.0.0-closed` |
 | v0.5.0 | **EvidenceRegistryV2 live on Core Mainnet (Phase 3)** — deploy + commitIntent + anchorProof + readback + independent verify, frozen in `evidence/` |
+| v0.5.1 | **Repository encoding hygiene** — prior-art mojibake recovered, stray BOMs removed, permanent guard added; `npm test` **654/654**; frozen `scripts/verify-live.json` untouched |
 | Verifier version in receipts | `0.1.0` (release boundary locked) |
 | Verification levels | L0 · L1 · L2 claimable; L3/L4 exist but **not claimable** (INCONCLUSIVE, `REQUIRED_BY_LEVEL`) |
 | EvidenceRegistryV2 | implemented; `forge build` clean (solc 0.8.24) + `forge test` 14/14 (local pass); mirror suite 12/12 |
