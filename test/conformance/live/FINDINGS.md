@@ -77,7 +77,7 @@ over the captured payload and no regression.
 ## 4. Repository boundary (all new, none of it committed)
 
 - `scripts/capture-live/capture.mjs` — opt-in read-only capture tool (allowlist-locked).
-- `test/conformance/live/fixtures/*` — frozen raw envelopes + `calls.log` + `provenance-manifest.json`.
+- `test/conformance/live/fixtures/` — frozen raw envelopes (`rpc-*.json`) + `provenance-manifest.json` (authoritative call allowlist + artifact hashes). `calls.log` is a local-only capture log (gitignored) and is not part of the frozen set; reproducibility relies on the tracked manifest + RPC envelopes.
 - `test/conformance/live/rawReplay.js` — raw-wire replay (read-only, IN-W4-3 enforced).
 - `test/conformance/live/recompute/recompute.js` — Path B independent recompute (no shared code).
 - `test/conformance/live/conformance.test.mjs` — the offline suite (23 tests).
