@@ -70,13 +70,13 @@ machine-measured, not estimated. Last verified: **2026-09-16**.
 
 Re-run the gates after any change and update every number above in the same
 commit. No number here may be inferred — only measured.
-## Phase 3 � Core Mainnet (chainId 1116) EXECUTED � ALL GATES COMPLETE
+## Phase 3 — Core Mainnet (chainId 1116) EXECUTED — ALL GATES COMPLETE
 
 - **3.0 Preflight (zero-gas)**: runtime on-chain == local recompute (PASS).
-- **3.1 Deploy**: `EvidenceRegistryV2` ? `0x66268a47e81b8f657798d7b5bbedc956df7b13fd` � tx `0x75aabacc�97f597793` � block `38764383`.
-- **3.2 commitIntent**: tx `0x0cd2a8c0�7367715c` � block `38764405` � intentId `0xe58574f4�eda9ac17`.
-- **3.3 anchorProof**: tx `0x5b9e7d68�3e478d2` � block `38764446` � proofId `0x82f56aae�650452` � result 0 (VALID).
+- **3.1 Deploy**: `EvidenceRegistryV2` → `0x66268a47e81b8f657798d7b5bbedc956df7b13fd` · tx `0x75aabacc…97f597793` · block `38764383`.
+- **3.2 commitIntent**: tx `0x0cd2a8c0…7367715c` · block `38764405` · intentId `0xe58574f4…eda9ac17`.
+- **3.3 anchorProof**: tx `0x5b9e7d68…3e478d2` · block `38764446` · proofId `0x82f56aae…650452` · result 0 (VALID).
 - **3.4 Read-back (zero-gas)**: on-chain intentCommits + proofAnchors match evidence exactly.
-- **3.5 Independent verify (zero-gas)**: deployedBytecode recomputed from source == on-chain except the single 32-byte immutable, which equals on-chain `VERSION()` (`0x530b4f34�`).
+- **3.5 Independent verify (zero-gas)**: deployedBytecode recomputed from source == on-chain except the single 32-byte immutable, which equals on-chain `VERSION()` (`0x530b4f34…`).
 - **3.6 Freeze (zero-gas)**: `evidence/phase-3-evidence-freeze.json` (SHA-256 per gate artifact).
 - All broadcasts `--legacy` (Core is public EVM, no type-2 txs). Key: `.env` only, never printed or committed.
