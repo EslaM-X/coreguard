@@ -1,3 +1,24 @@
+## [2026-09-17] � Phase 3 EXECUTED � Core Mainnet (chainId 1116) � EvidenceRegistryV2 live
+
+- **3.1 Deploy**: `EvidenceRegistryV2` ? `0x66268a47e81b8f657798d7b5bbedc956df7b13fd`, tx `0x75aabacc94abc10a04c553c04788d797315fee2c2debb35db3d6d9f37f597793`, block `38764383`.
+- **3.2 commitIntent**: intentId `0xe58574f4ab5b0ae67206625ce180f3dfb86eff56c9e79e4fb0c652eeeda9ac17`, tx `0x0cd2a8c0de1b030552da16052650ae3c1d74821c2dfa3a4b40afa18d7367715c`, block `38764405`.
+- **3.3 anchorProof**: proofId `0x82f56aae992d9befc4d63d9480c3fbc0db156dc43508d36badca830276650452`, receiptId `0xfad802aeaa3df5ba�57225`, result 0 (VALID), tx `0x5b9e7d6806200d1f3603ebd0f759d224e3096951dfb6ecbf3539b8b6d3e478d2`, block `38764446`.
+- **3.4 Read-back (zero-gas)**: on-chain `intentCommits` + `proofAnchors` match evidence; both tx status=1.
+- **3.5 Independent verify (zero-gas)**: `deployedBytecode` recomputed from source == on-chain except the single 32-byte immutable, which equals on-chain `VERSION()` (`0x530b4f34�`). Logic untouched.
+- **3.6 Freeze (zero-gas)**: `evidence/phase-3-evidence-freeze.json` (SHA-256 of every gate artifact).
+- All broadcasts `--legacy` (Core is a public EVM � no type-2 txs). Key read from `.env` only, never printed or committed.
+
+## [2026-09-16] � Phase 3 Opening � Core Mainnet (chainId 1116)
+
+### CI � Root cause fixed (run green 5/5)
+- `packages/verifier-c` had NO `package.json` => `npm ci` 404 on `@coreguard/verifier-c@^0.1.0` in Engine+Demos.
+- Added `packages/verifier-c/package.json` (name `@coreguard/verifier-c`, version `0.1.0`, private, `main: index.js`, ESM); regenerated lockfile.
+- Result: `npm ci` clean, `npm test` 637/637 PASS, `forge build` OK, CI success 5/5 (Engine 18/20/22 � Demos � Contracts).
+
+### Fail-closed rules (binding, operator-mandated)
+- Each broadcast needs a SEPARATE explicit GO; no tag/release/publish/deploy outside an explicit Gate GO.
+- Phase 3: Core Mainnet only (chainId 1116), real assets, NO Testnet2.
+- EvidenceRegistryV2 frozen bytecode == on-chain runtime (recomputed this session, byte-identical).
 # Changelog
 
 All notable changes to CoreGuard v0.1.

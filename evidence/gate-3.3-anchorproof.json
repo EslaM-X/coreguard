@@ -1,0 +1,17 @@
+﻿{
+    "gate":  "3.3",
+    "chainId":  1116,
+    "registry":  "0x66268a47e81b8f657798d7b5bbedc956df7b13fd",
+    "txHash":  "0x5b9e7d6806200d1f3603ebd0f759d224e3096951dfb6ecbf3539b8b6d3e478d2",
+    "block":  38764446,
+    "proofId":  "0x82f56aae992d9befc4d63d9480c3fbc0db156dc43508d36badca830276650452",
+    "intentId":  "0xe58574f4ab5b0ae67206625ce180f3dfb86eff56c9e79e4fb0c652eeeda9ac17",
+    "receiptId":  "0xfad802aeaa3df5ba9597583c5447648de7dab9304bee7470ad363a3594f57225",
+    "proofCommitment":  "0x781d55e7f89722f698424b45758a2ebac7027e63c2c19b79a13ce7887f773415",
+    "result":  "0",
+    "verifierVersion":  "0x2ff4c1529ac232a625056ad26ac6600ae8d765cb36c04cce152c14c071a6e112",
+    "signer":  "0xEa41BecDeb612d8625bF3060809964F1DAB43244",
+    "validUntil":  1789607128,
+    "verdict":  "ANCHORED-ON-CHAIN",
+    "date":  "2026-09-17T00:07:39.7092210Z"
+}

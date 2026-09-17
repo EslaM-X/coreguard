@@ -1,0 +1,11 @@
+﻿{
+    "gate":  "3.4",
+    "chainId":  1116,
+    "registry":  "0x66268a47e81b8f657798d7b5bbedc956df7b13fd",
+    "intentReadback":  "MATCH",
+    "proofReadback":  "MATCH",
+    "txStatuses":  "OK",
+    "verdict":  "READBACK-VERIFIED-ON-CHAIN",
+    "gasSpent":  0,
+    "date":  "2026-09-17T00:08:22.1500218Z"
+}

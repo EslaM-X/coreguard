@@ -1,0 +1,11 @@
+﻿{
+    "gate":  "3.5",
+    "chainId":  1116,
+    "registry":  "0x66268a47e81b8f657798d7b5bbedc956df7b13fd",
+    "runtimeIndependentRecompute":  "BYTE-IDENTICAL",
+    "onChainState":  "CONSISTENT",
+    "evidenceChain":  "COMPLETE-3.1-TO-3.4",
+    "gasSpent":  0,
+    "verdict":  "INDEPENDENTLY-VERIFIED",
+    "date":  "2026-09-17T00:11:18.2608950Z"
+}

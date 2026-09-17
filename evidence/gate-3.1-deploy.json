@@ -1,0 +1,12 @@
+﻿{
+    "gate":  "3.1",
+    "chainId":  1116,
+    "deployer":  "0xEa41BecDeb612d8625bF3060809964F1DAB43244",
+    "txHash":  "0x75aabacc94abc10a04c553c04788d797315fee2c2debb35db3d6d9f37f597793",
+    "evidenceRegistryV2":  "0x66268a47e81b8f657798d7b5bbedc956df7b13fd",
+    "block":  38764383,
+    "runtimeCodeLen":  3128,
+    "broadcasted":  "2026-09-17T00:04:30.9546764Z",
+    "status":  "deployed-verified",
+    "next":  "await separate GO for 3.2"
+}

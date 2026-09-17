@@ -1,0 +1,25 @@
+﻿{
+    "phase":  3,
+    "frozen":  "2026-09-17T00:11:39.9344047Z",
+    "chainId":  1116,
+    "registryV2":  "0x66268a47e81b8f657798d7b5bbedc956df7b13fd",
+    "registryCodeLen":  3128,
+    "evidenceFiles":  [
+                          "gate-3.1-deploy.json",
+                          "gate-3.2-commitintent.json",
+                          "gate-3.3-anchorproof.json",
+                          "gate-3.4-readback.json",
+                          "gate-3.5-independent-verify.json",
+                          "gate-3.0-preflight.json"
+                      ],
+    "sha256":  [
+                   "5FFD3CE82E7E5DC01A952F18C77D50B3EB3D6818C32EA9AEBFDC1A1082BB4F9A",
+                   "FAD802AEAA3DF5BA9597583C5447648DE7DAB9304BEE7470AD363A3594F57225",
+                   "571CF785FDA4589F608488991D6E966AD2FE426EF8E39B1EC42CDF23ED2BE1D4",
+                   "1B7F6520D1404314C49ED41195A960E7B530EE54F06EBBEF69CFA7A4100FABA6",
+                   "BA0A2B7871354476730B603BEC873E13F7456ED8B8A668637657E20BDF73C9F2",
+                   "E58574F4AB5B0AE67206625CE180F3DFB86EFF56C9E79E4FB0C652EEEDA9AC17"
+               ],
+    "summary":  "EvidenceRegistryV2 deployed + intent + proof anchored + readback + independent verify + freeze",
+    "note":  "NON-SECRET evidence; private keys never written to evidence"
+}

@@ -25,6 +25,11 @@ machine-measured, not estimated. Last verified: **2026-09-16**.
 | Mainnet proof tx | `0xe67c61fda81200bf026faee31c23a7b7e7f56ed24f06ffe24f071fa06891a9b8` · block `38712625` |
 | Proof verdict | **L1 VERIFIED (RECEIPT_INTEGRITY)** · receiptId `0x4f9d8586…` (frozen record: `scripts/verify-live.json`) |
 | Cross-RPC verification | rpc.coredao.org + rpc.ankr.com — A+B+C VERIFIED ANCHOR INTEGRITY |
+| **EvidenceRegistryV2 (Phase 3)** | `0x66268a47e81b8f657798d7b5bbedc956df7b13fd` (Mainnet, immutable) |
+| V2 deploy tx | `0x75aabacc94abc10a04c553c04788d797315fee2c2debb35db3d6d9f37f597793` · block `38764383` |
+| V2 commitIntent tx | `0x0cd2a8c0de1b030552da16052650ae3c1d74821c2dfa3a4b40afa18d7367715c` · block `38764405` |
+| V2 anchorProof tx | `0x5b9e7d6806200d1f3603ebd0f759d224e3096951dfb6ecbf3539b8b6d3e478d2` · block `38764446` |
+| V2 verdict | **VERIFIED ANCHOR INTEGRITY (READBACK + INDEPENDENT RECOMPUTE)** |
 
 ## Code truth
 
@@ -54,7 +59,7 @@ machine-measured, not estimated. Last verified: **2026-09-16**.
 ## Gates (locked, non-negotiable)
 
 - Pricing / CP2 / customer claims — LOCKED.
-- V2 deployment, Mainnet EvidenceRegistryV2 upgrade — NO-GO (Phase 1/2 scope).
+- V2 deployment, Mainnet EvidenceRegistryV2 upgrade — **EXECUTED (Phase 3, this session)**; deploy + intent + proof recorded on-chain.
 - Phase transitions — explicit per-phase GO only; first external data that feeds
   the Decision Gate: Core reply + ElizaOS reply, facts-only.
 - Frozen artifacts, never touched: `docs/ws-5.md`, `scripts/verify-live.json`,
@@ -65,3 +70,13 @@ machine-measured, not estimated. Last verified: **2026-09-16**.
 
 Re-run the gates after any change and update every number above in the same
 commit. No number here may be inferred — only measured.
+## Phase 3 � Core Mainnet (chainId 1116) EXECUTED � ALL GATES COMPLETE
+
+- **3.0 Preflight (zero-gas)**: runtime on-chain == local recompute (PASS).
+- **3.1 Deploy**: `EvidenceRegistryV2` ? `0x66268a47e81b8f657798d7b5bbedc956df7b13fd` � tx `0x75aabacc�97f597793` � block `38764383`.
+- **3.2 commitIntent**: tx `0x0cd2a8c0�7367715c` � block `38764405` � intentId `0xe58574f4�eda9ac17`.
+- **3.3 anchorProof**: tx `0x5b9e7d68�3e478d2` � block `38764446` � proofId `0x82f56aae�650452` � result 0 (VALID).
+- **3.4 Read-back (zero-gas)**: on-chain intentCommits + proofAnchors match evidence exactly.
+- **3.5 Independent verify (zero-gas)**: deployedBytecode recomputed from source == on-chain except the single 32-byte immutable, which equals on-chain `VERSION()` (`0x530b4f34�`).
+- **3.6 Freeze (zero-gas)**: `evidence/phase-3-evidence-freeze.json` (SHA-256 per gate artifact).
+- All broadcasts `--legacy` (Core is public EVM, no type-2 txs). Key: `.env` only, never printed or committed.

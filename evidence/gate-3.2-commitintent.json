@@ -1,0 +1,14 @@
+﻿{
+    "gate":  "3.2",
+    "chainId":  1116,
+    "registry":  "0x66268a47e81b8f657798d7b5bbedc956df7b13fd",
+    "txHash":  "0x0cd2a8c0de1b030552da16052650ae3c1d74821c2dfa3a4b40afa18d7367715c",
+    "block":  38764405,
+    "intentId":  "0xe58574f4ab5b0ae67206625ce180f3dfb86eff56c9e79e4fb0c652eeeda9ac17",
+    "intentCommitment":  "0x781d55e7f89722f698424b45758a2ebac7027e63c2c19b79a13ce7887f773415",
+    "signer":  "0xEa41BecDeb612d8625bF3060809964F1DAB43244",
+    "validUntil":  1789607128,
+    "verdict":  "COMMITTED-ON-CHAIN",
+    "gasSpent":  1,
+    "date":  "2026-09-17T00:05:38.2395783Z"
+}
