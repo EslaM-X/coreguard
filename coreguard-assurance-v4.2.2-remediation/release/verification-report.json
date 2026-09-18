@@ -7,7 +7,7 @@
     "policyVersion":  "1.0.0",
     "policyId":  "coreguard-policy",
     "gate":  "4.1",
-    "dateUtc":  "2026-09-18T08:20:20.3990056Z",
+    "dateUtc":  "2026-09-18T08:46:26.1616492Z",
     "status":  "VERIFIED-READONLY-ONLY",
     "decision":  "CONDITIONAL NO-GO",
     "claim":  "Under the current rule set (AST enumeration of command invocations, .NET type references, dynamic-invocation forms, control-flow ownership, and the RPC allow-list), NO execution or network path was found beyond the enumerated sites. This is NOT a proof of absence of such a path.",

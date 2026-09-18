@@ -1,0 +1,266 @@
+{
+    "recordId":  "cg41-freeze-record-4.2.5",
+    "releaseId":  "4.2.5-closure",
+    "engineVersion":  "2.1.2",
+    "supersedesRecord":  "cg41-freeze-record-4.2.4",
+    "frozenAtUtc":  "2026-09-18T08:48:13.1409724Z",
+    "frozenBy":  "remediation-author (pre-human-review freeze); C8 sign-off re-verifies every hash from a signed GitHub commit",
+    "environment":  {
+                        "psVersion":  "5.1.26100.9444",
+                        "nodeVersion":  "v24.18.0",
+                        "gitVersion":  "git version 2.55.0.windows.3",
+                        "os":  "Windows (AMD64)",
+                        "timezone":  "Egypt Standard Time"
+                    },
+    "integrityRule":  "Any byte change to any listed file voids this freeze and requires a full re-freeze cycle; the record itself is self-referential and excluded",
+    "cycleEvidence":  {
+                          "selftest":  "21/21 PASS (exit 0)",
+                          "negativeSuite":  "16/16 fail-closed, preconditionFailures=0 (exit 0)",
+                          "standardRun":  "33/33 PASS, VERIFIED-READONLY-ONLY (exit 0)",
+                          "selfCheck":  "PASS (33 findings, 0 errors)",
+                          "nodeValidator":  "PASS (649 checks, 0 errors)",
+                          "cleanClone":  "BLOCKED, exit 1 Ã¢â‚¬â€ documented Option-B fail-closed (INV-001 FAIL failClosed=true; kit absent by design)",
+                          "externalEvidenceModel":  "Option B (documented in release/v4.2.5-closure/external-evidence-model.md)"
+                      },
+    "categoryCounts":  {
+                           "releaseFiles":  25,
+                           "quarantineFiles":  19,
+                           "total":  44,
+                           "excluded":  1,
+                           "excludedList":  [
+                                                "release/freeze/freeze-record-4.2.5.json (self-reference; verified via disk-vs-GitHub-archive comparison)"
+                                            ]
+                       },
+    "sha256":  {
+                   "releaseFiles":  [
+                                        {
+                                            "file":  "CHANGELOG-v4.2.2.md",
+                                            "sha256":  "0xaa273b73896b975386910197f086bd943cb2d3c3481dadb41c0323c100d16b3d",
+                                            "bytes":  6223
+                                        },
+                                        {
+                                            "file":  "CHANGELOG-v4.2.3.md",
+                                            "sha256":  "0x03ee224353f205c6ceef69bf41dc4e66dff0a8d262154b240d7aa0f8c6bea87f",
+                                            "bytes":  4186
+                                        },
+                                        {
+                                            "file":  "CHANGELOG-v4.2.4.md",
+                                            "sha256":  "0xcb85a20a2b2c27f89341d3b78eca991790d3b174f0d1b555aee9a28560f364d3",
+                                            "bytes":  2817
+                                        },
+                                        {
+                                            "file":  "STATUS-v4.2.2.md",
+                                            "sha256":  "0xdab304d17ab6a308594f335343d292028fd513ae3f3c25a250d59899d5e33cfd",
+                                            "bytes":  3248
+                                        },
+                                        {
+                                            "file":  "verification/cg-assurance-verify.ps1",
+                                            "sha256":  "0x8613b735cb717a6bab1e14f0e16a7b5e9bf2ecfeb49cce557cac74912b5a24c5",
+                                            "bytes":  69193
+                                        },
+                                        {
+                                            "file":  "verification/validate-report.mjs",
+                                            "sha256":  "0x21a177617cceac763a716ec8e9820b8b01d335c66ac0dda0dfecea612f98aa79",
+                                            "bytes":  10967
+                                        },
+                                        {
+                                            "file":  "policy/policy-lock.json",
+                                            "sha256":  "0xb27f325d09fac95442901c076ff3ced91c65ea369efa1c7e14ec048cd752218d",
+                                            "bytes":  1158
+                                        },
+                                        {
+                                            "file":  "policy/coreguard-policy-v1.json",
+                                            "sha256":  "0x30cea8ff5fd1fc124fd388ece062ffcbd19c03883f470ab51a27974557908b3a",
+                                            "bytes":  5733
+                                        },
+                                        {
+                                            "file":  "policy/allowed-rpc-methods.json",
+                                            "sha256":  "0x2c01fc47a0154b7e0f2212332baef41747ae25678cade15d4431531034fddefa",
+                                            "bytes":  696
+                                        },
+                                        {
+                                            "file":  "policy/forbidden-execution-patterns.json",
+                                            "sha256":  "0x9db6aebc931c7d644c9eebab493f9b576d88f01673af311a2a6eb7d96d8207f4",
+                                            "bytes":  1478
+                                        },
+                                        {
+                                            "file":  "policy/trusted-tool-roots.json",
+                                            "sha256":  "0xb968dc1ef1481fb55c30e029f4a899c6aa1eeace4f1646e01990510cb1b59ed3",
+                                            "bytes":  680
+                                        },
+                                        {
+                                            "file":  "verification-drift-map.json",
+                                            "sha256":  "0x641cf7da36641d5565bacf41fd0a7e3c1994f2b31203a7cbd2d64efbf5f83350",
+                                            "bytes":  5048
+                                        },
+                                        {
+                                            "file":  "release/manifest.json",
+                                            "sha256":  "0x7687f0a3f482c62d722d410d19ed34741400dc98ef53b9babe6128ab71658b7f",
+                                            "bytes":  1545
+                                        },
+                                        {
+                                            "file":  "release/manifest.sha256",
+                                            "sha256":  "0x4c6a6165bcbb0f41f9bc75b1027d0fba2db76ca4902b85c0500ef216d6be79e5",
+                                            "bytes":  66
+                                        },
+                                        {
+                                            "file":  "release/verification-report.json",
+                                            "sha256":  "0xf8fc4623e8328af420dae093212e459aca8edeec331799cc4ac3545daff82146",
+                                            "bytes":  46812
+                                        },
+                                        {
+                                            "file":  "release/verification-report.html",
+                                            "sha256":  "0x118bd45fe3cf5cabb8e649b506b6794b8b1147128fda1e1f3ce915787f91caf6",
+                                            "bytes":  62379
+                                        },
+                                        {
+                                            "file":  "release/selftest.tap",
+                                            "sha256":  "0x1ebf06faecb928dcfe39308150adf3c478c80ee04661550b1b1c72e8f7442209",
+                                            "bytes":  705
+                                        },
+                                        {
+                                            "file":  "release/negative-tests.json",
+                                            "sha256":  "0x1b68a3c41bcd342c564d37de426fb3355429bd4548581c87b20bbf7c681744c9",
+                                            "bytes":  4150
+                                        },
+                                        {
+                                            "file":  "release/v4.2.2-remediation/approved-evidence-manifest-v4.2.2.txt",
+                                            "sha256":  "0x73649ed34461637ea99eb6eb7ed985bd414916a7e64a760a3e360a69841be0dc",
+                                            "bytes":  1033
+                                        },
+                                        {
+                                            "file":  "release/v4.2.2-remediation/H1-H8.md",
+                                            "sha256":  "0xfd215746182913c117a1cd489120afd43a57acbc424ebfaef01775f97f7ecacd",
+                                            "bytes":  6059
+                                        },
+                                        {
+                                            "file":  "release/v4.2.2-remediation/C7-security-review-template.json",
+                                            "sha256":  "0xbc76ced1f4b0389fc6c385fe6b012c8ccece887d3cffebecaaeab982e76a8e99",
+                                            "bytes":  3022
+                                        },
+                                        {
+                                            "file":  "release/v4.2.2-remediation/C9-owner-authorization-template.json",
+                                            "sha256":  "0x6ff6df442fda2e1c898a30f9475f1851dd7175c6fb8d471171f9d74ab1641ae3",
+                                            "bytes":  1826
+                                        },
+                                        {
+                                            "file":  "release/freeze/freeze-record-4.2.3.json",
+                                            "sha256":  "0x62ba0dcd3a71fac3a9b48d94cd5c295ff6a070ddd05d8eccc4a46f73a74e55dc",
+                                            "bytes":  13386
+                                        },
+                                        {
+                                            "file":  "release/freeze/freeze-record-4.2.4.json",
+                                            "sha256":  "0xf88505c2ab94163ce3d30e0c34ab2bdd5057e7112745393f6b0003c13c32e2d0",
+                                            "bytes":  18489
+                                        },
+                                        {
+                                            "file":  "release/v4.2.5-closure/external-evidence-model.md",
+                                            "sha256":  "0x3e70681a57bba7d34e77d9e7fb4d45c9ba959f5bd2d3d739a7ebb378e061d0eb",
+                                            "bytes":  3484
+                                        },
+                                        {
+                                            "file":  "release/v4.2.5-closure/engine-semantics-contract.md",
+                                            "sha256":  "0x17c7953b626e380eb8ea38fc018a11241d7cb254e90499af5f50c162465b33e0",
+                                            "bytes":  2780
+                                        }
+                                    ],
+                   "quarantineFiles":  [
+                                           {
+                                               "file":  "legacy-quarantine/README.md",
+                                               "sha256":  "0x4748deb41db383e08b92cf3a7bc87ef7018fa2c5a60063eb9000083230f6263e",
+                                               "bytes":  1664
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/anchor/anchor-local.ps1",
+                                               "sha256":  "0x1553a33f84b0177e452ce773baf43ae03f75854a9e6e4982d3c76817c00a0b29",
+                                               "bytes":  4501
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/anchor/anchor-local.sh",
+                                               "sha256":  "0x71bdba25fefd5ec993a6d5fdd04a4fd7ad675053e68b08c222100978ec68c6c2",
+                                               "bytes":  3863
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/broadcast-and-tests/gate-4.1-broadcast.ps1",
+                                               "sha256":  "0x4635e506ddd4e139fb8d622854ccfe0a8bf87bc8d838a51e162f6e09461a8ce6",
+                                               "bytes":  34702
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/broadcast-and-tests/gate-4.1-identity-preflight.ps1",
+                                               "sha256":  "0x7d12f5a0bdcc10ccffd1420a8befab845595f0e7cf7ba0415ac965ecc4e8465d",
+                                               "bytes":  13448
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/broadcast-and-tests/gate-4.1-recovery-harness.ps1",
+                                               "sha256":  "0x8b9b8e2b534beb759960be5e1e9fc194a0ef436d5fe9dc68ec65bf0e79f8b612",
+                                               "bytes":  11950
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/broadcast-and-tests/testnet2-phase1.ps1",
+                                               "sha256":  "0xbff76067a7d756251805c775ca344e0d527a9b9cf2bead2ca4cb594a0c7c834a",
+                                               "bytes":  3786
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/broadcast-and-tests/testnet2-phase3.ps1",
+                                               "sha256":  "0x8e5291f34d73f1155d77a5552d5ba063d385dee0338b8de8f444e36a2119cc8f",
+                                               "bytes":  6496
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/cg-gate31.ps1",
+                                               "sha256":  "0x8ce8bfdd1188c0255daa66c408346a99b9f0b3792c61795e6f4f7d7b1e802858",
+                                               "bytes":  3002
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/evidence-registry-phase3.ps1",
+                                               "sha256":  "0x266a1dc3f4db587c3e498770865fd8508a6d5f3388bbedeae5633c5662a2782d",
+                                               "bytes":  2194
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gate-3.1-deploy.ps1",
+                                               "sha256":  "0x15cd2b798ea9b27a942a2c51820c587eaab0022a919b9ca7900668b932fb5b01",
+                                               "bytes":  7188
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gate-3.2-commitintent.ps1",
+                                               "sha256":  "0x2784fad01543b8a51f57a3c7aaf21806c7aba5ac3f8f006b8678818d1a5eb441",
+                                               "bytes":  6269
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gate-3.3-anchorproof.ps1",
+                                               "sha256":  "0xdee9d6b461c8e7123605d423a8f05d2d84667eb99d8085fb026002eb0a5b3daf",
+                                               "bytes":  9078
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gates-gate-3.1-deploy.ps1",
+                                               "sha256":  "0x5cb0dec72d2ab8b92b01599c7c31b43a2ffd566167240492d3d2fee41ae3b6fe",
+                                               "bytes":  3196
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gates-gate-3.2-commitintent.ps1",
+                                               "sha256":  "0x783ac0eaa104ac2372166fda3132f8a09799842abf047da985b84c09ae0e063c",
+                                               "bytes":  2778
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gates-gate-3.3-anchorproof.ps1",
+                                               "sha256":  "0xde5acc967b6b096d8117db02b3be43a66a274804942d44ccf8f31a99e577505c",
+                                               "bytes":  2608
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gates-gate-3.4-readback.ps1",
+                                               "sha256":  "0x7c75c17381419f604dd3a6147624686dcb0b7517aaa72b9f3062116007700a7a",
+                                               "bytes":  2953
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gates-gate-3.5-independent-verify.ps1",
+                                               "sha256":  "0xd840ea8e46ea77cdac1c67c0701fd86b7884cfbc3ccb939b439aeb86d54a0590",
+                                               "bytes":  3038
+                                           },
+                                           {
+                                               "file":  "legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gates-gate-3.6-freeze-evidence.ps1",
+                                               "sha256":  "0x7a3cefb007be1cfb6e09ceea7754bf89952056d41f22e10294820778d0250c83",
+                                               "bytes":  2980
+                                           }
+                                       ]
+               },
+    "decision":  "CONDITIONAL NO-GO Ã¢â‚¬â€ C7=PARTIAL C8=PENDING C9=PENDING; SIGNING/COMMITINTENT/ANCHORPROOF/MAINNET BROADCAST = NOT AUTHORIZED"
+}
