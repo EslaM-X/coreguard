@@ -23,6 +23,11 @@
 
 ## P7 — Execution Authorization (separate paper, required before any broadcast)
 
+> **Canonical template:** [`EXECUTION-AUTHORIZATION.md`](./EXECUTION-AUTHORIZATION.md) —
+> pre-filled with every technically determinable field (release, commit lineage, manifest
+> anchor, governance prerequisites, operator verification checklist). The block below is
+> the minimal shape; fill the canonical template, not this sketch.
+
 ```
 EXECUTION AUTHORIZATION
 
