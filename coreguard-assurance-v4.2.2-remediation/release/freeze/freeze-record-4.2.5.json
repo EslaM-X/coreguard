@@ -3,7 +3,7 @@
     "releaseId":  "4.2.5-closure",
     "engineVersion":  "2.1.2",
     "supersedesRecord":  "cg41-freeze-record-4.2.4",
-    "frozenAtUtc":  "2026-09-18T08:48:13.1409724Z",
+    "frozenAtUtc":  "2026-09-18T08:51:42.8049744Z",
     "frozenBy":  "remediation-author (pre-human-review freeze); C8 sign-off re-verifies every hash from a signed GitHub commit",
     "environment":  {
                         "psVersion":  "5.1.26100.9444",
@@ -19,7 +19,7 @@
                           "standardRun":  "33/33 PASS, VERIFIED-READONLY-ONLY (exit 0)",
                           "selfCheck":  "PASS (33 findings, 0 errors)",
                           "nodeValidator":  "PASS (649 checks, 0 errors)",
-                          "cleanClone":  "BLOCKED, exit 1 Ã¢â‚¬â€ documented Option-B fail-closed (INV-001 FAIL failClosed=true; kit absent by design)",
+                          "cleanClone":  "BLOCKED, exit 1 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â documented Option-B fail-closed (INV-001 FAIL failClosed=true; kit absent by design)",
                           "externalEvidenceModel":  "Option B (documented in release/v4.2.5-closure/external-evidence-model.md)"
                       },
     "categoryCounts":  {
@@ -95,13 +95,13 @@
                                         },
                                         {
                                             "file":  "release/manifest.json",
-                                            "sha256":  "0x7687f0a3f482c62d722d410d19ed34741400dc98ef53b9babe6128ab71658b7f",
-                                            "bytes":  1545
+                                            "sha256":  "0xc9a752b805c1fefbab302b3ea0ec2182373114095cc0da6ea6e92a72ca8d50a0",
+                                            "bytes":  1147
                                         },
                                         {
                                             "file":  "release/manifest.sha256",
-                                            "sha256":  "0x4c6a6165bcbb0f41f9bc75b1027d0fba2db76ca4902b85c0500ef216d6be79e5",
-                                            "bytes":  66
+                                            "sha256":  "0x79f4d80e6c71794ba485e4b95c243f1c9aca8b626d520336ebe019ff4386be8a",
+                                            "bytes":  67
                                         },
                                         {
                                             "file":  "release/verification-report.json",
@@ -262,5 +262,5 @@
                                            }
                                        ]
                },
-    "decision":  "CONDITIONAL NO-GO Ã¢â‚¬â€ C7=PARTIAL C8=PENDING C9=PENDING; SIGNING/COMMITINTENT/ANCHORPROOF/MAINNET BROADCAST = NOT AUTHORIZED"
+    "decision":  "CONDITIONAL NO-GO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â C7=PARTIAL C8=PENDING C9=PENDING; SIGNING/COMMITINTENT/ANCHORPROOF/MAINNET BROADCAST = NOT AUTHORIZED"
 }

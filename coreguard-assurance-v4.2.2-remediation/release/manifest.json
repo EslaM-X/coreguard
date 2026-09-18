@@ -1,33 +1,33 @@
 {
-    "release":  "coreguard-assurance-4.2.2-remediation",
-    "schemaVersion":  "cg41-report/2",
-    "generatedUtc":  "2026-09-18T07:16:21.5534846Z",
-    "toolVersion":  "2.1.0",
-    "supersedesVersion":  "2.0.0",
-    "ruleVersion":  "cg41-policy-v1",
-    "nonCircular":  true,
-    "freezeNote":  "4.2.2-remediation = engine 2.1.0: SELF-002 root fix (zero subprocess in engine), LEG-001 physical quarantine, ENV-003 V06-2 execution; all evidence regenerated post-fix per owner directive",
-    "remediationRefs":  "CHANGELOG-v4.2.2.md",
-    "files":  [
-                  {
-                      "file":  "verification-report.json",
-                      "sha256":  "0xffb7b5890fbad3aa33d178368aa03f4fcb4efd568dccd87141899cfcc0b87a1c",
-                      "bytes":  46812
-                  },
-                  {
-                      "file":  "verification-report.html",
-                      "sha256":  "0x118bd45fe3cf5cabb8e649b506b6794b8b1147128fda1e1f3ce915787f91caf6",
-                      "bytes":  62379
-                  },
-                  {
-                      "file":  "selftest.tap",
-                      "sha256":  "0x1ebf06faecb928dcfe39308150adf3c478c80ee04661550b1b1c72e8f7442209",
-                      "bytes":  705
-                  },
-                  {
-                      "file":  "negative-tests.json",
-                      "sha256":  "0xd0322015e98ecc437e383049d5145b9f6fbd1c7f90bfba93fea34539a5558b75",
-                      "bytes":  4344
-                  }
-              ]
+  "release": "coreguard-assurance-4.2.2-remediation",
+  "schemaVersion": "cg41-report/2",
+  "generatedUtc": "2026-09-18T08:51:42Z",
+  "toolVersion": "2.1.2",
+  "supersedesVersion": "2.1.0",
+  "ruleVersion": "cg41-policy-v1",
+  "nonCircular": true,
+  "freezeNote": "4.2.2-remediation = engine 2.1.0: SELF-002 root fix (zero subprocess in engine), LEG-001 physical quarantine, ENV-003 V06-2 execution; all evidence regenerated post-fix per owner directive",
+  "remediationRefs": "CHANGELOG-v4.2.2.md",
+  "files": [
+    {
+      "file": "verification-report.json",
+      "sha256": "0xf8fc4623e8328af420dae093212e459aca8edeec331799cc4ac3545daff82146",
+      "bytes": 46812
+    },
+    {
+      "file": "verification-report.html",
+      "sha256": "0x118bd45fe3cf5cabb8e649b506b6794b8b1147128fda1e1f3ce915787f91caf6",
+      "bytes": 62379
+    },
+    {
+      "file": "selftest.tap",
+      "sha256": "0x1ebf06faecb928dcfe39308150adf3c478c80ee04661550b1b1c72e8f7442209",
+      "bytes": 705
+    },
+    {
+      "file": "negative-tests.json",
+      "sha256": "0x1b68a3c41bcd342c564d37de426fb3355429bd4548581c87b20bbf7c681744c9",
+      "bytes": 4150
+    }
+  ]
 }
