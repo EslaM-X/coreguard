@@ -271,13 +271,8 @@
   },
   "decision": "CONDITIONAL NO-GO — C7=PARTIAL C8=PENDING C9=PENDING; SIGNING/COMMITINTENT/ANCHORPROOF/MAINNET BROADCAST = NOT AUTHORIZED",
   "gitCommit": "c34cae8684c18111d014c89af3be2cad0d86f531",
-  "gitCommitNote": "anchor advanced to the re-pin commit; previous anchor c1f0a67ed82de4ff89f362dcff82b2b1b0085f9f remains valid history",
+  "gitCommitNote": "anchor advanced to the re-pin commit; previous anchor c1f0a67ed82de4ff89f362dcff82b2b1b0085f9f remains valid history; re-pin list documents the active exception per file (superseded entries live in git history)",
   "postCommitRePins": [
-    {
-      "file": "README.md",
-      "commit": "c1f0a67ed82de4ff89f362dcff82b2b1b0085f9f",
-      "reason": "reviewer-entry text edited after freeze; re-pinned per integrity rule (frozenAtUtc preserved)"
-    },
     {
       "file": "release/v4.2.2-remediation/H1-H8.md",
       "commit": "c1f0a67ed82de4ff89f362dcff82b2b1b0085f9f",
