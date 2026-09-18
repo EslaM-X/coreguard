@@ -24,6 +24,9 @@
  *   ATTESTATION_RECOGNITION     trusted-issuer policy → ATTESTED/NOT_PROVEN.
  *   EXECUTOR_TYPE               normalized enum (advisory only, never a verdict).
  *   REVOCATION                  §5b: NEVER "PROVEN" without authoritative evidence.
+ *   IDENTITY_CLAIMS             identity self-claims (DECLARED), v2 attestation
+ *                               claim-set binding under the Phase B cap
+ *                               (ID-CAP-OI002-1 → never ATTESTED/VERIFIED).
  *
  * The manifest is treated as untrusted input; everything is recomputed from
  * the rooted domainHash over the declared manifestCore.
@@ -43,6 +46,11 @@ import {
   recognizeAttestation,
   revocationStatus,
 } from "./attestation.js";
+import {
+  validateIdentity,
+  detectIdentityContradiction,
+  resolveIdentityClaims,
+} from "./identity.js";
 import { normalizeExecutorType } from "./taxonomy.js";
 import { loadEvmAdapter } from "./evm-adapter.js";
 import {
@@ -61,6 +69,93 @@ const NOT_RUN_VERDICT = (label, reason) => ({
   label,
   reason,
 });
+
+/**
+ * [] — Identity claims axis (§6, Phase B).
+ *
+ * Identity never produces VERIFIED and — while the Phase B cap is active —
+ * never ATTESTED: a fully-passing v2 (claim-set-bound) attestation resolves
+ * every covered field to DECLARED with label ATTESTED_BLOCKED_BY_CAP.
+ *
+ * @param {object} deps
+ * @param {object} deps.manifest           validated untrusted manifest
+ * @param {string} deps.manifestId         recomputed canonical manifestId
+ * @param {object} deps.commitment         PROVENANCE_COMMITMENT verdict
+ * @param {object} deps.manifestSignature  MANIFEST_SIGNATURE verdict
+ * @param {object} deps.declarerBinding    DECLARER_EXECUTION_BINDING verdict
+ * @param {object} deps.signerBinding      declared signerBinding
+ * @param {string} deps.chainId            evidence chainId
+ * @param {string} [deps.executionBlock]   decimal block number (null → skip time window)
+ * @param {object} [deps.confidence]       trusted-issuer policy
+ * @param {Array}  [deps.attestations]     claimed attestation envelopes
+ * @param {object} [deps.revocationEvidence]
+ * @param {object} [deps.evm]              @coreguard/evm adapter (null → NOT_RUN)
+ * @param {Array}  [deps.siblingManifests] other manifests for the same execution
+ *                                        (identity contradiction detection)
+ */
+export async function buildIdentityVerdict({
+  manifest,
+  manifestId,
+  commitment,
+  manifestSignature,
+  declarerBinding,
+  signerBinding,
+  chainId,
+  executionRef,
+  executionBlock,
+  confidence,
+  attestations,
+  revocationEvidence,
+  evm,
+  siblingManifests,
+}) {
+  if (commitment.status !== "OK") {
+    return { status: "NOT_EVALUATED", label: "COMMITMENT_NOT_PROVEN" };
+  }
+
+  const validation = validateIdentity(manifest.declared);
+  const manifestList = Array.isArray(siblingManifests)
+    ? [manifest, ...siblingManifests]
+    : [manifest];
+  const suspicion = detectIdentityContradiction(manifestList, executionRef);
+
+  const resolved = await resolveIdentityClaims({
+    validation,
+    base: {
+      manifestSignature: (manifestSignature && manifestSignature.status) || "NOT_PROVEN",
+      declarerBinding: (declarerBinding && declarerBinding.status) || "NOT_PROVEN",
+    },
+    attestations: Array.isArray(attestations) ? attestations : [],
+    context: {
+      chainId,
+      executionRef,
+      manifestId,
+      currentBlock: executionBlock ?? null,
+      confidence: confidence || {},
+      evm,
+      identityRoot: (signerBinding || {}).address || "",
+      revocationEvidence: revocationEvidence || {},
+    },
+    suspicion,
+  });
+
+  const identity = {
+    manifest: resolved.manifest,
+    claims: resolved.claims,
+    overall: resolved.overall,
+  };
+  if (resolved.overall.error) {
+    identity.status = "INPUT_ERROR";
+    identity.label = "MALFORMED_INPUT";
+  } else if (resolved.manifest === "INVALID") {
+    identity.status = "NOT_PROVEN";
+    identity.label = "CONTRADICTION";
+  } else {
+    identity.status = resolved.overall.state;
+    identity.label = resolved.overall.state;
+  }
+  return identity;
+}
 
 /**
  * Verify a full AgentProof manifest against a specific execution.
@@ -379,6 +474,33 @@ export async function verifyProvenance(manifest, evidence = {}, options = {}) {
     });
   }
 
+  // ── 7. IDENTITY_CLAIMS (§6, Phase B — cap ID-CAP-OI002-1) ───────────────
+  const identity = await buildIdentityVerdict({
+    manifest,
+    manifestId,
+    commitment,
+    manifestSignature,
+    declarerBinding,
+    signerBinding: manifest.declared && manifest.declared.signerBinding,
+    chainId,
+    executionRef: manifest.executionRef || null,
+    executionBlock,
+    confidence: evidence.confidence,
+    attestations: evidence.attestations,
+    revocationEvidence: evidence.revocationEvidence,
+    evm,
+    siblingManifests: evidence.siblingManifests,
+  });
+  if (identity.status === "INPUT_ERROR") {
+    if (Array.isArray(identity.overall && identity.overall.error)) {
+      errors.push(`IDENTITY_CLAIMS: ${identity.overall.error.join("; ")}`);
+    } else {
+      errors.push("IDENTITY_CLAIMS: MALFORMED_INPUT");
+    }
+  } else if (identity.status === "NOT_PROVEN" && identity.label === "CONTRADICTION") {
+    errors.push("IDENTITY_CLAIMS: identity contradiction across manifests for the same executionRef");
+  }
+
   // ── Verdict ─────────────────────────────────────────────────────────────
   const verdicts = {
     PROVENANCE_COMMITMENT: commitment,
@@ -391,6 +513,7 @@ export async function verifyProvenance(manifest, evidence = {}, options = {}) {
     ATTESTATION_RECOGNITION: attestationRecognition,
     EXECUTOR_TYPE: executorTypeStatus,
     REVOCATION: revocations,
+    IDENTITY_CLAIMS: identity,
   };
 
   const criticalNotRun = manifestSignature.status === "NOT_RUN" ||

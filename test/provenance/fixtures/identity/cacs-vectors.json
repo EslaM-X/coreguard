@@ -1,0 +1,98 @@
+{
+  "domain": "CGEP/1:ATTESTED-CLAIM-SET",
+  "credentialType": "AGENT_IDENTITY",
+  "issuer": "0x1111111111111111111111111111111111111111",
+  "subject": "0x2222222222222222222222222222222222222222",
+  "manifestId": "0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc",
+  "vectors": [
+    {
+      "id": "V1",
+      "note": "STAMP full three-field claim set (chainId 1116)",
+      "claims": {
+        "identity.manufacturer": "example-labs",
+        "identity.model": "reasoner",
+        "identity.modelVersion": "2.1.0"
+      },
+      "context": {
+        "chainId": "1116",
+        "executionRef": {
+          "blockNumber": "12345",
+          "txHash": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+        },
+        "manifestId": "0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc"
+      },
+      "canonicalInput": "{\"claims\":{\"identity.manufacturer\":\"example-labs\",\"identity.model\":\"reasoner\",\"identity.modelVersion\":\"2.1.0\"},\"context\":{\"chainId\":\"1116\",\"executionRef\":{\"blockNumber\":\"12345\",\"txHash\":\"0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1\"},\"manifestId\":\"0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc\"},\"credentialType\":\"AGENT_IDENTITY\",\"issuer\":\"0x1111111111111111111111111111111111111111\",\"rule\":\"CGEP/1:ATTESTED-CLAIM-SET\",\"subject\":\"0x2222222222222222222222222222222222222222\",\"version\":\"CGEP/1\"}",
+      "claimSetHash": "0xcfec56c4c60ea2e1a4817f1765c6246d62b7e13fc6be2a2d8568a2e99fb51897"
+    },
+    {
+      "id": "V2",
+      "note": "STAMP two-field claim set (manufacturer + model)",
+      "claims": {
+        "identity.manufacturer": "example-labs",
+        "identity.model": "reasoner"
+      },
+      "context": {
+        "chainId": "1116",
+        "executionRef": {
+          "blockNumber": "12345",
+          "txHash": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+        },
+        "manifestId": "0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc"
+      },
+      "canonicalInput": "{\"claims\":{\"identity.manufacturer\":\"example-labs\",\"identity.model\":\"reasoner\"},\"context\":{\"chainId\":\"1116\",\"executionRef\":{\"blockNumber\":\"12345\",\"txHash\":\"0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1\"},\"manifestId\":\"0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc\"},\"credentialType\":\"AGENT_IDENTITY\",\"issuer\":\"0x1111111111111111111111111111111111111111\",\"rule\":\"CGEP/1:ATTESTED-CLAIM-SET\",\"subject\":\"0x2222222222222222222222222222222222222222\",\"version\":\"CGEP/1\"}",
+      "claimSetHash": "0x584c641b5ae1f6746d2602a9b5db05ccda18104f21e27e3e9001807a7fec2105"
+    },
+    {
+      "id": "V3",
+      "note": "STAMP single-field claim set (modelVersion only)",
+      "claims": {
+        "identity.modelVersion": "2.1.0"
+      },
+      "context": {
+        "chainId": "1116",
+        "executionRef": {
+          "blockNumber": "12345",
+          "txHash": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+        },
+        "manifestId": "0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc"
+      },
+      "canonicalInput": "{\"claims\":{\"identity.modelVersion\":\"2.1.0\"},\"context\":{\"chainId\":\"1116\",\"executionRef\":{\"blockNumber\":\"12345\",\"txHash\":\"0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1\"},\"manifestId\":\"0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc\"},\"credentialType\":\"AGENT_IDENTITY\",\"issuer\":\"0x1111111111111111111111111111111111111111\",\"rule\":\"CGEP/1:ATTESTED-CLAIM-SET\",\"subject\":\"0x2222222222222222222222222222222222222222\",\"version\":\"CGEP/1\"}",
+      "claimSetHash": "0xb2cce6c2e73358aaa0ad8f8875614ef8b52862ef3a547d06d67f2b8588c0b143"
+    },
+    {
+      "id": "V5",
+      "note": "REGISTRATION full three-field claim set (executionRef null)",
+      "claims": {
+        "identity.manufacturer": "example-labs",
+        "identity.model": "reasoner",
+        "identity.modelVersion": "2.1.0"
+      },
+      "context": {
+        "chainId": "1116",
+        "executionRef": null,
+        "manifestId": "0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc"
+      },
+      "canonicalInput": "{\"claims\":{\"identity.manufacturer\":\"example-labs\",\"identity.model\":\"reasoner\",\"identity.modelVersion\":\"2.1.0\"},\"context\":{\"chainId\":\"1116\",\"executionRef\":null,\"manifestId\":\"0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc\"},\"credentialType\":\"AGENT_IDENTITY\",\"issuer\":\"0x1111111111111111111111111111111111111111\",\"rule\":\"CGEP/1:ATTESTED-CLAIM-SET\",\"subject\":\"0x2222222222222222222222222222222222222222\",\"version\":\"CGEP/1\"}",
+      "claimSetHash": "0xaaac8e7b5c9da1850547ac71785e6df2e62ab2618ba5edb0e11174ab68d267b6"
+    },
+    {
+      "id": "V6",
+      "note": "STAMP full three-field claim set on chainId 1114 (chainId enters the hash)",
+      "claims": {
+        "identity.manufacturer": "example-labs",
+        "identity.model": "reasoner",
+        "identity.modelVersion": "2.1.0"
+      },
+      "context": {
+        "chainId": "1114",
+        "executionRef": {
+          "blockNumber": "12345",
+          "txHash": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+        },
+        "manifestId": "0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc"
+      },
+      "canonicalInput": "{\"claims\":{\"identity.manufacturer\":\"example-labs\",\"identity.model\":\"reasoner\",\"identity.modelVersion\":\"2.1.0\"},\"context\":{\"chainId\":\"1114\",\"executionRef\":{\"blockNumber\":\"12345\",\"txHash\":\"0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1\"},\"manifestId\":\"0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc\"},\"credentialType\":\"AGENT_IDENTITY\",\"issuer\":\"0x1111111111111111111111111111111111111111\",\"rule\":\"CGEP/1:ATTESTED-CLAIM-SET\",\"subject\":\"0x2222222222222222222222222222222222222222\",\"version\":\"CGEP/1\"}",
+      "claimSetHash": "0x44bd38eebf1941c4661a0339c64721b060833bc7d1f29e23a1aa69cba06050fe"
+    }
+  ]
+}

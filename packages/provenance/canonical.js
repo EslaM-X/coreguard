@@ -59,4 +59,36 @@ export async function attestationContentHash(attestation) {
   return domainHash(ATTESTATION_DOMAIN, attestationBody);
 }
 
+export const ATTESTED_CLAIM_SET_DOMAIN = "CGEP/1:ATTESTED-CLAIM-SET";
+
+export function buildAttestedClaimSet({ credentialType, issuer, subject, claims, context }) {
+  return {
+    version: "CGEP/1",
+    rule: ATTESTED_CLAIM_SET_DOMAIN,
+    issuer,
+    subject,
+    credentialType,
+    claims,
+    context,
+  };
+}
+
+export function buildIdentityClaimSetContext({ chainId, executionRef, manifestId }) {
+  const ref = executionRef && typeof executionRef === "object"
+    ? { blockNumber: String(executionRef.blockNumber), txHash: String(executionRef.txHash).toLowerCase() }
+    : null;
+  return {
+    chainId: String(chainId),
+    executionRef: ref,
+    manifestId: String(manifestId).toLowerCase(),
+  };
+}
+
+export async function computeClaimSetHash({ credentialType, issuer, subject, claims, context }) {
+  const canonicalClaimSet = buildAttestedClaimSet({ credentialType, issuer, subject, claims, context });
+  const hashInput = canonicalize(canonicalClaimSet);
+  const claimSetHash = await domainHash(ATTESTED_CLAIM_SET_DOMAIN, canonicalClaimSet);
+  return { claimSetHash, canonicalClaimSet, hashInput, hashOutput: claimSetHash };
+}
+
 export { canonicalize };
