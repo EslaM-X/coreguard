@@ -1,0 +1,48 @@
+GATE 4.1 OFFLINE RECOVERY HARNESS - PRESERVED RESULTS (C3 reproducibility)
+Date (UTC): 2026-09-18T01:13:02.0126980Z
+Harness: scripts/mainnet/tests/gate-4.1-recovery-harness.ps1 (sha256 0x8b9b8e2b534beb759960be5e1e9fc194a0ef436d5fe9dc68ec65bf0e79f8b612)
+Lib under test: scripts/mainnet/gate-4.1-recovery-lib.ps1 (sha256 0x408c808df7ce01f3197a8974935cbfab5c00b435e0d4cb8d0d27b61ebd586bed)
+===============================================================================
+RECOVERY HARNESS PASS: 39 assertions
+  ok s1-parse-fail : evidence file written
+  ok S1: recoveryRequired=true
+  ok S1: automaticResend=false
+  ok S1: status
+  ok S1: txHashParsed=false when hash absent
+  ok S1: txHash empty
+  ok S1: failurePhase recorded
+  ok S2a: JSON hash
+  ok S2b: JSON transactionHash
+  ok S2c: bare hex fallback
+  ok S2d: unparseable -> null
+  ok s3-receipt-revert : evidence file written
+  ok S3: receiptStatus=0x0 captured
+  ok s4-race-other-won : evidence file written
+  ok S4: onChainNowCommitted=true
+  ok S4: winner recorded
+  ok s5-no-send : no-send must throw
+  ok s5-no-send : no-send must write nothing
+  ok s6-hygiene : evidence file written
+  ok S6: no private key
+  ok S6: no passphrase
+  ok S6: no 65-byte signature blob
+  ok S7a: text sha deterministic
+  ok S7b: raw sha tolerant to 0x removal
+  ok S7c: text-sha != bytes-sha (views must not be confused)
+  ok S8: schema gate/status
+  ok S8: intentId preserved
+  ok S8: calldataSha256 (hash only, no raw calldata)
+  ok S8: recovery required, no resend
+  ok S9: evidence written despite unparseable hash
+  ok S9: txHashParsed=false
+  ok S9: recovery required
+  ok S10a: PUSH4 set parsed (3 real + 1 dummy)
+  ok S10b: commitIntent selector present
+  ok S10c: commitIntentDigest selector present
+  ok S10d: intentCommits selector present
+  ok S10e: fingerprint passes when all present
+  ok S10f: fingerprint throws on missing selector
+  ok S11: results artifact written
+results artifact: C:\Users\DeLL-L\AppData\Local\Temp\cg41-harness-result-93d4955a-c664-4828-92a7-94fe9384c59a.txt (sha256 0xb036004a583bfb84b051296aca8ccf5df5deddfcf8a9a2958663f485215c5693)
+===============================================================================
+RUNNER EXIT CODE: 0

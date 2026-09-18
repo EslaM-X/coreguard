@@ -1,0 +1,122 @@
+{
+    "gate":  "4.0",
+    "revision":  "rev3 (calldata encoding corrected using the real ABI encoder: bytes offset = 0xa0 (5x32B head), length = 0x41, sig 65B + 31B pad = 96B tail; rev2 corrected the proofCommitment equality semantics: protocol-level rule, not an on-chain guarantee; contract anchorProof does NOT check equality)",
+    "scope":  "CoreGuard Identity Anchor - Mainnet v1 (identity-claim anchor, DRAFT review)",
+    "status":  "DRAFT - NOT BROADCAST",
+    "commitRef":  "545e0e1a13215e6cf34a7573b847086fffb0ff0d",
+    "network":  {
+                    "chainId":  1116,
+                    "rpcCrossCheck":  "https://rpc.ankr.com/core",
+                    "rpcOfficial":  "https://rpc.coredao.org",
+                    "name":  "core-mainnet",
+                    "chainIdObserved":  "0x45c (eth_chainId via rpc.coredao.org)"
+                },
+    "registry":  {
+                     "domainSeparator":  "0x64cd419a63dc999341a1ae72ace3c5fa6d14a7c55e231cadd195b19c292ab06a",
+                     "codeLenObserved":  3128,
+                     "version":  "0x530b4f3426b40491a178b6ef6741c4b635b425ad71b295c3bd589f8b769fcd9e",
+                     "address":  "0x66268a47e81b8f657798d7b5bbedc956df7b13fd"
+                 },
+    "signer":  {
+                   "note":  "private key never read or printed in this review",
+                   "address":  "0xEa41BecDeb612d8625bF3060809964F1DAB43244",
+                   "authoritativeSource":  "live .env MAINNET_DEPLOYER_ADDRESS == on-chain signer of gate-3.2/3.3 == deployer in gate-3.1 evidence; .env.example 0x6cB4... is the COMMUNITY/public wallet only"
+               },
+    "anchoredFiles":  [
+                          {
+                              "sha256":  "0xa6b3ae6a9ff392526f94a73e6727e8958fcef3aaeaa78cf5713af40e3da4d369",
+                              "file":  "packages/provenance/identity.js"
+                          },
+                          {
+                              "sha256":  "0x4fb505b2dce6c19d23817eadce88bf9ca73f498c0adeb90d2cc6678729487ffc",
+                              "file":  "packages/provenance/attestation.js"
+                          },
+                          {
+                              "sha256":  "0x5a8e91e76e370fd7569d6ef90e6775d7ec3d30e129a0ac1c3c94605bcb81725a",
+                              "file":  "test/provenance/fixtures/identity/cacs-vectors.json"
+                          },
+                          {
+                              "sha256":  "0x5ea477004c991c8e1bf3981a37d18503b81469737eb95d3f24d7833139e92c20",
+                              "file":  "test/provenance/fixtures/identity/declared.json"
+                          }
+                      ],
+    "cacsVectors":  [
+                        {
+                            "id":  "V1",
+                            "claimSetHash":  "0xcfec56c4c60ea2e1a4817f1765c6246d62b7e13fc6be2a2d8568a2e99fb51897",
+                            "note":  "STAMP full three-field (chainId 1116)"
+                        },
+                        {
+                            "id":  "V2",
+                            "claimSetHash":  "0x584c641b5ae1f6746d2602a9b5db05ccda18104f21e27e3e9001807a7fec2105",
+                            "note":  "STAMP two-field (chainId 1116)"
+                        },
+                        {
+                            "id":  "V3",
+                            "claimSetHash":  "0xb2cce6c2e73358aaa0ad8f8875614ef8b52862ef3a547d06d67f2b8588c0b143",
+                            "note":  "STAMP single-field (chainId 1116)"
+                        },
+                        {
+                            "id":  "V5",
+                            "claimSetHash":  "0xaaac8e7b5c9da1850547ac71785e6df2e62ab2618ba5edb0e11174ab68d267b6",
+                            "note":  "REGISTRATION full (executionRef null)"
+                        },
+                        {
+                            "id":  "V6",
+                            "claimSetHash":  "0x44bd38eebf1941c4661a0339c64721b060833bc7d1f29e23a1aa69cba06050fe",
+                            "note":  "STAMP full (chainId 1114, boundary)"
+                        }
+                    ],
+    "commitmentSemantics":  {
+                                "bodyNeverOnChain":  "only the commitment hash is broadcast; agent identity claims never leave the review boundary",
+                                "identityAnchorPayload":  "{\"scope\":\"CoreGuard Identity Anchor v1\",\"commitRef\":\"545e0e1a13215e6cf34a7573b847086fffb0ff0d\",\"package\":\"@coreguard/provenance\",\"identityRuleEngineSha256\":\"0xa6b3ae6a9ff392526f94a73e6727e8958fcef3aaeaa78cf5713af40e3da4d369\",\"attestationModuleSha256\":\"0x4fb505b2dce6c19d23817eadce88bf9ca73f498c0adeb90d2cc6678729487ffc\",\"claimSetDomain\":\"CGEP/1:ATTESTED-CLAIM-SET\",\"credentialType\":\"AGENT_IDENTITY\",\"capActive\":\"ID-CAP-OI002-1\",\"vectors\":[{\"id\":\"V1\",\"claimSetHash\":\"0xcfec56c4c60ea2e1a4817f1765c6246d62b7e13fc6be2a2d8568a2e99fb51897\"},{\"id\":\"V2\",\"claimSetHash\":\"0x584c641b5ae1f6746d2602a9b5db05ccda18104f21e27e3e9001807a7fec2105\"},{\"id\":\"V3\",\"claimSetHash\":\"0xb2cce6c2e73358aaa0ad8f8875614ef8b52862ef3a547d06d67f2b8588c0b143\"},{\"id\":\"V5\",\"claimSetHash\":\"0xaaac8e7b5c9da1850547ac71785e6df2e62ab2618ba5edb0e11174ab68d267b6\"},{\"id\":\"V6\",\"claimSetHash\":\"0x44bd38eebf1941c4661a0339c64721b060833bc7d1f29e23a1aa69cba06050fe\"}]}",
+                                "intentCommitmentBindsTo":  "the canonical identityAnchorPayload verbatim below: package commitRef + identity rule engine hash + attestation module hash + claim-set domain + active cap (ID-CAP-OI002-1) + the 5 pinned CACS claimSetHashes. It is a version-pin AND claim-set pin, not a bare file hash.",
+                                "proofCommitmentRule":  "proofCommitment == intentCommitment is a PROTOCOL-LEVEL choice in the CoreGuard Identity Anchor v1 spec. EvidenceRegistryV2.anchorProof (lines 244-278) stores proofCommitment and intentCommitment independently and does NOT check equality. The identity is bound to the intent via intentId only; the equality is imposed by the signing authority and is verified OFF-CHAIN by readback (proofAnchors.proofCommitment == intentCommits.intentCommitment). No on-chain enforcement is claimed.",
+                                "preflightRecord":  "{\"gate\":\"4.0\",\"scope\":\"CoreGuard Identity Anchor - Mainnet v1\",\"commitRef\":\"545e0e1a13215e6cf34a7573b847086fffb0ff0d\",\"chainId\":1116,\"registry\":\"0x66268a47e81b8f657798d7b5bbedc956df7b13fd\",\"signer\":\"0xEa41BecDeb612d8625bF3060809964F1DAB43244\",\"anchoredFiles\":[{\"file\":\"packages/provenance/identity.js\",\"sha256\":\"0xa6b3ae6a9ff392526f94a73e6727e8958fcef3aaeaa78cf5713af40e3da4d369\"},{\"file\":\"packages/provenance/attestation.js\",\"sha256\":\"0x4fb505b2dce6c19d23817eadce88bf9ca73f498c0adeb90d2cc6678729487ffc\"},{\"file\":\"test/provenance/fixtures/identity/cacs-vectors.json\",\"sha256\":\"0x5a8e91e76e370fd7569d6ef90e6775d7ec3d30e129a0ac1c3c94605bcb81725a\"},{\"file\":\"test/provenance/fixtures/identity/declared.json\",\"sha256\":\"0x5ea477004c991c8e1bf3981a37d18503b81469737eb95d3f24d7833139e92c20\"}],\"intentCommitmentRule\":\"sha256(identityAnchorPayload in gate-4.0)\",\"proofCommitmentRule\":\"protocol-level choice, NOT enforced by the contract: EvidenceRegistryV2.anchorProof stores proofCommitment and intentCommitment independently with no equality check. Equality is required by the CoreGuard Identity Anchor v1 spec, imposed by the signing authority, and verified OFF-CHAIN by readback (proofAnchors.proofCommitment == intentCommits.intentCommitment); an on-chain equality check is NOT claimed\",\"receiptIdRule\":\"sha256(gate-4.1-commitintent.json)\",\"proofIdRule\":\"keccak256(CG||intentId||receiptId||proofCommitment||verifierVersion||result)\",\"result\":0,\"verifierVersion\":\"0x2ff4c1529ac232a625056ad26ac6600ae8d765cb36c04cce152c14c071a6e112\",\"status\":\"DRAFT-NOT-BROADCAST\"}"
+                            },
+    "intentId":  {
+                     "rule":  "sha256 over the canonical preflightRecord string embedded above - mirrors Phase-3 rule intentId = sha256(gate-3.0-preflight.json); self-reference avoided by hashing the inner record, not the outer container; rev2 changed the record wording so the value is RE-derived",
+                     "value":  "0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d"
+                 },
+    "intentCommitment":  "0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6",
+    "proofCommitment":  "0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6",
+    "receiptId":  {
+                      "rule":  "sha256(gate-4.1-commitintent.json) created and documented ONLY after the gate-4.1 broadcast succeeds; no tentative receipt value is recorded",
+                      "value":  "PENDING gate-4.1 actual tx"
+                  },
+    "proofId":  {
+                    "rule":  "keccak256(\u0027CG|\u0027 || intentId || receiptId || proofCommitment || verifierVersion || result) - exact Phase-3 gate-3.3 formula; computed only from the REAL gate-4.1 receipt evidence, never from a placeholder",
+                    "value":  "PENDING gate-4.1 receiptId"
+                },
+    "verifierVersion":  "0x2ff4c1529ac232a625056ad26ac6600ae8d765cb36c04cce152c14c071a6e112",
+    "result":  0,
+    "calldata":  {
+                     "anchorProof":  {
+                                         "selector":  "0xdd71343b",
+                                         "signature":  "anchorProof(bytes32,bytes32,bytes32,bytes32,uint8,bytes32,bytes)",
+                                         "authorization":  "EIP-712 over anchorProofDigest (cast wallet sign --no-hash); produced ONLY by keyholder",
+                                         "layout":  "0xdd71343b || proofId(32B) || intentId(32B) || receiptId(32B) || proofCommitment(32B) || result(32B) || verifierVersion(32B) || offset || len 0x41 || EIP-712 sig(65B)"
+                                     },
+                     "commitIntent":  {
+                                          "selector":  "0x4fd0505d",
+                                          "signature":  "commitIntent(bytes32,bytes32,address,uint256,bytes)",
+                                          "authorization":  "EIP-712 over commitIntentDigest (cast wallet sign --no-hash); produced ONLY by keyholder",
+                                          "layout":  "0x4fd0505d || intentId(32B) || intentCommitment(32B) || signer(32B) || validUntil(32B) || offset(0xa0, 5x32B head) || len(0x41) || 65B EIP-712 sig || 31B pad (tail 96B) - built by cast calldata, never hand-concatenated"
+                                      }
+                 },
+    "valueCORE":  0,
+    "simulation":  {
+                       "preSignEstimate":  "cannot estimate gas without a signature; Phase-3 observed mainnet cost ~0.0198 CORE @ ~60 gwei (scripts/testnet2/phase5.ps1 recorded baseline)",
+                       "replay":  "AlreadyCommitted guards make intentId/proofId singletons (replay-resistant)",
+                       "broadcastHolds":  "eth_sendRawTransaction and cast send are FORBIDDEN in Gate 4.1; they occur only after signed-simulation review + separate explicit broadcast GO",
+                       "order":  "1) eth_call exact signed payload (simulation, no state change) 2) eth_estimateGas 3) readback intentCommits/proofAnchors (zero-gas) 4) only then separate GO per transaction"
+                   },
+    "chainReadback":  {
+                          "chainId":  "0x45c (1116) OK",
+                          "proofAnchorsMatchPhase3":  true,
+                          "intentCommitsMatchPhase3":  true,
+                          "registryCodeLen":  3128
+                      },
+    "date":  "2026-09-17T03:36:55.6948405Z",
+    "nonce":  "PENDING (eth_getTransactionCount at gate-4.1 signing time)"
+}

@@ -1,0 +1,28 @@
+{
+    "gate":  "4.1",
+    "phase":  "preflight",
+    "status":  "PREFLIGHT-ONLY-NOT-BROADCAST",
+    "chainId":  1116,
+    "registry":  "0x66268a47e81b8f657798d7b5bbedc956df7b13fd",
+    "signer":  "0xEa41BecDeb612d8625bF3060809964F1DAB43244",
+    "selector":  "0x4fd0505d",
+    "intentId":  "0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d",
+    "intentCommitment":  "0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6",
+    "validUntil":  1789694435,
+    "nonce":  8,
+    "digest":  "0x0ad1fdb186113cb80bd464ef324391c1fd1a23c12015416b7c66c22a5e8c5291",
+    "abiEncode":  {
+                      "padBytes":  31,
+                      "tailBytes":  96,
+                      "lengthBytes":  "0x41",
+                      "offsetBytes":  "0xa0",
+                      "totalBytes":  292,
+                      "sigBytes":  65
+                  },
+    "calldataLenHex":  586,
+    "simulationEthCall":  "0x",
+    "gasEstimateWei":  106328,
+    "txHash":  null,
+    "date":  "2026-09-18T00:20:41.7298029Z",
+    "note":  "NO broadcast performed by this gate; eth_sendRawTransaction/cast send are forbidden here. Broadcast requires signed-simulation review + separate explicit GO."
+}
