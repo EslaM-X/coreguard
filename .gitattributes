@@ -2,3 +2,8 @@
 coreguard-assurance/** -text
 coreguard-assurance-v4.2.2-remediation/** -text
 legacy-quarantine/** -text
+
+# Byte-exact preservation for verifier-c (Dec-C-9 self-checksum): the loader
+# re-hashes its own sources at import and fails closed on any byte change,
+# including EOL rewriting by core.autocrlf. Policy: docs/eol-policy.md
+packages/verifier-c/** -text
