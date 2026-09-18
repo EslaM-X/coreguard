@@ -1,5 +1,7 @@
 # CoreGuard Gate 4.1 — Final Closure Package
 
+> **Supplemented by governance:** the PENDING states on this page were subsequently resolved under the disclosed single-operator governance mode — see [`GOVERNANCE-MODE.md`](./GOVERNANCE-MODE.md) and [`GOVERNANCE-RECORDS.md`](./GOVERNANCE-RECORDS.md). The technical evidence below remains valid and unchanged.
+
 **Record ID:** `cg41-final-closure-v1`
 **Final commit:** the commit carrying this file (`git rev-parse HEAD`). The full technical gate was executed at `0dde0d7`; the only delta between that tree and the final one is this file, which sits **outside the freeze map** (no re-pin cycle triggered).
 **Freeze anchor:** `c34cae8684c18111d014c89af3be2cad0d86f531`
