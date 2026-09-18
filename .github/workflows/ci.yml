@@ -14,7 +14,15 @@ jobs:
       matrix:
         node-version: [18, 20, 22]
     steps:
+      # fetch-depth: 0 is load-bearing: the commit-anchored freeze verifier
+      # (validate-freeze.mjs, exercised by test/verifier-c) hashes pinned files
+      # from its gitCommit anchor via git show. A shallow clone cannot resolve
+      # that historical commit, so the verifier fails closed and the suite goes
+      # red on every push. Full history also lets CI reproduce the clean-clone
+      # verification the freeze record promises.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
