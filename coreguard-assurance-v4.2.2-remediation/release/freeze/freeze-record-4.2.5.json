@@ -19,7 +19,7 @@
                           "standardRun":  "33/33 PASS, VERIFIED-READONLY-ONLY (exit 0)",
                           "selfCheck":  "PASS (33 findings, 0 errors)",
                           "nodeValidator":  "PASS (649 checks, 0 errors)",
-                          "cleanClone":  "BLOCKED, exit 1 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â documented Option-B fail-closed (INV-001 FAIL failClosed=true; kit absent by design)",
+                          "cleanClone":  "BLOCKED, exit 1 — documented Option-B fail-closed (INV-001 FAIL failClosed=true; kit absent by design)",
                           "externalEvidenceModel":  "Option B (documented in release/v4.2.5-closure/external-evidence-model.md)"
                       },
     "categoryCounts":  {
@@ -150,8 +150,8 @@
                                         },
                                         {
                                             "file":  "release/freeze/freeze-record-4.2.4.json",
-                                            "sha256":  "0xf88505c2ab94163ce3d30e0c34ab2bdd5057e7112745393f6b0003c13c32e2d0",
-                                            "bytes":  18489
+                                            "sha256":  "0x42025fdae6ce69f8015047b37423db2cb8ab77ca07b158956906ecb163597b75",
+                                            "bytes":  18454
                                         },
                                         {
                                             "file":  "release/v4.2.5-closure/external-evidence-model.md",
@@ -262,5 +262,5 @@
                                            }
                                        ]
                },
-    "decision":  "CONDITIONAL NO-GO ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â C7=PARTIAL C8=PENDING C9=PENDING; SIGNING/COMMITINTENT/ANCHORPROOF/MAINNET BROADCAST = NOT AUTHORIZED"
+    "decision":  "CONDITIONAL NO-GO — C7=PARTIAL C8=PENDING C9=PENDING; SIGNING/COMMITINTENT/ANCHORPROOF/MAINNET BROADCAST = NOT AUTHORIZED"
 }
