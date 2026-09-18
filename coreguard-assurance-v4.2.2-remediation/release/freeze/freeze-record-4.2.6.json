@@ -137,8 +137,8 @@
       },
       {
         "file": "release/v4.2.2-remediation/H1-H8.md",
-        "sha256": "0xd6197090962f3ca0b809f1a3c5f89d89a30b6683befb349d0c3517cf30a77789",
-        "bytes": 6668
+        "sha256": "0x2ebe2267a2171b5e6ae4e7c5f2a036ca4abe7d52ae0d88ff3138bca26be51eb0",
+        "bytes": 7107
       },
       {
         "file": "release/v4.2.2-remediation/C7-security-review-template.json",
@@ -269,5 +269,19 @@
       }
     ]
   },
-  "decision": "CONDITIONAL NO-GO — C7=PARTIAL C8=PENDING C9=PENDING; SIGNING/COMMITINTENT/ANCHORPROOF/MAINNET BROADCAST = NOT AUTHORIZED"
+  "decision": "CONDITIONAL NO-GO — C7=PARTIAL C8=PENDING C9=PENDING; SIGNING/COMMITINTENT/ANCHORPROOF/MAINNET BROADCAST = NOT AUTHORIZED",
+  "gitCommit": "a499cf42cf2ed794cb7ee062271da0963818dc99",
+  "gitCommitNote": "anchor: all pins (except postCommitRePins) verified against this immutable commit tree; disk bytes are NOT the reference; re-pin commits resolved in the same cycle that edits those bytes (two-phase)",
+  "postCommitRePins": [
+    {
+      "file": "README.md",
+      "commit": "PENDING_PHASE2",
+      "reason": "reviewer-entry text edited after freeze; re-pinned per integrity rule (frozenAtUtc preserved)"
+    },
+    {
+      "file": "release/v4.2.2-remediation/H1-H8.md",
+      "commit": "PENDING_PHASE2",
+      "reason": "packet 1.2.1 commit-anchored command update; re-pinned per integrity rule"
+    }
+  ]
 }
