@@ -1,0 +1,14 @@
+ok - ST1-clean-no-dynamic
+ok - ST2-clean-allowlist-parsed
+ok - ST3-clean-exec-inventory
+ok - ST4-clean-invokeCast-verbs-none
+ok - ST5-send-verb-detected
+ok - ST6-unlisted-rpc-detected
+ok - ST7-empty-allowlist-detected
+ok - ST8-send-in-allowlist-detected
+ok - ST9-dynamic-invocation-detected
+ok - ST10-net-type-detected
+ok - ST11-double-startprocess-detected
+ok - ST12-forbidden-git-verb-detected
+ok - ST13-invoke-expression-detected
+ok - ST14-duplicate-check-id-guard

@@ -1,0 +1,32 @@
+{
+    "release":  "coreguard-assurance-4.2.1",
+    "schemaVersion":  "cg41-report/2",
+    "generatedUtc":  "2026-09-18T05:54:47.6122216Z",
+    "toolVersion":  "2.0.0",
+    "supersedesVersion":  "1.0.0",
+    "ruleVersion":  "cg41-policy-v1",
+    "nonCircular":  true,
+    "freezeNote":  "4.2.1 = 2.0.0 logic frozen + release re-issued after last engine edit; all evidence regenerated after freeze per owner directive",
+    "files":  [
+                  {
+                      "file":  "verification-report.json",
+                      "sha256":  "0x43db182f6296b0918e717ef3b31280f1f00d4b7dcf77a78a145e223f2b5a681d",
+                      "bytes":  54647
+                  },
+                  {
+                      "file":  "verification-report.html",
+                      "sha256":  "0x4164b3668722ab0166120a8f7d93eba862f130fd0297fb2f4132b87cf7dac190",
+                      "bytes":  73331
+                  },
+                  {
+                      "file":  "selftest.tap",
+                      "sha256":  "0x8b6e273c3699b66b15d96cbb5ee4690068304ed5ccecceb47f8de060fa6d4df1",
+                      "bytes":  668
+                  },
+                  {
+                      "file":  "negative-tests.json",
+                      "sha256":  "0xd0322015e98ecc437e383049d5145b9f6fbd1c7f90bfba93fea34539a5558b75",
+                      "bytes":  4344
+                  }
+              ]
+}

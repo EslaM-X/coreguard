@@ -1,0 +1,71 @@
+{
+    "results":  [
+                    {
+                        "scenario":  "NEG-tampered-kit",
+                        "rule":  "INV-003",
+                        "status":  "FAIL",
+                        "failClosedObserved":  true
+                    },
+                    {
+                        "scenario":  "NEG-send-verb",
+                        "rule":  "RPC-001",
+                        "status":  "FAIL",
+                        "failClosedObserved":  true
+                    },
+                    {
+                        "scenario":  "NEG-unlisted-rpc",
+                        "rule":  "RPC-005",
+                        "status":  "FAIL",
+                        "failClosedObserved":  true
+                    },
+                    {
+                        "scenario":  "NEG-empty-allowlist",
+                        "rule":  "RPC-004",
+                        "status":  "FAIL",
+                        "failClosedObserved":  true
+                    },
+                    {
+                        "scenario":  "NEG-dynamic-invocation",
+                        "rule":  "AST-001",
+                        "status":  "FAIL",
+                        "failClosedObserved":  true
+                    },
+                    {
+                        "scenario":  "NEG-forbidden-git",
+                        "rule":  "AST-006",
+                        "status":  "FAIL",
+                        "failClosedObserved":  true
+                    },
+                    {
+                        "scenario":  "NEG-missing-cast",
+                        "rule":  "ENV-001",
+                        "status":  "BLOCKED",
+                        "failClosedObserved":  true
+                    },
+                    {
+                        "scenario":  "NEG-wrong-cast-hash",
+                        "rule":  "ENV-002",
+                        "status":  "FAIL",
+                        "failClosedObserved":  true
+                    },
+                    {
+                        "scenario":  "NEG-wrong-manifest-hash",
+                        "rule":  "MAN-001",
+                        "status":  "NOT_APPLICABLE",
+                        "failClosedObserved":  true
+                    },
+                    {
+                        "scenario":  "NEG-missing-policy-lock",
+                        "rule":  "POL-001",
+                        "status":  "BLOCKED",
+                        "failClosedObserved":  true
+                    },
+                    {
+                        "scenario":  "NEG-duplicate-id",
+                        "rule":  "META-001",
+                        "status":  "FAIL",
+                        "failClosedObserved":  true
+                    }
+                ],
+    "allFailClosed":  true
+}

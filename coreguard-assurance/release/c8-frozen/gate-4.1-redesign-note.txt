@@ -1,0 +1,117 @@
+CORE GUARD GATE 4.1 - REDESIGN NOTE (response to NO-GO review)
+============================================================================
+Date (UTC): 2026-09-18
+Verdict received: NO-GO. Status remains: C7 = PARTIAL, C8 = PENDING,
+C9 = PENDING, CONDITIONAL NO-GO, MAINNET BROADCAST = NOT AUTHORIZED.
+
+1. ACTIONS TAKEN IN RESPONSE (PHASE 1 - STOP)
+----------------------------------------------------------------------------
+- gate-4.1-owner-execute.ps1 was WITHDRAWN and is not runnable. It was moved
+  to:
+    rejected\gate-4.1-owner-execute.REJECTED.ps1.txt
+  Original sha256 = 0xd3f00b653d01bad84e13caaa8d4654f02eb481ea3b6415fd501e7f9cfb987073
+- No keystore was imported. No password file was created. .env was NOT changed.
+- No key, signature, or credential was sent anywhere.
+- No broadcast of any kind was performed.
+
+2. WHY THE WRAPPER WAS REJECTED (review findings A-D)
+----------------------------------------------------------------------------
+A. It computed the cast SHA itself and then passed it as the approved value
+   (no independent source). NOT permitted.
+B. It wrote a persistent PLAINTEXT password file. NOT permitted pending a
+   security review.
+C. It fused key import, password creation, account derivation, and a signing
+   test into one step. Separation of duties violated.
+D. Its "fail-closed" claim rested on prose, not proof. The rejection required
+   a full static review of all subprocess/network call sites.
+
+3. STATIC REVIEW OF THE CLOSURE KIT (review finding D) - PERFORMED
+----------------------------------------------------------------------------
+Subject: cg41-c9-c7-closure-kit.ps1 (v3)
+  sha256 = 0x05e1ba756586740288863164b8e66a944f4b76008eda7e45b80940d2f5cd8ad3
+  bytes  = 37152 (ASCII-pure)
+
+Subprocess call sites: exactly ONE.
+  L210  Start-Process -FilePath $script:CastPath ... (inside function
+        InvokeCast). Guarded by: (L205) $script:CastOk must be true;
+        (L206) argList[0] -eq "send" throws; (L207) --private-key throws.
+
+InvokeCast call sites (verbs): wallet, call, wallet, calldata.
+  None is "send"/"publish"/"mktx". There is no InvokeCast @("send").
+
+Network call sites: exactly ONE.
+  L223  Invoke-RestMethod -Uri $Rpc ... (inside function RpcP). Guarded by:
+        (L220) $script:RpcOk (host in -AllowedRpcHosts); (L221) method must be
+        a member of $ALLOWED_RPC.
+  $ALLOWED_RPC (L93) = eth_chainId, eth_getCode, eth_getTransactionCount,
+        eth_getBalance, eth_call, eth_estimateGas, eth_gasPrice,
+        eth_blockNumber, eth_getTransactionReceipt, eth_getTransactionByHash,
+        eth_getLogs. It contains NO send method.
+  RpcP call sites (methods): eth_getTransactionCount, eth_chainId,
+        eth_getCode, eth_call, eth_estimateGas.
+
+No Invoke-Expression. No iex. No New-Object *Process. No Start-Job. No
+Start-ThreadJob. No other network client (HttpClient/WebRequest/Sockets).
+
+Conclusion: within the closure kit, `cast send`, `eth_sendRawTransaction`, and
+`--private-key` have no reachable executable path. They appear only in guard
+strings and documentation.
+
+Frozen manifest re-verified independently from the actual files:
+  reviews/gate-4.1-final-hashes.txt (8 entries): 8 MATCH, 0 MISMATCH.
+  manifest self-hash = 0xe709f6125cdba8d515325c23bd6e8943aa9824c2fc0cace10abe1fcab67e8baf
+
+4. REPLACEMENT TOOL: gate-4.1-verify.ps1 (VERIFICATION ONLY)
+----------------------------------------------------------------------------
+  sha256 = 0x5bbddea2ee2e65d4c4aaaa1612b0ae4e32c812d203fa44e78988fe879b69004a
+  bytes  = 10884 (ASCII-pure, 0 syntax errors)
+
+By design it: never imports a keystore, never reads/creates a password file,
+never handles a private key or signature, makes NO network call, and starts NO
+subprocess. Required inputs:
+  -CastPath              (MANDATORY)
+  -ExpectedCastSha256    (MANDATORY; supplied by the reviewer from an
+                          independent trusted record; NEVER derived by the tool)
+  -ExpectedKitSha256     (defaults to the pinned kit hash)
+  -Manifest / -ExpectedManifestSha256  (optional frozen-file re-verification)
+
+Checks emitted (V1..V20): kit identity; cast existence; cast within trust
+roots; cast SHA equals the pre-approved value; exactly one subprocess site;
+exactly one network site; no dynamic eval; no process objects; no jobs; no
+send-verb call site; send guard present; private-key guard present; every RPC
+method whitelisted; RPC allow-list has no send; the verifier itself contains no
+exec/network tokens; manifest identity and 8/8 content.
+
+Stage classification in the report separates: read-only identity/static
+(PERFORMED) vs local signing test (NOT PERFORMED) vs signed simulation (NOT
+PERFORMED) vs broadcast (DISALLOWED).
+
+5. TEST EVIDENCE FOR THE VERIFIER
+----------------------------------------------------------------------------
+Canonical run (offline):
+  19 PASS / 1 FAIL. The single FAIL is V5-cast-within-trust-root, which is the
+  CORRECT fail-closed outcome on this host (see item 6). No network, no
+  subprocess, no secrets involved. Report: gate-4.1-verify-report.json.
+
+Negative tests (must fail, and do):
+  - Wrong -ExpectedCastSha256 -> V6 FAIL, exit 1.
+  - Wrong -ExpectedKitSha256  -> V2 FAIL, exit 1.
+
+Kit identity (fresh): sha/size match the pin; 19/19 self-test PASS; exit 0.
+
+6. OPEN ITEMS / NOT APPROVED (must close before any signed step)
+----------------------------------------------------------------------------
+- B (secrets): a persistent plaintext password file is NOT approved. An
+  approved secrets mechanism or interactive-only entry must be selected after
+  a dedicated security review.
+- Cast trust root: on this host cast.exe is at C:\Users\DeLL-L\foundry\cast.exe
+  which is OUTSIDE every trust root (~\.foundry, Program Files). Cast pinning
+  fails here. Install cast under a trust root before any signed step.
+- C8: an independent reviewer (different from the author of these changes) must
+  re-derive hashes from disk and sign the H1..H8 checklist.
+
+7. STATE
+----------------------------------------------------------------------------
+C7 = PARTIAL | C8 = PENDING | C9 = PENDING
+CONDITIONAL NO-GO | MAINNET BROADCAST = NOT AUTHORIZED
+No GO is claimed. commitIntent / anchorProof remain out of scope.

@@ -1,0 +1,802 @@
+{
+    "tool":  "cg-assurance-verify.ps1",
+    "toolVersion":  "2.1.0",
+    "schemaVersion":  "cg41-report/2",
+    "supersedesVersion":  "2.0.0",
+    "ruleVersion":  "cg41-policy-v1",
+    "policyVersion":  "1.0.0",
+    "policyId":  "coreguard-policy",
+    "gate":  "4.1",
+    "dateUtc":  "2026-09-18T07:32:02.9220734Z",
+    "status":  "VERIFIED-READONLY-ONLY",
+    "decision":  "CONDITIONAL NO-GO",
+    "claim":  "Under the current rule set (AST enumeration of command invocations, .NET type references, dynamic-invocation forms, control-flow ownership, and the RPC allow-list), NO execution or network path was found beyond the enumerated sites. This is NOT a proof of absence of such a path.",
+    "stages":  {
+                   "readOnlyIdentityAndStatic":  "PERFORMED",
+                   "localSigningTest":  "NOT-PERFORMED",
+                   "signedSimulation":  "NOT-PERFORMED",
+                   "broadcast":  "NOT-AUTHORIZED"
+               },
+    "summary":  {
+                    "pass":  33,
+                    "fail":  0,
+                    "blocked":  0,
+                    "inconclusive":  0,
+                    "notApplicable":  0,
+                    "total":  33,
+                    "failClosedFailures":  0
+                },
+    "inputs":  {
+                   "kitPath":  "D:\\KOSSASHI\\CORE DAO\\reviews-extra\\cg41-c9-c7-closure-kit.ps1",
+                   "kitSha256":  "0x05e1ba756586740288863164b8e66a944f4b76008eda7e45b80940d2f5cd8ad3",
+                   "kitBytes":  37152,
+                   "castPath":  "C:\\Users\\DeLL-L\\.foundry\\cast.exe",
+                   "expectedCastSha256":  "0xeba3df695d1c96cb54175183f89d62bafac7f728365987a1947743c6f3e91b36",
+                   "manifest":  "D:\\KOSSASHI\\CORE DAO\\coreguard-assurance-v4.2.2-remediation\\release\\v4.2.2-remediation\\approved-evidence-manifest-v4.2.2.txt"
+               },
+    "inputHashes":  [
+                        {
+                            "file":  "D:\\KOSSASHI\\CORE DAO\\reviews-extra\\cg41-c9-c7-closure-kit.ps1",
+                            "sha256":  "0x05e1ba756586740288863164b8e66a944f4b76008eda7e45b80940d2f5cd8ad3",
+                            "bytes":  37152,
+                            "role":  "kit"
+                        },
+                        {
+                            "file":  "C:\\Users\\DeLL-L\\.foundry\\cast.exe",
+                            "sha256":  "0xeba3df695d1c96cb54175183f89d62bafac7f728365987a1947743c6f3e91b36",
+                            "bytes":  58801152,
+                            "role":  "cast"
+                        },
+                        {
+                            "file":  "D:\\KOSSASHI\\CORE DAO\\coreguard-assurance-v4.2.2-remediation\\release\\v4.2.2-remediation\\approved-evidence-manifest-v4.2.2.txt",
+                            "sha256":  "0x73649ed34461637ea99eb6eb7ed985bd414916a7e64a760a3e360a69841be0dc",
+                            "bytes":  1033,
+                            "role":  "manifest"
+                        },
+                        {
+                            "file":  "D:\\KOSSASHI\\CORE DAO\\coreguard-assurance-v4.2.2-remediation\\policy\\coreguard-policy-v1.json",
+                            "sha256":  "0x30cea8ff5fd1fc124fd388ece062ffcbd19c03883f470ab51a27974557908b3a",
+                            "bytes":  5733,
+                            "role":  "policy-core"
+                        },
+                        {
+                            "file":  "D:\\KOSSASHI\\CORE DAO\\coreguard-assurance-v4.2.2-remediation\\policy\\allowed-rpc-methods.json",
+                            "sha256":  "0x2c01fc47a0154b7e0f2212332baef41747ae25678cade15d4431531034fddefa",
+                            "bytes":  696,
+                            "role":  "policy-rpc"
+                        },
+                        {
+                            "file":  "D:\\KOSSASHI\\CORE DAO\\coreguard-assurance-v4.2.2-remediation\\policy\\trusted-tool-roots.json",
+                            "sha256":  "0xb968dc1ef1481fb55c30e029f4a899c6aa1eeace4f1646e01990510cb1b59ed3",
+                            "bytes":  680,
+                            "role":  "policy-roots"
+                        },
+                        {
+                            "file":  "D:\\KOSSASHI\\CORE DAO\\coreguard-assurance-v4.2.2-remediation\\policy\\forbidden-execution-patterns.json",
+                            "sha256":  "0x9db6aebc931c7d644c9eebab493f9b576d88f01673af311a2a6eb7d96d8207f4",
+                            "bytes":  1478,
+                            "role":  "policy-patterns"
+                        },
+                        {
+                            "file":  "D:\\KOSSASHI\\CORE DAO\\coreguard-assurance-v4.2.2-remediation\\policy\\policy-lock.json",
+                            "sha256":  "0xb27f325d09fac95442901c076ff3ced91c65ea369efa1c7e14ec048cd752218d",
+                            "bytes":  1158,
+                            "role":  "policy-lock"
+                        },
+                        {
+                            "file":  "D:\\KOSSASHI\\CORE DAO\\coreguard-assurance-v4.2.2-remediation\\verification\\cg-assurance-verify.ps1",
+                            "sha256":  "0xcdcc28a5467abf3d9c06b020015cfc3f3f336828e05530d9bdaaccdf45e38ef4",
+                            "bytes":  67891,
+                            "role":  "engine-self"
+                        }
+                    ],
+    "findings":  [
+                     {
+                         "id":  "INV-001",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Target kit exists",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "path":  "D:\\KOSSASHI\\CORE DAO\\reviews-extra\\cg41-c9-c7-closure-kit.ps1"
+                                      }
+                     },
+                     {
+                         "id":  "INV-002",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Target kit parses with zero syntax errors",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "parseErrors":  0
+                                      }
+                     },
+                     {
+                         "id":  "INV-003",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Target kit SHA-256 matches pre-approved value",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "actual":  "0x05e1ba756586740288863164b8e66a944f4b76008eda7e45b80940d2f5cd8ad3",
+                                          "expected":  "0x05e1ba756586740288863164b8e66a944f4b76008eda7e45b80940d2f5cd8ad3"
+                                      }
+                     },
+                     {
+                         "id":  "INV-004",
+                         "status":  "PASS",
+                         "severity":  "MAJOR",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Target kit byte length matches pre-approved value",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "actual":  37152,
+                                          "expected":  37152
+                                      }
+                     },
+                     {
+                         "id":  "ENV-001",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "cast binary exists",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "path":  "C:\\Users\\DeLL-L\\.foundry\\cast.exe",
+                                          "reason":  "present"
+                                      }
+                     },
+                     {
+                         "id":  "ENV-002",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "cast binary SHA-256 matches pre-approved value",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "actual":  "0xeba3df695d1c96cb54175183f89d62bafac7f728365987a1947743c6f3e91b36",
+                                          "expected":  "0xeba3df695d1c96cb54175183f89d62bafac7f728365987a1947743c6f3e91b36"
+                                      }
+                     },
+                     {
+                         "id":  "ENV-003",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "cast binary resides within a trusted tool root",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "path":  "C:\\Users\\DeLL-L\\.foundry\\cast.exe",
+                                          "trustRoots":  [
+                                                             "C:\\Users\\DeLL-L\\.foundry",
+                                                             "C:\\Program Files",
+                                                             "C:\\Program Files (x86)"
+                                                         ],
+                                          "reason":  "within-trust-root"
+                                      }
+                     },
+                     {
+                         "id":  "AST-001",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "No dynamic invocation sites in target kit",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "sites":  [
+
+                                                    ]
+                                      }
+                     },
+                     {
+                         "id":  "AST-002",
+                         "status":  "PASS",
+                         "severity":  "MAJOR",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Execution-command inventory matches policy expectation",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "actual":  6,
+                                          "expected":  6
+                                      }
+                     },
+                     {
+                         "id":  "AST-003",
+                         "status":  "PASS",
+                         "severity":  "MAJOR",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Start-Process count matches policy expectation",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "actual":  1,
+                                          "expected":  1
+                                      }
+                     },
+                     {
+                         "id":  "AST-004",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Every Start-Process site is owned by InvokeCast",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "owners":  [
+                                                         "InvokeCast"
+                                                     ]
+                                      }
+                     },
+                     {
+                         "id":  "AST-005",
+                         "status":  "PASS",
+                         "severity":  "MINOR",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "git invocation count matches policy expectation",
+                         "failClosed":  false,
+                         "evidence":  {
+                                          "actual":  5,
+                                          "expected":  5
+                                      }
+                     },
+                     {
+                         "id":  "AST-006",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "No forbidden git subcommand verb in any git site",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "sites":  [
+                                                        "L452:status",
+                                                        "L454:diff",
+                                                        "L455:diff",
+                                                        "L457:ls-files",
+                                                        "L462:log"
+                                                    ],
+                                          "offending":  [
+
+                                                        ]
+                                      }
+                     },
+                     {
+                         "id":  "AST-007",
+                         "status":  "PASS",
+                         "severity":  "MAJOR",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Network-command inventory matches policy expectation",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "actual":  1,
+                                          "expected":  1
+                                      }
+                     },
+                     {
+                         "id":  "AST-008",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Every network-command site is owned by RpcP",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "owners":  [
+                                                         "RpcP"
+                                                     ]
+                                      }
+                     },
+                     {
+                         "id":  "AST-009",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "No .NET Process type reference",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "refs":  [
+
+                                                   ]
+                                      }
+                     },
+                     {
+                         "id":  "AST-010",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "No .NET network type reference",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "refs":  [
+
+                                                   ]
+                                      }
+                     },
+                     {
+                         "id":  "RPC-001",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "No state-changing cast verb passed to InvokeCast",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "verbs":  [
+                                                        "wallet",
+                                                        "call",
+                                                        "wallet",
+                                                        "calldata"
+                                                    ],
+                                          "stateChanging":  [
+
+                                                            ]
+                                      }
+                     },
+                     {
+                         "id":  "RPC-002",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "cast \u0027send\u0027 guard is present",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "pattern":  "argList[0] -eq \"send\""
+                                      }
+                     },
+                     {
+                         "id":  "RPC-003",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "--private-key guard is present",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "pattern":  "--private-key + forbidden"
+                                      }
+                     },
+                     {
+                         "id":  "RPC-004",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "RPC allow-list present and structurally parsed",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "found":  true,
+                                          "count":  11
+                                      }
+                     },
+                     {
+                         "id":  "RPC-005",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Every invoked RPC method is present in the allow-list",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "methods":  [
+                                                          "eth_getTransactionCount",
+                                                          "eth_chainId",
+                                                          "eth_getCode",
+                                                          "eth_call",
+                                                          "eth_estimateGas"
+                                                      ],
+                                          "notListed":  [
+
+                                                        ]
+                                      }
+                     },
+                     {
+                         "id":  "RPC-006",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "RPC allow-list contains no state-changing method",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "allowList":  [
+                                                            "eth_chainId",
+                                                            "eth_getCode",
+                                                            "eth_getTransactionCount",
+                                                            "eth_getBalance",
+                                                            "eth_call",
+                                                            "eth_estimateGas",
+                                                            "eth_gasPrice",
+                                                            "eth_blockNumber",
+                                                            "eth_getTransactionReceipt",
+                                                            "eth_getTransactionByHash",
+                                                            "eth_getLogs"
+                                                        ],
+                                          "offending":  [
+
+                                                        ]
+                                      }
+                     },
+                     {
+                         "id":  "SELF-001",
+                         "status":  "PASS",
+                         "severity":  "MAJOR",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Assurance engine parses with zero syntax errors",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "parseErrors":  0
+                                      }
+                     },
+                     {
+                         "id":  "SELF-002",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Assurance engine contains no exec/network/dynamic site",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "exec":  0,
+                                          "net":  0,
+                                          "dyn":  0
+                                      }
+                     },
+                     {
+                         "id":  "POL-001",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Policy files load and match the policy lock hashes",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "lock":  "D:\\KOSSASHI\\CORE DAO\\coreguard-assurance-v4.2.2-remediation\\policy\\policy-lock.json",
+                                          "files":  [
+                                                        {
+                                                            "file":  "allowed-rpc-methods.json",
+                                                            "status":  "MATCH"
+                                                        },
+                                                        {
+                                                            "file":  "coreguard-policy-v1.json",
+                                                            "status":  "MATCH"
+                                                        },
+                                                        {
+                                                            "file":  "forbidden-execution-patterns.json",
+                                                            "status":  "MATCH"
+                                                        },
+                                                        {
+                                                            "file":  "trusted-tool-roots.json",
+                                                            "status":  "MATCH"
+                                                        }
+                                                    ]
+                                      }
+                     },
+                     {
+                         "id":  "MAN-001",
+                         "status":  "PASS",
+                         "severity":  "MAJOR",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Frozen manifest SHA-256 matches pre-approved value",
+                         "failClosed":  false,
+                         "evidence":  {
+                                          "actual":  "0x73649ed34461637ea99eb6eb7ed985bd414916a7e64a760a3e360a69841be0dc",
+                                          "expected":  "0x73649ed34461637ea99eb6eb7ed985bd414916a7e64a760a3e360a69841be0dc"
+                                      }
+                     },
+                     {
+                         "id":  "MAN-002",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Every frozen manifest entry matches on-disk SHA-256",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "match":  8,
+                                          "mismatch":  0,
+                                          "entries":  [
+                                                          {
+                                                              "file":  "scripts/mainnet/gate-4.1-broadcast.ps1",
+                                                              "status":  "MATCH",
+                                                              "resolvedFrom":  "legacy-quarantine/2026-09-18-v4.2.2/broadcast-and-tests/gate-4.1-broadcast.ps1"
+                                                          },
+                                                          {
+                                                              "file":  "scripts/mainnet/gate-4.1-recovery-lib.ps1",
+                                                              "status":  "MATCH",
+                                                              "resolvedFrom":  "scripts/mainnet/gate-4.1-recovery-lib.ps1"
+                                                          },
+                                                          {
+                                                              "file":  "scripts/mainnet/tests/gate-4.1-recovery-harness.ps1",
+                                                              "status":  "MATCH",
+                                                              "resolvedFrom":  "legacy-quarantine/2026-09-18-v4.2.2/broadcast-and-tests/gate-4.1-recovery-harness.ps1"
+                                                          },
+                                                          {
+                                                              "file":  "contracts/EvidenceRegistryV2.sol",
+                                                              "status":  "MATCH",
+                                                              "resolvedFrom":  "contracts/EvidenceRegistryV2.sol"
+                                                          },
+                                                          {
+                                                              "file":  "evidence/gate-4.0-identity-preflight.json",
+                                                              "status":  "MATCH",
+                                                              "resolvedFrom":  "evidence/gate-4.0-identity-preflight.json"
+                                                          },
+                                                          {
+                                                              "file":  "evidence/gate-4.1-identity-preflight.json",
+                                                              "status":  "MATCH",
+                                                              "resolvedFrom":  "evidence/gate-4.1-identity-preflight.json"
+                                                          },
+                                                          {
+                                                              "file":  "reviews/gate-4.1-harness-results.txt",
+                                                              "status":  "MATCH",
+                                                              "resolvedFrom":  "reviews/gate-4.1-harness-results.txt"
+                                                          },
+                                                          {
+                                                              "file":  "reviews/gate-4.1-broadcast-review.md",
+                                                              "status":  "MATCH",
+                                                              "resolvedFrom":  "reviews/gate-4.1-broadcast-review.md"
+                                                          }
+                                                      ]
+                                      }
+                     },
+                     {
+                         "id":  "LEG-001",
+                         "status":  "PASS",
+                         "severity":  "MAJOR",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "No unmitigated legacy private-key/send invocation in scanned roots",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "roots":  [
+                                                        "D:\\KOSSASHI\\CORE DAO\\coreguard\\scripts",
+                                                        "D:\\KOSSASHI\\CORE DAO\\scripts"
+                                                    ],
+                                          "hits":  [
+
+                                                   ]
+                                      }
+                     },
+                     {
+                         "id":  "SEC-001",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "No secret material present in scanned review package",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "roots":  [
+                                                        "D:\\KOSSASHI\\CORE DAO\\coreguard-assurance-v4.2.2-remediation"
+                                                    ],
+                                          "hits":  [
+
+                                                   ]
+                                      }
+                     },
+                     {
+                         "id":  "CLAIM-001",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Report claim remains bounded (no strength claims beyond the rule set)",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "claimSha256":  "0x0b91bc36ddf2fc561f030b14ce6c98f3e486fbda2e89999580961bf327c8d6a5"
+                                      }
+                     },
+                     {
+                         "id":  "EXT-001",
+                         "status":  "PASS",
+                         "severity":  "MAJOR",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Documented drift map confirmed against disk (frozen record history preserved, deviations documented)",
+                         "failClosed":  false,
+                         "evidence":  {
+                                          "map":  "D:\\KOSSASHI\\CORE DAO\\coreguard-assurance-v4.2.2-remediation\\verification-drift-map.json",
+                                          "entries":  [
+                                                          {
+                                                              "file":  "../reviews-extra/gate-4.1-verify.ps1",
+                                                              "status":  "CONFIRMED",
+                                                              "sha256":  "0xb9ada001c4325e3de8565d410bcec813251132174c0a85caa23e712816ab1b8d"
+                                                          },
+                                                          {
+                                                              "file":  "../reviews-extra/gate-4.1-verify-report.json",
+                                                              "status":  "CONFIRMED",
+                                                              "sha256":  "0xc2fd1883bb359227f923ec30387bc989b9ddd12a2add2c18b32ea13eacde61bb"
+                                                          },
+                                                          {
+                                                              "file":  "../reviews-extra/gate-4.1-verify-selftest.tap",
+                                                              "status":  "CONFIRMED",
+                                                              "sha256":  "0x8785173b3083a5b3db5dbf7f155496e4421583e9ca99f798beb1902eab76ab4c"
+                                                          },
+                                                          {
+                                                              "file":  "../reviews-extra/gate-4.1-verify-results.txt",
+                                                              "status":  "CONFIRMED",
+                                                              "sha256":  "0x168bae9d78658a330b45da97837ef007065e31e462309a069c9584b775ad9dcb"
+                                                          },
+                                                          {
+                                                              "file":  "../reviews-extra/gate-4.1-redesign-note.txt",
+                                                              "status":  "CONFIRMED",
+                                                              "sha256":  "0xdff6151ea1b5460602d72ddd2475183909688b56c79b7c2d91c561382c4c4d57"
+                                                          },
+                                                          {
+                                                              "file":  "../coreguard/reviews/gate-4.1-final-hashes.txt",
+                                                              "status":  "CONFIRMED",
+                                                              "sha256":  "0xe709f6125cdba8d515325c23bd6e8943aa9824c2fc0cace10abe1fcab67e8baf"
+                                                          },
+                                                          {
+                                                              "file":  "../coreguard/reviews/gate-4.1-broadcast-review.md",
+                                                              "status":  "CONFIRMED",
+                                                              "sha256":  "0x519e2ebe776f5ac5cb63b5382faf5ce82738ea30fa90a98cf815ef87edb8f72e"
+                                                          }
+                                                      ]
+                                      }
+                     },
+                     {
+                         "id":  "POL-002",
+                         "status":  "PASS",
+                         "severity":  "BLOCKER",
+                         "ruleVersion":  "cg41-policy-v1",
+                         "description":  "Emitted findings exactly cover the policy rule catalog",
+                         "failClosed":  true,
+                         "evidence":  {
+                                          "missing":  [
+
+                                                      ],
+                                          "extra":  [
+
+                                                    ],
+                                          "catalogCount":  33
+                                      }
+                     }
+                 ],
+    "analysis":  {
+                     "commandInventory":  [
+                                              {
+                                                  "line":  210,
+                                                  "command":  "Start-Process",
+                                                  "owner":  "InvokeCast",
+                                                  "text":  "Start-Process -FilePath $script:CastPath -ArgumentList $argList -WorkingDirectory $Repo -NoNewWindow -Wait -PassThru `\n        -RedirectStandardOutput $so -RedirectStandardError $se"
+                                              },
+                                              {
+                                                  "line":  452,
+                                                  "command":  "git",
+                                                  "owner":  "\u003cscript\u003e",
+                                                  "text":  "git -C $Repo status --porcelain 2\u003e$null"
+                                              },
+                                              {
+                                                  "line":  454,
+                                                  "command":  "git",
+                                                  "owner":  "\u003cscript\u003e",
+                                                  "text":  "git -C $Repo diff --quiet 2\u003e$null"
+                                              },
+                                              {
+                                                  "line":  455,
+                                                  "command":  "git",
+                                                  "owner":  "\u003cscript\u003e",
+                                                  "text":  "git -C $Repo diff --cached --quiet 2\u003e$null"
+                                              },
+                                              {
+                                                  "line":  457,
+                                                  "command":  "git",
+                                                  "owner":  "\u003cscript\u003e",
+                                                  "text":  "git -C $Repo ls-files 2\u003e$null"
+                                              },
+                                              {
+                                                  "line":  462,
+                                                  "command":  "git",
+                                                  "owner":  "\u003cscript\u003e",
+                                                  "text":  "git -C $Repo log --all --oneline --diff-filter=A -- \u0027*.pass\u0027 \u0027UTC--*\u0027 \u0027*keystore*\u0027 2\u003e$null"
+                                              }
+                                          ],
+                     "networkInventory":  [
+                                              {
+                                                  "line":  223,
+                                                  "command":  "Invoke-RestMethod",
+                                                  "owner":  "RpcP",
+                                                  "text":  "Invoke-RestMethod -Uri $Rpc -Method Post -ContentType \"application/json\" -Body $body -TimeoutSec 30"
+                                              }
+                                          ],
+                     "dynamicSites":  [
+
+                                      ],
+                     "processTypeRefs":  [
+
+                                         ],
+                     "networkTypeRefs":  [
+
+                                         ],
+                     "gitSites":  [
+                                      {
+                                          "line":  452,
+                                          "tokens":  [
+                                                         "git",
+                                                         "status",
+                                                         "--porcelain"
+                                                     ],
+                                          "verb":  "status"
+                                      },
+                                      {
+                                          "line":  454,
+                                          "tokens":  [
+                                                         "git",
+                                                         "diff",
+                                                         "--quiet"
+                                                     ],
+                                          "verb":  "diff"
+                                      },
+                                      {
+                                          "line":  455,
+                                          "tokens":  [
+                                                         "git",
+                                                         "diff",
+                                                         "--cached",
+                                                         "--quiet"
+                                                     ],
+                                          "verb":  "diff"
+                                      },
+                                      {
+                                          "line":  457,
+                                          "tokens":  [
+                                                         "git",
+                                                         "ls-files"
+                                                     ],
+                                          "verb":  "ls-files"
+                                      },
+                                      {
+                                          "line":  462,
+                                          "tokens":  [
+                                                         "git",
+                                                         "log",
+                                                         "--all",
+                                                         "--oneline",
+                                                         "--diff-filter=A",
+                                                         "*.pass",
+                                                         "UTC--*",
+                                                         "*keystore*"
+                                                     ],
+                                          "verb":  "log"
+                                      }
+                                  ],
+                     "invokeCastVerbs":  [
+                                             "wallet",
+                                             "call",
+                                             "wallet",
+                                             "calldata"
+                                         ],
+                     "rpcMethods":  [
+                                        "eth_getTransactionCount",
+                                        "eth_chainId",
+                                        "eth_getCode",
+                                        "eth_call",
+                                        "eth_estimateGas"
+                                    ],
+                     "rpcAllowList":  [
+                                          "eth_chainId",
+                                          "eth_getCode",
+                                          "eth_getTransactionCount",
+                                          "eth_getBalance",
+                                          "eth_call",
+                                          "eth_estimateGas",
+                                          "eth_gasPrice",
+                                          "eth_blockNumber",
+                                          "eth_getTransactionReceipt",
+                                          "eth_getTransactionByHash",
+                                          "eth_getLogs"
+                                      ],
+                     "functions":  [
+                                       "Get-Sha256Hex",
+                                       "Check",
+                                       "Test-Account",
+                                       "Test-CastHash",
+                                       "Test-ValidityWindow",
+                                       "CanonicalPath",
+                                       "Test-TrustedRoot",
+                                       "Get-TrustRoots",
+                                       "Test-FileAcl",
+                                       "Test-SummaryClean",
+                                       "InvokeCast",
+                                       "RpcP",
+                                       "EnvVal",
+                                       "Build-Evidence",
+                                       "Save-Evidence",
+                                       "Get-PropValue"
+                                   ]
+                 },
+    "failClosedFailed":  false,
+    "authorization":  {
+                          "signing":  "NOT AUTHORIZED",
+                          "commitIntent":  "NOT AUTHORIZED",
+                          "anchorProof":  "NOT AUTHORIZED",
+                          "mainnetBroadcast":  "NOT AUTHORIZED"
+                      }
+}

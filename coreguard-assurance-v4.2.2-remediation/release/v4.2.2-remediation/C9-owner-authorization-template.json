@@ -1,0 +1,32 @@
+{
+  "docId": "cg41-c9-owner-authorization-template",
+  "releaseId": "4.2.2-remediation",
+  "gate": "4.1",
+  "status": "TEMPLATE — PENDING EXPLICIT OWNER DECISION",
+  "rule": "Filled and signed by the OWNER only. A GO is never inferred from passing tests. C9 remains PENDING until this document is completed and recorded.",
+  "prerequisites": [
+    "C7 = PASS (independent security review signed)",
+    "C8 = PASS (independent human reviewer signed H1–H8)",
+    "All hashes MATCH from disk at decision time",
+    "Any change after freeze voids the release (new cycle required)"
+  ],
+  "decisionFields": {
+    "goNoGo": "NO-GO (default until owner writes GO explicitly)",
+    "authorizationScope": "e.g., signing only / signing + broadcast / read-only rehearsal",
+    "targetNetwork": "e.g., Core Mainnet (chainId 1116) — exact value required",
+    "targetContract": "e.g., EvidenceRegistryV2 at <address> — exact value required",
+    "operationBounds": "max transactions, max value, time window, allowed functions",
+    "evidenceReviewed": "list of report hashes the owner actually reviewed",
+    "independentReviewers": "names/roles of the C7 and C8 signers",
+    "revocationConditions": "what automatically voids this authorization",
+    "validity": "explicit expiry (date/UTC) — old authorizations never renew themselves",
+    "signingOnly": "does authorization include broadcast execution, or signature generation only?",
+    "executionAuthorization": "separate approval record id — execution is a distinct, pre-reviewed, bounded phase"
+  },
+  "ownerSignatureBlock": {
+    "name": null,
+    "dateUtc": null,
+    "signature": null,
+    "note": "Signing this template with goNoGo=GO records the owner authorization. Execution still requires the separate execution authorization and a pre-reviewed runbook."
+  }
+}

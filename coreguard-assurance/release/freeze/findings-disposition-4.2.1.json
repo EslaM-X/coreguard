@@ -1,0 +1,56 @@
+{
+  "docId": "cg41-findings-disposition",
+  "releaseId": "4.2.1",
+  "engineVersion": "2.0.0",
+  "ruleVersion": "cg41-policy-v1",
+  "gate": "4.1",
+  "decision": "CONDITIONAL NO-GO — MAINNET BROADCAST NOT AUTHORIZED",
+  "authoritativeNarrative": "release/freeze/failure-classification-4.2.1.md",
+  "dispositionRule": "A FAIL is never auto-converted to PASS. Each finding is classified across five axes: (a) blocker? (b) documented exception? (c) accepted remediation path? (d) who owns acceptance? (e) extra security review required? Describing a failure as 'intentional' is NOT a disposition.",
+  "findings": [
+    {
+      "id": "ENV-003",
+      "title": "cast.exe outside configured trust roots",
+      "status": "FAIL",
+      "failClosed": true,
+      "classification": "BLOCKER — documented, no waiver",
+      "isBlocker": true,
+      "isDocumentedException": false,
+      "remediationPath": "V06-Path-2 only: install trusted cast inside an approved trust root, verify source/version/hash OUTSIDE the tool itself, rerun V06+V07, independent review of the trust path. Moving the file alone is insufficient (SPEC §8).",
+      "acceptanceOwner": "OWNER ONLY (no exception may be accepted; remediation decision is owner-gated)",
+      "securityReviewRequired": true,
+      "launchBlocking": true,
+      "c8Blocking": false
+    },
+    {
+      "id": "SELF-002",
+      "title": "Self-test progress indicator omits final summary line",
+      "status": "FAIL",
+      "failClosed": true,
+      "classification": "OPEN DEFECT — cosmetic, non-launch-blocking",
+      "isBlocker": false,
+      "isDocumentedException": false,
+      "remediationPath": "Code fix in next release (v4.2.2): emit final summary line before script exit (Write-Progress hoisting).",
+      "acceptanceOwner": "AUTHOR (display-only defect; does not gate C8 handoff — check logic and verdicts are unaffected)",
+      "securityReviewRequired": false,
+      "launchBlocking": false,
+      "c8Blocking": false
+    },
+    {
+      "id": "LEG-001",
+      "title": "Legacy scripts contain --private-key / cast send patterns",
+      "status": "FAIL",
+      "failClosed": true,
+      "classification": "BLOCKER — documented, no waiver, scope-limited",
+      "isBlocker": true,
+      "isDocumentedException": false,
+      "remediationPath": "Delete/archive legacy scripts (gate-3.x, evidence-registry-phase3.ps1, anchor-local.ps1) OR rewrite them to current policy (no --private-key, approved secret mechanism), then rerun the standard run and prove LEG-001 disappears.",
+      "acceptanceOwner": "OWNER ONLY (reviewer may not silence the check)",
+      "securityReviewRequired": true,
+      "launchBlocking": true,
+      "c8Blocking": false
+    }
+  ],
+  "goGateConditions": "Per SPEC §10 and owner directive: GO requires C7=PASS (independent), C8=PASS (independent signed review), C9=PASS (owner authorization), V06=PASS or formally accepted as FAIL-with-no-launch, all hashes recomputed from disk, manifest match, negative tests fail-closed, no unauthorized secret files, no unhandled legacy paths, and a separate explicit GO approval. Signing reviewer on H1–H8 closes C8 ONLY and never grants GO.",
+  "integrityNote": "This file is referenced by release/freeze/freeze-record-4.2.1.json (findingDisposition). It is not itself a hashed member of the freeze map; it was created after the freeze solely to close the dangling reference and alter no frozen byte."
+}

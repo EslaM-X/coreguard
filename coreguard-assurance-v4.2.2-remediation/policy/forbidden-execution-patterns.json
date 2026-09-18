@@ -1,0 +1,37 @@
+{
+  "policyId": "forbidden-execution-patterns",
+  "version": "1.0.0",
+  "effectiveDate": "2026-09-18",
+  "description": "Single source of truth for command and type classification used by the assurance engine, for both the target kit and the engine self-scan.",
+  "execCommands": [
+    "start-process", "invoke-expression", "iex", "start-job", "start-threadjob",
+    "invoke-command", "add-type", "cmd", "cmd.exe", "wmic", "schtasks",
+    "register-scheduledtask", "sc", "reg", "curl", "wget", "bitsadmin",
+    "powershell", "pwsh", "bash", "sh", "git", "node", "python", "python3",
+    "npm", "npx"
+  ],
+  "netCommands": [
+    "invoke-restmethod", "invoke-webrequest", "irm", "iwr",
+    "start-bitstransfer", "curl", "wget"
+  ],
+  "forbiddenGitVerbs": [
+    "push", "send-email", "request-pull", "fetch", "pull", "clone",
+    "ls-remote", "remote"
+  ],
+  "safeGitVerbs": ["status", "diff", "ls-files", "log"],
+  "processTypePatterns": ["^System\\.Diagnostics\\.Process"],
+  "networkTypePatterns": [
+    "^System\\.Net\\.(WebClient|Http|Sockets|WebRequest|WebResponse|Mail|Dns|NetworkInformation)"
+  ],
+  "dynamicMemberPatterns": ["frombase64string", "invokereturnasis"],
+  "dynamicConstructorTypes": ["scriptblock"],
+  "legacySignaturePatterns": [
+    "cast send",
+    "--private-key",
+    "eth_sendRawTransaction",
+    "eth_sendTransaction"
+  ],
+  "secretFilePatterns": [
+    "\\.pass$", "^UTC--", "keystore", "password", "passphrase", "privatekey", "\\.key$", "secret"
+  ]
+}

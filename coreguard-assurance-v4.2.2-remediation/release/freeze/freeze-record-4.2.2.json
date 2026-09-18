@@ -1,0 +1,287 @@
+{
+  "releaseId": "coreguard-assurance-4.2.2-remediation",
+  "engineVersion": "2.1.0",
+  "supersedesEngine": "2.0.0",
+  "supersedesRelease": "coreguard-assurance-4.2.1",
+  "schemaVersion": "cg41-report/2",
+  "ruleVersion": "cg41-policy-v1",
+  "gate": "4.1",
+  "status": "VERIFIED-READONLY-ONLY",
+  "decision": "CONDITIONAL NO-GO — MAINNET BROADCAST NOT AUTHORIZED",
+  "frozenAtUtc": "2026-09-18T07:23:41.7886982Z",
+  "freezeSeq": [
+    "(1) engine 2.1.0 finalized: SELF-002 root fix (Run-StructuralValidator in-process), ST21 added, ManifestBase parameter, M5 supersedes chain 2.0.0->2.1.0",
+    "(2) SELF-002 proven: AST self-scan exec=0 net=0 dyn=0; ST21 in 21/21 selftest",
+    "(3) ENV-003 remediated via documented V06-Path-2: cast 1.8.0 (commit 61ae26af) copied into C:UsersDeLL-L.foundry with hash+bytes verification against pre-approved 0xeba3df69; PATH uniqueness checked; Authenticode-unsigned documented as foundryup norm",
+    "(4) LEG-001 remediated: 18 legacy files physically quarantined to coreguard/legacy-quarantine/2026-09-18-v4.2.2 (15 git mv zero-diff + 3 untracked); entry points closed (npm run anchor blocked); docs updated",
+    "(5) approved-evidence-manifest-v4.2.2 created: 8/8 MATCH incl. 2 quarantined entries resolved from quarantine paths proving byte preservation",
+    "(6) full post-fix cycle: selftest 21/21; negative 17/17 fail-closed; standard run 33/33 PASS VERIFIED-READONLY-ONLY; engine self-check PASS; independent Node validator PASS (657 checks)",
+    "(7) governance docs finalized: CHANGELOG, STATUS, H1-H8 packet, C7 template, C9 template",
+    "(8) freeze timestamp captured; hashes computed from disk into THIS record; ZERO edits permitted hereafter"
+  ],
+  "sha256": [
+    {
+      "file": "verification/cg-assurance-verify.ps1",
+      "role": "engine-2.1.0",
+      "sha256": "0xcdcc28a5467abf3d9c06b020015cfc3f3f336828e05530d9bdaaccdf45e38ef4",
+      "bytes": 67891
+    },
+    {
+      "file": "CHANGELOG-v4.2.2.md",
+      "role": "changelog",
+      "sha256": "0xaa273b73896b975386910197f086bd943cb2d3c3481dadb41c0323c100d16b3d",
+      "bytes": 6223
+    },
+    {
+      "file": "STATUS-v4.2.2.md",
+      "role": "status",
+      "sha256": "0xbef3813851730c69d160f8426b612e8de0edf76b377fcd54de5a11cee5179a21",
+      "bytes": 3160
+    },
+    {
+      "file": "docs/COREGUARD-ASSURANCE-SPEC.md",
+      "role": "spec",
+      "sha256": "0x5dde70ade3bf09987e45fc4bb88b65c6ba9fc7561b97957c5306e3d98e0056e3",
+      "bytes": 16451
+    },
+    {
+      "file": "spec/cg41-finding.schema.json",
+      "role": "schema",
+      "sha256": "0x5b93792e42e253ff7e20e38704602e04c284f7932ddb12ffde1d10b7cd3529af",
+      "bytes": 1568
+    },
+    {
+      "file": "spec/cg41-report.schema.json",
+      "role": "schema",
+      "sha256": "0x07fe979aa4366621e471b2a1672f54d55a915866acd18c72bda68d0cd830acae",
+      "bytes": 3779
+    },
+    {
+      "file": "verification/validate-report.mjs",
+      "role": "independent-validator",
+      "sha256": "0x21a177617cceac763a716ec8e9820b8b01d335c66ac0dda0dfecea612f98aa79",
+      "bytes": 10967
+    },
+    {
+      "file": "verification-drift-map.json",
+      "role": "drift-map",
+      "sha256": "0x641cf7da36641d5565bacf41fd0a7e3c1994f2b31203a7cbd2d64efbf5f83350",
+      "bytes": 5048
+    },
+    {
+      "file": "policy/coreguard-policy-v1.json",
+      "role": "policy",
+      "sha256": "0x30cea8ff5fd1fc124fd388ece062ffcbd19c03883f470ab51a27974557908b3a",
+      "bytes": 5733
+    },
+    {
+      "file": "policy/allowed-rpc-methods.json",
+      "role": "policy",
+      "sha256": "0x2c01fc47a0154b7e0f2212332baef41747ae25678cade15d4431531034fddefa",
+      "bytes": 696
+    },
+    {
+      "file": "policy/trusted-tool-roots.json",
+      "role": "policy",
+      "sha256": "0xb968dc1ef1481fb55c30e029f4a899c6aa1eeace4f1646e01990510cb1b59ed3",
+      "bytes": 680
+    },
+    {
+      "file": "policy/forbidden-execution-patterns.json",
+      "role": "policy",
+      "sha256": "0x9db6aebc931c7d644c9eebab493f9b576d88f01673af311a2a6eb7d96d8207f4",
+      "bytes": 1478
+    },
+    {
+      "file": "policy/policy-lock.json",
+      "role": "policy-lock",
+      "sha256": "0xb27f325d09fac95442901c076ff3ced91c65ea369efa1c7e14ec048cd752218d",
+      "bytes": 1158
+    },
+    {
+      "file": "release/verification-report.json",
+      "role": "standard-run-report",
+      "sha256": "0xffb7b5890fbad3aa33d178368aa03f4fcb4efd568dccd87141899cfcc0b87a1c",
+      "bytes": 46812
+    },
+    {
+      "file": "release/verification-report.html",
+      "role": "dashboard",
+      "sha256": "0x118bd45fe3cf5cabb8e649b506b6794b8b1147128fda1e1f3ce915787f91caf6",
+      "bytes": 62379
+    },
+    {
+      "file": "release/selftest.tap",
+      "role": "selftest-tap",
+      "sha256": "0x1ebf06faecb928dcfe39308150adf3c478c80ee04661550b1b1c72e8f7442209",
+      "bytes": 705
+    },
+    {
+      "file": "release/negative-tests.json",
+      "role": "negative-suite",
+      "sha256": "0xd0322015e98ecc437e383049d5145b9f6fbd1c7f90bfba93fea34539a5558b75",
+      "bytes": 4344
+    },
+    {
+      "file": "release/manifest.json",
+      "role": "release-manifest",
+      "sha256": "0x7687f0a3f482c62d722d410d19ed34741400dc98ef53b9babe6128ab71658b7f",
+      "bytes": 1545
+    },
+    {
+      "file": "release/manifest.sha256",
+      "role": "release-manifest-hash",
+      "sha256": "0x4c6a6165bcbb0f41f9bc75b1027d0fba2db76ca4902b85c0500ef216d6be79e5",
+      "bytes": 66
+    },
+    {
+      "file": "release/v4.2.2-remediation/approved-evidence-manifest-v4.2.2.txt",
+      "role": "approved-evidence-manifest",
+      "sha256": "0x73649ed34461637ea99eb6eb7ed985bd414916a7e64a760a3e360a69841be0dc",
+      "bytes": 1033
+    },
+    {
+      "file": "release/v4.2.2-remediation/H1-H8.md",
+      "role": "c8-signoff-matrix",
+      "sha256": "0x0d0e88bbee30028b18653a13a304649eda29e992f897482704d494f8711954ea",
+      "bytes": 5969
+    },
+    {
+      "file": "release/v4.2.2-remediation/C7-security-review-template.json",
+      "role": "c7-template",
+      "sha256": "0xbc76ced1f4b0389fc6c385fe6b012c8ccece887d3cffebecaaeab982e76a8e99",
+      "bytes": 3022
+    },
+    {
+      "file": "release/v4.2.2-remediation/C9-owner-authorization-template.json",
+      "role": "c9-template",
+      "sha256": "0x6ff6df442fda2e1c898a30f9475f1851dd7175c6fb8d471171f9d74ab1641ae3",
+      "bytes": 1826
+    }
+  ],
+  "quarantineIntegrity": {
+    "root": "coreguard/legacy-quarantine",
+    "files": [
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/anchor/anchor-local.ps1",
+        "sha256": "0x1553a33f84b0177e452ce773baf43ae03f75854a9e6e4982d3c76817c00a0b29",
+        "bytes": 4501
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/anchor/anchor-local.sh",
+        "sha256": "0x71bdba25fefd5ec993a6d5fdd04a4fd7ad675053e68b08c222100978ec68c6c2",
+        "bytes": 3863
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/broadcast-and-tests/gate-4.1-broadcast.ps1",
+        "sha256": "0x4635e506ddd4e139fb8d622854ccfe0a8bf87bc8d838a51e162f6e09461a8ce6",
+        "bytes": 34702
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/broadcast-and-tests/gate-4.1-identity-preflight.ps1",
+        "sha256": "0x7d12f5a0bdcc10ccffd1420a8befab845595f0e7cf7ba0415ac965ecc4e8465d",
+        "bytes": 13448
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/broadcast-and-tests/gate-4.1-recovery-harness.ps1",
+        "sha256": "0x8b9b8e2b534beb759960be5e1e9fc194a0ef436d5fe9dc68ec65bf0e79f8b612",
+        "bytes": 11950
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/broadcast-and-tests/testnet2-phase1.ps1",
+        "sha256": "0xbff76067a7d756251805c775ca344e0d527a9b9cf2bead2ca4cb594a0c7c834a",
+        "bytes": 3786
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/broadcast-and-tests/testnet2-phase3.ps1",
+        "sha256": "0x8e5291f34d73f1155d77a5552d5ba063d385dee0338b8de8f444e36a2119cc8f",
+        "bytes": 6496
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/cg-gate31.ps1",
+        "sha256": "0x8ce8bfdd1188c0255daa66c408346a99b9f0b3792c61795e6f4f7d7b1e802858",
+        "bytes": 3002
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/evidence-registry-phase3.ps1",
+        "sha256": "0x266a1dc3f4db587c3e498770865fd8508a6d5f3388bbedeae5633c5662a2782d",
+        "bytes": 2194
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gate-3.1-deploy.ps1",
+        "sha256": "0x15cd2b798ea9b27a942a2c51820c587eaab0022a919b9ca7900668b932fb5b01",
+        "bytes": 7188
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gate-3.2-commitintent.ps1",
+        "sha256": "0x2784fad01543b8a51f57a3c7aaf21806c7aba5ac3f8f006b8678818d1a5eb441",
+        "bytes": 6269
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gate-3.3-anchorproof.ps1",
+        "sha256": "0xdee9d6b461c8e7123605d423a8f05d2d84667eb99d8085fb026002eb0a5b3daf",
+        "bytes": 9078
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gates-gate-3.1-deploy.ps1",
+        "sha256": "0x5cb0dec72d2ab8b92b01599c7c31b43a2ffd566167240492d3d2fee41ae3b6fe",
+        "bytes": 3196
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gates-gate-3.2-commitintent.ps1",
+        "sha256": "0x783ac0eaa104ac2372166fda3132f8a09799842abf047da985b84c09ae0e063c",
+        "bytes": 2778
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gates-gate-3.3-anchorproof.ps1",
+        "sha256": "0xde5acc967b6b096d8117db02b3be43a66a274804942d44ccf8f31a99e577505c",
+        "bytes": 2608
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gates-gate-3.4-readback.ps1",
+        "sha256": "0x7c75c17381419f604dd3a6147624686dcb0b7517aaa72b9f3062116007700a7a",
+        "bytes": 2953
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gates-gate-3.5-independent-verify.ps1",
+        "sha256": "0xd840ea8e46ea77cdac1c67c0701fd86b7884cfbc3ccb939b439aeb86d54a0590",
+        "bytes": 3038
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/2026-09-18-v4.2.2/mainnet-gates/gates-gate-3.6-freeze-evidence.ps1",
+        "sha256": "0x7a3cefb007be1cfb6e09ceea7754bf89952056d41f22e10294820778d0250c83",
+        "bytes": 2980
+      },
+      {
+        "file": "../coreguard/legacy-quarantine/README.md",
+        "sha256": "0x4748deb41db383e08b92cf3a7bc87ef7018fa2c5a60063eb9000083230f6263e",
+        "bytes": 1664
+      }
+    ],
+    "note": "byte-preservation proof: manifest entries for the 2 manifest-listed quarantined files match pre-recorded original hashes (see release/verification-report.json MAN-002 resolvedFrom evidence)"
+  },
+  "v06Remediation": {
+    "path": "C:UsersDeLL-L.foundrycast.exe",
+    "sha256": "0xeba3df695d1c96cb54175183f89d62bafac7f728365987a1947743c6f3e91b36",
+    "bytes": 58801152,
+    "version": "cast 1.8.0",
+    "commit": "61ae26af36320d4fa1020f7db53785885e29eeb5",
+    "buildTimestamp": "2026-08-26T13:16:35Z",
+    "provenance": "official foundry release channel (foundryup); Authenticode-unsigned documented as channel norm; identity anchored by pre-approved hash",
+    "pathAlternatives": "exactly one cast.exe in PATH (the trust-root copy)"
+  },
+  "testResults": {
+    "selftest": "21/21 PASS (incl. ST21-engine-no-subprocess-sites)",
+    "negativeSuite": "17/17 fail-closed",
+    "standardRun": "33/33 PASS; status VERIFIED-READONLY-ONLY; failClosedFailures=0",
+    "engineSelfCheck": "PASS (33 findings; dupIds=0; boundedClaim=True)",
+    "independentValidator": "PASS (657 checks, 0 errors)"
+  },
+  "findingDisposition": {
+    "ENV-003": "RESOLVED (PASS) — V06-2 executed, no waiver granted, check logic unchanged",
+    "SELF-002": "RESOLVED (PASS) — root cause fixed (engine spawns no subprocess), ST21 regression guard added",
+    "LEG-001": "RESOLVED (PASS) — physical quarantine + entry-point closure; no check weakened"
+  },
+  "findingDispositionRule": "Failures were never auto-converted to PASS: each was remediated at the environment/content level, then the unmodified check re-evaluated from live evidence.",
+  "integrityRule": "Any change to any file in sha256[] or quarantineIntegrity.files after 2026-09-18T07:23:41.7886982Z voids release candidate 4.2.2-remediation and requires a new full cycle (v4.2.3+). Success of 33/33 checks never constitutes a GO: C7/C8/C9 closure + explicit owner GO remain mandatory (SPEC §10)."
+}

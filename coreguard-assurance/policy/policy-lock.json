@@ -1,0 +1,28 @@
+{
+    "policyId":  "policy-lock",
+    "version":  "1.0.0",
+    "ruleVersion":  "cg41-policy-v1",
+    "effectiveDate":  "2026-09-18",
+    "files":  [
+                  {
+                      "file":  "allowed-rpc-methods.json",
+                      "sha256":  "0x2c01fc47a0154b7e0f2212332baef41747ae25678cade15d4431531034fddefa",
+                      "bytes":  696
+                  },
+                  {
+                      "file":  "coreguard-policy-v1.json",
+                      "sha256":  "0x30cea8ff5fd1fc124fd388ece062ffcbd19c03883f470ab51a27974557908b3a",
+                      "bytes":  5733
+                  },
+                  {
+                      "file":  "forbidden-execution-patterns.json",
+                      "sha256":  "0x9db6aebc931c7d644c9eebab493f9b576d88f01673af311a2a6eb7d96d8207f4",
+                      "bytes":  1478
+                  },
+                  {
+                      "file":  "trusted-tool-roots.json",
+                      "sha256":  "0xb968dc1ef1481fb55c30e029f4a899c6aa1eeace4f1646e01990510cb1b59ed3",
+                      "bytes":  680
+                  }
+              ]
+}

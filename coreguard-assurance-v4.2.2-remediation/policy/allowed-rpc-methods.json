@@ -1,0 +1,31 @@
+{
+  "policyId": "allowed-rpc-methods",
+  "version": "1.0.0",
+  "effectiveDate": "2026-09-18",
+  "description": "Read-only JSON-RPC methods permitted by the CoreGuard Gate 4.1 closure kit. Any state-changing or signing method is forbidden.",
+  "readOnlyOnly": true,
+  "methods": [
+    "eth_chainId",
+    "eth_getCode",
+    "eth_getTransactionCount",
+    "eth_getBalance",
+    "eth_call",
+    "eth_estimateGas",
+    "eth_gasPrice",
+    "eth_blockNumber",
+    "eth_getTransactionReceipt",
+    "eth_getTransactionByHash",
+    "eth_getLogs"
+  ],
+  "forbiddenPatterns": [
+    "send",
+    "sign",
+    "unlock",
+    "personal",
+    "private",
+    "key",
+    "import",
+    "newAccount",
+    "miner"
+  ]
+}

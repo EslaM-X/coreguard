@@ -1,0 +1,76 @@
+{
+  "mapId": "cg41-frozen-records-drift-map",
+  "version": "1.0.0",
+  "ruleVersion": "cg41-policy-v1",
+  "createdUtcNote": "created 2026-09-18 (local session); deterministic - no timestamp embedded",
+  "purpose": "Fulfils spec rule F3: previously recorded hashes for frozen review records are compared against the CURRENT disk content. Previously recorded hashes are history - they are NEVER rewritten. Each entry documents either byte-continuity (CONFIRMED) or a documented, expected deviation (documentedDeviation), verified against the actual disk content every run (finding EXT-001).",
+  "pathsNote": "All paths are relative to coreguard-assurance/ (the Root of the assurance platform). A ../ prefix escapes Root to the platform parent (frozen records live in sibling directories, mirroring the engine defaults for kitDefault/manDefault).",
+  "entries": [
+    {
+      "file": "../reviews-extra/gate-4.1-verify.ps1",
+      "recordedSha256": "0xb9ada001c4325e3de8565d410bcec813251132174c0a85caa23e712816ab1b8d",
+      "currentSha256": "0xb9ada001c4325e3de8565d410bcec813251132174c0a85caa23e712816ab1b8d",
+      "recordedBytes": 21363,
+      "status": "CONFIRMED",
+      "note": "Verifier v2 tool; frozen. Recorded in reviews-extra/gate-4.1-verify-results.txt and re-confirmed on disk 2026-09-18."
+    },
+    {
+      "file": "../reviews-extra/gate-4.1-verify-report.json",
+      "recordedSha256": "0xc2fd1883bb359227f923ec30387bc989b9ddd12a2add2c18b32ea13eacde61bb",
+      "currentSha256": "0xc2fd1883bb359227f923ec30387bc989b9ddd12a2add2c18b32ea13eacde61bb",
+      "recordedBytes": 14530,
+      "status": "CONFIRMED",
+      "note": "Verifier v2 standard-run report; frozen."
+    },
+    {
+      "file": "../reviews-extra/gate-4.1-verify-selftest.tap",
+      "recordedSha256": "0x8785173b3083a5b3db5dbf7f155496e4421583e9ca99f798beb1902eab76ab4c",
+      "currentSha256": "0x8785173b3083a5b3db5dbf7f155496e4421583e9ca99f798beb1902eab76ab4c",
+      "recordedBytes": 468,
+      "status": "CONFIRMED",
+      "note": "Verifier v2 self-test TAP (14/14); frozen; regeneration is byte-identical (verified 2026-09-18)."
+    },
+    {
+      "file": "../reviews-extra/gate-4.1-verify-results.txt",
+      "recordedSha256": "0x3ea32a8c86038f6703193e1ca9e6326a70796e2134580cb0df49ee3d29605964",
+      "currentSha256": "0x168bae9d78658a330b45da97837ef007065e31e462309a069c9584b775ad9dcb",
+      "recordedBytes": 244247,
+      "status": "DOCUMENTED-DRIFT",
+      "documentedDeviation": {
+        "discoveredUtcDate": "2026-09-18",
+        "discoveredBy": "Phase-A hash reconciliation (assurance platform build session)",
+        "detail": "The file's own embedded 'FINAL ARTIFACT HASHES' section lists 0x3ea32a8c... for this file (244247 bytes); the actual on-disk content hashes to 0x168bae9d... (same 244247 byte length). The embedded record predates the current on-disk content.",
+        "verdictsStable": true,
+        "verdictsNote": "All verdicts recorded in the file (Self-test 14/14; standard run 26 PASS / 1 FAIL V06; negative tests fail-closed; CONDITIONAL NO-GO) match every other frozen record and remain authoritative.",
+        "resolution": "Owner decision: file retained as-is (no post-hoc rewrite); this map documents the deviation; the C8 reviewer recomputes H8 values independently from disk.",
+        "frozenReportAgreement": "The canonical frozen review (coreguard/reviews/gate-4.1-broadcast-review.md, hash 0x519e2ebe...) agrees with every verdict in this file and remains byte-identical to its manifest entry."
+      },
+      "note": "DRIFT-001. History is preserved; nothing is rewritten; the reviewer recomputes from disk (H8)."
+    },
+    {
+      "file": "../reviews-extra/gate-4.1-redesign-note.txt",
+      "recordedSha256": "0xdff6151ea1b5460602d72ddd2475183909688b56c79b7c2d91c561382c4c4d57",
+      "currentSha256": "0xdff6151ea1b5460602d72ddd2475183909688b56c79b7c2d91c561382c4c4d57",
+      "recordedBytes": 6196,
+      "status": "CONFIRMED",
+      "note": "Frozen redesign note."
+    },
+    {
+      "file": "../coreguard/reviews/gate-4.1-final-hashes.txt",
+      "recordedSha256": "0xe709f6125cdba8d515325c23bd6e8943aa9824c2fc0cace10abe1fcab67e8baf",
+      "currentSha256": "0xe709f6125cdba8d515325c23bd6e8943aa9824c2fc0cace10abe1fcab67e8baf",
+      "recordedBytes": 867,
+      "status": "CONFIRMED",
+      "note": "Frozen final manifest (non-circular)."
+    },
+    {
+      "file": "../coreguard/reviews/gate-4.1-broadcast-review.md",
+      "recordedSha256": "0x519e2ebe776f5ac5cb63b5382faf5ce82738ea30fa90a98cf815ef87edb8f72e",
+      "currentSha256": "0x519e2ebe776f5ac5cb63b5382faf5ce82738ea30fa90a98cf815ef87edb8f72e",
+      "recordedBytes": 28689,
+      "status": "CONFIRMED",
+      "note": "Frozen v5 review report; matches its final-manifest entry exactly."
+    }
+  ],
+  "extensionRule": "Any future hash deviation of a frozen record MUST be added here as an entry with status DOCUMENTED-DRIFT and a documentedDeviation block before any other artifact may reference it. Rewriting frozen records is forbidden (spec rule F1)."
+}

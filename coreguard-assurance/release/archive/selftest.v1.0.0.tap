@@ -1,0 +1,16 @@
+ok - ST1-clean-parse
+ok - ST2-clean-no-dynamic
+ok - ST3-clean-allowlist-3
+ok - ST4-clean-exec-1-net-1
+ok - ST5-clean-startprocess-owner
+ok - ST6-send-verb-detected
+ok - ST7-unlisted-rpc-detected
+ok - ST8-empty-allowlist-detected
+ok - ST9-dynamic-invocation-detected
+ok - ST10-frombase64-detected
+ok - ST11-scriptblock-create-detected
+ok - ST12-net-type-detected
+ok - ST13-forbidden-git-detected
+ok - ST14-invoke-expression-detected
+ok - ST15-duplicate-id-guard
+ok - ST16-policy-loads

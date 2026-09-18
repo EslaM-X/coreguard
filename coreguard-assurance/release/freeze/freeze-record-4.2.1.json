@@ -1,0 +1,157 @@
+{
+  "releaseId": "coreguard-assurance-4.2.1",
+  "engineVersion": "2.0.0",
+  "schemaVersion": "cg41-report/2",
+  "ruleVersion": "cg41-policy-v1",
+  "gate": "4.1",
+  "status": "RELEASE-CANDIDATE-CONDITIONAL-NO-GO",
+  "decision": "CONDITIONAL NO-GO",
+  "frozenAtUtc": "2026-09-18T05:54:09.9556979Z",
+  "engineSha256AtFreeze": "0x7109c1af99f2a712441f1ecf9376b2d8317f794f92d0a4296b1b0b4f491f4ab6",
+  "regeneratedAfterFreeze": {
+    "selfTest": "20/20 PASS",
+    "negativeSuite": "17/17 failClosed=True",
+    "standardRun": "30 PASS / 3 FAIL, status BLOCKED, exit 1 (fail-closed intended)",
+    "nodeValidator": "PASS (657 checks, 0 errors)",
+    "selfCheckReport": "PASS (dupIds=0, boundedClaim=True)",
+    "manifestVerification": "4/4 MATCH"
+  },
+  "findingDisposition": "see release/freeze/findings-disposition-4.2.1.json",
+  "sha256": [
+    {
+      "file": "verification/cg-assurance-verify.ps1",
+      "role": "engine",
+      "sha256": "0x7109c1af99f2a712441f1ecf9376b2d8317f794f92d0a4296b1b0b4f491f4ab6",
+      "bytes": 63699
+    },
+    {
+      "file": "release/STATUS.md",
+      "role": "status",
+      "sha256": "0x20885db08cc717dc3130af42da24a24bcdad4e7db17d9884240152385a295efe",
+      "bytes": 6438
+    },
+    {
+      "file": "release/verification-report.json",
+      "role": "standard-run-report",
+      "sha256": "0x43db182f6296b0918e717ef3b31280f1f00d4b7dcf77a78a145e223f2b5a681d",
+      "bytes": 54647
+    },
+    {
+      "file": "release/verification-report.html",
+      "role": "dashboard",
+      "sha256": "0x4164b3668722ab0166120a8f7d93eba862f130fd0297fb2f4132b87cf7dac190",
+      "bytes": 73331
+    },
+    {
+      "file": "release/selftest.tap",
+      "role": "selftest-tap-20of20",
+      "sha256": "0x8b6e273c3699b66b15d96cbb5ee4690068304ed5ccecceb47f8de060fa6d4df1",
+      "bytes": 668
+    },
+    {
+      "file": "release/negative-tests.json",
+      "role": "negative-suite-17of17",
+      "sha256": "0xd0322015e98ecc437e383049d5145b9f6fbd1c7f90bfba93fea34539a5558b75",
+      "bytes": 4344
+    },
+    {
+      "file": "release/manifest.json",
+      "role": "manifest",
+      "sha256": "0xa46398a817a2771006da21c5d7d71af61a41a61b5c68c849e12183d247251155",
+      "bytes": 1425
+    },
+    {
+      "file": "release/manifest.sha256",
+      "role": "manifest-sha256",
+      "sha256": "0xa03333b5091f2ade0422bcee25c3b23b5a08003a14266561bbf96b543b38181e",
+      "bytes": 66
+    },
+    {
+      "file": "docs/COREGUARD-ASSURANCE-SPEC.md",
+      "role": "spec",
+      "sha256": "0x5dde70ade3bf09987e45fc4bb88b65c6ba9fc7561b97957c5306e3d98e0056e3",
+      "bytes": 16451
+    },
+    {
+      "file": "spec/cg41-finding.schema.json",
+      "role": "schema-finding",
+      "sha256": "0x5b93792e42e253ff7e20e38704602e04c284f7932ddb12ffde1d10b7cd3529af",
+      "bytes": 1568
+    },
+    {
+      "file": "spec/cg41-report.schema.json",
+      "role": "schema-report",
+      "sha256": "0x07fe979aa4366621e471b2a1672f54d55a915866acd18c72bda68d0cd830acae",
+      "bytes": 3779
+    },
+    {
+      "file": "verification/validate-report.mjs",
+      "role": "node-validator",
+      "sha256": "0x21a177617cceac763a716ec8e9820b8b01d335c66ac0dda0dfecea612f98aa79",
+      "bytes": 10967
+    },
+    {
+      "file": "verification-drift-map.json",
+      "role": "drift-map",
+      "sha256": "0x641cf7da36641d5565bacf41fd0a7e3c1994f2b31203a7cbd2d64efbf5f83350",
+      "bytes": 5048
+    },
+    {
+      "file": "../reviews-extra/gate-4.1-verify.ps1",
+      "role": "frozen-verifier-v2-tool",
+      "sha256": "0xb9ada001c4325e3de8565d410bcec813251132174c0a85caa23e712816ab1b8d",
+      "bytes": 21363
+    },
+    {
+      "file": "../reviews-extra/gate-4.1-verify-report.json",
+      "role": "frozen-verifier-report",
+      "sha256": "0xc2fd1883bb359227f923ec30387bc989b9ddd12a2add2c18b32ea13eacde61bb",
+      "bytes": 14530
+    },
+    {
+      "file": "../reviews-extra/gate-4.1-verify-selftest.tap",
+      "role": "frozen-verifier-tap-14of14",
+      "sha256": "0x8785173b3083a5b3db5dbf7f155496e4421583e9ca99f798beb1902eab76ab4c",
+      "bytes": 468
+    },
+    {
+      "file": "../reviews-extra/gate-4.1-verify-results.txt",
+      "role": "frozen-results-DRIFT-001",
+      "sha256": "0x168bae9d78658a330b45da97837ef007065e31e462309a069c9584b775ad9dcb",
+      "bytes": 7463
+    },
+    {
+      "file": "../reviews-extra/gate-4.1-redesign-note.txt",
+      "role": "frozen-redesign-note",
+      "sha256": "0xdff6151ea1b5460602d72ddd2475183909688b56c79b7c2d91c561382c4c4d57",
+      "bytes": 6196
+    },
+    {
+      "file": "../coreguard/reviews/gate-4.1-final-hashes.txt",
+      "role": "frozen-final-manifest",
+      "sha256": "0xe709f6125cdba8d515325c23bd6e8943aa9824c2fc0cace10abe1fcab67e8baf",
+      "bytes": 867
+    },
+    {
+      "file": "../coreguard/reviews/gate-4.1-broadcast-review.md",
+      "role": "frozen-review-v5",
+      "sha256": "0x519e2ebe776f5ac5cb63b5382faf5ce82738ea30fa90a98cf815ef87edb8f72e",
+      "bytes": 28689
+    },
+    {
+      "file": "../reviews-extra/cg41-c9-c7-closure-kit.ps1",
+      "role": "frozen-closure-kit",
+      "sha256": "0x05e1ba756586740288863164b8e66a944f4b76008eda7e45b80940d2f5cd8ad3",
+      "bytes": 37152
+    }
+  ],
+  "freezeSeq": [
+    "(1) engine v2.0.0 logic finalized (last edit before freeze)",
+    "(2) release id bumped 4.2.0 -> 4.2.1 (manifest string) + STATUS header marked FROZEN",
+    "(3) freeze timestamp captured: 2026-09-18T05:54:09.9556979Z; engineSha256=0x7109c1af...; statusSha256=0x20885db0...",
+    "(4) ZERO engine/spec/schema/validator edits after this point",
+    "(5) all evidence regenerated from the frozen copy: selftest, negative suite, standard run, validator, self-check, manifest",
+    "(6) hashes recomputed from disk into THIS record"
+  ],
+  "integrityRule": "Any change to any file in sha256[] after 2026-09-18T05:54:09.9556979Z voids this release candidate and requires a new freeze (v4.2.2+)."
+}

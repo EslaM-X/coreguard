@@ -1,0 +1,246 @@
+{
+    "verifier":  "gate-4.1-verify.ps1",
+    "dateUtc":  "2026-09-18T05:21:05.5159692Z",
+    "status":  "FAILED - verification did not pass",
+    "claim":  "Under the current rule set (AST enumeration of commands, .NET types, dynamic-invocation forms, and the RPC allow-list), NO execution or network path was found beyond the enumerated sites. This is NOT a proof of absence.",
+    "stages":  {
+                   "readOnlyIdentityAndStatic":  "PERFORMED",
+                   "localSigningTest":  "NOT-PERFORMED (separate, human-driven step)",
+                   "signedSimulation":  "NOT-PERFORMED (separate, human-driven step)",
+                   "broadcast":  "NOT-AUTHORIZED (no site detected under current rules)"
+               },
+    "inputs":  {
+                   "kitPath":  "D:\\KOSSASHI\\CORE DAO\\reviews-extra\\cg41-c9-c7-closure-kit.ps1",
+                   "kitSha256":  "0x05e1ba756586740288863164b8e66a944f4b76008eda7e45b80940d2f5cd8ad3",
+                   "expectedKitSha256":  "0x05e1ba756586740288863164b8e66a944f4b76008eda7e45b80940d2f5cd8ad3",
+                   "castPath":  "C:\\Users\\DeLL-L\\foundry\\cast.exe",
+                   "castSha256":  "0xeba3df695d1c96cb54175183f89d62bafac7f728365987a1947743c6f3e91b36",
+                   "expectedCastSha256":  "0xeba3df695d1c96cb54175183f89d62bafac7f728365987a1947743c6f3e91b36",
+                   "trustRoots":  [
+                                      "C:\\Program Files",
+                                      "C:\\Program Files (x86)",
+                                      "C:\\Users\\DeLL-L\\.foundry"
+                                  ]
+               },
+    "analysis":  {
+                     "commandInventory":  [
+                                              {
+                                                  "line":  210,
+                                                  "command":  "Start-Process",
+                                                  "owner":  "InvokeCast",
+                                                  "text":  "Start-Process -FilePath $script:CastPath -ArgumentList $argList -WorkingDirectory $Repo -NoNewWindow -Wait -PassThru `\n        -RedirectStandardOutput $so -RedirectStandardError $se"
+                                              },
+                                              {
+                                                  "line":  452,
+                                                  "command":  "git",
+                                                  "owner":  "\u003cscript\u003e",
+                                                  "text":  "git -C $Repo status --porcelain 2\u003e$null"
+                                              },
+                                              {
+                                                  "line":  454,
+                                                  "command":  "git",
+                                                  "owner":  "\u003cscript\u003e",
+                                                  "text":  "git -C $Repo diff --quiet 2\u003e$null"
+                                              },
+                                              {
+                                                  "line":  455,
+                                                  "command":  "git",
+                                                  "owner":  "\u003cscript\u003e",
+                                                  "text":  "git -C $Repo diff --cached --quiet 2\u003e$null"
+                                              },
+                                              {
+                                                  "line":  457,
+                                                  "command":  "git",
+                                                  "owner":  "\u003cscript\u003e",
+                                                  "text":  "git -C $Repo ls-files 2\u003e$null"
+                                              },
+                                              {
+                                                  "line":  462,
+                                                  "command":  "git",
+                                                  "owner":  "\u003cscript\u003e",
+                                                  "text":  "git -C $Repo log --all --oneline --diff-filter=A -- \u0027*.pass\u0027 \u0027UTC--*\u0027 \u0027*keystore*\u0027 2\u003e$null"
+                                              }
+                                          ],
+                     "networkInventory":  [
+                                              {
+                                                  "line":  223,
+                                                  "command":  "Invoke-RestMethod",
+                                                  "owner":  "RpcP",
+                                                  "text":  "Invoke-RestMethod -Uri $Rpc -Method Post -ContentType \"application/json\" -Body $body -TimeoutSec 30"
+                                              }
+                                          ],
+                     "dynamicSites":  [
+
+                                      ],
+                     "processTypeRefs":  [
+
+                                         ],
+                     "networkTypeRefs":  [
+
+                                         ],
+                     "gitSites":  [
+                                      {
+                                          "line":  452,
+                                          "tokens":  [
+                                                         "git",
+                                                         "status",
+                                                         "--porcelain"
+                                                     ],
+                                          "verb":  "status"
+                                      },
+                                      {
+                                          "line":  454,
+                                          "tokens":  [
+                                                         "git",
+                                                         "diff",
+                                                         "--quiet"
+                                                     ],
+                                          "verb":  "diff"
+                                      },
+                                      {
+                                          "line":  455,
+                                          "tokens":  [
+                                                         "git",
+                                                         "diff",
+                                                         "--cached",
+                                                         "--quiet"
+                                                     ],
+                                          "verb":  "diff"
+                                      },
+                                      {
+                                          "line":  457,
+                                          "tokens":  [
+                                                         "git",
+                                                         "ls-files"
+                                                     ],
+                                          "verb":  "ls-files"
+                                      },
+                                      {
+                                          "line":  462,
+                                          "tokens":  [
+                                                         "git",
+                                                         "log",
+                                                         "--all",
+                                                         "--oneline",
+                                                         "--diff-filter=A",
+                                                         "*.pass",
+                                                         "UTC--*",
+                                                         "*keystore*"
+                                                     ],
+                                          "verb":  "log"
+                                      }
+                                  ],
+                     "invokeCastVerbs":  [
+                                             "wallet",
+                                             "call",
+                                             "wallet",
+                                             "calldata"
+                                         ],
+                     "rpcMethods":  [
+                                        "eth_getTransactionCount",
+                                        "eth_chainId",
+                                        "eth_getCode",
+                                        "eth_call",
+                                        "eth_estimateGas"
+                                    ],
+                     "rpcAllowList":  [
+                                          "eth_chainId",
+                                          "eth_getCode",
+                                          "eth_getTransactionCount",
+                                          "eth_getBalance",
+                                          "eth_call",
+                                          "eth_estimateGas",
+                                          "eth_gasPrice",
+                                          "eth_blockNumber",
+                                          "eth_getTransactionReceipt",
+                                          "eth_getTransactionByHash",
+                                          "eth_getLogs"
+                                      ],
+                     "functions":  [
+                                       "Get-Sha256Hex",
+                                       "Check",
+                                       "Test-Account",
+                                       "Test-CastHash",
+                                       "Test-ValidityWindow",
+                                       "CanonicalPath",
+                                       "Test-TrustedRoot",
+                                       "Get-TrustRoots",
+                                       "Test-FileAcl",
+                                       "Test-SummaryClean",
+                                       "InvokeCast",
+                                       "RpcP",
+                                       "EnvVal",
+                                       "Build-Evidence",
+                                       "Save-Evidence",
+                                       "Get-PropValue"
+                                   ]
+                 },
+    "manifest":  {
+                     "path":  "D:\\KOSSASHI\\CORE DAO\\coreguard\\reviews\\gate-4.1-final-hashes.txt",
+                     "match":  8,
+                     "mismatch":  0,
+                     "entries":  [
+                                     {
+                                         "file":  "scripts/mainnet/gate-4.1-broadcast.ps1",
+                                         "status":  "MATCH"
+                                     },
+                                     {
+                                         "file":  "scripts/mainnet/gate-4.1-recovery-lib.ps1",
+                                         "status":  "MATCH"
+                                     },
+                                     {
+                                         "file":  "scripts/mainnet/tests/gate-4.1-recovery-harness.ps1",
+                                         "status":  "MATCH"
+                                     },
+                                     {
+                                         "file":  "contracts/EvidenceRegistryV2.sol",
+                                         "status":  "MATCH"
+                                     },
+                                     {
+                                         "file":  "evidence/gate-4.0-identity-preflight.json",
+                                         "status":  "MATCH"
+                                     },
+                                     {
+                                         "file":  "evidence/gate-4.1-identity-preflight.json",
+                                         "status":  "MATCH"
+                                     },
+                                     {
+                                         "file":  "reviews/gate-4.1-harness-results.txt",
+                                         "status":  "MATCH"
+                                     },
+                                     {
+                                         "file":  "reviews/gate-4.1-broadcast-review.md",
+                                         "status":  "MATCH"
+                                     }
+                                 ]
+                 },
+    "checks":  {
+                   "V01-kit-exists":  "PASS",
+                   "V05-cast-exists":  "PASS",
+                   "V03-kit-sha-preapproved":  "PASS",
+                   "V04-kit-bytes-preapproved":  "PASS",
+                   "V02-kit-parse-ok":  "PASS",
+                   "V06-cast-within-trust-root":  "FAIL",
+                   "V07-cast-sha-matches-preapproved":  "PASS",
+                   "V08-no-dynamic-invocation":  "PASS",
+                   "V09-exec-inventory-exact":  "PASS",
+                   "V10-startprocess-count":  "PASS",
+                   "V11-startprocess-in-InvokeCast-only":  "PASS",
+                   "V12-git-count":  "PASS",
+                   "V13-git-verbs-safe":  "PASS",
+                   "V14-net-inventory-exact":  "PASS",
+                   "V15-net-in-RpcP-only":  "PASS",
+                   "V16-no-process-types":  "PASS",
+                   "V17-no-net-types":  "PASS",
+                   "V18-invokeCast-no-send-verb":  "PASS",
+                   "V19-send-guard-present":  "PASS",
+                   "V20-privatekey-guard-present":  "PASS",
+                   "V21-allowlist-parsed":  "PASS",
+                   "V22-rpc-methods-whitelisted":  "PASS",
+                   "V23-allowlist-no-send":  "PASS",
+                   "V24-verifier-self-parse":  "PASS",
+                   "V25-verifier-self-no-exec-net":  "PASS",
+                   "V26-manifest-sha-preapproved":  "PASS",
+                   "V27-manifest-all-match":  "PASS"
+               }
+}

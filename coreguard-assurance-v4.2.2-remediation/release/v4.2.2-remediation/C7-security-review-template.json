@@ -1,0 +1,60 @@
+{
+  "docId": "cg41-c7-security-review-template",
+  "releaseId": "4.2.2-remediation",
+  "engineVersion": "2.1.0",
+  "gate": "4.1",
+  "status": "TEMPLATE — PENDING INDEPENDENT EXECUTION",
+  "rule": "This template is filled and signed by an independent security reviewer (not the remediation author). C7 remains PARTIAL until every item is signed with verifiable evidence.",
+  "scope": [
+    "Separation of duties: verifier has no keys, reads no secrets, creates no signature, sends nothing.",
+    "Private-key management: no plaintext password/keystore file in any reviewed path; no --private-key in any live path.",
+    "Environment permissions and tool provenance (trust-root enforcement, hash-verified binaries).",
+    "Signing / commitIntent / anchorProof paths: currently absent from any executable surface.",
+    "Negative proof: broadcast path is unavailable before explicit owner authorization."
+  ],
+  "items": [
+    {
+      "id": "C7-1",
+      "requirement": "Assurance engine is verification-only (no exec/net/dynamic sites)",
+      "evidenceRequired": "SELF-002 = PASS in release/verification-report.json; reviewer re-runs -SelfTest and sees ST21 pass",
+      "result": "PENDING",
+      "reviewerSignature": null
+    },
+    {
+      "id": "C7-2",
+      "requirement": "No secret material in review package or scanned roots",
+      "evidenceRequired": "SEC-001 = PASS (roots + hits recorded in report evidence); reviewer spot-checks scan roots",
+      "result": "PENDING",
+      "reviewerSignature": null
+    },
+    {
+      "id": "C7-3",
+      "requirement": "No legacy --private-key / cast send executable surface",
+      "evidenceRequired": "LEG-001 = PASS (hits:[]); legacy-quarantine/ exists with 18 preserved files; npm run anchor blocked",
+      "result": "PENDING",
+      "reviewerSignature": null
+    },
+    {
+      "id": "C7-4",
+      "requirement": "cast binary within trust root, hash pre-approved, provenance documented",
+      "evidenceRequired": "ENV-002/ENV-003 = PASS; V06-2 record (source hash, official foundry 1.8.0 release, Authenticode-unsigned exception note)",
+      "result": "PENDING",
+      "reviewerSignature": null
+    },
+    {
+      "id": "C7-5",
+      "requirement": "No signing/broadcast capability exists in the reviewed toolchain",
+      "evidenceRequired": "grep/AST review of engine + kit: no cast send, no eth_sendRawTransaction, no keystore import; authorization block all NOT AUTHORIZED",
+      "result": "PENDING",
+      "reviewerSignature": null
+    },
+    {
+      "id": "C7-6",
+      "requirement": "Manifest integrity chain intact and non-circular",
+      "evidenceRequired": "MAN-001/MAN-002 = PASS; approved-evidence-manifest 8/8 MATCH; manifest.sha256 matches manifest.json",
+      "result": "PENDING",
+      "reviewerSignature": null
+    }
+  ],
+  "c7OutcomeRule": "C7 = PASS only when all items are signed PASS with independent evidence. Any PENDING/FAIL/INCONCLUSIVE keeps C7 = PARTIAL. C7 closure does NOT grant GO (C8 + C9 + explicit owner GO still required)."
+}

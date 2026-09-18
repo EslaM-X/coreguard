@@ -1,0 +1,23 @@
+{
+  "policyId": "trusted-tool-roots",
+  "version": "1.0.0",
+  "effectiveDate": "2026-09-18",
+  "description": "Directories from which an execution binary may be trusted for signed-gate use. A binary outside every root is rejected fail-closed (finding ENV-003).",
+  "roots": [
+    {
+      "id": "user-foundry",
+      "path": "%USERPROFILE%\\.foundry",
+      "description": "Per-user foundry toolchain root"
+    },
+    {
+      "id": "program-files",
+      "path": "%ProgramFiles%",
+      "description": "System-wide program files"
+    },
+    {
+      "id": "program-files-x86",
+      "path": "%ProgramFiles(x86)%",
+      "description": "System-wide 32-bit program files"
+    }
+  ]
+}

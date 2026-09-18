@@ -1,0 +1,125 @@
+================================================================================
+CORE GUARD GATE 4.1 - INDEPENDENT VERIFIER: RESULTS & EVIDENCE
+Tool: gate-4.1-verify.ps1 (verification-only; no keystore/password/sign/subprocess)
+Date (UTC): see report's dateUtc
+================================================================================
+
+SCOPE OF CLAIM (narrow, per review finding 5)
+--------------------------------------------------------------------------------
+"Under the current rule set (AST enumeration of command invocations, .NET type
+references, dynamic-invocation forms, and the RPC allow-list), NO execution or
+network path was found beyond the enumerated sites. This is NOT a proof of
+absence of such a path. Full manual review and independent testing remain
+required before C8 can be signed."
+
+This tool does NOT claim "no reachable broadcast path exists". It reports only
+what its current rules enumerate.
+
+WHAT CHANGED FOR REVIEW FINDINGS 1-5
+--------------------------------------------------------------------------------
+1) Duplicate check IDs: Check() now tracks every emitted id in $script:Seen;
+   a repeated id sets META-duplicate-check-id=FAIL and forces exit 1. Proven by
+   self-test ST14-duplicate-check-id-guard.
+2) V15/V16 incompleteness: replaced by AST-derived checks. V15 = every network
+   command site is owned by RpcP; V16/V17 = zero .NET Process / .NET network
+   type references. No uninitialized variables.
+3) Single SELF_FORBIDDEN weakened copy removed: there is now ONE classification
+   source ($EXEC_COMMANDS/$NET_COMMANDS/$PROC_TYPE_RE/$NET_TYPE_RE) used for both
+   the target kit and the verifier self-scan (V24/V25).
+4) Count-only is insufficient: analysis is AST-based and per-site: command
+   invocations (incl. bare-string verbs), .NET TypeExpressionAst and
+   New-Object type strings, dynamic invocation (null command name / invocation
+   operator / dynamic member forms), git subcommand tokens, and structural
+   parsing of the $ALLOWED_RPC assignment (ArrayExpressionAst extent).
+5) Trust-model wording tightened as above.
+
+END-TO-END RESULTS
+--------------------------------------------------------------------------------
+Self-test (gate-4.1-verify.ps1 -SelfTest): 14 checks, 0 failures, exit 0.
+  ST1-clean-no-dynamic                 PASS
+  ST2-clean-allowlist-parsed           PASS
+  ST3-clean-exec-inventory             PASS
+  ST4-clean-invokeCast-verbs-none      PASS
+  ST5-send-verb-detected               PASS
+  ST6-unlisted-rpc-detected            PASS
+  ST7-empty-allowlist-detected         PASS
+  ST8-send-in-allowlist-detected       PASS
+  ST9-dynamic-invocation-detected      PASS
+  ST10-net-type-detected               PASS
+  ST11-double-startprocess-detected    PASS
+  ST12-forbidden-git-verb-detected     PASS
+  ST13-invoke-expression-detected      PASS
+  ST14-duplicate-check-id-guard        PASS
+
+Standard run (frozen inputs; cast path from this host):
+  -CastPath C:\Users\DeLL-L\foundry\cast.exe
+  -ExpectedCastSha256 0xeba3df695d1c96cb54175183f89d62bafac7f728365987a1947743c6f3e91b36
+  -Manifest <coreguard>\reviews\gate-4.1-final-hashes.txt
+  -ExpectedManifestSha256 0xe709f6125cdba8d515325c23bd6e8943aa9824c2fc0cace10abe1fcab67e8baf
+
+Result: 26 PASS / 1 FAIL, exit 1.
+  Only failure is INTENDED and fail-closed:
+  [FAIL] V06-cast-within-trust-root
+         roots=C:\Program Files; C:\Program Files (x86); C:\Users\DeLL-L\.foundry
+  cast.exe lives in C:\Users\DeLL-L\foundry (not under %USERPROFILE%\.foundry
+  nor Program Files); the tool refuses to bless it. The kit under study is
+  nevertheless internally clean under the rule set:
+
+  [PASS] V01-kit-exists
+  [PASS] V05-cast-exists
+  [PASS] V03-kit-sha-preapproved :: 0x05e1ba756586740288863164b8e66a944f4b76008eda7e45b80940d2f5cd8ad3
+  [PASS] V04-kit-bytes-preapproved :: 37152 bytes
+  [PASS] V02-kit-parse-ok :: errors=0
+  [FAIL] V06-cast-within-trust-root
+  [PASS] V07-cast-sha-matches-preapproved :: 0xeba3df695d1c96cb54175183f89d62bafac7f728365987a1947743c6f3e91b36
+  [PASS] V08-no-dynamic-invocation :: sites=0
+  [PASS] V09-exec-inventory-exact :: execSites=6 expected=6
+  [PASS] V10-startprocess-count :: 1
+  [PASS] V11-startprocess-in-InvokeCast-only :: InvokeCast
+  [PASS] V12-git-count :: 5
+  [PASS] V13-git-verbs-safe :: L452:status,L454:diff,L455:diff,L457:ls-files,L462:log
+  [PASS] V14-net-inventory-exact :: 1
+  [PASS] V15-net-in-RpcP-only :: RpcP
+  [PASS] V16-no-process-types :: 0
+  [PASS] V17-no-net-types :: 0
+  [PASS] V18-invokeCast-no-send-verb :: verbs=wallet,call,wallet,calldata
+  [PASS] V19-send-guard-present
+  [PASS] V20-privatekey-guard-present
+  [PASS] V21-allowlist-parsed :: found=True count=11
+  [PASS] V22-rpc-methods-whitelisted :: methods=eth_getTransactionCount,eth_chainId,eth_getCode,eth_call,eth_estimateGas notListed=
+  [PASS] V23-allowlist-no-send :: sendEntries=
+  [PASS] V24-verifier-self-parse :: errors=0
+  [PASS] V25-verifier-self-no-exec-net :: exec=0 net=0 dyn=0
+  [PASS] V26-manifest-sha-preapproved :: 0xe709f6125cdba8d515325c23bd6e8943aa9824c2fc0cace10abe1fcab67e8baf
+  [PASS] V27-manifest-all-match :: match=8 mismatch=0
+
+NEGATIVE / FAIL-CLOSED EVIDENCE (tool must fail when inputs change)
+--------------------------------------------------------------------------------
+NEG1 wrong cast hash -> [FAIL] V07-cast-sha-matches-preapproved ; exit 1
+NEG2 missing cast     -> [FAIL] V05-cast-exists ; [FAIL] V06-cast-within-trust-root ; exit 1
+NEG3 tampered kit copy -> [FAIL] V03-kit-sha-preapproved (0x37f56c8d...);
+                           [FAIL] V04-kit-bytes-preapproved (37145);
+                           [FAIL] V19-send-guard-present ; [FAIL] V20-privatekey-guard-present ; exit 1
+NEG4 wrong manifest hash -> [FAIL] V26-manifest-sha-preapproved ; exit 1
+NEG5 tampered manifest   -> [FAIL] V27-manifest-all-match :: match=0 mismatch=8 ; exit 1
+
+FINAL ARTIFACT HASHES (sha256, recomputed from disk)
+--------------------------------------------------------------------------------
+0xb9ada001c4325e3de8565d410bcec813251132174c0a85caa23e712816ab1b8d  gate-4.1-verify.ps1  21363
+0xc2fd1883bb359227f923ec30387bc989b9ddd12a2add2c18b32ea13eacde61bb  gate-4.1-verify-report.json  14530
+0x8785173b3083a5b3db5dbf7f155496e4421583e9ca99f798beb1902eab76ab4c  gate-4.1-verify-selftest.tap  468
+0x05e1ba756586740288863164b8e66a944f4b76008eda7e45b80940d2f5cd8ad3  cg41-c9-c7-closure-kit.ps1  37152
+0xdff6151ea1b5460602d72ddd2475183909688b56c79b7c2d91c561382c4c4d57  gate-4.1-redesign-note.txt  6196
+0xce1aa70a09ecd01bdffe2991401d9d21e395fb7f6e5559becd6877d00f8e6854  gate-4.1-owner-runbook.txt  7466
+0xe76e989ced715d494f469c35611c8b25a7761e1fdf9e8254e4796829af0fb992  gate-4.1-rc-v3-readonly-evidence.txt  5250
+0xd3f00b653d01bad84e13caaa8d4654f02eb481ea3b6415fd501e7f9cfb987073  rejected\gate-4.1-owner-execute.REJECTED.ps1.txt  5192
+0x08800e6bd8f37abb275e1d7201e512d6e529c494482ed2235d3b9700c483d9f0  cg41-c9c7-summary.json  1395
+0x8fd76c9a748eb2143b502cbcaf7791a28da531c956952bdf70438ec2dd683be2  cg41-selftest.tap  710
+0xe709f6125cdba8d515325c23bd6e8943aa9824c2fc0cace10abe1fcab67e8baf  gate-4.1-final-hashes.txt  867
+0x519e2ebe776f5ac5cb63b5382faf5ce82738ea30fa90a98cf815ef87edb8f72e  gate-4.1-broadcast-review.md  28689
+
+STATUS
+--------------------------------------------------------------------------------
+C9 = PENDING ; C7 = PARTIAL ; C8 = PENDING ; CONDITIONAL NO-GO - MAINTAINED.
+MAINNET BROADCAST = NOT AUTHORIZED.
+This record does not authorize signing, simulation, or broadcast.

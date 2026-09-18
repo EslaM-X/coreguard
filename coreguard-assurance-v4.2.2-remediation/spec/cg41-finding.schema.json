@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://coreguard.local/schema/cg41-finding.schema.json",
+  "title": "CoreGuard Assurance Finding (cg41-finding/1)",
+  "description": "One structured evidence finding per check. Normative per COREGUARD-ASSURANCE-SPEC v1 section 3.",
+  "type": "object",
+  "required": ["id", "status", "severity", "ruleVersion", "description", "failClosed", "evidence"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*$",
+      "description": "Stable finding identifier, e.g. ENV-003, META-001, NEG-INT-01."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["PASS", "FAIL", "BLOCKED", "INCONCLUSIVE", "NOT_APPLICABLE"],
+      "description": "Closed status vocabulary. SKIPPED/OK/WARN are forbidden (spec section 3.2)."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["BLOCKER", "MAJOR", "MINOR", "INFO"]
+    },
+    "ruleVersion": {
+      "type": "string",
+      "const": "cg41-policy-v1"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 8,
+      "description": "Human-readable statement of the check. Must obey spec section 4 wording rules."
+    },
+    "failClosed": {
+      "type": "boolean",
+      "description": "When true, any non-PASS status blocks forward transition and forces exit code 1."
+    },
+    "evidence": {
+      "type": "object",
+      "description": "Machine-recomputable proof supporting the status. Never empty; at least a reason or measured value."
+    }
+  }
+}
