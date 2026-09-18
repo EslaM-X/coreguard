@@ -142,6 +142,16 @@ function verifyEntry(e, base) {
   const rel = treePath(e, base);
   const pinned = normalizePin(e.sha256);
 
+  // Disk mode must actually read the disk for every pinned file — including
+  // re-pinned ones. Checking re-pins against their commit here instead made
+  // the "disk mode" line under-report working-tree drift for exactly the
+  // files most likely to drift (proven: byte-flip on a re-pinned file printed
+  // PASS 46/46). Disk mode is triage only and is branded "not evidence".
+  if (diskMode) {
+    checkDisk(e.file.startsWith("..") ? resolve(base, e.file) : join(base, e.file), `${e.file} (disk)`, pinned);
+    return;
+  }
+
   if (rePins.has(e.file)) {
     const pinCommit = rePins.get(e.file);
     try {
@@ -150,11 +160,6 @@ function verifyEntry(e, base) {
     } catch {
       bad.push(`COMMIT-MISSING ${e.file} (re-pin commit ${pinCommit})`);
     }
-    return;
-  }
-
-  if (diskMode) {
-    checkDisk(e.file.startsWith("..") ? resolve(base, e.file) : join(base, e.file), `${e.file} (disk)`, pinned);
     return;
   }
 

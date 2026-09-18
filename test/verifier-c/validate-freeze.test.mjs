@@ -111,6 +111,20 @@ test("boundary: every postCommitRePins entry is honest vs its declared commit", 
   }
 });
 
+test("boundary: --disk actually reads the disk - re-pinned file drift is caught, not masked by its re-pin commit", () => {
+  const abs = join(repoRoot, "coreguard-assurance-v4.2.2-remediation", "README.md");
+  const original = readFileSync(abs, "utf8");
+  try {
+    writeFileSync(abs, original + "[drift-marker]");
+    const drift = run(CURRENT, "--disk");
+    assert.equal(drift.exit, 1, "disk mode must fail closed on working-tree drift");
+    assert.ok(drift.out.includes("MISMATCH README.md"));
+    assert.equal(run(CURRENT).exit, 0, "anchored mode is immune to working-disk edits");
+  } finally {
+    writeFileSync(abs, original, "utf8");
+  }
+});
+
 test("boundary: anchored result equals direct git-blob rehash of the same commit (clean-clone semantics)", () => {
   const rec = JSON.parse(readFileSync(join(repoRoot, CURRENT), "utf8"));
   const sample = rec.sha256.releaseFiles[0];
