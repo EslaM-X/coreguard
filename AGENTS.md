@@ -1,0 +1,46 @@
+# AGENTS.md — Operational Learnings for Future Sessions
+
+Project: EslaM-X/coreguard (CoreGuard Gate 4.1 Assurance) — lessons from live sessions that are **not** obvious from code/docs alone. Keep entries 1–3 lines each; add to the most fitting section, don't restate what's already in README/docs.
+
+## Environment & Tooling Quirks
+
+- **PowerShell 5.1 mojibake generator**: any JSON written via PowerShell here (freeze records, reports) risks CP1252 mojibake of em-dashes (—) because PS reads .ps1 files without BOM as ANSI. It happened **twice** (freeze 4.2.4 + 4.2.6). Fix: regenerate/repair via a Node script (`node -e` or a .cjs), never via PS — encoding hygiene test will fail otherwise. Where unavoidable, write ASCII only (no em-dash) or use a Unicode escape.
+- **`.gitattributes -text` is load-bearing**: three trees (`coreguard-assurance/**`, `coreguard-assurance-v4.2.2-remediation/**`, `legacy-quarantine/**`) are `-text` (no CRLF↔LF normalization) because freeze-record hashes are byte-exact. Any new hash-verified evidence tree must be added to `.gitattributes` **before** first commit or reviewer clones won't hash-match.
+- **`git show HEAD:file` ≠ disk for uncommitted work**: when verifying hash freezes, always check the **committed tree** (via `git show`), not the working disk — uncommitted edits silently make a "clean clone" verification fail (cost a full session).
+- **No BOM in generated JSON**: encoding hygiene test rejects BOM in all files except `.ps1` and `scripts/verify-live.json`. Writing UTF-8 with BOM via PS (`-Encoding UTF8`) fails the test; use Node or `-Encoding UTF8NoBOM`.
+- **`node --test` accepts globs/dirs**: `node --test test/encoding/` may match nothing silently. Point at the test file itself or use `npm test`.
+
+## Hidden Relationships & Chain-of-Integrity
+
+- **Freeze-record hash → any file edit invalidates it**: editing a file in `release/freeze/` scope (including README, H1-H8.md) invalidates its SHA-256 in `freeze-record-4.2.6.json`. Rule: after any content edit, re-pin the hash inside the freeze record (keep `frozenAtUtc` unchanged), then re-verify 46/46 from disk.
+- **Deleting docs still pinned in older freeze records breaks historical verification**: `freeze-record-4.2.5.json` pins hashes of `v4.2.5-closure/engine-semantics-contract.md` and `external-evidence-model.md`. If those files are ever deleted, 4.2.5 becomes unverifiable for those entries. Any deletion must be documented in the superseding record (currently a known gap).
+- **`reviews-extra/` is external evidence (Option B model)**: the assurance cycle intentionally fails (`BLOCKED exit 1`, `INV-001 fail-closed`) on a clean clone because `reviews-extra/` (in `D:\KOSSASHI\CORE DAO\reviews-extra\`) is deliberately outside the repo. Do not "fix" the BLOCKED; it's documented fail-closed behavior. A clean clone still can run SelfTest/NegativeSuite — only the standard run needs external evidence.
+- **SelfTest vs standard-run scope**: SelfTest (21 checks) and NegativeSuite (16 scenarios) are environment-independent and always runnable from repo alone; the "standard run" (`-OutDir release`) rewrites frozen outputs (`selftest.tap`, `negative-tests.json`, `verification-report.json`) — don't run it casually over frozen artifacts; verify determinism by re-running into a separate OutDir and diffing.
+- **Legacy quarantine**: all legacy broadcast/private-key scripts live under `legacy-quarantine/2026-09-18-v4.2.2/` and stay byte-identical to their originals (proof via `orig|quarantine` pairs in the manifest). They are outside the LEG-001 scan roots by design; do not reintroduce them into `scripts/`.
+- **Manifest vs freeze-record**: `release/manifest.json` pins a subset of files (engine outputs); `release/freeze/freeze-record-*.json` pins everything (release + quarantine). The internal manifest can lag the engine version — check it against current engine outputs before trusting a "current" state claim.
+
+## CoreGuard Governance State (binding)
+
+- **Decision: CONDITIONAL NO-GO** — C7=PARTIAL · C8=PENDING · C9=PENDING. Signing, commitIntent, anchorProof, Mainnet broadcast are NOT AUTHORIZED regardless of any test results; GO requires separate explicit human sign-offs (C7 security, C8 independent H1–H8 signature, C9 owner decision).
+- **H1-H8.md (release/v4.2.2-remediation/) is the only sanctioned command surface**: the reviewer runs literal commands from that packet, nothing else. If engine version changes, the packet's expected outputs (e.g., "16 scenarios", "649 checks") must be updated in the same cycle — otherwise the reviewer fails a passing engine.
+- **Semantics contract (engine 2.1.2)**: NOT_APPLICABLE/ABSENT never count as success for mandatory negative scenarios; PRECONDITION_FAILURE aborts the cycle with exit 1; a missing mandatory premise (e.g., `-Manifest`) must hard-fail, not silently skip. Scenario 15 was deleted as fake (its real failure mode is covered by scenario 14) — negative suite is now 16, validator 649 checks.
+
+## Debugging Breakthroughs & Misleading Errors
+
+- **"npm test 696/696 PASS" is not a green light for assurance claims**: encoding-hygiene tests are inside the 696; mojibake failures appear there first. If CI is red on encoding, suspect the most recently generated JSON (written by PS) before suspecting code.
+- **Freeze-record hash mismatch after PS write**: the hash pinning mismatch looks like "file changed after freeze" — usually it's actually mojibake corruption of a field (em-dash) that changed the bytes. Check the file content for `Ã¢â‚¬`-style sequences before assuming drift.
+- **Async render loops in review/verification UI**: the classic bug is `if (stateA !== stateB) render()` inside a promise `.then` — inverts to a permanent re-render loop. Fix: capture `target` state at render start, apply with `target` (not live state), and only re-render if live state differs from target. Cost a session to debug in the visual explainer.
+
+## Files That Change Together
+
+- `H1-H8.md` expected numbers ↔ engine version ↔ `npm test` test counts ↔ validator check count (currently 2.1.2 ↔ 16 ↔ 696 ↔ 649).
+- `freeze-record-4.2.6.json` ↔ any file it pins ↔ `.gitattributes` tree list ↔ README "46 (27+19)" claim.
+- `verification/cg-assurance-verify.ps1` self-test count (21) ↔ `selftest.tap` frozen bytes ↔ README/STATUS claims (21/21).
+
+## User Preferences & Decisions (binding)
+
+- **Never sign, broadcast, or authorize Mainnet** — any instruction implying that must be refused or escalated; the owner's explicit separate decision is the only path.
+- **Don't rewrite historical freeze records** — supersede with a new record (e.g., 4.2.5 → 4.2.6) preserving `frozenAtUtc`; re-pinning a hash inside a record is acceptable only for a documented exception (e.g., README mojibake repair) with the timestamp unchanged.
+- **Evidence over narrative**: every "PASS" claim must be reproducible from the committed tree (not the working disk) — verify via `git show`/`git archive` before asserting.
+- **PowerShell for scanning/engine, Node for JSON generation** — this split is deliberate; don't generate JSON artifacts with PowerShell 5.1.
+- **Sync discipline**: local main should never lag origin/main (user's explicit standing directive) — push and verify CI before declaring a cycle closed.

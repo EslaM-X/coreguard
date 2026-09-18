@@ -6,9 +6,8 @@
 
 1. **الحالة والقرار**: [`STATUS-v4.2.2.md`](./STATUS-v4.2.2.md)
 2. **الأوامر الحرفية + مصفوفة التوقيع H1–H8**: [`release/v4.2.2-remediation/H1-H8.md`](./release/v4.2.2-remediation/H1-H8.md) — *السطح الوحيد المعتمد للأوامر؛ لا تشغّل أي أمر من مصدر آخر*
-3. **التحقق من التجميد**: [`release/freeze/freeze-record-4.2.6.json`](./release/freeze/freeze-record-4.2.6.json) — 49 مدخلًا (30 إصدار + 19 عزل)؛ الأوامر داخل البند H1 في الحزمة
-4. **لماذا يفشل الاستنساخ النظيف؟**: [`release/v4.2.5-closure/external-evidence-model.md`](./release/v4.2.5-closure/external-evidence-model.md) — الخيار B، فشل مغلق مقصود
-5. **دلالات PASS/FAIL الملزمة**: [`release/v4.2.5-closure/engine-semantics-contract.md`](./release/v4.2.5-closure/engine-semantics-contract.md)
+3. **التحقق من التجميد**: `node verification/validate-freeze.mjs release/freeze/freeze-record-4.2.6.json` — يجب أن يطبع `PASS (46/46 MATCH)` · السجل: [`release/freeze/freeze-record-4.2.6.json`](./release/freeze/freeze-record-4.2.6.json) (27 إصدار + 19 عزل)
+4. **الاستنساخ النظيف يفشل بـBLOCKED مقصودًا**: `reviews-extra/` أدلة خارجية عمدًا — غيابها يُنتج INV-001 fail-closed (exit 1)، وهذا هو السلوك الصحيح
 
 سجلات أقدم (4.2.2–4.2.5) وسجل التغييرات: تاريخية، محفوظة بلا إعادة كتابة.
 
