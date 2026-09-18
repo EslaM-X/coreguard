@@ -51,6 +51,15 @@ The anchored mode is the only evidence surface. `--disk` exists for triage and i
   current record carries the commit anchor.
 - **The freeze record excludes itself** from its own hash map (declared `excludedList`).
 
+## 4-b. Printable governance dashboard (read-only reference)
+
+[`GOVERNANCE-DASHBOARD.pdf`](./GOVERNANCE-DASHBOARD.pdf) is an A4 print export of the live
+HTML governance board (15 pages): status board, architecture, fixes, freeze model, fail-closed
+semantics, the packet's literal commands, cycle history, the H1–H8 matrix, the governors page,
+and the path to GO. It is a **rendered snapshot for offline reading, not evidence** — every
+claim in it re-derives from your clone via the commands above; if it disagrees with the
+repository, the repository wins.
+
 ## 5. Open exceptions register
 
 | ID | Item | State |

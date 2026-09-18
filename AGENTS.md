@@ -47,3 +47,4 @@ Project: EslaM-X/coreguard (CoreGuard Gate 4.1 Assurance) — lessons from live 
 - **Evidence over narrative**: every "PASS" claim must be reproducible from the committed tree (not the working disk) — verify via `git show`/`git archive` before asserting.
 - **PowerShell for scanning/engine, Node for JSON generation** — this split is deliberate; don't generate JSON artifacts with PowerShell 5.1.
 - **Sync discipline**: local main should never lag origin/main (user's explicit standing directive) — push and verify CI before declaring a cycle closed.
+- **Arabic-first, English-mirrored**: all visual explanations and dashboards are authored in Arabic (the user's native language) as the source of truth, then mirrored to English at world-class documentation-brand quality. Every future visual-explanation request expects the EN mirror; keep both files in sync fact-for-fact (same numbers, hashes, structure — LTR/RTL only differs).
