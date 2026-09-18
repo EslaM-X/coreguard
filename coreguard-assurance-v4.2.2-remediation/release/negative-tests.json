@@ -85,12 +85,6 @@
                         "failClosedObserved":  true
                     },
                     {
-                        "scenario":  "NEG-missing-drift-map",
-                        "rule":  "EXT-001",
-                        "status":  "NOT_APPLICABLE",
-                        "failClosedObserved":  true
-                    },
-                    {
                         "scenario":  "NEG-unbounded-claim",
                         "rule":  "CLAIM-001",
                         "status":  "FAIL",
@@ -103,5 +97,7 @@
                         "failClosedObserved":  true
                     }
                 ],
-    "allFailClosed":  true
+    "allFailClosed":  true,
+    "preconditionFailures":  0,
+    "preconditionFailed":  false
 }

@@ -1,4 +1,4 @@
-# STATUS — CoreGuard Assurance v4.2.2-remediation (Engine 2.1.0)
+# STATUS — CoreGuard Assurance v4.2.2-remediation (Engine 2.1.2)
 **Gate 4.1 · 2026-09-18 · الإصدار المعتمد الناتج عن دورة v4.2.2 Remediation (قرار المالك)**
 
 ## بيان الحالة المعتمد
@@ -22,7 +22,7 @@ MAINNET BROADCAST     = NOT AUTHORIZED
 | البوابة | النتيجة |
 |---|---|
 | Self-test | **21/21 PASS** (يشمل ST21 الجديد) |
-| Negative suite | **17/17 fail-closed** |
+| Negative suite | **16/16 fail-closed** (v2.1.2: PRECONDITION_FAILURE صريحة؛ حُذف السيناريو الشكلي 15) |
 | التشغيل القياسي | **33/33 PASS · VERIFIED-READONLY-ONLY · صفر fail-closed failures** |
 | المدقق الذاتي | **PASS (33 findings، dupIds=0، boundedClaim=True)** |
 | Independent Node validator | **PASS (657 فحصًا، 0 أخطاء)** |

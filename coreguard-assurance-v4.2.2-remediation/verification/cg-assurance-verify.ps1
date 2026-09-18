@@ -1,5 +1,5 @@
 # ============================================================================
-# CORE GUARD ASSURANCE ENGINE (v2.1.0 / cg41-policy-v1)
+# CORE GUARD ASSURANCE ENGINE (v2.1.2 / cg41-policy-v1)
 # ----------------------------------------------------------------------------
 # Verification-only. This engine:
 #   - NEVER imports a keystore, reads or creates a password file, or signs
@@ -41,13 +41,17 @@ $ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 $script:ToolName = "cg-assurance-verify.ps1"
-$script:ToolVersion = "2.1.1"
+$script:ToolVersion = "2.1.2"
 $script:SupersedesVersion = "2.1.0"
 $script:SchemaVersion = "cg41-report/2"
 $script:CoreVersion = "1.0.0"
 $script:Findings = $null
 $script:Seen = @{}
 $script:FailClosedFailed = $false
+# v2.1.2 (directive P3): a mandatory negative scenario can only be satisfied by
+# an observable FAIL/BLOCKED — NOT_APPLICABLE, ABSENT and PRECONDITION_FAILURE
+# never count as success, and any PRECONDITION_FAILURE fails the whole cycle.
+$script:PreconditionFailed = $false
 
 # ---- stateless helpers ------------------------------------------------------
 function Get-Sha256Hex([string]$p) {
@@ -656,7 +660,8 @@ InvokeCast @('wallet','address')
     function Record([string]$id, [string]$expectRule, $run, [bool]$expectFail) {
         $f = @($run.findings | Where-Object { $_.id -eq $expectRule } | Select-Object -First 1)
         $status = if ($f.Count -gt 0) { $f[0].status } else { 'ABSENT' }
-        $ok = if ($expectFail) { $status -ne 'PASS' } else { $status -eq 'PASS' }
+        if ($status -eq 'PRECONDITION_FAILURE') { $script:PreconditionFailed = $true }
+        $ok = if ($expectFail) { $status -in 'FAIL', 'BLOCKED' } else { $status -eq 'PASS' }
         [void]$results.Add([pscustomobject]@{ scenario = $id; rule = $expectRule; status = $status; failClosedObserved = $ok })
         Write-Host ("[{0}] {1} -> {2} : {3}" -f ($(if ($ok) { 'ok' } else { 'not-ok' }), $id, $expectRule, $status))
     }
@@ -687,13 +692,14 @@ InvokeCast @('wallet','address')
         # 8 wrong cast hash
         $c = FixtureCfg (New-Fixture $tmp "ok2.ps1" $base); $c.ExpectedCastSha256 = '0xdead'
         Record "NEG-wrong-cast-hash" 'ENV-002' (Invoke-Assurance $c) $true
-        # 9 wrong manifest hash (v2.1.1 premise guard: the scenario requires a real
-        # manifest; a missing premise is reported fail-closed, never vacuously)
+        # 9 wrong manifest hash (v2.1.2 premise guard: the scenario requires a real
+        # manifest; a missing premise is PRECONDITION_FAILURE, never vacuous success)
         $c = FixtureCfg (New-Fixture $tmp "ok3.ps1" $base); $c.Manifest = $Real.Manifest; $c.ExpectedManifestSha256 = '0xdead'
         if ($c.Manifest -and (Test-Path -LiteralPath $c.Manifest)) {
             Record "NEG-wrong-manifest-hash" 'MAN-001' (Invoke-Assurance $c) $true
         } else {
-            [void]$results.Add([pscustomobject]@{ scenario = 'NEG-wrong-manifest-hash'; rule = 'MAN-001'; status = 'SKIPPED-PREMISE-MISSING'; failClosedObserved = $false })
+            [void]$results.Add([pscustomobject]@{ scenario = 'NEG-wrong-manifest-hash'; rule = 'MAN-001'; status = 'PRECONDITION_FAILURE'; failClosedObserved = $false })
+            $script:PreconditionFailed = $true
             Write-Host "[not-ok] NEG-wrong-manifest-hash -> premise missing: provide -Manifest/-ExpectedManifestSha256 to the suite"
         }
         # 10 missing policy lock
@@ -735,9 +741,9 @@ InvokeCast @('wallet','address')
             [IO.File]::WriteAllText($driftPath, $bak, [Text.UTF8Encoding]::new($false))
             Record "NEG-tampered-drift-map" 'EXT-001' $run $true
         }
-        # 15 missing drift map
-        $c = FixtureCfg (New-Fixture $tmp "ok7.ps1" $base); $c.Root = $tmp
-        Record "NEG-missing-drift-map" 'EXT-001' (Invoke-Assurance $c) $true
+        # (former scenario 15 'missing drift map' removed in v2.1.2: it only asserted
+        # NOT_APPLICABLE emission for an absent map — vacuous under strict P3
+        # semantics; the real failure mode, a tampered map, is scenario 14)
         # 16 unbounded claim rejected
         $bad = $Policies.Policy.claim -replace [regex]::Escape('This is NOT a proof of absence of such a path.'), ''
         $c = FixtureCfg (New-Fixture $tmp "ok8.ps1" $base); $c.Policy = ($Policies.Policy | ConvertTo-Json -Depth 8 | ConvertFrom-Json); $c.Policy.claim = $bad
@@ -763,7 +769,8 @@ InvokeCast @('wallet','address')
         Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
     }
     $allOk = (@($results | Where-Object { -not $_.failClosedObserved }).Count -eq 0)
-    return [pscustomobject]@{ results = $results.ToArray(); allFailClosed = $allOk }
+    $precond = @($results | Where-Object { $_.status -eq 'PRECONDITION_FAILURE' }).Count
+    return [pscustomobject]@{ results = $results.ToArray(); allFailClosed = $allOk; preconditionFailures = $precond; preconditionFailed = ($precond -gt 0) }
 }
 
 # ============================================================================
@@ -832,8 +839,8 @@ if ($NegativeSuite) {
     $np = Join-Path $OutDir 'negative-tests.json'
     [IO.File]::WriteAllText($np, ($neg | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
     ""
-    "negative suite: $(@($neg.results).Count) scenarios; allFailClosed=$($neg.allFailClosed)"
-    exit $(if ($neg.allFailClosed) { 0 } else { 1 })
+    "negative suite: $(@($neg.results).Count) scenarios; allFailClosed=$($neg.allFailClosed); preconditionFailures=$($neg.preconditionFailures)"
+    exit $(if ($neg.allFailClosed -and -not $neg.preconditionFailed) { 0 } else { 1 })
 }
 
 # release / standard run

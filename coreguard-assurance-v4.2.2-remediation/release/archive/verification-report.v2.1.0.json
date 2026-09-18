@@ -1,13 +1,13 @@
 {
     "tool":  "cg-assurance-verify.ps1",
-    "toolVersion":  "2.1.2",
+    "toolVersion":  "2.1.0",
     "schemaVersion":  "cg41-report/2",
-    "supersedesVersion":  "2.1.0",
+    "supersedesVersion":  "2.0.0",
     "ruleVersion":  "cg41-policy-v1",
     "policyVersion":  "1.0.0",
     "policyId":  "coreguard-policy",
     "gate":  "4.1",
-    "dateUtc":  "2026-09-18T08:20:20.3990056Z",
+    "dateUtc":  "2026-09-18T07:16:21.5534846Z",
     "status":  "VERIFIED-READONLY-ONLY",
     "decision":  "CONDITIONAL NO-GO",
     "claim":  "Under the current rule set (AST enumeration of command invocations, .NET type references, dynamic-invocation forms, control-flow ownership, and the RPC allow-list), NO execution or network path was found beyond the enumerated sites. This is NOT a proof of absence of such a path.",
@@ -85,8 +85,8 @@
                         },
                         {
                             "file":  "D:\\KOSSASHI\\CORE DAO\\coreguard-assurance-v4.2.2-remediation\\verification\\cg-assurance-verify.ps1",
-                            "sha256":  "0x8613b735cb717a6bab1e14f0e16a7b5e9bf2ecfeb49cce557cac74912b5a24c5",
-                            "bytes":  69193,
+                            "sha256":  "0xcdcc28a5467abf3d9c06b020015cfc3f3f336828e05530d9bdaaccdf45e38ef4",
+                            "bytes":  67891,
                             "role":  "engine-self"
                         }
                     ],
