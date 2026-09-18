@@ -28,8 +28,11 @@ Project: EslaM-X/coreguard (CoreGuard Gate 4.1 Assurance) — lessons from live 
 ## Debugging Breakthroughs & Misleading Errors
 
 - **"npm test 696/696 PASS" is not a green light for assurance claims**: encoding-hygiene tests are inside the 696; mojibake failures appear there first. If CI is red on encoding, suspect the most recently generated JSON (written by PS) before suspecting code.
-- **Freeze-record hash mismatch after PS write**: the hash pinning mismatch looks like "file changed after freeze" — usually it's actually mojibake corruption of a field (em-dash) that changed the bytes. Check the file content for `Ã¢â‚¬`-style sequences before assuming drift.
+- **Freeze-record hash mismatch after PS write**: the hash pinning mismatch looks like "file changed after freeze" — usually it's actually mojibake corruption of a field (em-dash) that changed the bytes. Check the file content for mojibake-style high-byte sequences (C3 xx / C2 xx patterns around em-dash positions) before assuming drift. Never quote a mojibake sample literally in AGENTS.md/docs — the hygiene scanner flags the example itself.
 - **Async render loops in review/verification UI**: the classic bug is `if (stateA !== stateB) render()` inside a promise `.then` — inverts to a permanent re-render loop. Fix: capture `target` state at render start, apply with `target` (not live state), and only re-render if live state differs from target. Cost a session to debug in the visual explainer.
+
+- **Commit-anchored verification (4.2.6+)**: `validate-freeze.mjs` hashes `git show <gitCommit>:<path>` blobs, not disk bytes. Disk mode (`--disk`) is triage-only, prints "not evidence". Records without `gitCommit` fail COMMIT-UNANCHORED (historical included — correct). Editing a file whose bytes exist only in a future commit requires a **two-phase re-anchor**: commit phase 1, then point `gitCommit`/`postCommitRePins` at that hash in phase 2. Release entries are platform-dir relative; quarantine entries repo-root relative.
+- **NegativeSuite premise path**: `-Manifest` is resolved via `Test-Path -LiteralPath` from the CWD — run the suite from the platform dir, not the repo root, or the manifest premise becomes PRECONDITION_FAILURE and fails the whole cycle (correctly). It rewrites frozen `negative-tests.json`; determinism proof = git diff empty after rerun.
 
 ## Files That Change Together
 

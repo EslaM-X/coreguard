@@ -37,8 +37,8 @@
     "releaseFiles": [
       {
         "file": "README.md",
-        "sha256": "0x7a2c2512a81feaad062f5e6ded29244180f40c12949e8625ea45542e2f516940",
-        "bytes": 1465
+        "sha256": "0xb769634fc84f987c701747de2bc8d02b9acf0b7d99d30f1c385b11760f615666",
+        "bytes": 1679
       },
       {
         "file": "CHANGELOG-v4.2.2.md",
