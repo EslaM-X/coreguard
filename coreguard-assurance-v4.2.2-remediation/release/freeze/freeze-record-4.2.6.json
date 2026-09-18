@@ -37,8 +37,8 @@
     "releaseFiles": [
       {
         "file": "README.md",
-        "sha256": "0x950f1e836a8879d118c51fbb5eedc83228fd05c5b74eea3d27f691724c69ca40",
-        "bytes": 1694
+        "sha256": "0x8a47fce2c1f398e3be567bacb65d7355ddc3fefb8da9b081fb3a2647526ef88c",
+        "bytes": 3699
       },
       {
         "file": "CHANGELOG-v4.2.2.md",
@@ -270,8 +270,8 @@
     ]
   },
   "decision": "CONDITIONAL NO-GO — C7=PARTIAL C8=PENDING C9=PENDING; SIGNING/COMMITINTENT/ANCHORPROOF/MAINNET BROADCAST = NOT AUTHORIZED",
-  "gitCommit": "c1f0a67ed82de4ff89f362dcff82b2b1b0085f9f",
-  "gitCommitNote": "anchor: all pins (except postCommitRePins) verified against this immutable commit tree; disk bytes are NOT the reference; re-pin commits resolved in the same cycle that edits those bytes (two-phase)",
+  "gitCommit": "c34cae8684c18111d014c89af3be2cad0d86f531",
+  "gitCommitNote": "anchor advanced to the re-pin commit; previous anchor c1f0a67ed82de4ff89f362dcff82b2b1b0085f9f remains valid history",
   "postCommitRePins": [
     {
       "file": "README.md",
@@ -282,6 +282,11 @@
       "file": "release/v4.2.2-remediation/H1-H8.md",
       "commit": "c1f0a67ed82de4ff89f362dcff82b2b1b0085f9f",
       "reason": "packet 1.2.1 commit-anchored command update; re-pinned per integrity rule"
+    },
+    {
+      "file": "README.md",
+      "commit": "c34cae8684c18111d014c89af3be2cad0d86f531",
+      "reason": "reviewer entry-point rewritten in professional English (facts unchanged)"
     }
   ]
 }
