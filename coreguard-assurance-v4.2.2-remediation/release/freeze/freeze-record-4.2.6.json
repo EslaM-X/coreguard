@@ -270,17 +270,17 @@
     ]
   },
   "decision": "CONDITIONAL NO-GO — C7=PARTIAL C8=PENDING C9=PENDING; SIGNING/COMMITINTENT/ANCHORPROOF/MAINNET BROADCAST = NOT AUTHORIZED",
-  "gitCommit": "31770f38c08f3270927ab003e4c51993da9a983e",
+  "gitCommit": "2cdda4f2ce9e3e23484d90be97458d3dae158113",
   "gitCommitNote": "anchor: all pins (except postCommitRePins) verified against this immutable commit tree; disk bytes are NOT the reference; re-pin commits resolved in the same cycle that edits those bytes (two-phase)",
   "postCommitRePins": [
     {
       "file": "README.md",
-      "commit": "31770f38c08f3270927ab003e4c51993da9a983e",
+      "commit": "2cdda4f2ce9e3e23484d90be97458d3dae158113",
       "reason": "reviewer-entry text edited after freeze; re-pinned per integrity rule (frozenAtUtc preserved)"
     },
     {
       "file": "release/v4.2.2-remediation/H1-H8.md",
-      "commit": "31770f38c08f3270927ab003e4c51993da9a983e",
+      "commit": "2cdda4f2ce9e3e23484d90be97458d3dae158113",
       "reason": "packet 1.2.1 commit-anchored command update; re-pinned per integrity rule"
     }
   ]
