@@ -137,8 +137,8 @@
       },
       {
         "file": "release/v4.2.2-remediation/H1-H8.md",
-        "sha256": "0x2ebe2267a2171b5e6ae4e7c5f2a036ca4abe7d52ae0d88ff3138bca26be51eb0",
-        "bytes": 7107
+        "sha256": "0xf59dee8a02312bc936a3fd1b9870059fd84e47cbe4a521c536d82632cd19411e",
+        "bytes": 7122
       },
       {
         "file": "release/v4.2.2-remediation/C7-security-review-template.json",
