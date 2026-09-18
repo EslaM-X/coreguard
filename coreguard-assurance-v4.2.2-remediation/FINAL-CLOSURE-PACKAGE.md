@@ -133,3 +133,15 @@ BROADCAST ELIGIBILITY         : NOT ELIGIBLE
 ```
 
 Work stops here. C7/C8/C9 belong to their independent owners.
+
+---
+
+## P1 EOL addendum (final closure plan, phase 1)
+
+| Item | Result |
+|---|---|
+| Classification | **CLOSED** (no fourth state) — `docs/eol-policy.md` (`cg-eol-policy-v1`) |
+| `.gitattributes` | `packages/verifier-c/** -text` added; frozen trees unchanged |
+| Executable proof | `test/eol/eol-policy.test.mjs`: 4/4 (rules in effect via check-attr; checkout under `core.autocrlf=true` byte-exact for verifier-c AND the freeze record, simulated per-invocation, global config untouched) |
+| Full suite after change | 713/713 PASS (709 + 4 EOL cases) |
+| Re-open condition | any byte-diff on a `-text` surface (enforced by Dec-C-9 + `validate-freeze.mjs`) |
