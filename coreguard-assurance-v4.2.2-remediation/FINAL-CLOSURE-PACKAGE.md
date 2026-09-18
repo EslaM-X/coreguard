@@ -113,7 +113,7 @@ record; the freeze map itself is untouched).
 
 | Item | Revalidated result |
 |---|---|
-| Scope check (3 changes) | validate-freeze.mjs = disk-branch relocation only, integrity rules untouched; contract = +14 lines (one regression case); package = +103 lines docs-only. The executor note 'EOL gap' was **corrected**: the EOL advisory is untouched by design, and the freeze tree is -protected (verified via git check-attr) |
+| Scope check (3 changes) | validate-freeze.mjs = disk-branch relocation only, integrity rules untouched; contract = +14 lines (one regression case); package = +103 lines docs-only. The executor note 'EOL gap' was **corrected**: the EOL advisory is untouched by design, and the freeze tree is marked `-text` (byte-exact; verified via git check-attr) |
 | Targeted suite | contract 13/13 · tamper A/B: disk exit 1 + MISMATCH, anchored exit 0 · pin-contamination check: disk == pin == anchor hash, tree clean |
 | Full suite (executed, per the "execute if a core verification path was touched" clause) | **709/709 PASS** |
 | Carrier commit | this file's commit — verify with: git log --oneline -1 -- FINAL-CLOSURE-PACKAGE.md |
