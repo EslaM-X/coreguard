@@ -135,3 +135,9 @@ Independent countersignature (optional; upgrades provenance): ______________
 **Result: RELEASE STATUS = APPROVED (single-operator mode).**
 Standing caveat, unchanged: a fully independent C7/C8 countersignature pair remains the only path
 to *independent* governance certification — and it requires no re-work, only signatures.
+
+**Standing exception, owner-accepted:** the single-operator nature of every record above is
+formalized in [`OWNER-STANDING-DECLARATION.md`](./OWNER-STANDING-DECLARATION.md)
+(`cg-owner-standing-v1`) — independent review unavailable, accepted by name; transaction
+authorization remains the sole responsibility of the named human operator, per the binding
+P7 boundary (its §3).

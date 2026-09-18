@@ -83,3 +83,8 @@ Signature:
 Signing closes C8 **only**. It grants no Mainnet authorization, no signing rights,
 and no broadcast eligibility — those belong to C7 (security), C9 (owner), and a
 separate execution authorization.
+
+> **Standing exception (owner-accepted):** single-operator exception accepted by the
+> project owner; independent review is unavailable in this project's current composition;
+> transaction authorization remains the sole responsibility of the named human operator —
+> [`OWNER-STANDING-DECLARATION.md`](./OWNER-STANDING-DECLARATION.md).

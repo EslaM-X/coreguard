@@ -70,6 +70,36 @@ Revocation:                  owner statement voids this paper instantly;
                              any open finding by any signer of the chain voids it automatically.
 ```
 
+### §3-b — Transaction-level details (per transaction; the operator completes each in person)
+
+For each individual transaction under the §3 scope — one filled block per tx, reviewed
+**outside any session** before signing:
+
+```
+Transaction purpose:         [ … ]        Transaction data hash:     [ … ]
+Expected effects:            [ … ]        Rollback / recovery plan:  [ … ]
+Risk assessment:             [ operator writes — failure modes, fund exposure, worst case ]
+Independent tx review:       [ reviewed by … / self-reviewed with named justification ]
+Simulation / dry-run:        [ fork test / tenderly / local sim — attach evidence reference ]
+Final recipient + amount:    [ verified against an independent source — re-read aloud, re-checked ]
+
+Decision (strike all but one):
+[ ] APPROVED FOR SIGNING     [ ] APPROVED FOR BROADCAST
+[ ] REJECTED                 [ ] DEFERRED
+
+Conditions / limits:         [ … ]
+Operator signature:          [ … ]        Date / time (UTC):         [ … ]
+
+— after broadcast, by the operator —
+Transaction hash:            [ … ]        Explorer URL:              [ … ]
+```
+
+**Explicit exclusions (verbatim from the owner's standing declaration
+[`OWNER-STANDING-DECLARATION.md`](./OWNER-STANDING-DECLARATION.md) §3):**
+- No private key entered into this session.
+- No authorization inferred from technical test results.
+- No broadcast without the named human operator's explicit approval.
+
 ## 4. Pre-execution verification by the operator (all boxes, in order)
 
 ```
