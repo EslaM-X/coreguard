@@ -11,18 +11,10 @@
 // "did bytes change after the freeze?" defect class that consumed several
 // assurance cycles.
 //
-// Modes:
-//   node validate-freeze.mjs <record>                 → commit-anchored (default).
-//       Requires record.gitCommit. `git` must exist; MISSING entries are
-//       reported as COMMIT-MISSING (not disk-missing). FAIL-CLOSED.
-//   node validate-freeze.mjs <record> --commit <sha>  → verify the commit the
-//       record declares IS the commit given (case-insensitive prefix match);
-//       mismatch is an immediate FAIL (prevents verifying a different tree).
-//   node validate-freeze.mjs <record> --disk          → legacy disk mode.
-//       Prints an explicit caveat: disk bytes are UNPINNED and prove nothing
-//       about the frozen tree. Kept only so a reviewer can triage a mismatch
-//       against their working copy. Not valid evidence; packet items must not
-//       cite it.
+// Modes (all three asserted by test/verifier-c/validate-freeze.test.mjs):
+//   node validate-freeze.mjs <record>                 → commit-anchored (default). FAIL-CLOSED.
+//   node validate-freeze.mjs <record> --commit <sha>  → refuse any tree ≠ the record's anchor.
+//   node validate-freeze.mjs <record> --disk          → triage only; output is branded "not evidence".
 //
 // postCommitRePins: the record may list entries re-pinned after the freeze
 // timestamp (the documented integrity-rule exception, e.g. README text edited
@@ -48,7 +40,6 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
 const argv = process.argv.slice(2);
 const recordPath = argv.find((a) => !a.startsWith("--"));
@@ -68,6 +59,8 @@ try {
   console.error(`[invalid] freeze record is not parseable JSON: ${e.message}`);
   process.exit(1);
 }
+
+import { fileURLToPath } from "node:url";
 
 const platformDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(platformDir, "..");
@@ -126,16 +119,29 @@ const rePins = new Map(
   (record.postCommitRePins ?? []).map((r) => [r.file, r.commit])
 );
 
-function verifyEntry(e, base) {
-  // Repo-root relative path inside the commit tree:
-  //  - release entries are platform-dir relative → prefix the platform dir name
-  //  - quarantine entries are repo-root relative already (v1 ../ prefixes stripped)
-  const rel = e.file.startsWith("..")
-    ? repoRelPath(e)
+// Path of a pinned entry inside the commit tree, repo-root relative:
+//  - release entries are platform-dir relative → prefix the platform dir name
+//  - quarantine entries are repo-root relative already (v1 ../ prefixes stripped)
+function treePath(e, base) {
+  return e.file.startsWith("..")
+    ? e.file.replace(/^(\.\.\/)+/, "")
     : (base === repoRoot ? e.file : `${PLATFORM_DIR_NAME}/${e.file}`);
+}
+
+// One pinned entry vs its disk bytes — --disk triage only.
+function checkDisk(absPath, label, pinned) {
+  try {
+    if (hashBuf(readFileSync(absPath)) === pinned) { match++; return; }
+    bad.push(`MISMATCH ${label}`);
+  } catch {
+    bad.push(`MISSING ${label}`);
+  }
+}
+
+function verifyEntry(e, base) {
+  const rel = treePath(e, base);
   const pinned = normalizePin(e.sha256);
 
-  // Documented post-freeze re-pin: verify from its own declared commit.
   if (rePins.has(e.file)) {
     const pinCommit = rePins.get(e.file);
     try {
@@ -148,13 +154,7 @@ function verifyEntry(e, base) {
   }
 
   if (diskMode) {
-    const abs = e.file.startsWith("..") ? resolve(base, e.file) : join(base, e.file);
-    try {
-      if (hashBuf(readFileSync(abs)) === pinned) { match++; return; }
-      bad.push(`MISMATCH ${e.file} (disk)`);
-    } catch {
-      bad.push(`MISSING ${e.file} (disk)`);
-    }
+    checkDisk(e.file.startsWith("..") ? resolve(base, e.file) : join(base, e.file), `${e.file} (disk)`, pinned);
     return;
   }
 
