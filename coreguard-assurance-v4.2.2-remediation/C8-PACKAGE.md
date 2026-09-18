@@ -12,11 +12,12 @@
 ```bash
 git clone https://github.com/EslaM-X/coreguard.git
 cd coreguard
-git rev-parse HEAD   # must equal: ccd75e8 (or later, per the governance log)
+git rev-parse HEAD   # must equal: f59411a (or later, per the governance log)
+npm ci               # required before `npm test` — a fresh clone has no node_modules
 ```
 
 All claims below are pinned to this lineage; verify before trusting anything:
-`ee9d7e3` (final revalidated baseline) → `d7ca118` (EOL policy closure) → `ccd75e8` (closure addendum).
+`ee9d7e3` (final revalidated baseline) → `d7ca118` (EOL policy closure) → `ccd75e8` (closure addendum) → `f59411a` (governance handoff set + executed Windows-clone proof).
 
 ## 2. Re-derivation checklist (everything from YOUR clone)
 
