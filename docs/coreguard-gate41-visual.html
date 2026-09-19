@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoreGuard Gate 4.1 — لوحة الحوكمة والحالة</title>
+<style>
+  :root{
+    --bg:#0b0f17; --panel:#121a28; --panel2:#0d1420; --line:#223047; --ink:#e9eef8;
+    --muted:#9fb0c9; --green:#34d399; --green-d:#0c2b21; --amber:#fbbf24; --amber-d:#2e2410;
+    --red:#f87171; --red-d:#301418; --blue:#60a5fa; --blue-d:#12233d; --violet:#a78bfa;
+    --mono:Consolas,"Cascadia Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI","Noto Sans Arabic",Tahoma,Arial,sans-serif;line-height:1.75;font-size:16px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px 80px}
+  section{scroll-margin-top:var(--navH,76px);margin-top:56px}
+  h1{font-size:clamp(1.5rem,3.4vw,2.3rem);margin:.2em 0}
+  h2{font-size:clamp(1.2rem,2.4vw,1.6rem);border-inline-start:4px solid var(--blue);
+     padding-inline-start:.55em;margin:0 0 14px}
+  h3{margin:20px 0 8px;font-size:1.05rem;color:#cfe0f5}
+  p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .ltr{direction:ltr;unicode-bidi:isolate;font-family:var(--mono);font-size:.92em}
+  bdi{unicode-bidi:isolate}
+  code,.code{font-family:var(--mono);background:var(--panel2);border:1px solid var(--line);
+    border-radius:6px;padding:.05em .4em;direction:ltr;unicode-bidi:isolate;font-size:.9em}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;background:rgba(11,15,23,.92);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line)}
+  nav .in{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap}
+  nav a{color:var(--muted);text-decoration:none;font-size:.85rem;padding:4px 10px;border-radius:999px;
+    border:1px solid transparent}
+  nav a:hover,nav a:focus-visible{color:var(--ink);border-color:var(--line);background:var(--panel)}
+  a{color:var(--blue)}
+
+  /* hero */
+  header.hero{margin-top:36px}
+  .pulse{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--amber);
+    margin-inline-end:8px;animation:pulse 1.8s ease-in-out infinite;vertical-align:middle}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.5)}50%{box-shadow:0 0 0 9px rgba(251,191,36,0)}}
+
+  .board{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));margin-top:18px}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .tile .k{font-size:.78rem;color:var(--muted);letter-spacing:.04em}
+  .tile .v{font-size:1.25rem;font-weight:700;margin-top:2px}
+  .tile .d{font-size:.8rem;color:var(--muted);margin-top:4px;line-height:1.55}
+  .decide{grid-column:1/-1;background:linear-gradient(135deg,var(--red-d),var(--panel));
+    border:1px solid #5b2330}
+  .decide .v{font-size:clamp(1.3rem,3vw,1.9rem);color:var(--red)}
+  .s-green{color:var(--green)} .s-amber{color:var(--amber)} .s-blue{color:var(--blue)} .s-red{color:var(--red)}
+  .auth{grid-column:1/-1;background:var(--red-d);border:1px solid #5b2330;border-radius:14px;padding:12px 16px}
+  .auth .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .chip{font-family:var(--mono);direction:ltr;unicode-bidi:isolate;font-size:.78rem;
+    border:1px solid #7a2f3d;color:var(--red);border-radius:999px;padding:3px 10px;background:#1c0d12}
+  .chip.g{color:var(--green);border-color:#1f5c47;background:#0c2b21}
+
+  /* governors (live) */
+  .gates{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));margin-top:14px}
+  .gate{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .gate .k{font-size:.78rem;color:var(--muted);letter-spacing:.04em}
+  .gate .st{font-size:1.08rem;font-weight:700;margin:4px 0 8px}
+  .gate .d{font-size:.85rem;line-height:1.7}
+  .gate .src{font-size:.78rem;color:var(--muted);border-top:1px dashed var(--line);margin-top:10px;padding-top:8px;line-height:1.7}
+  .gate .slot{margin-top:10px;border:2px dashed var(--line);border-radius:10px;padding:8px 10px;
+    font-size:.78rem;color:var(--muted);text-align:center;line-height:1.6}
+  .gate .slot b{color:var(--violet)}
+  .gate.p7{border-color:#5b2330;background:var(--red-d)}
+  .lineage{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center}
+  .lchip{font-family:var(--mono);direction:ltr;unicode-bidi:isolate;font-size:.72rem;border:1px solid var(--line);
+    color:var(--muted);border-radius:999px;padding:2px 9px;background:var(--panel2)}
+  .lchip.h{color:var(--blue);border-color:#2c4a77;font-weight:700}
+  .larr{color:var(--muted);font-size:.75rem}
+
+  /* independent-signature simulator (governors) */
+  .sim{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .sim .head{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+  .sim .head h3{margin:0}
+  .sim .head .spacer{flex:1}
+  .sim .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+  .sim .row .lchip{font-size:.78rem}
+  .sim .note{margin-top:10px;font-size:.8rem;color:var(--muted);line-height:1.7}
+  .sim .note b.s-red{color:var(--red)}
+  .sim .note b.s-green{color:var(--green)}
+  .tag.flip{animation:flip .45s ease}
+  @keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg);opacity:.2}100%{transform:rotateX(0);opacity:1}}
+  .gate .st .tag.simulated{outline:2px dotted var(--violet);outline-offset:2px}
+
+  .callout{border:1px solid var(--line);border-inline-start:5px solid var(--violet);
+    background:var(--panel);border-radius:12px;padding:14px 18px;margin:18px 0}
+  .callout.warn{border-inline-start-color:var(--amber)}
+  .callout.danger{border-inline-start-color:var(--red)}
+  .callout.ok{border-inline-start-color:var(--green)}
+
+  /* generic card grid */
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .card h3{margin-top:0}
+  .ba{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-top:10px}
+  .ba .side{border-radius:10px;padding:10px 12px;font-size:.86rem;line-height:1.6}
+  .ba .before{background:var(--red-d);border:1px solid #5b2330}
+  .ba .after{background:var(--green-d);border:1px solid #1f5c47}
+  .ba .arr{color:var(--muted);font-size:1.3rem}
+  .evi{font-size:.8rem;color:var(--muted);border-top:1px dashed var(--line);margin-top:10px;padding-top:8px}
+
+  /* layers */
+  .layers{display:flex;flex-direction:column;gap:0;margin-top:8px}
+  .layer{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--panel);
+    position:relative;margin-top:-1px}
+  .layer .no{position:absolute;inset-inline-start:-14px;top:50%;transform:translateY(-50%);
+    width:28px;height:28px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--muted)}
+  .layer b{color:#dbe7fa}
+  .layer .sub{color:var(--muted);font-size:.85rem}
+  .layer.sealed{border:2px dashed #7a2f3d;background:var(--red-d);
+    background-image:repeating-linear-gradient(45deg,rgba(248,113,113,.06) 0 12px,transparent 12px 24px)}
+  .downflow{text-align:center;color:var(--muted);font-size:.78rem;padding:2px 0}
+
+  /* terminal */
+  .terminal{direction:ltr;text-align:left;font-family:var(--mono);font-size:.83rem;
+    background:#080c14;border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;line-height:1.7}
+  .terminal .cmd{color:#7dd3fc;white-space:pre-wrap;word-break:break-all}
+  .terminal .cmd::before{content:"$ ";opacity:.5}
+  .terminal .o{color:#a7f3d0}
+  .terminal .n{color:var(--muted)}
+  .terminal .e{color:var(--red)}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.9rem}
+  .tblwrap{overflow-x:auto}
+  .tblwrap table{min-width:640px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+  th{background:var(--panel2);color:#cfe0f5;font-weight:600}
+  tr:nth-child(even) td{background:rgba(255,255,255,.015)}
+  .tag{display:inline-block;font-size:.72rem;font-weight:700;border-radius:6px;padding:1px 8px;
+    font-family:var(--mono);direction:ltr;unicode-bidi:isolate}
+  .t-g{background:var(--green-d);color:var(--green);border:1px solid #1f5c47}
+  .t-a{background:var(--amber-d);color:var(--amber);border:1px solid #6b5310}
+  .t-r{background:var(--red-d);color:var(--red);border:1px solid #7a2f3d}
+  .t-b{background:var(--blue-d);color:var(--blue);border:1px solid #2c4a77}
+
+  /* timeline */
+  .tl{position:relative;margin:26px 4px 6px;padding-inline-start:26px}
+  .tl::before{content:"";position:absolute;inset-inline-start:8px;top:6px;bottom:6px;width:3px;
+    background:linear-gradient(var(--blue),var(--violet));border-radius:2px}
+  .tl .node{position:relative;margin-bottom:20px}
+  .tl .node::before{content:"";position:absolute;inset-inline-start:-25px;top:8px;width:13px;height:13px;
+    border-radius:50%;background:var(--bg);border:3px solid var(--blue)}
+  .tl .node h4{margin:0;font-size:1rem}
+  .tl .node .when{font-family:var(--mono);direction:ltr;unicode-bidi:isolate;font-size:.75rem;color:var(--muted)}
+  .tl .node ul{margin:6px 0 0;padding-inline-start:20px;font-size:.88rem;color:#c9d6ea}
+  .caught{display:inline-block;font-size:.72rem;background:var(--amber-d);color:var(--amber);
+    border:1px solid #6b5310;border-radius:999px;padding:1px 9px;margin-inline-start:6px}
+
+  /* flow */
+  .flow{display:flex;flex-direction:column;align-items:stretch;gap:0;max-width:640px;margin:18px auto 0}
+  .step{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:12px 16px;position:relative}
+  .step .who{font-size:.75rem;color:var(--muted)}
+  .step.here{border:2px solid var(--amber);background:var(--amber-d)}
+  .step.vault{border:2px dashed #7a2f3d;background:var(--red-d);text-align:center}
+  .connector{text-align:center;color:var(--muted);font-size:1.1rem;line-height:1.1;padding:2px 0}
+  .youare{position:absolute;top:-12px;inset-inline-end:14px;background:var(--amber);color:#201a05;
+    font-size:.72rem;font-weight:800;border-radius:999px;padding:1px 10px}
+
+  /* tamper widget */
+  .demo{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:14px}
+  .bytes{direction:ltr;font-family:var(--mono);font-size:.86rem;letter-spacing:.06em;word-break:break-all;
+    background:#080c14;border:1px solid var(--line);border-radius:10px;padding:12px;line-height:1.9}
+  .bytes mark{background:#7a2f3d;color:#ffd9d9;border-radius:3px;padding:0 1px}
+  .hashbox{direction:ltr;font-family:var(--mono);font-size:.8rem;color:var(--muted);
+    background:#080c14;border:1px solid var(--line);border-radius:10px;padding:10px 12px;word-break:break-all;margin-top:10px}
+  .verdict{margin-top:12px;font-weight:800;border-radius:10px;padding:10px 14px;text-align:center}
+  .v-ok{background:var(--green-d);color:var(--green);border:1px solid #1f5c47}
+  .v-bad{background:var(--red-d);color:var(--red);border:1px solid #7a2f3d}
+  button{font:inherit;cursor:pointer;background:var(--blue-d);color:var(--blue);border:1px solid #2c4a77;
+    border-radius:10px;padding:8px 18px;margin-top:12px}
+  button:hover,button:focus-visible{filter:brightness(1.2);outline:2px solid var(--blue)}
+
+  /* legend chips */
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:.8rem;color:var(--muted)}
+  .legend .chip{color:var(--ink)}
+
+  .figure{margin:14px 0 0}
+  figcaption{font-size:.8rem;color:var(--muted);margin-top:6px}
+  .svgbg{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px}
+  footer{margin-top:70px;border-top:1px solid var(--line);padding-top:22px;text-align:center;color:var(--muted);font-size:.85rem}
+
+  /* verdict + tiles respond to interaction; reduced-motion-safe via global kill below */
+  .verdict{transition:background .25s ease, color .25s ease}
+  .tile,.card{transition:border-color .2s ease, transform .2s ease}
+  .tile:hover,.card:hover{border-color:#33456b;transform:translateY(-2px)}
+  button:active{transform:translateY(1px)}
+  button{transition:filter .15s ease, transform .1s ease}
+
+  /* nav current-section highlight */
+  nav a.active{color:var(--ink);background:var(--blue-d);border-color:#2c4a77}
+
+  /* language switch — in-page AR↔EN toggle (bilingual board) */
+  .lang{margin-inline-start:auto;display:flex;gap:4px;align-items:center}
+  #langBtn{margin-top:0;font-family:var(--mono);font-weight:700;font-size:.78rem;direction:ltr;unicode-bidi:isolate;
+    padding:4px 12px;border-radius:999px;border:1px solid #2c4a77;background:var(--blue-d);color:var(--blue)}
+  #langBtn:hover,#langBtn:focus-visible{filter:brightness(1.25);outline:2px solid var(--blue);outline-offset:2px}
+
+  /* copy affordance for the reviewer's literal commands */
+  .terminal .cmd{cursor:pointer}
+  .terminal .cmd:hover{background:rgba(125,211,252,.08);border-radius:4px}
+  .terminal .cmd::after{content:"⧉";opacity:0;font-size:.75rem;margin-inline-start:.6em;vertical-align:middle;
+    transition:opacity .15s ease}
+  .terminal .cmd:hover::after{opacity:.65}
+  .copied{position:fixed;bottom:22px;inset-inline-start:50%;transform:translateX(50%);
+    background:var(--green-d);color:var(--green);border:1px solid #1f5c47;border-radius:999px;
+    padding:6px 18px;font-size:.85rem;z-index:99;opacity:0;transition:opacity .2s ease;pointer-events:none}
+  .copied.show{opacity:1}
+
+  a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+    html{scroll-behavior:auto}
+  }
+
+  /* ====================================================================
+     PRINT THEME — نسخة PDF لمراجع C8 (مرآة للنسخة الإنجليزية).
+     .terminal يبقى داكنًا: يُطبع مقروءًا ويحافظ على ترميز الألوان
+     (الأزرق=أوامر، الأخضر=مخرجات) الذي يقاطعه المراجع مع C8-PACKAGE.md.
+     .bytes/.hashbox تتحول للفاتح: محتواها داكن على داكن لا يُطبع مقروءًا.
+     A4 عمودي، كل قسم في صفحة مستقلة.
+     ==================================================================== */
+  @media print{
+    @page{size:A4 portrait;margin:14mm 12mm}
+    nav,.copied{display:none}
+    html,body{background:#fff;color:#16202f;font-size:11pt;line-height:1.5}
+    .wrap{max-width:none;padding:0}
+    section{margin-top:0;padding-top:14pt;break-before:page}
+    header.hero{break-before:avoid;margin-top:0}
+    section:first-of-type{break-before:avoid}
+    h1{font-size:19pt}
+    h2{font-size:15pt;border-inline-start-color:#1a4f8a}
+    h3{color:#223247}
+    .tile,.card,.gate,.callout,.demo{break-inside:avoid;box-shadow:none}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8pt}
+    .board{grid-template-columns:1fr 1fr}
+    .auth,.decide{grid-column:1/-1}
+    /* إعادة تلوين فاتحة للأسطح الداكنة التي لا تُطبع مقروءة */
+    .tile,.card,.gate,.callout,.demo,.layer{background:#fff;border-color:#b9c4d4}
+    .layer{background:#fff}
+    .layer.sealed{background:#fdf1f2;border-color:#c98189;background-image:none}
+    .callout.danger{background:#fdf1f2}
+    .callout.ok{background:#f0faf5}
+    .callout.warn{background:#fdf9ee}
+    .muted,.tile .d,.gate .src,.gate .slot,.downflow,.who,.evi,.sub,figcaption{color:#4a586c}
+    .s-green{color:#0d7a4f}.s-amber{color:#8a5a00}.s-red{color:#b3232a}.s-blue{color:#1553a8}
+    .tag,.chip,.lchip,.v-ok,.v-bad,.verdict{background:#fff}
+    .t-g,.chip.g,.v-ok{color:#0d7a4f;border-color:#7cc3a3}
+    .t-a{color:#8a5a00;border-color:#d9b25c}
+    .t-r,.chip,.v-bad{color:#b3232a;border-color:#d98f95}
+    .t-b{color:#1553a8;border-color:#8fb4e0}
+    .gate.p7{background:#fdf1f2;border-color:#c98189}
+    .step.here{background:#fdf9ee;border-color:#d9b25c}
+    .step.vault{background:#fdf1f2;border-color:#c98189}
+    .bytes,.hashbox{background:#f4f6fa;border-color:#b9c4d4;color:#16202f}
+    .bytes mark{background:#f3c2c6;color:#7a1220}
+    button{display:none}
+    a{color:#1553a8;text-decoration:none}
+    .ltr,code,.code{background:#f4f6fa;border-color:#d5dce6}
+    .terminal{font-size:7.6pt;border-color:#b9c4d4}
+    .svgbg{background:#fff;border-color:#b9c4d4}
+    /* إظهار مقاصد الروابط حتى تبقى النسخة المطبوعة قائدة إلى المستودع */
+    #gov .callout a[href^="http"]::after{content:" (" attr(href) ")";font-size:6.5pt;color:#4a586c;direction:ltr;unicode-bidi:isolate}
+    footer{break-before:page}
+    .sim{break-inside:avoid;background:#fff;border-color:#b9c4d4}
+    .sim .note{color:#4a586c}
+    #simBtn{display:none}
+    .lang{display:none}
+  }
+</style>
+</head>
+<body>
+
+
+<nav aria-label="فهرس الصفحة">
+  <div class="in">
+    <a href="#board" data-i18n="447">اللوحة</a>
+    <a href="#layers" data-i18n="448">البنية</a>
+    <a href="#findings" data-i18n="449">الإصلاحات</a>
+    <a href="#freeze" data-i18n="450">التجميد</a>
+    <a href="#semantics" data-i18n="451">الدلالات</a>
+    <a href="#evidence" data-i18n="452">الأدلة</a>
+    <a href="#cycle" data-i18n="453">الدورات</a>
+    <a href="#packet" data-i18n="454">حزمة C8</a>
+    <a href="#gov" data-i18n="455">الحكّام</a>
+    <a href="#path" data-i18n="456">الطريق إلى GO</a>
+    <a href="#open" data-i18n="457">المفتوح</a>
+    <span class="lang" role="group" aria-label="تبديل اللغة">
+      <button id="langBtn" type="button" aria-pressed="false">EN</button>
+    </span>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ===================== HERO / STATUS BOARD ===================== -->
+<header class="hero" id="board">
+  <p class="muted" style="margin-bottom:2px" data-i18n="0">
+    <span class="pulse" aria-hidden="true"></span>
+    وضع المراجعة — <span class="ltr">EslaM-X/coreguard</span> · بوابة <span class="ltr">4.1</span> · منصة CoreGuard Assurance · <span class="ltr">engine 2.1.2</span>
+  </p>
+  <h1 data-i18n="4">من سكربت تحقق إلى نظام حوكمة — وأين نقف الآن بالضبط</h1>
+  <p class="muted" data-i18n="5">شرح بصري شامل للحالة المعتمدة: ما بُني، ما أُثبت بالهاشات، من يقرر، ولماذا يبقى البث على Mainnet <bdi><span class="s-red" data-i18n="6">غير مصرّح</span></bdi> رغم نجاح كل الاختبارات.</p>
+
+  <div class="board" role="list" aria-label="لوحة الحالة">
+    <div class="tile decide" role="listitem">
+      <div class="k" data-i18n="7">القرار الملزم — بعد سجلات الحوكمة</div>
+      <div class="v">RELEASE APPROVED · <span class="s-amber">BROADCAST LOCKED</span></div>
+      <div class="d" data-i18n="10">الإصدار المثبت معتمد في وضع المشغّل الواحد <b data-i18n="11">المعلن</b>؛ لا توقيع معاملة ولا بث — الخزنة تُفتح فقط بتوقيع <span class="ltr">P7</span> من مشغّل بشري مسمّى.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k" data-i18n="13">C7 — الأمن</div>
+      <div class="v s-green">APPROVED <span class="tag t-a">single-op</span></div>
+      <div class="d" data-i18n="16">مقبول في وضع المشغّل الواحد المعلن — مخاطر R-1/R-2/R-3 باسمها؛ الترقية لاستقلالية كاملة بفتحة توقيع خارجية.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k" data-i18n="17">C8 — الأدلة</div>
+      <div class="v s-green">APPROVED <span class="tag t-a">single-op</span></div>
+      <div class="d" data-i18n="20">أُعيد اشتقاق H1–H8 من استنساخ GitHub حقيقي على Windows — الترقية لاستقلالية كاملة بفتحة توقيع خارجية.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k" data-i18n="21">C9 — قرار المالك</div>
+      <div class="v s-green">EXECUTED <span class="tag t-a" data-i18n="23">بالتفويض</span></div>
+      <div class="d" data-i18n="24">المرجع المعتمد للإصدار مثبت؛ تفويض المعاملة والبث متأجلان حصرًا لـ<span class="ltr">P7</span>.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k" data-i18n="26">SELF-002 — نظافة المحرك</div>
+      <div class="v s-green">RESOLVED</div>
+      <div class="d" data-i18n="28"><span class="ltr">exec=0 · net=0 · dyn=0</span> — فحص AST ذاتي (ST21) داخل <span class="ltr">SelfTest 21/21</span>.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k" data-i18n="31">ENV-003 — جذر الثقة</div>
+      <div class="v s-green">RESOLVED</div>
+      <div class="d" data-i18n="33"><span class="ltr">cast.exe</span> داخل جذر الثقة: <span class="ltr">0xeba3df69…</span> · v1.8.0 · قناة رسمية.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k" data-i18n="36">LEG-001 — العزل القديم</div>
+      <div class="v s-green">RESOLVED</div>
+      <div class="d" data-i18n="38">19 ملفًا legacy معزولًا بايت-ببايت تحت <span class="ltr">legacy-quarantine/</span> — خارج جذور الفحص.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k" data-i18n="40">التجميد الحالي</div>
+      <div class="v s-green">46/46 MATCH</div>
+      <div class="d" data-i18n="42"><span class="ltr">freeze-record-4.2.6</span> = 27 إصدار + 19 عزل · مطابقة القرص مثبتة.</div>
+    </div>
+    <div class="auth" role="listitem">
+      <b data-i18n="44">حدود التنفيذ (غير قابلة للتجاوز بأي نتيجة اختبار):</b>
+      <div class="row">
+        <span class="chip g">RELEASE REFERENCE @ fa15eb2 = APPROVED (single-op)</span>
+        <span class="chip">TX SIGNING = NOT AUTHORIZED</span>
+        <span class="chip">COMMITINTENT = NOT AUTHORIZED</span>
+        <span class="chip">ANCHORPROOF = NOT AUTHORIZED</span>
+        <span class="chip">MAINNET BROADCAST = NOT AUTHORIZED</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout danger" style="margin-top:18px" data-i18n="50">
+    <b data-i18n="51">القاعدة التي تفسّر كل شيء:</b> نجاح الاختبارات لا يمنح تفويضًا. أداة التحقق لا تملك مفاتيح، لا تقرأ أسرارًا، ولا تمنح الإذن لنفسها — الفصل بين طبقات الأدلة والتحقق والمراجعة والتفويض والتنفيذ هو ما يمنع تحوّل «33/33 PASS» إلى بث تلقائي. حتى فشل <span class="ltr">V06</span> الأصلي (cast خارج جذر الثقة) كان <b data-i18n="53">سلوكًا صحيحًا</b> يوثَّق، لا عيبًا يُخفى.
+  </div>
+</header>
+
+<!-- ===================== LAYERS ===================== -->
+<section id="layers" aria-labelledby="h-layers">
+  <h2 id="h-layers" data-i18n="54">البنية: خمس طبقات، والتنفيذ مختوم</h2>
+  <p class="muted" data-i18n="55">الأدلة تتدفق صعودًا، والتفويض ينزل حصرًا بتوقيع بشري صريح في كل بوابة. أي طبقة لا تستطيع منح نفسها الإذن.</p>
+  <div class="layers figure" dir="rtl">
+    <div class="layer"><span class="no" aria-hidden="true">1</span>
+      <b data-i18n="57">طبقة الأدلة — Evidence</b>
+      <div class="sub" data-i18n="58">SHA-256 من القرص · مانيفست 8/8 · حزمة غير قابلة للتعديل أثناء المراجعة · سجلات تجميد متراكمة (4.2.2 → 4.2.6)</div>
+    </div>
+    <div class="downflow" aria-hidden="true" data-i18n="59">▲ أدلة</div>
+    <div class="layer"><span class="no" aria-hidden="true">2</span>
+      <b data-i18n="61">طبقة التحقق — Verification</b>
+      <div class="sub" data-i18n="62">محرك <span class="ltr">cg-assurance-verify.ps1</span> (AST + سياسات + 16 اختبارًا سلبيًا fail-closed) · مدقق Node مستقل (649 فحصًا) · اختبار تلف البايت الواحد</div>
+    </div>
+    <div class="downflow" aria-hidden="true" data-i18n="64">▲ نتائج قابلة لإعادة الإنتاج</div>
+    <div class="layer"><span class="no" aria-hidden="true">3</span>
+      <b data-i18n="66">طبقة المراجعة المستقلة — Independent Review</b>
+      <div class="sub" data-i18n="67">مراجع بشري ≠ المؤلف · يعيد حساب كل هاش من القرص بنفسه · يوقّع مصفوفة H1–H8 → يغلق C8 فقط</div>
+    </div>
+    <div class="downflow" aria-hidden="true" data-i18n="68">▲ توقيعات</div>
+    <div class="layer"><span class="no" aria-hidden="true">4</span>
+      <b data-i18n="70">طبقة التفويض — Authorization</b>
+      <div class="sub" data-i18n="71">C7 (أمني) · C8 (مستقل) · C9 (قرار مالك صريح بمحتوى محدد) · سجل GO منفصل</div>
+    </div>
+    <div class="downflow" aria-hidden="true" data-i18n="72">▼ تفويض منفصل صريح فقط</div>
+    <div class="layer sealed"><span class="no" aria-hidden="true">5</span>
+      <b data-i18n="74">حدود التنفيذ — Execution Boundary 🔒</b>
+      <div class="sub" data-i18n="75">توقيع وبث بتحكم بشري منفصل ومُراجع مسبقًا — <b class="s-red" data-i18n="76">مختوم حاليًا: NOT AUTHORIZED</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FINDINGS ===================== -->
+<section id="findings" aria-labelledby="h-findings">
+  <h2 id="h-findings" data-i18n="77">الإصلاحات الثلاثة: من اكتشاف fail-closed إلى دليل مغلق</h2>
+  <p class="muted" data-i18n="78">دورة <span class="ltr">v4.2.2-remediation</span> عالجت الملاحظات الثلاث الحاجبة — كل إصلاح بجدول قبل/بعد ودليل قابل للفحص.</p>
+
+  <div class="grid">
+    <article class="card">
+      <h3 data-i18n="80">SELF-002 · نظافة المحرك نفسه</h3>
+      <div class="ba">
+        <div class="side before" data-i18n="81">المحرك <span class="ltr">2.1.0</span> يحوي موقعَي استدعاء عملية (<span class="ltr">exec:2</span>) — أداة تحقق لا يجب أن تُنفّذ شيئًا.</div>
+        <div class="arr" aria-hidden="true" data-i18n="84">←</div>
+        <div class="side after" data-i18n="85"><span class="ltr">v2.1.2: exec=0 · net=0 · dyn=0</span> — فحص AST ذاتي دائم (ST21) يفشل عند أول موقع مستقبلي.</div>
+      </div>
+      <div class="evi" data-i18n="87">الدليل: <span class="ltr">SelfTest → checks: 21; failures: 0</span> (exit 0) — أُعيد تشغيله حرفيًا من نسخة المستودع.</div>
+    </article>
+
+    <article class="card">
+      <h3 data-i18n="89">ENV-003 · الأداة داخل جذر الثقة</h3>
+      <div class="ba">
+        <div class="side before" data-i18n="90"><span class="ltr" data-i18n="91">V06 FAIL (مقصود)</span> — <span class="ltr">C:\Users\DeLL-L\foundry\cast.exe</span> خارج جذور الثقة المعتمدة.</div>
+        <div class="arr" aria-hidden="true" data-i18n="93">←</div>
+        <div class="side after" data-i18n="94"><span class="ltr">V06-2</span> إغلاق خارجي موثّق: <span class="ltr">…\.foundry\cast.exe</span> · <span class="ltr">0xeba3df69…</span> · 58,801,152B · cast 1.8.0 · قناة <span class="ltr">foundryup</span> الرسمية · بديل PATH وحيد.</div>
+      </div>
+      <div class="evi" data-i18n="99">الدليل: بند H6 في الحزمة + التقرير القياسي: <span class="ltr">ENV-003=within-trust-root</span>.</div>
+    </article>
+
+    <article class="card">
+      <h3 data-i18n="101">LEG-001 · عزل مسارات البث القديمة</h3>
+      <div class="ba">
+        <div class="side before" data-i18n="102">سكربتات <span class="ltr">cast send / --private-key / anchor / broadcast</span> حرة في الشجرة — يمكن فهمها كمسار تنفيذ معتمد.</div>
+        <div class="arr" aria-hidden="true" data-i18n="104">←</div>
+        <div class="side after" data-i18n="105">19 ملفًا (18 سكربت + README) تحت <span class="ltr">legacy-quarantine/2026-09-18-v4.2.2/</span> في: <span class="ltr">anchor/ · broadcast-and-tests/ · mainnet-gates/</span> — خارج جذور فحص LEG-001.</div>
+      </div>
+      <div class="evi" data-i18n="108">الدليل: أزواج <span class="ltr">orig|quarantine</span> في المانيفست (H5: 8/8 MATCH) تثبت حفظ البايتات — العزل أرشفة لا تحريف.</div>
+    </article>
+  </div>
+</section>
+
+<!-- ===================== FREEZE ===================== -->
+<section id="freeze" aria-labelledby="h-freeze">
+  <h2 id="h-freeze" data-i18n="110">التجميد: مثلث النزاهة واختبار البايت الواحد</h2>
+  <p class="muted" data-i18n="111">سجل التجميد يثبّت SHA-256 لكل ملف من القرص لحظة معينة. قاعدته الملزمة: <b data-i18n="112">أي تعديل بعد الالتقاط — حتى توثيقي — يبطل التجميد ويستلزم دورة جديدة</b>. لذلك كل خلاف «هل تغيّرت البايتات؟» يُحسم بأمر واحد.</p>
+
+  <figure class="figure svgbg" dir="ltr">
+    <svg viewBox="0 0 560 300" role="img" aria-label="مثلث النزاهة: القرص، سجل التجميد، وأرشيف GitHub مع حالة كل ضلع" style="width:100%;height:auto;display:block">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#9fb0c9"></path>
+        </marker>
+      </defs>
+      <!-- headline: verified edge status (empty band above the nodes) -->
+      <text x="272" y="38" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700" data-i18n="113">46/46 MATCH ✓ (من القرص — مثبت)</text>
+      <!-- edges -->
+      <line x1="150" y1="105" x2="392" y2="105" stroke="#34d399" stroke-width="2.5" marker-end="url(#ar)" marker-start="url(#ar)"></line>
+      <line x1="115" y1="140" x2="230" y2="238" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#ar)" marker-start="url(#ar)"></line>
+      <line x1="435" y1="140" x2="330" y2="238" stroke="#223047" stroke-width="2" stroke-dasharray="4 6" marker-end="url(#ar)" marker-start="url(#ar)"></line>
+      <!-- edge labels -->
+      <text x="103" y="196" text-anchor="middle" fill="#fbbf24" font-size="12" data-i18n="114">مُثبت في دورات سابقة</text>
+      <text x="103" y="212" text-anchor="middle" fill="#fbbf24" font-size="11" data-i18n="115">(42/42 ثم 45/45)</text>
+      <text x="465" y="196" text-anchor="middle" fill="#9fb0c9" font-size="12" data-i18n="116">يتجدّد بعد الدفع</text>
+      <!-- nodes -->
+      <g font-family="Segoe UI,Tahoma,sans-serif">
+        <rect x="70" y="52" width="160" height="52" rx="12" fill="#0d1420" stroke="#223047"></rect>
+        <text x="150" y="76" text-anchor="middle" fill="#e9eef8" font-size="14" font-weight="700" data-i18n="117">القرص</text>
+        <text x="150" y="94" text-anchor="middle" fill="#9fb0c9" font-size="11" data-i18n="118">مصدر الحقيقة اللحظي</text>
+        <rect x="330" y="52" width="160" height="52" rx="12" fill="#0d1420" stroke="#223047"></rect>
+        <text x="410" y="76" text-anchor="middle" fill="#e9eef8" font-size="14" font-weight="700" data-i18n="119">سجل التجميد</text>
+        <text x="410" y="94" text-anchor="middle" fill="#9fb0c9" font-size="11">freeze-record-4.2.6</text>
+        <rect x="205" y="238" width="170" height="52" rx="12" fill="#0d1420" stroke="#223047"></rect>
+        <text x="290" y="262" text-anchor="middle" fill="#e9eef8" font-size="14" font-weight="700" data-i18n="121">أرشيف GitHub</text>
+        <text x="290" y="280" text-anchor="middle" fill="#9fb0c9" font-size="11">git archive @ commit</text>
+      </g>
+      <!-- tamper note -->
+      <rect x="18" y="238" width="150" height="52" rx="12" fill="#301418" stroke="#7a2f3d"></rect>
+      <text x="93" y="260" text-anchor="middle" fill="#f87171" font-size="11.5" font-weight="700" data-i18n="123">تلف بايت واحد؟</text>
+      <text x="93" y="278" text-anchor="middle" fill="#f87171" font-size="11" data-i18n="124">اكتشاف فوري + exit 1</text>
+    </svg>
+    <figcaption data-i18n="125">الضلع الأخضر مُثبت بجلسة التحقق الأخيرة؛ الضلع الكهرماني مُثبت في دورات 4.2.3/4.2.5 ويُعاد فحصه لنسخة 4.2.6 عند الدفع (عدم اليقين موثّق عمدًا).</figcaption>
+  </figure>
+
+  <div class="demo" role="group" aria-labelledby="demo-title">
+    <h3 id="demo-title" style="margin-top:0" data-i18n="126">🔧 محاكاة فاحص التجميد — اشطب بايتًا وشاهد الرفض</h3>
+    <p class="muted" style="font-size:.85rem" data-i18n="127">محتوى العرض = هاش cast الحقيقي. الزر يقلب نibble واحدًا ويعيد حساب SHA-256 فعليًا (في متصفحك) كما يفعل الفاحص على القرص.</p>
+    <div class="bytes" id="bytesEl" aria-label="محتوى الملف بايت ببايت"></div>
+    <div class="hashbox" id="hashEl">SHA-256: …</div>
+    <div class="verdict v-ok" id="verdictEl" data-i18n="129">… جارٍ التحقق</div>
+    <button id="tamperBtn" type="button" data-i18n="130">⚡ اشطب بايتًا واحدًا</button>
+  </div>
+
+  <h3 data-i18n="131">تشريح السجل الفعلي (حقول موجودة حرفيًا في <span class="ltr">freeze-record-4.2.6.json</span>)</h3>
+  <table>
+    <thead><tr><th data-i18n="133">الحقل</th><th data-i18n="134">القيمة / المعنى</th></tr></thead>
+    <tbody>
+      <tr><td class="ltr">recordId / releaseId</td><td data-i18n="136"><span class="ltr">cg41-freeze-record-4.2.6</span> · <span class="ltr">4.2.6-overhaul</span> — يعلو <span class="ltr">4.2.5</span></td></tr>
+      <tr><td class="ltr">frozenAtUtc</td><td data-i18n="141"><span class="ltr">2026-09-18T09:31:01Z</span> — بعد التقاطه لا تعديل؛ الاستثناء الوحيد: إعادة تثبيت هاش README بعد تحريره (موثقة، والطابع محفوظ)</td></tr>
+      <tr><td class="ltr">sha256.releaseFiles + quarantineFiles</td><td data-i18n="144"><b data-i18n="145">27 + 19 = 46 مدخلًا</b> — نموذج مدخل: <span class="ltr">{file:"README.md", sha256:"0xba265f10…", bytes:1402}</span></td></tr>
+      <tr><td class="ltr">excluded</td><td data-i18n="148">1 فقط — السجل ذاته (مرجع ذاتي)؛ يُتحقق منه بمقارنة القرص ↔ الأرشيف</td></tr>
+      <tr><td class="ltr">cycleEvidence</td><td data-i18n="150">selftest 21/21 · negative 16/16 (precond=0) · مدقق 649 · برهان حتمية (إعادة توليد = بايتات مطابقة) · استنساخ نظيف BLOCKED</td></tr>
+      <tr><td class="ltr">decision</td><td><span class="ltr">CONDITIONAL NO-GO — C7=PARTIAL C8=PENDING C9=PENDING; … = NOT AUTHORIZED</span></td></tr>
+      <tr><td class="ltr">gitCommit</td><td data-i18n="154"><b class="s-green" data-i18n="155">موجود</b> — التثبيت مُرتكز على commit حتمي (<span class="ltr">gitCommit</span> = <span class="ltr">2cdda4f2…</span>) · وضع <span class="ltr">--disk</span> للتشخيص فقط وليس دليلًا</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== SEMANTICS ===================== -->
+<section id="semantics" aria-labelledby="h-sem">
+  <h2 id="h-sem" data-i18n="159">دلالات fail-closed: لغة لا يمكن تزويرها</h2>
+  <p class="muted" data-i18n="160">عقد ملزم لمحرك 2.1.2 — اكتُشف تطويره بعد أن عُثر على سيناريو سلبي «يفقد مقدّمته بصمت» ويبقى النجاح معلنًا.</p>
+  <table>
+    <thead><tr><th data-i18n="161">الحالة</th><th data-i18n="162">المعنى</th><th data-i18n="163">تُقبل نجاحًا في سيناريو سلبي إلزامي؟</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag t-g">PASS</span></td><td data-i18n="165">تحقق الشرط فعليًا بدليل</td><td data-i18n="166">في توقع النجاح فقط</td></tr>
+      <tr><td><span class="tag t-r">FAIL</span></td><td data-i18n="168">رُصدت مخالفة بفحص مغلق</td><td data-i18n="169"><b data-i18n="170">نعم</b> — هذا هو الهدف في expect-fail</td></tr>
+      <tr><td><span class="tag t-a">BLOCKED</span></td><td data-i18n="172">استحال الاستمرار بمانع موثق</td><td data-i18n="173"><b data-i18n="174">نعم</b> — بشرط توثيق المانع</td></tr>
+      <tr><td><span class="tag t-b">INCONCLUSIVE</span></td><td data-i18n="176">الأدلة غير كافية للحكم</td><td data-i18n="177">لا</td></tr>
+      <tr><td><span class="tag t-b">NOT_APPLICABLE</span></td><td data-i18n="179">غير منطبق بسبب موثق</td><td data-i18n="180"><b class="s-red" data-i18n="181">لا — أبدًا</b> (عيب السيناريو 9 سابقًا)</td></tr>
+      <tr><td><span class="tag t-r">PRECONDITION_FAILURE</span></td><td data-i18n="183">مقدمة تشغيل إلزامية غائبة</td><td><b class="s-red" data-i18n="184">تُسقط الدورة كاملة: exit 1</b></td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn" data-i18n="185">
+    <b data-i18n="186">قواعد ذهبية مُفرضة:</b> <span class="ltr">NOT_APPLICABLE ≠ PASS</span> · غياب الـمانيفست/الأدلة = رفض صريح لا تجاوز · أي اختلاف غير مُفسَّر يوقف الدورة ولا يُعالج بتعديل التقرير · عدد السيناريوهات المعلن = الفعلي (حُذف السيناريو 15 الشكلي: 17 → 16، والفشل الحقيقي الذي كان يقصده يغطيه 14).
+  </div>
+</section>
+
+<!-- ===================== EVIDENCE / COMMANDS ===================== -->
+<section id="evidence" aria-labelledby="h-ev">
+  <h2 id="h-ev" data-i18n="188">الأدلة: أوامر الحزمة الحرفية ومخرجاتها المُتحقَّق منها</h2>
+  <p class="muted" data-i18n="189">نصوص الأوامر من الحزمة نفسها (packet 1.2.0) — كل أمر عنصر واحد يُنسخ كاملًا بنقرة (الهاشات كاملة 64 خانة، لا اختصارات ولا التفاف أسطر منفصلة). السطر الأخير عرض سلوك فقط، غير قابل للنسخ.</p>
+
+  <div class="terminal" role="figure" aria-label="أوامر التحقق ومخرجاتها">
+<div class="cmd">node verification/validate-freeze.mjs release/freeze/freeze-record-4.2.6.json</div>
+<div class="o">validate-freeze: PASS (46/46 MATCH)</div>
+<div class="n" data-i18n="192">exit 0 — السجلات التاريخية (4.2.2–4.2.5) تفشل عمدًا: تثبيتاتها قديمة بمحض التصميم</div>
+<div class="n"> </div>
+<div class="cmd">powershell -NoProfile -ExecutionPolicy Bypass -File "verification/cg-assurance-verify.ps1" -SelfTest</div>
+<div class="o">checks: 21; failures: 0</div>
+<div class="n" data-i18n="195">exit 0 — يشمل ST21: المحرك بلا مواقع تنفيذ (exec=0 net=0 dyn=0)</div>
+<div class="n"> </div>
+<div class="cmd">powershell -NoProfile -ExecutionPolicy Bypass -File "verification/cg-assurance-verify.ps1" -NegativeSuite -CastPath "C:\Users\DeLL-L\.foundry\cast.exe" -ExpectedCastSha256 "0xeba3df695d1c96cb54175183f89d62bafac7f728365987a1947743c6f3e91b36" -Manifest "release/v4.2.2-remediation/approved-evidence-manifest-v4.2.2.txt" -ManifestBase "&lt;repo-root&gt;\coreguard" -ExpectedManifestSha256 "0x73649ed34461637ea99eb6eb7ed985bd414916a7e64a760a3e360a69841be0dc"</div>
+<div class="o">negative suite: 16 scenarios; allFailClosed=True; preconditionFailures=0</div>
+<div class="n">exit 0</div>
+<div class="n"> </div>
+<div class="cmd">powershell -NoProfile -ExecutionPolicy Bypass -File "verification/cg-assurance-verify.ps1" -OutDir release -CastPath "C:\Users\DeLL-L\.foundry\cast.exe" -ExpectedCastSha256 "0xeba3df695d1c96cb54175183f89d62bafac7f728365987a1947743c6f3e91b36" -Manifest "release/v4.2.2-remediation/approved-evidence-manifest-v4.2.2.txt" -ExpectedManifestSha256 "0x73649ed34461637ea99eb6eb7ed985bd414916a7e64a760a3e360a69841be0dc"</div>
+<div class="o">status: VERIFIED-READONLY-ONLY · 33/33 PASS · ENV-003=within-trust-root · failClosedFailures=0</div>
+<div class="n" data-i18n="201">exit 0 — يحتاج أدلة reviews-extra (خارج المستودع عمدًا) · آخر إثبات: دورة 4.2.6 ببرهان الحتمية (إعادة التوليد = البايتات المجمدة حرفيًا)</div>
+<div class="n"> </div>
+<div class="cmd">powershell -NoProfile -ExecutionPolicy Bypass -File "verification/cg-assurance-verify.ps1" -SelfCheckReport</div>
+<div class="o">self-check: PASS — dupIds=0 · boundedClaim=True</div>
+<div class="n"> </div>
+<div class="cmd">node verification/validate-report.mjs release/verification-report.json --expect "{\"summary.total\":33,\"summary.pass\":33,\"summary.fail\":0,\"summary.blocked\":0,\"summary.inconclusive\":0,\"summary.notApplicable\":0,\"status\":\"VERIFIED-READONLY-ONLY\",\"decision\":\"CONDITIONAL NO-GO\"}"</div>
+<div class="o">validate-report: PASS (649 checks, 0 errors)</div>
+<div class="n"> </div>
+<div class="n" data-i18n="206">عرض سلوك فقط — الاستنساخ النظيف بلا أدلة reviews-extra (ليس أمرًا للتنفيذ):</div>
+<div class="e" data-i18n="207">git clone github.com/EslaM-X/coreguard &amp;&amp; رشّة قياسية داخل الاستنساخ → BLOCKED · exit 1 · INV-001 FAIL (failClosed=true)</div>
+<div class="n" data-i18n="208">السلوك المقصود (الخيار B): الأدلة الخارجية خارج المستودع عمدًا — الاستنساخ يرفض إصدار حكم PASS بلا أدلة: لا NOT_APPLICABLE، لا تجاوز.</div>
+  </div>
+
+  <h3 data-i18n="209">عائلات الاختبارات السلبية (16 سيناريو، كلها يجب أن تفشل بشكل مغلق)</h3>
+  <div class="grid">
+    <div class="card"><h3 style="font-size:.95rem" data-i18n="210">سلامة البايتات</h3><p class="muted" style="font-size:.85rem;margin:0" data-i18n="211">تعديل بايت · هاش خاطئ · ملف ناقص · مانيفست معدّل/هاشه مختلف (NEG-wrong-manifest-hash)</p></div>
+    <div class="card"><h3 style="font-size:.95rem" data-i18n="212">أمان RPC</h3><p class="muted" style="font-size:.85rem;margin:0" data-i18n="213">method خارج القائمة المسموحة · فعل send · قائمة فارغة (كتالوج مغلق POL-002)</p></div>
+    <div class="card"><h3 style="font-size:.95rem" data-i18n="214">أمان التنفيذ</h3><p class="muted" style="font-size:.85rem;margin:0" data-i18n="215">spawn مزدوج · استدعاء ديناميكي (scriptblocks/members)</p></div>
+    <div class="card"><h3 style="font-size:.95rem" data-i18n="216">البيئة</h3><p class="muted" style="font-size:.85rem;margin:0" data-i18n="217">cast خارج جذر الثقة · cast مفقود · صلاحيات ناقصة</p></div>
+    <div class="card"><h3 style="font-size:.95rem" data-i18n="218">سلامة التقارير والسياسة</h3><p class="muted" style="font-size:.85rem;margin:0" data-i18n="219">IDs مكررة · تعديل تقرير بعد الإنشاء · سياسة قديمة/هاش مختلف · خريطة انحراف متلاعب بها (14)</p></div>
+  </div>
+</section>
+
+<!-- ===================== CYCLE TIMELINE ===================== -->
+<section id="cycle" aria-labelledby="h-cycle">
+  <h2 id="h-cycle" data-i18n="220">خمس دورات تجميد — كل واحدة اصطادت عيبًا حقيقيًا</h2>
+  <p class="muted" data-i18n="221">هذا هو البرهان الميتا على أن الحوكمة تعمل: لا دورة انتهت بدون كشف شيء لم يكن ليُكتشف لولا قاعدة «أي اختلاف غير مُفسَّر يوقف الدورة». كل التواريخ <span class="ltr">2026-09-18</span>.</p>
+
+  <div class="tl">
+    <div class="node">
+      <h4>v4.2.2-remediation <span class="when">engine 2.0.0 → 2.1.0</span><span class="caught" data-i18n="225">أصلحت: SELF-002 · ENV-003 · LEG-001</span></h4>
+      <ul>
+        <li data-i18n="226">دورة المعالجة الكاملة للملاحظات الثلاث الحاجبة (أعلاه) + قالب C7/C9 وحزمة المراجع.</li>
+        <li data-i18n="227">مطالبة لاحقة بـ«11 ملفًا تغيّرت بعد التجميد» فُحصت بالقرص (P6): الملفان التوثيقيان كانا <b data-i18n="228">داخل</b> الـcommit، وملفات tmp غير متتبعة — التقرير التقط الأدلة لا يعدّلها.</li>
+      </ul>
+    </div>
+    <div class="node">
+      <h4>v4.2.3-post-change-validation <span class="when">engine 2.1.1</span><span class="caught" data-i18n="231">اصطادت: فقد مقدمات صامت</span></h4>
+      <ul>
+        <li data-i18n="232">المقارنة الحتمية كشفت سيناريو 9 يتحول من FAIL إلى <span class="ltr">NOT_APPLICABLE</span> عند غياب مقدمة المانيفست مع بقاء إعلان «17/17».</li>
+        <li data-i18n="234">الإصلاح: حارس مقدمات fail-closed. إعادة تجميد + برهان بقاء أدلة 4.2.2 (5/5 UNCHANGED).</li>
+      </ul>
+    </div>
+    <div class="node">
+      <h4>v4.2.4-closure <span class="when">engine 2.1.2</span><span class="caught" data-i18n="237">اصطادت: mojibake + سيناريو شكلي</span></h4>
+      <ul>
+        <li data-i18n="238">دلالة <span class="ltr">PRECONDITION_FAILURE → exit 1</span>؛ حذف السيناريو 15 الشكلي (17→16)؛ المدقق 657→649.</li>
+        <li data-i18n="240">CI أحمر: كاشف الترميز رفض mojibake CP1252 في سجلي التجميد (PowerShell 5.1 قرأ سكربتات بلا BOM بترميز ANSI) → فك الترميز العكسي + إعادة تثبيت الهاشات → <span class="ltr">npm test 696/696</span> وCI أخضر.</li>
+      </ul>
+    </div>
+    <div class="node">
+      <h4>v4.2.5-closure <span class="when">engine 2.1.2</span><span class="caught" data-i18n="244">اصطادت: manifest داخلي قديم</span></h4>
+      <ul>
+        <li data-i18n="245">اعتماد «الخيار B» للأدلة الخارجية — مُختبر فعليًا: استنساخ نظيف → <span class="ltr">BLOCKED exit 1</span> بالضبط كما هو موثق.</li>
+        <li data-i18n="247">45 مدخلًا؛ وأثناء التحقق كُشف أن <span class="ltr">manifest.json</span> الداخلي يثبّت بايتات ما قبل-2.1.2 → أُعيد ضبطه.</li>
+      </ul>
+    </div>
+    <div class="node">
+      <h4>v4.2.6-overhaul / prune <span class="when">engine 2.1.2</span><span class="caught" data-i18n="251">أغلقت: فجوات نطاق + أوامر مكسورة</span></h4>
+      <ul>
+        <li data-i18n="252">README نقطة دخول المراجع؛ إصلاح أوامر H1-H8 الحرفية (كانت تتوقع «17 سيناريو/657» القديمين وأمر السلبية بلا مقدمات كان سيسقط المراجع فورًا)؛ حذف طبقة توثيق مكررة (3 ملفات/107 أسطر).</li>
+        <li data-i18n="253">تقليم أخير: رابطان معطلان و«49» قديمة في README → صحّحا؛ هاش README أُعيد تثبيته → <b>46/46 MATCH</b> من القرص.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== C8 PACKET ===================== -->
+<section id="packet" aria-labelledby="h-packet">
+  <h2 id="h-packet" data-i18n="255">حزمة C8: ماذا يوقّع المراجع المستقل؟</h2>
+  <p class="muted" data-i18n="256">مصفوفة H1–H8 (packet 1.2.0) — كل بند ربط أدلة يتحقق منه المراجع من القرص بنفسه ثم يوقّع. <b data-i18n="257">التوقيع يغلق C8 فقط ولا يمنح GO للبث</b> — قرار المالك (C9) منفصل حصرًا.</p>
+  <table>
+    <thead><tr><th data-i18n="258">بند</th><th data-i18n="259">ماذا يربط</th><th data-i18n="260">الهاش المرجعي</th><th data-i18n="261">التوقيع/التاريخ</th></tr></thead>
+    <tbody>
+      <tr><td><b>H1</b></td><td data-i18n="263">المحرك <span class="ltr">v2.1.2</span> — بعد إصلاح SELF-002 (<span class="ltr">exec=0 net=0 dyn=0</span>) ودلالة <span class="ltr">PRECONDITION_FAILURE</span></td><td data-i18n="267">يُعاد حسابه من القرص</td><td class="muted" data-i18n="268">—— بانتظار ——</td></tr>
+      <tr><td><b>H2</b></td><td data-i18n="270">تقرير التشغيل القياسي: <b>33/33 PASS · VERIFIED-READONLY-ONLY</b> · ENV-003 داخل الثقة · LEG-001 بدون إصابات</td><td><span class="ltr">0xffb7b589…7a1c</span> (46,812B)</td><td class="muted" data-i18n="274">—— بانتظار ——</td></tr>
+      <tr><td><b>H3</b></td><td data-i18n="276">TAP الـSelf-test <b>21/21</b> (يشمل ST21 لمنع مواقع التنفيذ مستقبلًا)</td><td><span class="ltr">0x1ebf06fa…2209</span> (705B)</td><td class="muted" data-i18n="280">—— بانتظار ——</td></tr>
+      <tr><td><b>H4</b></td><td data-i18n="282">المجموعة السلبية <b>16/16 fail-closed · precond=0</b> — بعد حذف 15 الشكلي (تغطيته: 14)</td><td data-i18n="284">يُعاد من القرص (أُعيد توليده في 2.1.2)</td><td class="muted" data-i18n="285">—— بانتظار ——</td></tr>
+      <tr><td><b>H5</b></td><td data-i18n="287">مانيفست الأدلة المعتمد <span class="ltr">v4.2.2</span> — 8/8 MATCH مع أزواج <span class="ltr">orig|quarantine</span> (إثبات حفظ البايتات في العزل)</td><td><span class="ltr">0x73649ed3…e0dc</span> (1,033B)</td><td class="muted" data-i18n="292">—— بانتظار ——</td></tr>
+      <tr><td><b>H6</b></td><td data-i18n="294">إغلاق V06-2: مسار cast · SHA-256 · الإصدار 1.8.0 · المصدر الرسمي · وحيد في PATH · غياب توقيع Authenticode موثق</td><td><span class="ltr">0xeba3df69…91b36</span> (58,801,152B)</td><td class="muted" data-i18n="297">—— بانتظار ——</td></tr>
+      <tr><td><b>H7–H8</b></td><td colspan="3" class="muted" data-i18n="299">بقية بنود الحزمة (تُستكمل عند التسليم الفعلي للمراجع — لم تُعرض تفاصيلها هنا بدقة لعدم الادعاء بغير المثبت)</td></tr>
+    </tbody>
+  </table>
+  <div class="callout ok" data-i18n="300">
+    <b data-i18n="301">قبل استلام الحزمة يجب أن تكون بقية شروط الانتقال مكتملة:</b> شجرة مستقلة (تطابق القرص↔السجل↔الأرشيف) · لا عناصر PENDING/BLOCKER غير مُفسَّرة · لا هاشات قديمة · لا تغييرات غير موثقة بعد التجميد.
+  </div>
+</section>
+
+<!-- ===================== GOVERNORS (LIVE) ===================== -->
+<section id="gov" aria-labelledby="h-gov">
+  <h2 id="h-gov" data-i18n="302">صفحة الحكّام الحية — من يملك كل بوابة، ومن يستطيع ترقيتها</h2>
+  <p class="muted" data-i18n="303">البوابات أُغلق تنفيذها في <b data-i18n="304">وضع المشغّل الواحد المعلن</b> (<span class="ltr">GOVERNANCE-MODE.md</span> + <span class="ltr">GOVERNANCE-RECORDS.md</span>): كل سجل برأس إفصاح إلزامي، ومصدر اعتماد مسمّى، و<b data-i18n="307">فتحة ترقية فارغة</b> — أول توقيع بشري مستقل يرقّي السجل إلى استقلالية كاملة <b data-i18n="308">بلا أي إعادة عمل</b>.</p>
+
+  <div class="lineage" aria-label="سلسلة الالتزام">
+    <span class="lchip">ee9d7e3 baseline</span><span class="larr" aria-hidden="true">→</span>
+    <span class="lchip">d7ca118 EOL-CLOSED</span><span class="larr" aria-hidden="true">→</span>
+    <span class="lchip">ccd75e8 P1 addendum</span><span class="larr" aria-hidden="true">→</span>
+    <span class="lchip">f59411a handoff set</span><span class="larr" aria-hidden="true">→</span>
+    <span class="lchip">e3d2f25 C8 fix</span><span class="larr" aria-hidden="true">→</span>
+    <span class="lchip h">fa15eb2 governance executed</span>
+  </div>
+
+  <div class="gates">
+    <div class="gate" data-gate="c7">
+      <div class="k" data-i18n="320">C7 — الأمن</div>
+      <div class="st s-green">APPROVED <span class="tag t-a">single-op</span></div>
+      <div class="d" data-i18n="323">نموذج التهديد · عقد fail-closed (16/16) · العبث بالوضعين · محرك قراءة-فقط · عزل 19/19 · لا أسرار · مخاطر R-1/R-2/R-3 مقبولة <b data-i18n="324">بالاسم</b> · F-1 بنيوي مفتوح عمدًا.</div>
+      <div class="src" data-i18n="325">مصدر التوقيع: <span class="ltr">GOVERNANCE-RECORDS.md · Record 1</span><br>الموقّع: Acting Owner (Codebuff session) بتفويض المالك — <b data-i18n="327">لا استقلالية معلنة</b></div>
+      <div class="slot" data-i18n="328"><b data-i18n="329">فتحة الترقية المستقلة — فارغة</b><br>توقيع مراجع أمني بشري يرقّي السجل ويغلق F-1 تلقائيًا</div>
+    </div>
+    <div class="gate" data-gate="c8">
+      <div class="k" data-i18n="330">C8 — الأدلة</div>
+      <div class="st s-green">APPROVED <span class="tag t-a">single-op</span></div>
+      <div class="d" data-i18n="333">إعادة اشتقاق H1–H8 من استنساخ GitHub حقيقي: أرشيف 46/46 · <span class="ltr">Dec-C-9</span> تحت <span class="ltr">autocrlf=true</span> · 21/21 · 657/0 · عقد 13/13 · EX-1 CLOSED · EX-2 accepted.</div>
+      <div class="src" data-i18n="336">مصدر التوقيع: <span class="ltr">GOVERNANCE-RECORDS.md · Record 2</span><br>الموقّع: Acting Owner (Codebuff session) بتفويض المالك — <b data-i18n="338">لا استقلالية معلنة</b></div>
+      <div class="slot" data-i18n="339"><b data-i18n="340">فتحة الترقية المستقلة — فارغة</b><br>توقيع مراجع أدلة بشري يرقّي السجل تلقائيًا</div>
+    </div>
+    <div class="gate">
+      <div class="k" data-i18n="341">C9 — قرار المالك</div>
+      <div class="st s-green">EXECUTED <span class="tag t-a" data-i18n="343">بالتفويض</span></div>
+      <div class="d" data-i18n="344">المرجع المعتمد للإصدار مثبت (<span class="ltr">fa15eb2</span>) · سقف الصلاحية: تقدم الـanchor أو فتح أي مُوقِّع finding · الإلغاء: بيان المالك أو رفض توقيع مستقل.</div>
+      <div class="src" data-i18n="346">مصدر القرار: <span class="ltr">GOVERNANCE-RECORDS.md · Record 3</span><br>الموقّع: Acting Owner بتفويض المالك — القرار الأصلي لصاحب المشروع</div>
+      <div class="slot" data-i18n="348"><b data-i18n="349">فتحة التصديق المستقل — اختيارية</b><br>توقيع بشري يرفع مصدر القرار من تفويض إلى إسناد مستقل</div>
+    </div>
+    <div class="gate p7">
+      <div class="k" data-i18n="350">P7 — تفويض التنفيذ (الخزنة)</div>
+      <div class="st s-red">NOT AUTHORIZED</div>
+      <div class="d" data-i18n="352">يتطلب: مشغّلًا بشريًا <b data-i18n="353">مسمّى</b> · نطاقًا وسقوف قيمة/غاز · توقيعًا شخصيًا — والمفاتيح لا تمر عبر هذه الجلسة أو أدواتها أبدًا.</div>
+      <div class="src" data-i18n="354">المصدر: <span class="ltr">FINAL-GO-GATE.md · P7</span> — ورقة منفصلة عن C9 بنيويًا</div>
+      <div class="slot" data-i18n="356"><b data-i18n="357">الفتحة الوحيدة التي تفتح الخزنة</b><br>لا تُملأ إلكترونيًا ولا بواسطة وكيل — توقيع المشغّل فقط</div>
+    </div>
+  </div>
+
+  <div class="sim" role="group" aria-labelledby="sim-title">
+    <div class="head">
+      <h3 id="sim-title" data-i18n="358">🎭 محاكاة الترقية المستقلة — جرّبها أمام عينك</h3>
+      <div class="spacer"></div>
+      <button id="simBtn" type="button" data-i18n="359">✍️ وقّع كمراجع مستقل (محاكاة)</button>
+    </div>
+    <div class="row" aria-live="polite">
+      <span class="lchip">C7</span><span id="simC7State" class="muted">single-op</span>
+      <span class="lchip" style="margin-inline-start:14px">C8</span><span id="simC8State" class="muted">single-op</span>
+      <span class="lchip" style="margin-inline-start:14px">P7</span><span id="simP7State" class="muted" data-i18n="365">🔒 NOT AUTHORIZED — لا تتأثر أبدًا</span>
+    </div>
+    <div class="note" id="simNote" data-i18n="366">
+      المحاكاة <b data-i18n="367">لا تلمس</b> المستودع ولا السجلات الموقّعة — هي تعرض فقط ماذا يحدث <b data-i18n="368">بشكل رسمي</b>: أول توقيع بشري مستقل يرقّي C7/C8 من وضع المشغّل الواحد إلى اعتماد مستقل كامل <b data-i18n="369">بلا أي إعادة عمل</b> (الفتحات موجودة في <span class="ltr">GOVERNANCE-RECORDS.md</span> لهذا الغرض بالضبط). وP7 — الخزنة — تبقى <b class="s-red" data-i18n="371">مقفلة</b>: الترقية المستقلة ترقّي السجلات ولا تمنح صلاحية بث، فالمشغّل البشري المسمّى شرط بنيوي لا يُتجاوز بتوقيع مراجع.
+    </div>
+  </div>
+
+  <div class="callout ok" style="margin-top:16px" data-i18n="372">
+    <b data-i18n="373">«الحية» بمعنى صادق:</b> هذه الصفحة لقطة مولّدة — الملزم هو المستودع نفسه، والروابط تفتح الحقيقة لحظة فتحها:
+    <a href="https://github.com/EslaM-X/coreguard/blob/main/coreguard-assurance-v4.2.2-remediation/GOVERNANCE-RECORDS.md" target="_blank" rel="noopener" data-i18n="374">سجلات الحوكمة</a> ·
+    <a href="https://github.com/EslaM-X/coreguard/commit/fa15eb26ebf4e1acde660b8a14ead534f3a40506" target="_blank" rel="noopener"><span class="ltr">fa15eb2</span></a> ·
+    <a href="https://github.com/EslaM-X/coreguard/actions" target="_blank" rel="noopener" data-i18n="376">CI — آخر تشغيل 35402919848 (5/5 ✓)</a> ·
+    <span class="ltr">validate-freeze: PASS 46/46 anchored @ c34cae8684c1</span>
+  </div>
+</section>
+
+<!-- ===================== PATH TO GO ===================== -->
+<section id="path" aria-labelledby="h-path">
+  <h2 id="h-path" data-i18n="378">الطريق إلى GO: أُغلق تقريبًا — توقيع مشغّل بشري واحد يفصلنا عن فتح الخزنة</h2>
+  <div class="flow" aria-label="مسار التفويض">
+    <div class="step"><span class="tag t-g" data-i18n="379">مُغلق — single-op</span>
+      <b data-i18n="380">C8 — اعتماد الأدلة</b>
+      <div class="who" data-i18n="381">أُعيد اشتقاق H1–H8 من استنساخ GitHub حقيقي (46/46 · 21/21 · 657/0) — الترقية لاستقلالية كاملة من فتحة التوقيع في صفحة الحكّام</div>
+    </div>
+    <div class="connector" aria-hidden="true">↓</div>
+    <div class="step"><span class="tag t-g" data-i18n="383">مُغلق — single-op</span>
+      <b data-i18n="384">C7 — الأمن</b>
+      <div class="who" data-i18n="385">نموذج التهديد والحدود مُراجعة · المخاطر R-1/R-2/R-3 مقبولة بالاسم — الفحص المستقل يبقى في فتحة الترقية</div>
+    </div>
+    <div class="connector" aria-hidden="true">↓</div>
+    <div class="step"><span class="tag t-g" data-i18n="387">منفذ — بالتفويض</span>
+      <b data-i18n="388">C9 — قرار المالك</b>
+      <div class="who" data-i18n="389">المرجع المعتمد مثبت · نطاق ضيق · سقف صلاحية وآلية إلغاء — البث ذاته لم يُفوّض</div>
+    </div>
+    <div class="connector" aria-hidden="true">↓</div>
+    <div class="step"><span class="tag t-b" data-i18n="391">P6 مسجّل — 9/9</span>
+      <b data-i18n="392">بوابة GO النهائية + سجل الإصدار المعتمد</b>
+      <div class="who" data-i18n="393">الإصدار المرجعي معتمد في وضع المشغّل الواحد — تفويض التنفيذ (P7) هو البند الوحيد المفتوح</div>
+    </div>
+    <div class="connector" aria-hidden="true">↓</div>
+    <div class="step vault here"><span class="youare" data-i18n="395">البند الوحيد المفتوح</span>
+      <b data-i18n="396">🔒 P7 — تفويض التنفيذ بمشغّل بشري مسمّى</b>
+      <div class="who" data-i18n="397">مرحلة منفصلة محدودة مُراجعة مسبقًا · توقيع المشغّل شخصيًا — <b class="s-red" data-i18n="398">NOT AUTHORIZED حتى ذلك الحين</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OPEN ITEMS ===================== -->
+<section id="open" aria-labelledby="h-open">
+  <h2 id="h-open" data-i18n="399">ما لم يُعتبر بعد — بند بند، بلا تجميل</h2>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th data-i18n="400">البند</th><th data-i18n="401">الدليل</th><th data-i18n="402">الأثر إذا عولج</th><th data-i18n="403">الجهد</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b data-i18n="404">سجل التجميد مُرتكز على الـcommit (أُغلق)</b></td>
+        <td data-i18n="405">أُغلق في دورة 4.2.6: <span class="ltr">gitCommit</span> مثبّت والمدقق يجمع الهاشات من شجرة الـcommit (<span class="ltr">git show</span>) لا القرص — الكشف من وضع عدائي (10 سيناريوهات)</td>
+        <td data-i18n="408">كل ادعاء يتحقق بأمر واحد ومردّه شجرة غير قابلة للتغيير — صنف «هل تغيّرت البايتات بعد التجميد؟» الذي استهلك دورتين مقتول بنيويًا</td>
+        <td><span class="tag t-g" data-i18n="409">دقائق</span></td>
+      </tr>
+      <tr>
+        <td><b data-i18n="410">الأدلة الخارجية غير معرّفة آليًا</b></td>
+        <td data-i18n="411"><span class="ltr">reviews-extra</span> لا تُذكر في السجل (فحص نصي: false) — وثيقة الخيار B حُذفت مع التقليم</td>
+        <td data-i18n="413">مصفوفة <span class="ltr">requiredExternalEvidence</span> (مسار+هاش+مصدر) تحوّل الخيار B من شرح إلى عقد قابل للفحص</td>
+        <td><span class="tag t-g" data-i18n="415">منخفض</span></td>
+      </tr>
+      <tr>
+        <td><b data-i18n="416">CI لا يشغّل دورة الـAssurance</b></td>
+        <td data-i18n="417"><span class="ltr">ci.yml</span>: <span class="ltr">npm test</span> فقط — الـSelfTest/السلبية/المدقق تعمل يدويًا</td>
+        <td data-i18n="420">خطوة CI للفرع المستقل عن البيئة + إعادة إثبات الحتمية على كل push: الأدلة تُراقب باستمرار لا لحظيًا</td>
+        <td><span class="tag t-a" data-i18n="421">متوسط</span></td>
+      </tr>
+      <tr>
+        <td><b data-i18n="422">توليد JSON عبر PowerShell 5.1</b></td>
+        <td data-i18n="423">mojibake CP1252 وقع <b data-i18n="424">مرتين</b> بنفس الآلية (دورتا 4.2.4/4.2.6) — المحرك 1,013 سطرًا PS</td>
+        <td data-i18n="425">مولّد Node بجوار <span class="ltr">validate-report.mjs</span> يقتل صنف العيب نهائيًا (PS للفحص، Node للبيانات)</td>
+        <td><span class="tag t-a" data-i18n="427">ساعات</span></td>
+      </tr>
+      <tr>
+        <td><b data-i18n="428">حالات البوابات مكررة في 4 مستندات</b></td>
+        <td data-i18n="429">نص <span class="ltr">C7/C8/C9</span> في STATUS وREADME وdecision بالسجل وذيل الحزمة</td>
+        <td data-i18n="431"><span class="ltr">gates.json</span> مصدر وحيد يستهلكه المدقق وREADME ولوحة HTML (تُولَّد بدل أن تُكتب)</td>
+        <td><span class="tag t-a" data-i18n="433">نصف يوم</span></td>
+      </tr>
+      <tr>
+        <td><b data-i18n="434">الدفع والتحقق الأرشيفي (أُغلق)</b></td>
+        <td data-i18n="435"><span class="ltr">HEAD = origin/main = fa15eb2</span> · شجرة نظيفة · أرشيف GitHub الحقيقي (<span class="ltr">main.tar.gz</span>) مطابق للـpins <b>46/46</b></td>
+        <td data-i18n="439">الضلع الكهرماني في المثلث أُغلق بقياس فعلي — لا يبقى منه بند مفتوح</td>
+        <td><span class="tag t-g" data-i18n="440">منجز</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout warn" style="margin-top:18px" data-i18n="441">
+    <b data-i18n="442">عدم اليقين المعلن (عمدًا، محدَّث):</b> «33/33 القياسي» يبقى من سجل التجميد (لم يُعاد تشغيله حفظًا للمخرجات المجمدة) بينما «657 فحصًا» أُعيد من استنساخ حقيقي؛ ضلع القرص↔الأرشيف أُغلق بقياس 46/46 من الأرشيف الحقيقي؛ وسجلات C7/C8/C9 صارت أوراق معلنة الإفصاح قابلة للترقية بتوقيعات مستقلة. الحدود الحالية: الحوكمة single-op حتى تكتمل الترقيات — لا ادعاء أوسع من الأدلة.
+  </div>
+</section>
+
+<footer>
+  <p data-i18n="443"><b>CoreGuard Gate 4.1</b> — أداة تحقق فقط: لا مفاتيح، لا توقيع، لا بث.</p>
+  <p class="ltr" style="font-size:.8rem">RELEASE = APPROVED (single-op) · C7/C8/C9 = EXECUTED (disclosed Acting Owner) · TX SIGNING &amp; BROADCAST = NOT AUTHORIZED — P7 human gate</p>
+  <p class="muted" style="font-size:.78rem" data-i18n="446">شرح بصري مولّد من أدلة الجلسة والسجلات — المصدر: freeze-record-4.2.6.json · GOVERNANCE-RECORDS.md · نتائج التحقق الموثقة</p>
+</footer>
+
+</div>
+
+<script>
+/* =====================================================================
+   TAMPER DEMO — three concerns, one owner each:
+
+   1. freezeModel  (state owner)   : tampered flag + derived content. The ONLY
+                                     place the tamper state exists.
+   2. hashEngine   (core logic)    : content → SHA-256 promise. No DOM, no state.
+   3. demoView     (rendering)     : renders (model, hash) pairs into the DOM.
+                                     The only code that touches elements.
+
+   Flow: button → freezeModel.toggle() → view.render(model, engine).
+   view is single-flight (one hash in flight); a toggle during flight
+   re-renders once the flight settles. No other module may set state.
+   ===================================================================== */
+(function(){
+  "use strict";
+
+/* ---- language prelude (hoisted) ----
+   L() resolves {ar,en} pairs at CALL time from the live language. Defined as a
+   hoisted function declaration BEFORE the views so their initial render and the
+   toggle-time re-render share one resolver — the old IIFE-scoped L ran after
+   the views and crashed on first paint ("L is not defined"). */
+  window.cgLang = 'ar';
+  function L(pair){
+    if (pair && typeof pair === 'object') return (window.cgLang === 'en') ? pair.en : pair.ar;
+    return pair; // plain string — language-neutral
+  }
+  // multi-line dynamic blocks owned by the simulator view
+  var NOTE_BASE = {ar:"المحاكاة <b>لا تلمس</b> المستودع ولا السجلات الموقّعة — هي تعرض فقط ماذا يحدث <b>بشكل رسمي</b>: أول توقيع بشري مستقل يرقّي C7/C8 من وضع المشغّل الواحد إلى اعتماد مستقل كامل <b>بلا أي إعادة عمل</b> (الفتحات موجودة في <span class=\"ltr\">GOVERNANCE-RECORDS.md</span> لهذا الغرض بالضبط). وP7 — الخزنة — تبقى <b class=\"s-red\">مقفلة</b>: الترقية المستقلة ترقّي السجلات ولا تمنح صلاحية بث، فالمشغّل البشري المسمّى شرط بنيوي لا يُتجاوز بتوقيع مراجع.",
+                   en:"The simulation <b>touches nothing</b> in the repository or the signed records — it only shows what happens <b>formally</b>: the first independent human signature upgrades C7/C8 from single-operator mode to a fully independent endorsement <b>with zero rework</b> (the slots exist in <span class=\"ltr\">GOVERNANCE-RECORDS.md</span> for exactly this purpose). And P7 — the vault — stays <b class=\"s-red\">locked</b>: an independent upgrade re-rates records but grants no broadcast authority; a named human operator is a structural precondition no reviewer signature can bypass."};
+  var NOTE_SIM  = {ar:"أنت في وضع المحاكاة: البادج أعلاه يظهر <b>INDEPENDENTLY SIGNED</b> بإطار منقّط — إشارة بصرية أنه عرض تفاعلي، والمستودع ما زال يحمل توقيع المشغّل الواحد. في الواقع الرسمي، نفس هذا الانتقال يقع بمجرد أن يوقّع مراجع بشري مستقل في فتحة الترقية — بلا أي إعادة عمل.",
+                   en:"You are in simulation mode: the badge above shows <b>INDEPENDENTLY SIGNED</b> inside a dashed frame — a visual cue that this is an interactive view, while the repository still carries the single-operator signature. Formally, this exact transition happens the moment a human independent reviewer signs the upgrade slot — with zero rework."};
+  var SIM_TAG   = {ar:"محاكاة", en:"simulated"};
+
+
+  /* ---- core logic: pure hashing, no DOM, no state ---- */
+  var hashEngine = {
+    _enc: new TextEncoder(),
+    available: !!(window.crypto && window.crypto.subtle && window.crypto.subtle.digest),
+    of: function(content){
+      if (!this.available) return Promise.resolve(null);
+      var enc = this._enc;
+      return window.crypto.subtle.digest("SHA-256", enc.encode(content))
+        .then(function(buf){
+          var v = new Uint8Array(buf), out = "";
+          for (var i = 0; i < v.length; i++) out += ("0" + v[i].toString(16)).slice(-2);
+          return out;
+        });
+    }
+  };
+
+  /* ---- state owner: the model ---- */
+  /* All display strings + the two facts the demo teaches (46/46 clean, 45/46 tampered)
+     live in FACTS; TXT builds from them so the numbers can't drift apart. */
+  var FACTS = {
+    totalEntries: 46,
+    tamperedEntries: 45,
+    castHash: "EBA3DF695D1C96CB54175183F89D62BAFAC7F728365987A1947743C6F3E91B36"
+  };
+  var freezeModel = {
+    BASE: FACTS.castHash,
+    TAMPER_IDX: 12,
+    tampered: false,
+    content: function(){
+      if (!this.tampered) return this.BASE;
+      var c = this.BASE.charAt(this.TAMPER_IDX);
+      var flipped = "0123456789abcdef"[(c >= "0" && c <= "9") ? +c + 1 : (c === "f" ? 0 : parseInt(c, 16) + 1)];
+      return this.BASE.slice(0, this.TAMPER_IDX) + flipped + this.BASE.slice(this.TAMPER_IDX + 1);
+    },
+    toggle: function(){ this.tampered = !this.tampered; }
+  };
+
+  /* ---- rendering: only DOM writer ---- */
+  /* (nav current-section + command copy live in wiring below — same concern: presentation) */
+  var demoView = {
+    el: {
+      bytes: document.getElementById("bytesEl"),
+      hash: document.getElementById("hashEl"),
+      verdict: document.getElementById("verdictEl"),
+      btn: document.getElementById("tamperBtn")
+    },
+    TXT: {
+      okHash: "SHA-256: ",
+      tamperNote: {ar:"   ← محسوب من المحتوى المشطوب", en:"   ← recomputed from the tampered content"},
+      noCrypto: {ar:"SHA-256 غير متاح في هذه البيئة (سياق غير آمن) — العرض توضيحي", en:"SHA-256 unavailable in this environment (insecure context) — display only"},
+      noCryptoVerdict: {ar:"— تعذّر حساب SHA-256 هنا؛ القاعدة: أي انحراف = رفض فوري (exit 1)", en:"— SHA-256 cannot be computed here; the rule: any deviation = instant rejection (exit 1)"},
+      bad: {ar:"✗ MISMATCH — "+FACTS.tamperedEntries+"/"+FACTS.totalEntries+" · رفض فوري واكتشاف فوري (exit 1) — هكذا حُسمت كل دورة انحراف", en:"✗ MISMATCH — "+FACTS.tamperedEntries+"/"+FACTS.totalEntries+" · instant detection and instant rejection (exit 1) — how every drift cycle was settled"},
+      good: {ar:"✓ MATCH — "+FACTS.totalEntries+"/"+FACTS.totalEntries+" · قبول (exit 0)", en:"✓ MATCH — "+FACTS.totalEntries+"/"+FACTS.totalEntries+" · accepted (exit 0)"},
+      btnTampered: {ar:"↩ استعادة البايت الأصلي", en:"↩ Restore the original byte"},
+      btnClean: {ar:"⚡ اشطب بايتًا واحدًا", en:"⚡ Flip one byte"}
+    },
+    flight: null,                       // one in-flight render; latest toggle wins after settle
+    show: function(tampered, hash){
+      var el = this.el, T = this.TXT;
+      if (hash === null){
+        el.hash.textContent = L(T.noCrypto);
+        this.verdict(L(T.noCryptoVerdict), false, tampered);
+        return;
+      }
+      el.hash.textContent = T.okHash + hash + (tampered ? L(T.tamperNote) : "");
+      this.verdict(tampered ? L(T.bad) : L(T.good), tampered, tampered);
+    },
+    verdict: function(text, bad, tampered){
+      this.el.verdict.className = "verdict " + (bad ? "v-bad" : "v-ok");
+      this.el.verdict.textContent = text;
+      this.el.btn.textContent = tampered ? L(this.TXT.btnTampered) : L(this.TXT.btnClean);
+    },
+    bytes: function(content, tamperedIdx, tampered){
+      var html = "";
+      for (var i = 0; i < content.length; i++){
+        var ch = content.charAt(i);
+        html += (tampered && i === tamperedIdx) ? "<mark>" + ch + "</mark>" : ch;
+      }
+      this.el.bytes.innerHTML = html;
+    },
+    render: function(model){
+      var view = this, target = model.tampered;
+      if (this.flight) return;          // a render is in flight; settle handler re-renders
+      var content = model.content();
+      this.bytes(content, model.TAMPER_IDX, target);
+      this.flight = hashEngine.of(content).then(function(h){
+        view.flight = null;
+        view.show(target, h);
+        if (target !== model.tampered) view.render(model);  // flipped mid-hash → catch up
+      });
+      return this.flight;
+    }
+  };
+
+  /* ---- wiring: event → model → view. nothing else. ---- */
+  demoView.el.btn.addEventListener("click", function(){
+    freezeModel.toggle();
+    demoView.render(freezeModel);
+
+    document.addEventListener("cg41:lang", function(){ demoView.render(freezeModel); });
+  });
+  demoView.render(freezeModel);
+
+  /* ---- governors: independent-signature SIMULATION ----
+     ثلاثة أطراف بأصحاب منفصلين:
+     1. simModel   (مالك الحالة): بذرة المحاكاة الوحيدة — موقَّع أم لا.
+     2. simView    (العرض الوحيد): يكتب البادجات وحالات الصف والزر.
+     3. wiring فقط: حدث → نموذج → عرض.
+     القاعدة التعليمية ملزمة داخل النموذج نفسه: المحاكاة ترقّي C7/C8 فقط؛
+     P7 لا يملك مسار ترقية إطلاقًا — لا توجد دالة تغيّره.
+     كل الحالة تولد من النقر، والمسح يعيد المستند الموثق. */
+  (function(){
+    var simModel = {
+      signed: false,
+      toggle: function(){ this.signed = !this.signed; }
+    };
+    var simView = {
+      el: {
+        btn: document.getElementById("simBtn"),
+        c7: document.getElementById("simC7State"),
+        c8: document.getElementById("simC8State"),
+        p7: document.getElementById("simP7State"),
+        note: document.getElementById("simNote")
+      },
+      TXT: {
+        signBtn: {ar:"✍️ وقّع كمراجع مستقل (محاكاة)", en:"✍️ Sign as an independent reviewer (simulated)"},
+        resetBtn: {ar:"↩ إعادة الضبط — عد إلى الوثائق الموقّعة", en:"↩ Reset — back to the signed records"},
+        signedTag: "INDEPENDENTLY SIGNED",
+        singleTag: {ar:"single-op", en:"single-op"},
+        rowSigned: {ar:"مُرقّى — اعتماد مستقل (محاكاة)", en:"upgraded — independent endorsement (simulated)"},
+        rowSingle: {ar:"single-op", en:"single-op"},
+                      },
+      render: function(model){
+        var T = this.TXT, signed = model.signed;
+        var rowBadge = signed
+          ? '<span class="tag t-g">' + T.signedTag + '</span>'
+          : '<span class="tag t-a">' + L(T.rowSingle) + '</span>';
+        this.el.c7.innerHTML = rowBadge;
+        this.el.c8.innerHTML = rowBadge;
+        // البطاقات الحية: بدّل بادج البوابتين داخل شبكة الحكّام نفسها
+        var gates = { c7: document.querySelector('[data-gate="c7"] .st'), c8: document.querySelector('[data-gate="c8"] .st') };
+        for (var k in gates){
+          gates[k].innerHTML = 'APPROVED ' + (signed
+            ? '<span class="tag t-g flip">' + T.signedTag + '</span> <span class="tag t-a">' + L(SIM_TAG) + '</span>'
+            : '<span class="tag t-a">' + L(T.singleTag) + '</span>');
+        }
+        this.el.btn.textContent = signed ? L(T.resetBtn) : L(T.signBtn);
+        this.el.note.innerHTML = signed ? L(NOTE_SIM) : L(NOTE_BASE);
+        // P7 يبقى كما هو دائمًا — لا مسار ترقية له بنيويًا
+      }
+    };
+    simView.el.btn.addEventListener("click", function(){
+      simModel.toggle();
+      simView.render(simModel);
+
+      document.addEventListener("cg41:lang", function(){ simView.render(simModel); });
+    });
+    simView.render(simModel);
+  })();
+
+  /* ---- nav: highlight the section currently in view (long-page orientation) ---- */
+  (function(){
+    var navBar = document.querySelector("nav");
+    function setNavH(){ document.documentElement.style.setProperty("--navH", (navBar.offsetHeight + 8) + "px"); }
+    setNavH();
+    window.addEventListener("resize", setNavH);
+    var links = Array.prototype.slice.call(document.querySelectorAll("nav a"));
+    var byId = {};
+    links.forEach(function(a){ byId[a.getAttribute("href").slice(1)] = a; });
+    var sections = links.map(function(a){ return document.getElementById(a.getAttribute("href").slice(1)); });
+    function currentSection(){
+      var best = sections[0];
+      for (var i = 0; i < sections.length; i++){
+        if (sections[i].getBoundingClientRect().top <= window.innerHeight * 0.35) best = sections[i];
+      }
+      return best;
+    }
+    var ticking = false;
+    window.addEventListener("scroll", function(){
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function(){
+        var cur = currentSection();
+        links.forEach(function(a){ a.classList.remove("active"); });
+        if (cur && byId[cur.id]) byId[cur.id].classList.add("active");
+        ticking = false;
+      });
+    }, {passive: true});
+    window.dispatchEvent(new Event("scroll"));
+  })();
+
+  /* ---- commands: click a cyan command line → copy it (reviewer runs these literally) ---- */
+  (function(){
+    var toast = document.createElement("div");
+    toast.className = "copied";
+    document.body.appendChild(toast);
+    var hideTimer = null;
+    function flash(msg){
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(function(){ toast.classList.remove("show"); }, 1600);
+    }
+    document.querySelectorAll("#evidence .terminal .cmd").forEach(function(line){
+      line.setAttribute("title", L({ar:"انقر للنسخ", en:"Click to copy"}));
+      line.addEventListener("click", function(){
+        // one .cmd element = the full runnable command (multi-line display, single unit on copy)
+        var raw = line.textContent;
+        var done = function(){ flash(L({ar:"✓ نُسخ الأمر — الصقه في الطرفية", en:"✓ Command copied — paste it into your terminal"})); };
+        if (navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(raw).then(done, function(){ flash(L({ar:"تعذّر النسخ — حدد النص يدويًا", en:"Copy failed — select the text manually"})); });
+        } else {
+          flash(L({ar:"النسخ غير متاح في هذه البيئة — حدد النص يدويًا", en:"Copy is unavailable in this environment — select the text manually"}));
+        }
+      });
+    });
+  })();
+})();
+
+/* ---- bilingual AR/EN runtime v2 ----
+   The AR file is the source of truth. Every [data-i18n] element swaps its FULL
+   innerHTML (the old first-text-node swap left Arabic tails around inline
+   children — the defect this replaces). EN strings come from the retired EN
+   sister file (277 node pairs + 8 attr pairs, EN verified zero-Arabic).
+   Dynamic strings resolve through L(). Terminal commands stay literal.
+   Print uses the current language. Persistence: localStorage('cg41-lang'). */
+  (function(){
+    var D = {"nodes":{"0":{"ar":"\n    <span class=\"pulse\" aria-hidden=\"true\"></span>\n    وضع المراجعة — <span class=\"ltr\">EslaM-X/coreguard</span> · بوابة <span class=\"ltr\">4.1</span> · منصة CoreGuard Assurance · <span class=\"ltr\">engine 2.1.2</span>\n  ","en":"\n    <span class=\"pulse\" aria-hidden=\"true\"></span>\n    Review status — <span class=\"ltr\">EslaM-X/coreguard</span> · Gate <span class=\"ltr\">4.1</span> · CoreGuard Assurance Platform · <span class=\"ltr\">engine 2.1.2</span>\n  "},"4":{"ar":"من سكربت تحقق إلى نظام حوكمة — وأين نقف الآن بالضبط","en":"From a verification script to a governance system — and exactly where we stand"},"5":{"ar":"شرح بصري شامل للحالة المعتمدة: ما بُني، ما أُثبت بالهاشات، من يقرر، ولماذا يبقى البث على Mainnet <bdi><span class=\"s-red\" data-i18n=\"6\">غير مصرّح</span></bdi> رغم نجاح كل الاختبارات.","en":"A complete visual brief of the authoritative state: what was built, what the hashes prove, who decides, and why a Mainnet broadcast remains <bdi><span class=\"s-red\">NOT AUTHORIZED</span></bdi> even though every test passes."},"6":{"ar":"غير مصرّح","en":"NOT AUTHORIZED"},"7":{"ar":"القرار الملزم — بعد سجلات الحوكمة","en":"Binding decision — after the governance records"},"10":{"ar":"الإصدار المثبت معتمد في وضع المشغّل الواحد <b data-i18n=\"11\">المعلن</b>؛ لا توقيع معاملة ولا بث — الخزنة تُفتح فقط بتوقيع <span class=\"ltr\">P7</span> من مشغّل بشري مسمّى.","en":"The pinned release is approved under the <b>disclosed</b> single-operator mode; no transaction signing and no broadcast — the vault opens only with a <span class=\"ltr\">P7</span> signature from a named human operator."},"11":{"ar":"المعلن","en":"disclosed"},"13":{"ar":"C7 — الأمن","en":"C7 — Security review"},"16":{"ar":"مقبول في وضع المشغّل الواحد المعلن — مخاطر R-1/R-2/R-3 باسمها؛ الترقية لاستقلالية كاملة بفتحة توقيع خارجية.","en":"Accepted under the disclosed single-operator mode — risks R-1/R-2/R-3 accepted by name; upgrade to full independence via the external signature slot."},"17":{"ar":"C8 — الأدلة","en":"C8 — Evidence review"},"20":{"ar":"أُعيد اشتقاق H1–H8 من استنساخ GitHub حقيقي على Windows — الترقية لاستقلالية كاملة بفتحة توقيع خارجية.","en":"H1–H8 re-derived from a real GitHub clone on Windows — upgrade to full independence via the external signature slot."},"21":{"ar":"C9 — قرار المالك","en":"C9 — Owner decision"},"23":{"ar":"بالتفويض","en":"delegated"},"24":{"ar":"المرجع المعتمد للإصدار مثبت؛ تفويض المعاملة والبث متأجلان حصرًا لـ<span class=\"ltr\">P7</span>.","en":"The approved release reference is pinned; transaction and broadcast authorization are deferred exclusively to <span class=\"ltr\">P7</span>."},"26":{"ar":"SELF-002 — نظافة المحرك","en":"SELF-002 — Engine hygiene"},"28":{"ar":"<span class=\"ltr\">exec=0 · net=0 · dyn=0</span> — فحص AST ذاتي (ST21) داخل <span class=\"ltr\">SelfTest 21/21</span>.","en":"<span class=\"ltr\">exec=0 · net=0 · dyn=0</span> — a self-auditing AST check (ST21) inside <span class=\"ltr\">SelfTest 21/21</span>."},"31":{"ar":"ENV-003 — جذر الثقة","en":"ENV-003 — Trust root"},"33":{"ar":"<span class=\"ltr\">cast.exe</span> داخل جذر الثقة: <span class=\"ltr\">0xeba3df69…</span> · v1.8.0 · قناة رسمية.","en":"<span class=\"ltr\">cast.exe</span> inside the trust root: <span class=\"ltr\">0xeba3df69…</span> · v1.8.0 · official channel."},"36":{"ar":"LEG-001 — العزل القديم","en":"LEG-001 — Legacy quarantine"},"38":{"ar":"19 ملفًا legacy معزولًا بايت-ببايت تحت <span class=\"ltr\">legacy-quarantine/</span> — خارج جذور الفحص.","en":"19 legacy files quarantined byte-for-byte under <span class=\"ltr\">legacy-quarantine/</span> — outside the scan roots."},"40":{"ar":"التجميد الحالي","en":"Current freeze"},"42":{"ar":"<span class=\"ltr\">freeze-record-4.2.6</span> = 27 إصدار + 19 عزل · مطابقة القرص مثبتة.","en":"<span class=\"ltr\">freeze-record-4.2.6</span> = 27 release + 19 quarantine entries · disk match proven."},"44":{"ar":"حدود التنفيذ (غير قابلة للتجاوز بأي نتيجة اختبار):","en":"Execution boundaries (no test result can override these):"},"50":{"ar":"\n    <b data-i18n=\"51\">القاعدة التي تفسّر كل شيء:</b> نجاح الاختبارات لا يمنح تفويضًا. أداة التحقق لا تملك مفاتيح، لا تقرأ أسرارًا، ولا تمنح الإذن لنفسها — الفصل بين طبقات الأدلة والتحقق والمراجعة والتفويض والتنفيذ هو ما يمنع تحوّل «33/33 PASS» إلى بث تلقائي. حتى فشل <span class=\"ltr\">V06</span> الأصلي (cast خارج جذر الثقة) كان <b data-i18n=\"53\">سلوكًا صحيحًا</b> يوثَّق، لا عيبًا يُخفى.\n  ","en":"\n    <b>The rule that explains everything:</b> passing tests grant no authorization. The verification tool holds no keys, reads no secrets, and cannot grant itself permission — the separation between the evidence, verification, review, authorization, and execution layers is what stops \"33/33 PASS\" from becoming an automatic broadcast. Even the original <span class=\"ltr\">V06</span> failure (cast outside the trust root) was <b>correct behavior</b> to document, not a defect to hide.\n  "},"51":{"ar":"القاعدة التي تفسّر كل شيء:","en":"The rule that explains everything:"},"53":{"ar":"سلوكًا صحيحًا","en":"correct behavior"},"54":{"ar":"البنية: خمس طبقات، والتنفيذ مختوم","en":"Architecture: five layers, and execution is sealed"},"55":{"ar":"الأدلة تتدفق صعودًا، والتفويض ينزل حصرًا بتوقيع بشري صريح في كل بوابة. أي طبقة لا تستطيع منح نفسها الإذن.","en":"Evidence flows upward; authorization flows downward only through an explicit human signature at every gate. No layer can grant itself permission."},"57":{"ar":"طبقة الأدلة — Evidence","en":"Evidence layer"},"58":{"ar":"SHA-256 من القرص · مانيفست 8/8 · حزمة غير قابلة للتعديل أثناء المراجعة · سجلات تجميد متراكمة (4.2.2 → 4.2.6)","en":"SHA-256 from disk · 8/8 manifest · an immutable bundle during review · cumulative freeze records (4.2.2 → 4.2.6)"},"59":{"ar":"▲ أدلة","en":"▲ evidence"},"61":{"ar":"طبقة التحقق — Verification","en":"Verification layer"},"62":{"ar":"محرك <span class=\"ltr\">cg-assurance-verify.ps1</span> (AST + سياسات + 16 اختبارًا سلبيًا fail-closed) · مدقق Node مستقل (649 فحصًا) · اختبار تلف البايت الواحد","en":"The <span class=\"ltr\">cg-assurance-verify.ps1</span> engine (AST + policy + 16 fail-closed negative tests) · an independent Node validator (649 checks) · the single-byte tamper test"},"64":{"ar":"▲ نتائج قابلة لإعادة الإنتاج","en":"▲ reproducible results"},"66":{"ar":"طبقة المراجعة المستقلة — Independent Review","en":"Independent review layer"},"67":{"ar":"مراجع بشري ≠ المؤلف · يعيد حساب كل هاش من القرص بنفسه · يوقّع مصفوفة H1–H8 → يغلق C8 فقط","en":"A human reviewer ≠ the author · recomputes every hash from disk personally · signs the H1–H8 matrix → closes C8 only"},"68":{"ar":"▲ توقيعات","en":"▲ signatures"},"70":{"ar":"طبقة التفويض — Authorization","en":"Authorization layer"},"71":{"ar":"C7 (أمني) · C8 (مستقل) · C9 (قرار مالك صريح بمحتوى محدد) · سجل GO منفصل","en":"C7 (security) · C8 (independent) · C9 (an explicit owner decision, precisely scoped) · a separate GO record"},"72":{"ar":"▼ تفويض منفصل صريح فقط","en":"▼ explicit, separate authorization only"},"74":{"ar":"حدود التنفيذ — Execution Boundary 🔒","en":"Execution boundary 🔒"},"75":{"ar":"توقيع وبث بتحكم بشري منفصل ومُراجع مسبقًا — <b class=\"s-red\" data-i18n=\"76\">مختوم حاليًا: NOT AUTHORIZED</b>","en":"Signing and broadcast under separate, pre-reviewed human control — <b class=\"s-red\">currently sealed: NOT AUTHORIZED</b>"},"76":{"ar":"مختوم حاليًا: NOT AUTHORIZED","en":"currently sealed: NOT AUTHORIZED"},"77":{"ar":"الإصلاحات الثلاثة: من اكتشاف fail-closed إلى دليل مغلق","en":"The three fixes: from fail-closed detection to closed proof"},"78":{"ar":"دورة <span class=\"ltr\">v4.2.2-remediation</span> عالجت الملاحظات الثلاث الحاجبة — كل إصلاح بجدول قبل/بعد ودليل قابل للفحص.","en":"The <span class=\"ltr\">v4.2.2-remediation</span> cycle resolved the three blocking findings — each fix shown as before/after with inspectable evidence."},"80":{"ar":"SELF-002 · نظافة المحرك نفسه","en":"SELF-002 · Hygiene of the engine itself"},"81":{"ar":"المحرك <span class=\"ltr\">2.1.0</span> يحوي موقعَي استدعاء عملية (<span class=\"ltr\">exec:2</span>) — أداة تحقق لا يجب أن تُنفّذ شيئًا.","en":"Engine <span class=\"ltr\">2.1.0</span> carried two process-invocation sites (<span class=\"ltr\">exec:2</span>) — a verification tool must not execute anything."},"84":{"ar":"←","en":"→"},"85":{"ar":"<span class=\"ltr\">v2.1.2: exec=0 · net=0 · dyn=0</span> — فحص AST ذاتي دائم (ST21) يفشل عند أول موقع مستقبلي.","en":"<span class=\"ltr\">v2.1.2: exec=0 · net=0 · dyn=0</span> — a permanent self-audit (ST21) that fails on the first future site."},"87":{"ar":"الدليل: <span class=\"ltr\">SelfTest → checks: 21; failures: 0</span> (exit 0) — أُعيد تشغيله حرفيًا من نسخة المستودع.","en":"Evidence: <span class=\"ltr\">SelfTest → checks: 21; failures: 0</span> (exit 0) — re-run verbatim from the repository copy."},"89":{"ar":"ENV-003 · الأداة داخل جذر الثقة","en":"ENV-003 · The tool inside the trust root"},"90":{"ar":"<span class=\"ltr\" data-i18n=\"91\">V06 FAIL (مقصود)</span> — <span class=\"ltr\">C:\\Users\\DeLL-L\\foundry\\cast.exe</span> خارج جذور الثقة المعتمدة.","en":"<span class=\"ltr\">V06 FAIL (intentional)</span> — <span class=\"ltr\">C:\\Users\\DeLL-L\\foundry\\cast.exe</span> outside the approved trust roots."},"91":{"ar":"V06 FAIL (مقصود)","en":"V06 FAIL (intentional)"},"93":{"ar":"←","en":"→"},"94":{"ar":"<span class=\"ltr\">V06-2</span> إغلاق خارجي موثّق: <span class=\"ltr\">…\\.foundry\\cast.exe</span> · <span class=\"ltr\">0xeba3df69…</span> · 58,801,152B · cast 1.8.0 · قناة <span class=\"ltr\">foundryup</span> الرسمية · بديل PATH وحيد.","en":"<span class=\"ltr\">V06-2</span> externally closed: <span class=\"ltr\">…\\.foundry\\cast.exe</span> · <span class=\"ltr\">0xeba3df69…</span> · 58,801,152B · cast 1.8.0 · the official <span class=\"ltr\">foundryup</span> channel · a sole PATH entry."},"99":{"ar":"الدليل: بند H6 في الحزمة + التقرير القياسي: <span class=\"ltr\">ENV-003=within-trust-root</span>.","en":"Evidence: item H6 in the packet + the standard run report: <span class=\"ltr\">ENV-003=within-trust-root</span>."},"101":{"ar":"LEG-001 · عزل مسارات البث القديمة","en":"LEG-001 · Quarantining legacy broadcast paths"},"102":{"ar":"سكربتات <span class=\"ltr\">cast send / --private-key / anchor / broadcast</span> حرة في الشجرة — يمكن فهمها كمسار تنفيذ معتمد.","en":"<span class=\"ltr\">cast send / --private-key / anchor / broadcast</span> scripts loose in the tree — readable as an approved execution path."},"104":{"ar":"←","en":"→"},"105":{"ar":"19 ملفًا (18 سكربت + README) تحت <span class=\"ltr\">legacy-quarantine/2026-09-18-v4.2.2/</span> في: <span class=\"ltr\">anchor/ · broadcast-and-tests/ · mainnet-gates/</span> — خارج جذور فحص LEG-001.","en":"19 files (18 scripts + README) under <span class=\"ltr\">legacy-quarantine/2026-09-18-v4.2.2/</span> in: <span class=\"ltr\">anchor/ · broadcast-and-tests/ · mainnet-gates/</span> — outside the LEG-001 scan roots."},"108":{"ar":"الدليل: أزواج <span class=\"ltr\">orig|quarantine</span> في المانيفست (H5: 8/8 MATCH) تثبت حفظ البايتات — العزل أرشفة لا تحريف.","en":"Evidence: the <span class=\"ltr\">orig|quarantine</span> pairs in the manifest (H5: 8/8 MATCH) prove byte preservation — quarantine is archival, never alteration."},"110":{"ar":"التجميد: مثلث النزاهة واختبار البايت الواحد","en":"The freeze: an integrity triangle and the one-byte test"},"111":{"ar":"سجل التجميد يثبّت SHA-256 لكل ملف من القرص لحظة معينة. قاعدته الملزمة: <b data-i18n=\"112\">أي تعديل بعد الالتقاط — حتى توثيقي — يبطل التجميد ويستلزم دورة جديدة</b>. لذلك كل خلاف «هل تغيّرت البايتات؟» يُحسم بأمر واحد.","en":"The freeze record pins a SHA-256 for every file, from disk, at a moment in time. Its binding rule: <b>any edit after capture — even documentation — voids the freeze and demands a new cycle</b>. Every \"did the bytes change?\" dispute is therefore settled with a single command."},"112":{"ar":"أي تعديل بعد الالتقاط — حتى توثيقي — يبطل التجميد ويستلزم دورة جديدة","en":"any edit after capture — even documentation — voids the freeze and demands a new cycle"},"113":{"ar":"46/46 MATCH ✓ (من القرص — مثبت)","en":"46/46 MATCH ✓ (from disk — proven)"},"114":{"ar":"مُثبت في دورات سابقة","en":"proven in earlier cycles"},"115":{"ar":"(42/42 ثم 45/45)","en":"(42/42, then 45/45)"},"116":{"ar":"يتجدّد بعد الدفع","en":"refreshed after each push"},"117":{"ar":"القرص","en":"Disk"},"118":{"ar":"مصدر الحقيقة اللحظي","en":"the live source of truth"},"119":{"ar":"سجل التجميد","en":"Freeze record"},"121":{"ar":"أرشيف GitHub","en":"GitHub archive"},"123":{"ar":"تلف بايت واحد؟","en":"One byte flipped?"},"124":{"ar":"اكتشاف فوري + exit 1","en":"instant detection + exit 1"},"125":{"ar":"الضلع الأخضر مُثبت بجلسة التحقق الأخيرة؛ الضلع الكهرماني مُثبت في دورات 4.2.3/4.2.5 ويُعاد فحصه لنسخة 4.2.6 عند الدفع (عدم اليقين موثّق عمدًا).","en":"The green edge was proven in the latest verification session; the amber edge was proven in the 4.2.3/4.2.5 cycles and re-verified for 4.2.6 at push time (uncertainty documented on purpose)."},"126":{"ar":"🔧 محاكاة فاحص التجميد — اشطب بايتًا وشاهد الرفض","en":"🔧 Freeze-verifier simulation — flip a byte, watch the rejection"},"127":{"ar":"محتوى العرض = هاش cast الحقيقي. الزر يقلب نibble واحدًا ويعيد حساب SHA-256 فعليًا (في متصفحك) كما يفعل الفاحص على القرص.","en":"The displayed content = the real cast hash. The button flips a single nibble and recomputes SHA-256 (in your browser) exactly as the verifier does on disk."},"129":{"ar":"… جارٍ التحقق","en":"… verifying"},"130":{"ar":"⚡ اشطب بايتًا واحدًا","en":"⚡ Flip one byte"},"131":{"ar":"تشريح السجل الفعلي (حقول موجودة حرفيًا في <span class=\"ltr\">freeze-record-4.2.6.json</span>)","en":"Anatomy of the actual record (fields present verbatim in <span class=\"ltr\">freeze-record-4.2.6.json</span>)"},"133":{"ar":"الحقل","en":"Field"},"134":{"ar":"القيمة / المعنى","en":"Value / meaning"},"136":{"ar":"<span class=\"ltr\">cg41-freeze-record-4.2.6</span> · <span class=\"ltr\">4.2.6-overhaul</span> — يعلو <span class=\"ltr\">4.2.5</span>","en":"<span class=\"ltr\">cg41-freeze-record-4.2.6</span> · <span class=\"ltr\">4.2.6-overhaul</span> — supersedes <span class=\"ltr\">4.2.5</span>"},"141":{"ar":"<span class=\"ltr\">2026-09-18T09:31:01Z</span> — بعد التقاطه لا تعديل؛ الاستثناء الوحيد: إعادة تثبيت هاش README بعد تحريره (موثقة، والطابع محفوظ)","en":"<span class=\"ltr\">2026-09-18T09:31:01Z</span> — after capture, no edits; the sole exception: re-pinning the README hash after an edit (documented, timestamp preserved)"},"144":{"ar":"<b data-i18n=\"145\">27 + 19 = 46 مدخلًا</b> — نموذج مدخل: <span class=\"ltr\">{file:\"README.md\", sha256:\"0xba265f10…\", bytes:1402}</span>","en":"<b>27 + 19 = 46 entries</b> — entry shape: <span class=\"ltr\">{file:\"README.md\", sha256:\"0xba265f10…\", bytes:1402}</span>"},"145":{"ar":"27 + 19 = 46 مدخلًا","en":"27 + 19 = 46 entries"},"148":{"ar":"1 فقط — السجل ذاته (مرجع ذاتي)؛ يُتحقق منه بمقارنة القرص ↔ الأرشيف","en":"exactly one — the record itself (self-referential); verified by a disk ↔ archive comparison"},"150":{"ar":"selftest 21/21 · negative 16/16 (precond=0) · مدقق 649 · برهان حتمية (إعادة توليد = بايتات مطابقة) · استنساخ نظيف BLOCKED","en":"selftest 21/21 · negative 16/16 (precond=0) · validator 649 · a determinism proof (regeneration = byte-identical) · clean clone BLOCKED"},"154":{"ar":"<b class=\"s-green\" data-i18n=\"155\">موجود</b> — التثبيت مُرتكز على commit حتمي (<span class=\"ltr\">gitCommit</span> = <span class=\"ltr\">2cdda4f2…</span>) · وضع <span class=\"ltr\">--disk</span> للتشخيص فقط وليس دليلًا","en":"<b class=\"s-green\">present</b> — pinning is commit-anchored (<span class=\"ltr\">gitCommit</span> = <span class=\"ltr\">2cdda4f2…</span>) · the <span class=\"ltr\">--disk</span> mode is diagnostics only, never evidence"},"155":{"ar":"موجود","en":"present"},"159":{"ar":"دلالات fail-closed: لغة لا يمكن تزويرها","en":"fail-closed semantics: a language that cannot be forged"},"160":{"ar":"عقد ملزم لمحرك 2.1.2 — اكتُشف تطويره بعد أن عُثر على سيناريو سلبي «يفقد مقدّمته بصمت» ويبقى النجاح معلنًا.","en":"A binding contract for engine 2.1.2 — developed after a negative scenario was found to \"silently lose its precondition\" while success was still being announced."},"161":{"ar":"الحالة","en":"Status"},"162":{"ar":"المعنى","en":"Meaning"},"163":{"ar":"تُقبل نجاحًا في سيناريو سلبي إلزامي؟","en":"Counts as success in a mandatory negative scenario?"},"165":{"ar":"تحقق الشرط فعليًا بدليل","en":"The condition genuinely held, with evidence"},"166":{"ar":"في توقع النجاح فقط","en":"in expect-pass cases only"},"168":{"ar":"رُصدت مخالفة بفحص مغلق","en":"A violation was caught by a closed check"},"169":{"ar":"<b data-i18n=\"170\">نعم</b> — هذا هو الهدف في expect-fail","en":"<b>Yes</b> — that is the goal in expect-fail"},"170":{"ar":"نعم","en":"Yes"},"172":{"ar":"استحال الاستمرار بمانع موثق","en":"Could not proceed, blocker documented"},"173":{"ar":"<b data-i18n=\"174\">نعم</b> — بشرط توثيق المانع","en":"<b>Yes</b> — provided the blocker is documented"},"174":{"ar":"نعم","en":"Yes"},"176":{"ar":"الأدلة غير كافية للحكم","en":"Insufficient evidence to judge"},"177":{"ar":"لا","en":"No"},"179":{"ar":"غير منطبق بسبب موثق","en":"Not applicable, with a documented reason"},"180":{"ar":"<b class=\"s-red\" data-i18n=\"181\">لا — أبدًا</b> (عيب السيناريو 9 سابقًا)","en":"<b class=\"s-red\">No — ever</b> (the old Scenario 9 defect)"},"181":{"ar":"لا — أبدًا","en":"No — ever"},"183":{"ar":"مقدمة تشغيل إلزامية غائبة","en":"A mandatory precondition was absent"},"184":{"ar":"تُسقط الدورة كاملة: exit 1","en":"Fails the whole cycle: exit 1"},"185":{"ar":"\n    <b data-i18n=\"186\">قواعد ذهبية مُفرضة:</b> <span class=\"ltr\">NOT_APPLICABLE ≠ PASS</span> · غياب الـمانيفست/الأدلة = رفض صريح لا تجاوز · أي اختلاف غير مُفسَّر يوقف الدورة ولا يُعالج بتعديل التقرير · عدد السيناريوهات المعلن = الفعلي (حُذف السيناريو 15 الشكلي: 17 → 16، والفشل الحقيقي الذي كان يقصده يغطيه 14).\n  ","en":"\n    <b>Golden rules shipped:</b> <span class=\"ltr\">NOT_APPLICABLE ≠ PASS</span> · a missing manifest/evidence file = an explicit refusal, never a bypass · any unexplained difference halts the cycle and is never fixed by editing the report · the declared scenario count = the actual count (cosmetic Scenario 15 was removed: 17 → 16; the real failure it gestured at is covered by 14).\n  "},"186":{"ar":"قواعد ذهبية مُفرضة:","en":"Golden rules shipped:"},"188":{"ar":"الأدلة: أوامر الحزمة الحرفية ومخرجاتها المُتحقَّق منها","en":"Evidence: the packet's literal commands and their verified outputs"},"189":{"ar":"نصوص الأوامر من الحزمة نفسها (packet 1.2.0) — كل أمر عنصر واحد يُنسخ كاملًا بنقرة (الهاشات كاملة 64 خانة، لا اختصارات ولا التفاف أسطر منفصلة). السطر الأخير عرض سلوك فقط، غير قابل للنسخ.","en":"Command text comes from the packet itself (packet 1.2.0) — each command is a single element that copies whole with one click (hashes at the full 64 hex chars, no ellipses, no wrapped lines). The last line is behavior display only and cannot be copied."},"192":{"ar":"exit 0 — السجلات التاريخية (4.2.2–4.2.5) تفشل عمدًا: تثبيتاتها قديمة بمحض التصميم","en":"exit 0 — historical records (4.2.2–4.2.5) intentionally fail: their pins are stale by design"},"195":{"ar":"exit 0 — يشمل ST21: المحرك بلا مواقع تنفيذ (exec=0 net=0 dyn=0)","en":"exit 0 — includes ST21: zero execution sites in the engine (exec=0 net=0 dyn=0)"},"201":{"ar":"exit 0 — يحتاج أدلة reviews-extra (خارج المستودع عمدًا) · آخر إثبات: دورة 4.2.6 ببرهان الحتمية (إعادة التوليد = البايتات المجمدة حرفيًا)","en":"exit 0 — requires the reviews-extra evidence (deliberately outside the repo) · latest proof: the 4.2.6 cycle with the determinism proof (regeneration = the frozen bytes verbatim)"},"206":{"ar":"عرض سلوك فقط — الاستنساخ النظيف بلا أدلة reviews-extra (ليس أمرًا للتنفيذ):","en":"Behavior display only — a clean clone without the reviews-extra evidence (not a command to run):"},"207":{"ar":"git clone github.com/EslaM-X/coreguard &amp;&amp; رشّة قياسية داخل الاستنساخ → BLOCKED · exit 1 · INV-001 FAIL (failClosed=true)","en":"git clone github.com/EslaM-X/coreguard &amp;&amp; a standard run inside the clone → BLOCKED · exit 1 · INV-001 FAIL (failClosed=true)"},"208":{"ar":"السلوك المقصود (الخيار B): الأدلة الخارجية خارج المستودع عمدًا — الاستنساخ يرفض إصدار حكم PASS بلا أدلة: لا NOT_APPLICABLE، لا تجاوز.","en":"The intended behavior (Option B): external evidence lives outside the repository on purpose — the clone refuses to issue a PASS verdict without evidence: no NOT_APPLICABLE, no bypass."},"209":{"ar":"عائلات الاختبارات السلبية (16 سيناريو، كلها يجب أن تفشل بشكل مغلق)","en":"Negative test families (16 scenarios, every one of them must fail closed)"},"210":{"ar":"سلامة البايتات","en":"Byte integrity"},"211":{"ar":"تعديل بايت · هاش خاطئ · ملف ناقص · مانيفست معدّل/هاشه مختلف (NEG-wrong-manifest-hash)","en":"one-byte edit · wrong hash · missing file · tampered manifest / mismatched hash (NEG-wrong-manifest-hash)"},"212":{"ar":"أمان RPC","en":"RPC safety"},"213":{"ar":"method خارج القائمة المسموحة · فعل send · قائمة فارغة (كتالوج مغلق POL-002)","en":"a method outside the allow-list · the send verb · an empty list (the closed POL-002 catalog)"},"214":{"ar":"أمان التنفيذ","en":"Execution safety"},"215":{"ar":"spawn مزدوج · استدعاء ديناميكي (scriptblocks/members)","en":"double spawn · dynamic invocation (scriptblocks/members)"},"216":{"ar":"البيئة","en":"Environment"},"217":{"ar":"cast خارج جذر الثقة · cast مفقود · صلاحيات ناقصة","en":"cast outside the trust root · cast missing · insufficient permissions"},"218":{"ar":"سلامة التقارير والسياسة","en":"Report &amp; policy integrity"},"219":{"ar":"IDs مكررة · تعديل تقرير بعد الإنشاء · سياسة قديمة/هاش مختلف · خريطة انحراف متلاعب بها (14)","en":"duplicate IDs · a report edited after creation · a stale policy / mismatched hash · a tampered drift map (14)"},"220":{"ar":"خمس دورات تجميد — كل واحدة اصطادت عيبًا حقيقيًا","en":"Five freeze cycles — each one caught a real defect"},"221":{"ar":"هذا هو البرهان الميتا على أن الحوكمة تعمل: لا دورة انتهت بدون كشف شيء لم يكن ليُكتشف لولا قاعدة «أي اختلاف غير مُفسَّر يوقف الدورة». كل التواريخ <span class=\"ltr\">2026-09-18</span>.","en":"This is the meta-proof that the governance works: no cycle ended without revealing something that would have gone unseen without the rule \"any unexplained difference halts the cycle\". All dates are <span class=\"ltr\">2026-09-18</span>."},"225":{"ar":"أصلحت: SELF-002 · ENV-003 · LEG-001","en":"fixed: SELF-002 · ENV-003 · LEG-001"},"226":{"ar":"دورة المعالجة الكاملة للملاحظات الثلاث الحاجبة (أعلاه) + قالب C7/C9 وحزمة المراجع.","en":"The full remediation cycle for the three blocking findings (above) + the C7/C9 templates and the reviewer packet."},"227":{"ar":"مطالبة لاحقة بـ«11 ملفًا تغيّرت بعد التجميد» فُحصت بالقرص (P6): الملفان التوثيقيان كانا <b data-i18n=\"228\">داخل</b> الـcommit، وملفات tmp غير متتبعة — التقرير التقط الأدلة لا يعدّلها.","en":"A later claim of \"11 files changed after the freeze\" was examined on disk (P6): both documentation files were <b>inside</b> the commit, and the tmp files were untracked — the report captures evidence, it does not rewrite it."},"228":{"ar":"داخل","en":"inside"},"231":{"ar":"اصطادت: فقد مقدمات صامت","en":"caught: silent precondition loss"},"232":{"ar":"المقارنة الحتمية كشفت سيناريو 9 يتحول من FAIL إلى <span class=\"ltr\">NOT_APPLICABLE</span> عند غياب مقدمة المانيفست مع بقاء إعلان «17/17».","en":"Deterministic comparison revealed Scenario 9 flipping from FAIL to <span class=\"ltr\">NOT_APPLICABLE</span> when the manifest precondition was missing — while \"17/17\" was still being announced."},"234":{"ar":"الإصلاح: حارس مقدمات fail-closed. إعادة تجميد + برهان بقاء أدلة 4.2.2 (5/5 UNCHANGED).","en":"Fix: a fail-closed precondition guard. Re-freeze + an evidence-preservation proof for 4.2.2 (5/5 UNCHANGED)."},"237":{"ar":"اصطادت: mojibake + سيناريو شكلي","en":"caught: mojibake + a cosmetic scenario"},"238":{"ar":"دلالة <span class=\"ltr\">PRECONDITION_FAILURE → exit 1</span>؛ حذف السيناريو 15 الشكلي (17→16)؛ المدقق 657→649.","en":"<span class=\"ltr\">PRECONDITION_FAILURE → exit 1</span> semantics; cosmetic Scenario 15 removed (17→16); the validator went 657→649."},"240":{"ar":"CI أحمر: كاشف الترميز رفض mojibake CP1252 في سجلي التجميد (PowerShell 5.1 قرأ سكربتات بلا BOM بترميز ANSI) → فك الترميز العكسي + إعادة تثبيت الهاشات → <span class=\"ltr\">npm test 696/696</span> وCI أخضر.","en":"CI went red: the encoding detector rejected CP1252 mojibake in two freeze records (PowerShell 5.1 had read BOM-less scripts as ANSI) → reverse decoding + re-pinned hashes → <span class=\"ltr\">npm test 696/696</span> and CI green."},"244":{"ar":"اصطادت: manifest داخلي قديم","en":"caught: a stale internal manifest"},"245":{"ar":"اعتماد «الخيار B» للأدلة الخارجية — مُختبر فعليًا: استنساخ نظيف → <span class=\"ltr\">BLOCKED exit 1</span> بالضبط كما هو موثق.","en":"Adopted \"Option B\" for external evidence — actually tested: a clean clone → <span class=\"ltr\">BLOCKED exit 1</span>, exactly as documented."},"247":{"ar":"45 مدخلًا؛ وأثناء التحقق كُشف أن <span class=\"ltr\">manifest.json</span> الداخلي يثبّت بايتات ما قبل-2.1.2 → أُعيد ضبطه.","en":"45 entries; during verification the internal <span class=\"ltr\">manifest.json</span> was found pinning pre-2.1.2 bytes → re-pinned."},"251":{"ar":"أغلقت: فجوات نطاق + أوامر مكسورة","en":"closed: scope gaps + broken commands"},"252":{"ar":"README نقطة دخول المراجع؛ إصلاح أوامر H1-H8 الحرفية (كانت تتوقع «17 سيناريو/657» القديمين وأمر السلبية بلا مقدمات كان سيسقط المراجع فورًا)؛ حذف طبقة توثيق مكررة (3 ملفات/107 أسطر).","en":"README as the reviewer's entry point; fixed the literal H1-H8 commands (they still expected the old \"17 scenarios / 657\", and the negative command lacked preconditions — it would have failed any reviewer instantly); removed a duplicated documentation layer (3 files / 107 lines)."},"253":{"ar":"تقليم أخير: رابطان معطلان و«49» قديمة في README → صحّحا؛ هاش README أُعيد تثبيته → <b>46/46 MATCH</b> من القرص.","en":"Final prune: two dead links and a stale \"49\" in the README → corrected; the README hash was re-pinned → <b>46/46 MATCH</b> from disk."},"255":{"ar":"حزمة C8: ماذا يوقّع المراجع المستقل؟","en":"The C8 packet: what does the independent reviewer sign?"},"256":{"ar":"مصفوفة H1–H8 (packet 1.2.0) — كل بند ربط أدلة يتحقق منه المراجع من القرص بنفسه ثم يوقّع. <b data-i18n=\"257\">التوقيع يغلق C8 فقط ولا يمنح GO للبث</b> — قرار المالك (C9) منفصل حصرًا.","en":"The H1–H8 matrix (packet 1.2.0) — each item is an evidence binding that the reviewer verifies from disk personally, then signs. <b>A signature closes C8 only and grants no broadcast GO</b> — the owner decision (C9) is separate by construction."},"257":{"ar":"التوقيع يغلق C8 فقط ولا يمنح GO للبث","en":"A signature closes C8 only and grants no broadcast GO"},"258":{"ar":"بند","en":"Item"},"259":{"ar":"ماذا يربط","en":"What it binds"},"260":{"ar":"الهاش المرجعي","en":"Reference hash"},"261":{"ar":"التوقيع/التاريخ","en":"Signature / date"},"263":{"ar":"المحرك <span class=\"ltr\">v2.1.2</span> — بعد إصلاح SELF-002 (<span class=\"ltr\">exec=0 net=0 dyn=0</span>) ودلالة <span class=\"ltr\">PRECONDITION_FAILURE</span>","en":"Engine <span class=\"ltr\">v2.1.2</span> — after the SELF-002 fix (<span class=\"ltr\">exec=0 net=0 dyn=0</span>) and the <span class=\"ltr\">PRECONDITION_FAILURE</span> semantics"},"267":{"ar":"يُعاد حسابه من القرص","en":"recomputed from disk"},"268":{"ar":"—— بانتظار ——","en":"—— awaiting ——"},"270":{"ar":"تقرير التشغيل القياسي: <b>33/33 PASS · VERIFIED-READONLY-ONLY</b> · ENV-003 داخل الثقة · LEG-001 بدون إصابات","en":"The standard run report: <b>33/33 PASS · VERIFIED-READONLY-ONLY</b> · ENV-003 inside trust · LEG-001 clean"},"274":{"ar":"—— بانتظار ——","en":"—— awaiting ——"},"276":{"ar":"TAP الـSelf-test <b>21/21</b> (يشمل ST21 لمنع مواقع التنفيذ مستقبلًا)","en":"The self-test TAP <b>21/21</b> (includes ST21, guarding against future execution sites)"},"280":{"ar":"—— بانتظار ——","en":"—— awaiting ——"},"282":{"ar":"المجموعة السلبية <b>16/16 fail-closed · precond=0</b> — بعد حذف 15 الشكلي (تغطيته: 14)","en":"The negative suite <b>16/16 fail-closed · precond=0</b> — after removing cosmetic 15 (its coverage: 14)"},"284":{"ar":"يُعاد من القرص (أُعيد توليده في 2.1.2)","en":"re-derived from disk (regenerated on 2.1.2)"},"285":{"ar":"—— بانتظار ——","en":"—— awaiting ——"},"287":{"ar":"مانيفست الأدلة المعتمد <span class=\"ltr\">v4.2.2</span> — 8/8 MATCH مع أزواج <span class=\"ltr\">orig|quarantine</span> (إثبات حفظ البايتات في العزل)","en":"The approved evidence manifest <span class=\"ltr\">v4.2.2</span> — 8/8 MATCH with <span class=\"ltr\">orig|quarantine</span> pairs (proof of byte preservation in quarantine)"},"292":{"ar":"—— بانتظار ——","en":"—— awaiting ——"},"294":{"ar":"إغلاق V06-2: مسار cast · SHA-256 · الإصدار 1.8.0 · المصدر الرسمي · وحيد في PATH · غياب توقيع Authenticode موثق","en":"The V06-2 closure: cast path · SHA-256 · version 1.8.0 · official source · sole PATH entry · the documented absence of an Authenticode signature"},"297":{"ar":"—— بانتظار ——","en":"—— awaiting ——"},"299":{"ar":"بقية بنود الحزمة (تُستكمل عند التسليم الفعلي للمراجع — لم تُعرض تفاصيلها هنا بدقة لعدم الادعاء بغير المثبت)","en":"The remaining packet items (completed at the actual reviewer handoff — not detailed here, to avoid claiming beyond what is proven)"},"300":{"ar":"\n    <b data-i18n=\"301\">قبل استلام الحزمة يجب أن تكون بقية شروط الانتقال مكتملة:</b> شجرة مستقلة (تطابق القرص↔السجل↔الأرشيف) · لا عناصر PENDING/BLOCKER غير مُفسَّرة · لا هاشات قديمة · لا تغييرات غير موثقة بعد التجميد.\n  ","en":"\n    <b>Before the packet is handed over, the remaining transition conditions must be complete:</b> an independent tree (disk ↔ record ↔ archive match) · no unexplained PENDING/BLOCKER items · no stale hashes · no undocumented post-freeze changes.\n  "},"301":{"ar":"قبل استلام الحزمة يجب أن تكون بقية شروط الانتقال مكتملة:","en":"Before the packet is handed over, the remaining transition conditions must be complete:"},"302":{"ar":"صفحة الحكّام الحية — من يملك كل بوابة، ومن يستطيع ترقيتها","en":"The live governors page — who owns each gate, and who can upgrade it"},"303":{"ar":"البوابات أُغلق تنفيذها في <b data-i18n=\"304\">وضع المشغّل الواحد المعلن</b> (<span class=\"ltr\">GOVERNANCE-MODE.md</span> + <span class=\"ltr\">GOVERNANCE-RECORDS.md</span>): كل سجل برأس إفصاح إلزامي، ومصدر اعتماد مسمّى، و<b data-i18n=\"307\">فتحة ترقية فارغة</b> — أول توقيع بشري مستقل يرقّي السجل إلى استقلالية كاملة <b data-i18n=\"308\">بلا أي إعادة عمل</b>.","en":"The gates were executed under the <b>disclosed single-operator mode</b> (<span class=\"ltr\">GOVERNANCE-MODE.md</span> + <span class=\"ltr\">GOVERNANCE-RECORDS.md</span>): every record carries a mandatory disclosure header, a named approval source, and an <b>empty upgrade slot</b> — the first independent human signature upgrades the record to full independence <b>with zero rework</b>."},"304":{"ar":"وضع المشغّل الواحد المعلن","en":"disclosed single-operator mode"},"307":{"ar":"فتحة ترقية فارغة","en":"empty upgrade slot"},"308":{"ar":"بلا أي إعادة عمل","en":"with zero rework"},"320":{"ar":"C7 — الأمن","en":"C7 — Security"},"323":{"ar":"نموذج التهديد · عقد fail-closed (16/16) · العبث بالوضعين · محرك قراءة-فقط · عزل 19/19 · لا أسرار · مخاطر R-1/R-2/R-3 مقبولة <b data-i18n=\"324\">بالاسم</b> · F-1 بنيوي مفتوح عمدًا.","en":"Threat model · fail-closed contract (16/16) · tamper in both modes · a read-only engine · quarantine 19/19 · no secrets · risks R-1/R-2/R-3 accepted <b>by name</b> · the F-1 structural finding deliberately open."},"324":{"ar":"بالاسم","en":"by name"},"325":{"ar":"مصدر التوقيع: <span class=\"ltr\">GOVERNANCE-RECORDS.md · Record 1</span><br>الموقّع: Acting Owner (Codebuff session) بتفويض المالك — <b data-i18n=\"327\">لا استقلالية معلنة</b>","en":"Signature source: <span class=\"ltr\">GOVERNANCE-RECORDS.md · Record 1</span><br>Signer: the Acting Owner (Codebuff session) under owner delegation — <b>no independence claimed</b>"},"327":{"ar":"لا استقلالية معلنة","en":"no independence claimed"},"328":{"ar":"<b data-i18n=\"329\">فتحة الترقية المستقلة — فارغة</b><br>توقيع مراجع أمني بشري يرقّي السجل ويغلق F-1 تلقائيًا","en":"<b>Independent upgrade slot — empty</b><br>a human security reviewer's signature upgrades the record and auto-closes F-1"},"329":{"ar":"فتحة الترقية المستقلة — فارغة","en":"Independent upgrade slot — empty"},"330":{"ar":"C8 — الأدلة","en":"C8 — Evidence"},"333":{"ar":"إعادة اشتقاق H1–H8 من استنساخ GitHub حقيقي: أرشيف 46/46 · <span class=\"ltr\">Dec-C-9</span> تحت <span class=\"ltr\">autocrlf=true</span> · 21/21 · 657/0 · عقد 13/13 · EX-1 CLOSED · EX-2 accepted.","en":"H1–H8 re-derived from a real GitHub clone: archive 46/46 · <span class=\"ltr\">Dec-C-9</span> under <span class=\"ltr\">autocrlf=true</span> · 21/21 · 657/0 · contract 13/13 · EX-1 CLOSED · EX-2 accepted."},"336":{"ar":"مصدر التوقيع: <span class=\"ltr\">GOVERNANCE-RECORDS.md · Record 2</span><br>الموقّع: Acting Owner (Codebuff session) بتفويض المالك — <b data-i18n=\"338\">لا استقلالية معلنة</b>","en":"Signature source: <span class=\"ltr\">GOVERNANCE-RECORDS.md · Record 2</span><br>Signer: the Acting Owner (Codebuff session) under owner delegation — <b>no independence claimed</b>"},"338":{"ar":"لا استقلالية معلنة","en":"no independence claimed"},"339":{"ar":"<b data-i18n=\"340\">فتحة الترقية المستقلة — فارغة</b><br>توقيع مراجع أدلة بشري يرقّي السجل تلقائيًا","en":"<b>Independent upgrade slot — empty</b><br>a human evidence reviewer's signature upgrades the record automatically"},"340":{"ar":"فتحة الترقية المستقلة — فارغة","en":"Independent upgrade slot — empty"},"341":{"ar":"C9 — قرار المالك","en":"C9 — Owner decision"},"343":{"ar":"بالتفويض","en":"delegated"},"344":{"ar":"المرجع المعتمد للإصدار مثبت (<span class=\"ltr\">fa15eb2</span>) · سقف الصلاحية: تقدم الـanchor أو فتح أي مُوقِّع finding · الإلغاء: بيان المالك أو رفض توقيع مستقل.","en":"The approved release reference is pinned (<span class=\"ltr\">fa15eb2</span>) · expiry: anchor supersession or any signer filing a finding · revocation: an owner statement or an independent signature's refusal."},"346":{"ar":"مصدر القرار: <span class=\"ltr\">GOVERNANCE-RECORDS.md · Record 3</span><br>الموقّع: Acting Owner بتفويض المالك — القرار الأصلي لصاحب المشروع","en":"Decision source: <span class=\"ltr\">GOVERNANCE-RECORDS.md · Record 3</span><br>Signer: the Acting Owner under owner delegation — the original decision belongs to the project owner"},"348":{"ar":"<b data-i18n=\"349\">فتحة التصديق المستقل — اختيارية</b><br>توقيع بشري يرفع مصدر القرار من تفويض إلى إسناد مستقل","en":"<b>Independent ratification slot — optional</b><br>a human signature raises the decision's source from delegation to independent endorsement"},"349":{"ar":"فتحة التصديق المستقل — اختيارية","en":"Independent ratification slot — optional"},"350":{"ar":"P7 — تفويض التنفيذ (الخزنة)","en":"P7 — Execution authorization (the vault)"},"352":{"ar":"يتطلب: مشغّلًا بشريًا <b data-i18n=\"353\">مسمّى</b> · نطاقًا وسقوف قيمة/غاز · توقيعًا شخصيًا — والمفاتيح لا تمر عبر هذه الجلسة أو أدواتها أبدًا.","en":"Requires: a <b>named</b> human operator · a scope with value/gas ceilings · a personal signature — and keys never pass through this session or its tools."},"353":{"ar":"مسمّى","en":"named"},"354":{"ar":"المصدر: <span class=\"ltr\">FINAL-GO-GATE.md · P7</span> — ورقة منفصلة عن C9 بنيويًا","en":"Source: <span class=\"ltr\">FINAL-GO-GATE.md · P7</span> — structurally separate from C9"},"356":{"ar":"<b data-i18n=\"357\">الفتحة الوحيدة التي تفتح الخزنة</b><br>لا تُملأ إلكترونيًا ولا بواسطة وكيل — توقيع المشغّل فقط","en":"<b>The only slot that opens the vault</b><br>never filled electronically or by an agent — the operator's signature only"},"357":{"ar":"الفتحة الوحيدة التي تفتح الخزنة","en":"The only slot that opens the vault"},"358":{"ar":"🎭 محاكاة الترقية المستقلة — جرّبها أمام عينك","en":"🎭 Independent-upgrade simulator — try it live"},"359":{"ar":"✍️ وقّع كمراجع مستقل (محاكاة)","en":"✍️ Sign as an independent reviewer (simulated)"},"365":{"ar":"🔒 NOT AUTHORIZED — لا تتأثر أبدًا","en":"🔒 NOT AUTHORIZED — never affected"},"366":{"ar":"\n      المحاكاة <b data-i18n=\"367\">لا تلمس</b> المستودع ولا السجلات الموقّعة — هي تعرض فقط ماذا يحدث <b data-i18n=\"368\">بشكل رسمي</b>: أول توقيع بشري مستقل يرقّي C7/C8 من وضع المشغّل الواحد إلى اعتماد مستقل كامل <b data-i18n=\"369\">بلا أي إعادة عمل</b> (الفتحات موجودة في <span class=\"ltr\">GOVERNANCE-RECORDS.md</span> لهذا الغرض بالضبط). وP7 — الخزنة — تبقى <b class=\"s-red\" data-i18n=\"371\">مقفلة</b>: الترقية المستقلة ترقّي السجلات ولا تمنح صلاحية بث، فالمشغّل البشري المسمّى شرط بنيوي لا يُتجاوز بتوقيع مراجع.\n    ","en":"\n      The simulation <b>touches nothing</b> in the repository or the signed records — it only shows what happens <b>formally</b>: the first independent human signature upgrades C7/C8 from single-operator mode to a fully independent endorsement <b>with zero rework</b> (the slots exist in <span class=\"ltr\">GOVERNANCE-RECORDS.md</span> for exactly this purpose). And P7 — the vault — stays <b class=\"s-red\">locked</b>: an independent upgrade re-rates records but grants no broadcast authority; a named human operator is a structural precondition no reviewer signature can bypass.\n    "},"367":{"ar":"لا تلمس","en":"touches nothing"},"368":{"ar":"بشكل رسمي","en":"formally"},"369":{"ar":"بلا أي إعادة عمل","en":"with zero rework"},"371":{"ar":"مقفلة","en":"locked"},"372":{"ar":"\n    <b data-i18n=\"373\">«الحية» بمعنى صادق:</b> هذه الصفحة لقطة مولّدة — الملزم هو المستودع نفسه، والروابط تفتح الحقيقة لحظة فتحها:\n    <a href=\"https://github.com/EslaM-X/coreguard/blob/main/coreguard-assurance-v4.2.2-remediation/GOVERNANCE-RECORDS.md\" target=\"_blank\" rel=\"noopener\" data-i18n=\"374\">سجلات الحوكمة</a> ·\n    <a href=\"https://github.com/EslaM-X/coreguard/commit/fa15eb26ebf4e1acde660b8a14ead534f3a40506\" target=\"_blank\" rel=\"noopener\"><span class=\"ltr\">fa15eb2</span></a> ·\n    <a href=\"https://github.com/EslaM-X/coreguard/actions\" target=\"_blank\" rel=\"noopener\" data-i18n=\"376\">CI — آخر تشغيل 35402919848 (5/5 ✓)</a> ·\n    <span class=\"ltr\">validate-freeze: PASS 46/46 anchored @ c34cae8684c1</span>\n  ","en":"\n    <b>\"Live\" in an honest sense:</b> this page is a generated snapshot — the binding source is the repository itself, and the links open the truth at the moment you click:\n    <a href=\"https://github.com/EslaM-X/coreguard/blob/main/coreguard-assurance-v4.2.2-remediation/GOVERNANCE-RECORDS.md\" target=\"_blank\" rel=\"noopener\">governance records</a> ·\n    <a href=\"https://github.com/EslaM-X/coreguard/commit/fa15eb26ebf4e1acde660b8a14ead534f3a40506\" target=\"_blank\" rel=\"noopener\"><span class=\"ltr\">fa15eb2</span></a> ·\n    <a href=\"https://github.com/EslaM-X/coreguard/actions\" target=\"_blank\" rel=\"noopener\">CI — latest run 35402919848 (5/5 ✓)</a> ·\n    <span class=\"ltr\">validate-freeze: PASS 46/46 anchored @ c34cae8684c1</span>\n  "},"373":{"ar":"«الحية» بمعنى صادق:","en":"\"Live\" in an honest sense:"},"374":{"ar":"سجلات الحوكمة","en":"governance records"},"376":{"ar":"CI — آخر تشغيل 35402919848 (5/5 ✓)","en":"CI — latest run 35402919848 (5/5 ✓)"},"378":{"ar":"الطريق إلى GO: أُغلق تقريبًا — توقيع مشغّل بشري واحد يفصلنا عن فتح الخزنة","en":"The path to GO: nearly closed — one human operator signature separates us from opening the vault"},"379":{"ar":"مُغلق — single-op","en":"closed — single-op"},"380":{"ar":"C8 — اعتماد الأدلة","en":"C8 — Evidence approval"},"381":{"ar":"أُعيد اشتقاق H1–H8 من استنساخ GitHub حقيقي (46/46 · 21/21 · 657/0) — الترقية لاستقلالية كاملة من فتحة التوقيع في صفحة الحكّام","en":"H1–H8 re-derived from a real GitHub clone (46/46 · 21/21 · 657/0) — upgrade to full independence from the signature slot on the governors page"},"383":{"ar":"مُغلق — single-op","en":"closed — single-op"},"384":{"ar":"C7 — الأمن","en":"C7 — Security"},"385":{"ar":"نموذج التهديد والحدود مُراجعة · المخاطر R-1/R-2/R-3 مقبولة بالاسم — الفحص المستقل يبقى في فتحة الترقية","en":"Threat model and boundaries reviewed · risks R-1/R-2/R-3 accepted by name — the independent audit remains in the upgrade slot"},"387":{"ar":"منفذ — بالتفويض","en":"executed — delegated"},"388":{"ar":"C9 — قرار المالك","en":"C9 — Owner decision"},"389":{"ar":"المرجع المعتمد مثبت · نطاق ضيق · سقف صلاحية وآلية إلغاء — البث ذاته لم يُفوّض","en":"The approved reference pinned · a narrow scope · expiry and revocation defined — broadcast itself is not authorized"},"391":{"ar":"P6 مسجّل — 9/9","en":"P6 recorded — 9/9"},"392":{"ar":"بوابة GO النهائية + سجل الإصدار المعتمد","en":"Final GO gate + the approved release record"},"393":{"ar":"الإصدار المرجعي معتمد في وضع المشغّل الواحد — تفويض التنفيذ (P7) هو البند الوحيد المفتوح","en":"The reference release approved under single-operator mode — execution authorization (P7) is the only open item"},"395":{"ar":"البند الوحيد المفتوح","en":"the only open item"},"396":{"ar":"🔒 P7 — تفويض التنفيذ بمشغّل بشري مسمّى","en":"🔒 P7 — Execution authorization by a named human operator"},"397":{"ar":"مرحلة منفصلة محدودة مُراجعة مسبقًا · توقيع المشغّل شخصيًا — <b class=\"s-red\" data-i18n=\"398\">NOT AUTHORIZED حتى ذلك الحين</b>","en":"A separate, bounded, pre-reviewed stage · the operator's personal signature — <b class=\"s-red\">NOT AUTHORIZED until then</b>"},"398":{"ar":"NOT AUTHORIZED حتى ذلك الحين","en":"NOT AUTHORIZED until then"},"399":{"ar":"ما لم يُعتبر بعد — بند بند، بلا تجميل","en":"What is not yet claimed — item by item, no varnish"},"400":{"ar":"البند","en":"Item"},"401":{"ar":"الدليل","en":"Evidence"},"402":{"ar":"الأثر إذا عولج","en":"Impact if addressed"},"403":{"ar":"الجهد","en":"Effort"},"404":{"ar":"سجل التجميد مُرتكز على الـcommit (أُغلق)","en":"Commit-anchored freeze record (closed)"},"405":{"ar":"أُغلق في دورة 4.2.6: <span class=\"ltr\">gitCommit</span> مثبّت والمدقق يجمع الهاشات من شجرة الـcommit (<span class=\"ltr\">git show</span>) لا القرص — الكشف من وضع عدائي (10 سيناريوهات)","en":"Closed in the 4.2.6 cycle: <span class=\"ltr\">gitCommit</span> pinned, and the verifier hashes from the commit tree (<span class=\"ltr\">git show</span>), not the disk — detection adversarially tested (10 scenarios)"},"408":{"ar":"كل ادعاء يتحقق بأمر واحد ومردّه شجرة غير قابلة للتغيير — صنف «هل تغيّرت البايتات بعد التجميد؟» الذي استهلك دورتين مقتول بنيويًا","en":"Every claim verifies with one command and resolves to an immutable tree — the \"did the bytes change after the freeze?\" class that consumed two cycles is structurally dead"},"409":{"ar":"دقائق","en":"minutes"},"410":{"ar":"الأدلة الخارجية غير معرّفة آليًا","en":"External evidence not machine-defined"},"411":{"ar":"<span class=\"ltr\">reviews-extra</span> لا تُذكر في السجل (فحص نصي: false) — وثيقة الخيار B حُذفت مع التقليم","en":"<span class=\"ltr\">reviews-extra</span> is absent from the record (text scan: false) — the Option B document was pruned away"},"413":{"ar":"مصفوفة <span class=\"ltr\">requiredExternalEvidence</span> (مسار+هاش+مصدر) تحوّل الخيار B من شرح إلى عقد قابل للفحص","en":"A <span class=\"ltr\">requiredExternalEvidence</span> matrix (path + hash + source) turns Option B from prose into an inspectable contract"},"415":{"ar":"منخفض","en":"low"},"416":{"ar":"CI لا يشغّل دورة الـAssurance","en":"CI does not run the assurance cycle"},"417":{"ar":"<span class=\"ltr\">ci.yml</span>: <span class=\"ltr\">npm test</span> فقط — الـSelfTest/السلبية/المدقق تعمل يدويًا","en":"<span class=\"ltr\">ci.yml</span>: <span class=\"ltr\">npm test</span> only — the SelfTest / negative suite / validator run manually"},"420":{"ar":"خطوة CI للفرع المستقل عن البيئة + إعادة إثبات الحتمية على كل push: الأدلة تُراقب باستمرار لا لحظيًا","en":"A CI step for the environment-independent branch + a determinism re-proof on every push: evidence monitored continuously, not momentarily"},"421":{"ar":"متوسط","en":"medium"},"422":{"ar":"توليد JSON عبر PowerShell 5.1","en":"JSON generated via PowerShell 5.1"},"423":{"ar":"mojibake CP1252 وقع <b data-i18n=\"424\">مرتين</b> بنفس الآلية (دورتا 4.2.4/4.2.6) — المحرك 1,013 سطرًا PS","en":"CP1252 mojibake struck <b>twice</b> by the same mechanism (the 4.2.4 / 4.2.6 cycles) — the engine is 1,013 lines of PS"},"424":{"ar":"مرتين","en":"twice"},"425":{"ar":"مولّد Node بجوار <span class=\"ltr\">validate-report.mjs</span> يقتل صنف العيب نهائيًا (PS للفحص، Node للبيانات)","en":"A Node generator beside <span class=\"ltr\">validate-report.mjs</span> kills the defect class for good (PS for checking, Node for data)"},"427":{"ar":"ساعات","en":"hours"},"428":{"ar":"حالات البوابات مكررة في 4 مستندات","en":"Gate states duplicated across 4 documents"},"429":{"ar":"نص <span class=\"ltr\">C7/C8/C9</span> في STATUS وREADME وdecision بالسجل وذيل الحزمة","en":"The <span class=\"ltr\">C7/C8/C9</span> text lives in STATUS, the README, the record's decision, and the packet tail"},"431":{"ar":"<span class=\"ltr\">gates.json</span> مصدر وحيد يستهلكه المدقق وREADME ولوحة HTML (تُولَّد بدل أن تُكتب)","en":"A single <span class=\"ltr\">gates.json</span> source consumed by the validator, the README, and the HTML board (generated, never handwritten)"},"433":{"ar":"نصف يوم","en":"half a day"},"434":{"ar":"الدفع والتحقق الأرشيفي (أُغلق)","en":"Push &amp; archive verification (closed)"},"435":{"ar":"<span class=\"ltr\">HEAD = origin/main = fa15eb2</span> · شجرة نظيفة · أرشيف GitHub الحقيقي (<span class=\"ltr\">main.tar.gz</span>) مطابق للـpins <b>46/46</b>","en":"<span class=\"ltr\">HEAD = origin/main = fa15eb2</span> · a clean tree · the real GitHub archive (<span class=\"ltr\">main.tar.gz</span>) matches the pins <b>46/46</b>"},"439":{"ar":"الضلع الكهرماني في المثلث أُغلق بقياس فعلي — لا يبقى منه بند مفتوح","en":"The triangle's amber edge closed by actual measurement — nothing left open on it"},"440":{"ar":"منجز","en":"done"},"441":{"ar":"\n    <b data-i18n=\"442\">عدم اليقين المعلن (عمدًا، محدَّث):</b> «33/33 القياسي» يبقى من سجل التجميد (لم يُعاد تشغيله حفظًا للمخرجات المجمدة) بينما «657 فحصًا» أُعيد من استنساخ حقيقي؛ ضلع القرص↔الأرشيف أُغلق بقياس 46/46 من الأرشيف الحقيقي؛ وسجلات C7/C8/C9 صارت أوراق معلنة الإفصاح قابلة للترقية بتوقيعات مستقلة. الحدود الحالية: الحوكمة single-op حتى تكتمل الترقيات — لا ادعاء أوسع من الأدلة.\n  ","en":"\n    <b>Stated uncertainty (deliberate, updated):</b> the \"33/33 standard run\" remains sourced from the freeze record (not re-run, preserving the frozen outputs), while \"657 checks\" was re-run from a real clone; the disk↔archive edge was closed by an actual 46/46 measurement from the real archive; and the C7/C8/C9 records are now disclosure-carrying papers, upgradeable by independent signatures. Current limits: governance is single-op until the upgrades complete — no claim broader than the evidence.\n  "},"442":{"ar":"عدم اليقين المعلن (عمدًا، محدَّث):","en":"Stated uncertainty (deliberate, updated):"},"443":{"ar":"<b>CoreGuard Gate 4.1</b> — أداة تحقق فقط: لا مفاتيح، لا توقيع، لا بث.","en":"<b>CoreGuard Gate 4.1</b> — a verification tool only: no keys, no signing, no broadcast."},"446":{"ar":"شرح بصري مولّد من أدلة الجلسة والسجلات — المصدر: freeze-record-4.2.6.json · GOVERNANCE-RECORDS.md · نتائج التحقق الموثقة","en":"A visual brief generated from session evidence and records — sources: freeze-record-4.2.6.json · GOVERNANCE-RECORDS.md · documented verification results"},"447":{"ar":"اللوحة","en":"Board"},"448":{"ar":"البنية","en":"Architecture"},"449":{"ar":"الإصلاحات","en":"Fixes"},"450":{"ar":"التجميد","en":"Freeze"},"451":{"ar":"الدلالات","en":"Semantics"},"452":{"ar":"الأدلة","en":"Evidence"},"453":{"ar":"الدورات","en":"Cycles"},"454":{"ar":"حزمة C8","en":"C8 Packet"},"455":{"ar":"الحكّام","en":"Governors"},"456":{"ar":"الطريق إلى GO","en":"Path to GO"},"457":{"ar":"المفتوح","en":"Open Items"}},"attrs":{"/body[0]/nav[0]@aria-label":{"ar":"فهرس الصفحة","en":"Page index"},"/body[0]/nav[0]/div[0]/span[11]@aria-label":{"ar":"تبديل اللغة","en":"Export"},"/body[0]/div[1]/header[0]/div[3]@aria-label":{"ar":"لوحة الحالة","en":"Status board"},"/body[0]/div[1]/section[3]/figure[2]/svg[0]@aria-label":{"ar":"مثلث النزاهة: القرص، سجل التجميد، وأرشيف GitHub مع حالة كل ضلع","en":"The integrity triangle: disk, freeze record, and the GitHub archive, with the state of every edge"},"/div[17]/div[2]@aria-label":{"ar":"محتوى الملف بايت ببايت","en":"File content, byte by byte"},"/section[21]/div[2]@aria-label":{"ar":"أوامر التحقق ومخرجاتها","en":"Verification commands and their outputs"},"/section[24]/div[2]@aria-label":{"ar":"سلسلة الالتزام","en":"Commit lineage"},"/section[25]/div[1]@aria-label":{"ar":"مسار التفويض","en":"Authorization path"}}};
+    var btn = document.getElementById('langBtn');
+
+    function apply(lang){
+      window.cgLang = (lang === 'en') ? 'en' : 'ar';
+      var en = (window.cgLang === 'en');
+      document.documentElement.lang = window.cgLang;
+      document.documentElement.dir  = en ? 'ltr' : 'rtl';
+      for (var k in D.nodes){
+        var el = document.querySelector('[data-i18n="' + k + '"]');
+        if (!el) continue;
+        var next = en ? D.nodes[k].en : D.nodes[k].ar;
+        if (el.innerHTML !== next) el.innerHTML = next;
+      }
+      // attribute swaps — selector-keyed (markup carries no attr markers)
+      if (en) {
+        document.querySelector('nav').setAttribute('aria-label', "Page index");
+        document.querySelector('.lang').setAttribute('aria-label', 'Export');
+        document.querySelector('.board').setAttribute('aria-label', 'Status board');
+        document.querySelector('#freeze figure svg').setAttribute('aria-label', 'The integrity triangle: disk, freeze record, and the GitHub archive, with the state of every edge');
+        document.getElementById('bytesEl').setAttribute('aria-label', 'File content, byte by byte');
+        document.querySelector('#evidence .terminal').setAttribute('aria-label', 'Verification commands and their outputs');
+        document.querySelector('#gov .lineage').setAttribute('aria-label', 'Commit lineage');
+        document.querySelector('#path .flow').setAttribute('aria-label', 'Authorization path');
+      } else {
+        document.querySelector('nav').setAttribute('aria-label', 'فهرس الصفحة');
+        document.querySelector('.lang').setAttribute('aria-label', 'تبديل اللغة');
+        document.querySelector('.board').setAttribute('aria-label', 'لوحة الحالة');
+        document.querySelector('#freeze figure svg').setAttribute('aria-label', 'مثلث النزاهة: القرص، سجل التجميد، وأرشيف GitHub مع حالة كل ضلع');
+        document.getElementById('bytesEl').setAttribute('aria-label', 'محتوى الملف بايت ببايت');
+        document.querySelector('#evidence .terminal').setAttribute('aria-label', 'أوامر التحقق ومخرجاتها');
+        document.querySelector('#gov .lineage').setAttribute('aria-label', 'سلسلة الالتزام');
+        document.querySelector('#path .flow').setAttribute('aria-label', 'مسار التفويض');
+      }
+      btn.textContent = en ? 'ع' : 'EN';
+      btn.setAttribute('aria-pressed', en ? 'true' : 'false');
+      btn.title = en ? 'النسخة العربية — نفس اللوحة، نفس الحقائق' : 'English version — same board, same facts';
+      try { localStorage.setItem('cg41-lang', window.cgLang); } catch(e){}
+      document.dispatchEvent(new CustomEvent('cg41:lang', { detail: window.cgLang }));
+    }
+    var saved = 'ar';
+    try { saved = localStorage.getItem('cg41-lang') || 'ar'; } catch(e){}
+    apply(saved);
+    btn.addEventListener('click', function(){
+      apply((document.documentElement.lang === 'en') ? 'ar' : 'en');
+    });
+  })();
+</script>
+</body>
+</html>

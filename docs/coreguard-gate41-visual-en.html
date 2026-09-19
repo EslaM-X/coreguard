@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoreGuard Gate 4.1 — Governance &amp; Status Board</title>
+<style>
+  :root{
+    --bg:#0b0f17; --panel:#121a28; --panel2:#0d1420; --line:#223047; --ink:#e9eef8;
+    --muted:#9fb0c9; --green:#34d399; --green-d:#0c2b21; --amber:#fbbf24; --amber-d:#2e2410;
+    --red:#f87171; --red-d:#301418; --blue:#60a5fa; --blue-d:#12233d; --violet:#a78bfa;
+    --mono:Consolas,"Cascadia Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;line-height:1.75;font-size:16px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px 80px}
+  section{scroll-margin-top:var(--navH,76px);margin-top:56px}
+  h1{font-size:clamp(1.5rem,3.4vw,2.3rem);margin:.2em 0}
+  h2{font-size:clamp(1.2rem,2.4vw,1.6rem);border-inline-start:4px solid var(--blue);
+     padding-inline-start:.55em;margin:0 0 14px}
+  h3{margin:20px 0 8px;font-size:1.05rem;color:#cfe0f5}
+  p{margin:8px 0}
+  .muted{color:var(--muted)}
+  .ltr{direction:ltr;unicode-bidi:isolate;font-family:var(--mono);font-size:.92em}
+  bdi{unicode-bidi:isolate}
+  code,.code{font-family:var(--mono);background:var(--panel2);border:1px solid var(--line);
+    border-radius:6px;padding:.05em .4em;direction:ltr;unicode-bidi:isolate;font-size:.9em}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;background:rgba(11,15,23,.92);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line)}
+  nav .in{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap}
+  nav a{color:var(--muted);text-decoration:none;font-size:.85rem;padding:4px 10px;border-radius:999px;
+    border:1px solid transparent}
+  nav a:hover,nav a:focus-visible{color:var(--ink);border-color:var(--line);background:var(--panel)}
+  a{color:var(--blue)}
+
+  /* hero */
+  header.hero{margin-top:36px}
+  .pulse{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--amber);
+    margin-inline-end:8px;animation:pulse 1.8s ease-in-out infinite;vertical-align:middle}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.5)}50%{box-shadow:0 0 0 9px rgba(251,191,36,0)}}
+
+  .board{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));margin-top:18px}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .tile .k{font-size:.78rem;color:var(--muted);letter-spacing:.04em}
+  .tile .v{font-size:1.25rem;font-weight:700;margin-top:2px}
+  .tile .d{font-size:.8rem;color:var(--muted);margin-top:4px;line-height:1.55}
+  .decide{grid-column:1/-1;background:linear-gradient(135deg,var(--red-d),var(--panel));
+    border:1px solid #5b2330}
+  .decide .v{font-size:clamp(1.3rem,3vw,1.9rem);color:var(--red)}
+  .s-green{color:var(--green)} .s-amber{color:var(--amber)} .s-blue{color:var(--blue)} .s-red{color:var(--red)}
+  .auth{grid-column:1/-1;background:var(--red-d);border:1px solid #5b2330;border-radius:14px;padding:12px 16px}
+  .auth .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .chip{font-family:var(--mono);direction:ltr;unicode-bidi:isolate;font-size:.78rem;
+    border:1px solid #7a2f3d;color:var(--red);border-radius:999px;padding:3px 10px;background:#1c0d12}
+  .chip.g{color:var(--green);border-color:#1f5c47;background:#0c2b21}
+
+  /* governors (live) */
+  .gates{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));margin-top:14px}
+  .gate{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .gate .k{font-size:.78rem;color:var(--muted);letter-spacing:.04em}
+  .gate .st{font-size:1.08rem;font-weight:700;margin:4px 0 8px}
+  .gate .d{font-size:.85rem;line-height:1.7}
+  .gate .src{font-size:.78rem;color:var(--muted);border-top:1px dashed var(--line);margin-top:10px;padding-top:8px;line-height:1.7}
+  .gate .slot{margin-top:10px;border:2px dashed var(--line);border-radius:10px;padding:8px 10px;
+    font-size:.78rem;color:var(--muted);text-align:center;line-height:1.6}
+  .gate .slot b{color:var(--violet)}
+  .gate.p7{border-color:#5b2330;background:var(--red-d)}
+  .lineage{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center}
+  .lchip{font-family:var(--mono);direction:ltr;unicode-bidi:isolate;font-size:.72rem;border:1px solid var(--line);
+    color:var(--muted);border-radius:999px;padding:2px 9px;background:var(--panel2)}
+  .lchip.h{color:var(--blue);border-color:#2c4a77;font-weight:700}
+  .larr{color:var(--muted);font-size:.75rem}
+
+  /* independent-signature simulator (governors) */
+  .sim{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .sim .head{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+  .sim .head h3{margin:0}
+  .sim .head .spacer{flex:1}
+  .sim .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+  .sim .row .lchip{font-size:.78rem}
+  .sim .note{margin-top:10px;font-size:.8rem;color:var(--muted);line-height:1.7}
+  .sim .note b.s-red{color:var(--red)}
+  .sim .note b.s-green{color:var(--green)}
+  .tag.flip{animation:flip .45s ease}
+  @keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg);opacity:.2}100%{transform:rotateX(0);opacity:1}}
+  .gate .st .tag.simulated{outline:2px dotted var(--violet);outline-offset:2px}
+
+  .callout{border:1px solid var(--line);border-inline-start:5px solid var(--violet);
+    background:var(--panel);border-radius:12px;padding:14px 18px;margin:18px 0}
+  .callout.warn{border-inline-start-color:var(--amber)}
+  .callout.danger{border-inline-start-color:var(--red)}
+  .callout.ok{border-inline-start-color:var(--green)}
+
+  /* generic card grid */
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .card h3{margin-top:0}
+  .ba{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-top:10px}
+  .ba .side{border-radius:10px;padding:10px 12px;font-size:.86rem;line-height:1.6}
+  .ba .before{background:var(--red-d);border:1px solid #5b2330}
+  .ba .after{background:var(--green-d);border:1px solid #1f5c47}
+  .ba .arr{color:var(--muted);font-size:1.3rem}
+  .evi{font-size:.8rem;color:var(--muted);border-top:1px dashed var(--line);margin-top:10px;padding-top:8px}
+
+  /* layers */
+  .layers{display:flex;flex-direction:column;gap:0;margin-top:8px}
+  .layer{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--panel);
+    position:relative;margin-top:-1px}
+  .layer .no{position:absolute;inset-inline-start:-14px;top:50%;transform:translateY(-50%);
+    width:28px;height:28px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--muted)}
+  .layer b{color:#dbe7fa}
+  .layer .sub{color:var(--muted);font-size:.85rem}
+  .layer.sealed{border:2px dashed #7a2f3d;background:var(--red-d);
+    background-image:repeating-linear-gradient(45deg,rgba(248,113,113,.06) 0 12px,transparent 12px 24px)}
+  .downflow{text-align:center;color:var(--muted);font-size:.78rem;padding:2px 0}
+
+  /* terminal */
+  .terminal{direction:ltr;text-align:left;font-family:var(--mono);font-size:.83rem;
+    background:#080c14;border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;line-height:1.7}
+  .terminal .cmd{color:#7dd3fc;white-space:pre-wrap;word-break:break-all}
+  .terminal .cmd::before{content:"$ ";opacity:.5}
+  .terminal .o{color:#a7f3d0}
+  .terminal .n{color:var(--muted)}
+  .terminal .e{color:var(--red)}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.9rem}
+  .tblwrap{overflow-x:auto}
+  .tblwrap table{min-width:640px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:start;vertical-align:top}
+  th{background:var(--panel2);color:#cfe0f5;font-weight:600}
+  tr:nth-child(even) td{background:rgba(255,255,255,.015)}
+  .tag{display:inline-block;font-size:.72rem;font-weight:700;border-radius:6px;padding:1px 8px;
+    font-family:var(--mono);direction:ltr;unicode-bidi:isolate}
+  .t-g{background:var(--green-d);color:var(--green);border:1px solid #1f5c47}
+  .t-a{background:var(--amber-d);color:var(--amber);border:1px solid #6b5310}
+  .t-r{background:var(--red-d);color:var(--red);border:1px solid #7a2f3d}
+  .t-b{background:var(--blue-d);color:var(--blue);border:1px solid #2c4a77}
+
+  /* timeline */
+  .tl{position:relative;margin:26px 4px 6px;padding-inline-start:26px}
+  .tl::before{content:"";position:absolute;inset-inline-start:8px;top:6px;bottom:6px;width:3px;
+    background:linear-gradient(var(--blue),var(--violet));border-radius:2px}
+  .tl .node{position:relative;margin-bottom:20px}
+  .tl .node::before{content:"";position:absolute;inset-inline-start:-25px;top:8px;width:13px;height:13px;
+    border-radius:50%;background:var(--bg);border:3px solid var(--blue)}
+  .tl .node h4{margin:0;font-size:1rem}
+  .tl .node .when{font-family:var(--mono);direction:ltr;unicode-bidi:isolate;font-size:.75rem;color:var(--muted)}
+  .tl .node ul{margin:6px 0 0;padding-inline-start:20px;font-size:.88rem;color:#c9d6ea}
+  .caught{display:inline-block;font-size:.72rem;background:var(--amber-d);color:var(--amber);
+    border:1px solid #6b5310;border-radius:999px;padding:1px 9px;margin-inline-start:6px}
+
+  /* flow */
+  .flow{display:flex;flex-direction:column;align-items:stretch;gap:0;max-width:640px;margin:18px auto 0}
+  .step{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:12px 16px;position:relative}
+  .step .who{font-size:.75rem;color:var(--muted)}
+  .step.here{border:2px solid var(--amber);background:var(--amber-d)}
+  .step.vault{border:2px dashed #7a2f3d;background:var(--red-d);text-align:center}
+  .connector{text-align:center;color:var(--muted);font-size:1.1rem;line-height:1.1;padding:2px 0}
+  .youare{position:absolute;top:-12px;inset-inline-end:14px;background:var(--amber);color:#201a05;
+    font-size:.72rem;font-weight:800;border-radius:999px;padding:1px 10px}
+
+  /* tamper widget */
+  .demo{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:14px}
+  .bytes{direction:ltr;font-family:var(--mono);font-size:.86rem;letter-spacing:.06em;word-break:break-all;
+    background:#080c14;border:1px solid var(--line);border-radius:10px;padding:12px;line-height:1.9}
+  .bytes mark{background:#7a2f3d;color:#ffd9d9;border-radius:3px;padding:0 1px}
+  .hashbox{direction:ltr;font-family:var(--mono);font-size:.8rem;color:var(--muted);
+    background:#080c14;border:1px solid var(--line);border-radius:10px;padding:10px 12px;word-break:break-all;margin-top:10px}
+  .verdict{margin-top:12px;font-weight:800;border-radius:10px;padding:10px 14px;text-align:center}
+  .v-ok{background:var(--green-d);color:var(--green);border:1px solid #1f5c47}
+  .v-bad{background:var(--red-d);color:var(--red);border:1px solid #7a2f3d}
+  button{font:inherit;cursor:pointer;background:var(--blue-d);color:var(--blue);border:1px solid #2c4a77;
+    border-radius:10px;padding:8px 18px;margin-top:12px}
+  button:hover,button:focus-visible{filter:brightness(1.2);outline:2px solid var(--blue)}
+
+  /* legend chips */
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:.8rem;color:var(--muted)}
+  .legend .chip{color:var(--ink)}
+
+  .figure{margin:14px 0 0}
+  figcaption{font-size:.8rem;color:var(--muted);margin-top:6px}
+  .svgbg{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px}
+  footer{margin-top:70px;border-top:1px solid var(--line);padding-top:22px;text-align:center;color:var(--muted);font-size:.85rem}
+
+  /* verdict + tiles respond to interaction; reduced-motion-safe via global kill below */
+  .verdict{transition:background .25s ease, color .25s ease}
+  .tile,.card{transition:border-color .2s ease, transform .2s ease}
+  .tile:hover,.card:hover{border-color:#33456b;transform:translateY(-2px)}
+  button:active{transform:translateY(1px)}
+  button{transition:filter .15s ease, transform .1s ease}
+
+  /* nav current-section highlight */
+  nav a.active{color:var(--ink);background:var(--blue-d);border-color:#2c4a77}
+
+  /* export switch — print/PDF trigger (replaces the retired two-file language bridge) */
+  .lang{margin-inline-start:auto;display:flex;gap:4px;align-items:center}
+  #printBtn{margin-top:0;font-family:var(--mono);font-weight:700;font-size:.78rem;direction:ltr;unicode-bidi:isolate;
+    padding:4px 12px;border-radius:999px;border:1px solid #2c4a77;background:var(--blue-d);color:var(--blue)}
+  #printBtn:hover,#printBtn:focus-visible{filter:brightness(1.25);outline:2px solid var(--blue);outline-offset:2px}
+  /* print-only provenance header (hidden on screen) */
+  .printhead{display:none}
+
+  /* copy affordance for the reviewer's literal commands */
+  .terminal .cmd{cursor:pointer}
+  .terminal .cmd:hover{background:rgba(125,211,252,.08);border-radius:4px}
+  .terminal .cmd::after{content:"⧉";opacity:0;font-size:.75rem;margin-inline-start:.6em;vertical-align:middle;
+    transition:opacity .15s ease}
+  .terminal .cmd:hover::after{opacity:.65}
+  .copied{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+    background:var(--green-d);color:var(--green);border:1px solid #1f5c47;border-radius:999px;
+    padding:6px 18px;font-size:.85rem;z-index:99;opacity:0;transition:opacity .2s ease;pointer-events:none}
+  .copied.show{opacity:1}
+
+  a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+    html{scroll-behavior:auto}
+  }
+
+  /* ====================================================================
+     PRINT THEME — the reviewer's PDF export. Read the caveats:
+     .terminal keeps the dark theme: white-on-dark prints fine and
+     preserves the cyan command / green output color-coding the reviewer
+     cross-references against C8-PACKAGE.md.
+     .bytes/.hashbox go light: their body is dark ink on dark panels,
+     which does NOT survive print rendering.
+     A4 portraits per section; each section starts on a fresh page.
+     ==================================================================== */
+  @media print{
+    @page{size:A4 portrait;margin:14mm 12mm}
+    nav,.copied,.demo,#printBtn{display:none}
+    /* packet provenance header appears on paper only */
+    .printhead{display:block;border-bottom:2px solid #16202f;padding-bottom:6pt;margin:0 0 10pt;
+      font-size:8pt;color:#4a586c}
+    .printhead b{display:block;color:#16202f;font-size:10pt;margin-bottom:2pt}
+    html,body{background:#fff;color:#16202f;font-size:11pt;line-height:1.5}
+    .wrap{max-width:none;padding:0}
+    section{margin-top:0;padding-top:14pt;break-before:page}
+    header.hero{break-before:avoid;margin-top:0}
+    section:first-of-type{break-before:avoid}
+    h1{font-size:19pt}
+    h2{font-size:15pt;border-inline-start-color:#1a4f8a;break-after:avoid}
+    h3{color:#223247;break-after:avoid}
+    /* rows and cards must never split mid-block */
+    .tile,.card,.gate,.callout,.layer,tr,figure,.step,.tl .node{break-inside:avoid;box-shadow:none}
+    .ba{break-inside:avoid}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8pt}
+    .board{grid-template-columns:1fr 1fr}
+    .auth,.decide{grid-column:1/-1}
+    /* badge colors survive every print engine */
+    .tag,.chip,.lchip,.t-g,.t-a,.t-r,.t-b,.v-ok,.v-bad,.verdict,.chip.g{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    /* light re-theme for dark surfaces that can't print readably */
+    .tile,.card,.gate,.callout,.demo,.layer{background:#fff;border-color:#b9c4d4}
+    .layer{background:#fff}
+    .layer.sealed{background:#fdf1f2;border-color:#c98189;background-image:none}
+    .callout.danger{background:#fdf1f2}
+    .callout.ok{background:#f0faf5}
+    .callout.warn{background:#fdf9ee}
+    .muted,.tile .d,.gate .src,.gate .slot,.downflow,.who,.evi,.sub,figcaption{color:#4a586c}
+    .s-green{color:#0d7a4f}.s-amber{color:#8a5a00}.s-red{color:#b3232a}.s-blue{color:#1553a8}
+    .tag,.chip,.lchip,.v-ok,.v-bad,.verdict{background:#fff}
+    .t-g,.chip.g,.v-ok{color:#0d7a4f;border-color:#7cc3a3}
+    .t-a{color:#8a5a00;border-color:#d9b25c}
+    .t-r,.chip,.v-bad{color:#b3232a;border-color:#d98f95}
+    .t-b{color:#1553a8;border-color:#8fb4e0}
+    .gate.p7{background:#fdf1f2;border-color:#c98189}
+    .step.here{background:#fdf9ee;border-color:#d9b25c}
+    .step.vault{background:#fdf1f2;border-color:#c98189}
+    .bytes,.hashbox{background:#f4f6fa;border-color:#b9c4d4;color:#16202f}
+    .bytes mark{background:#f3c2c6;color:#7a1220}
+    button{display:none}
+    a{color:#1553a8;text-decoration:none}
+    .ltr,code,.code{background:#f4f6fa;border-color:#d5dce6}
+    .terminal{font-size:7.6pt;border-color:#b9c4d4}
+    .terminal .cmd{white-space:pre-wrap}
+    .svgbg{background:#fff;border-color:#b9c4d4}
+    /* show link targets so the printed packet still leads back to the repo */
+    #gov .callout a[href^="http"]::after{content:" (" attr(href) ")";font-size:6.5pt;color:#4a586c;direction:ltr;unicode-bidi:isolate}
+    footer{break-before:page}
+    .sim{break-inside:avoid;background:#fff;border-color:#b9c4d4}
+    .sim .note{color:#4a586c}
+    #simBtn{display:none}
+    .lang{display:none}
+  }
+</style>
+</head>
+<body>
+
+<nav aria-label="Page index">
+  <div class="in">
+    <a href="#board">Board</a>
+    <a href="#layers">Architecture</a>
+    <a href="#findings">Fixes</a>
+    <a href="#freeze">Freeze</a>
+    <a href="#semantics">Semantics</a>
+    <a href="#evidence">Evidence</a>
+    <a href="#cycle">Cycles</a>
+    <a href="#packet">C8 Packet</a>
+    <a href="#gov">Governors</a>
+    <a href="#path">Path to GO</a>
+    <a href="#open">Open Items</a>
+    <span class="lang" role="group" aria-label="Export">
+      <button id="printBtn" type="button" title="Print / save as PDF — A4 review packet with the print theme">⎙ PDF</button>
+    </span>
+  </div>
+</nav>
+
+<!-- print-only packet header: provenance that survives on paper -->
+<div class="printhead" aria-hidden="true">
+  <b>CoreGuard Gate 4.1 — Governance &amp; Status Board</b>
+  <span class="ltr">EslaM-X/coreguard · commit 16b4642cc3b4d61c7a8d301ac240710890929384 · CI 35407569145 ✓ · freeze 46/46 anchored @ c34cae8684c1 · 2026-09-19</span>
+</div>
+
+<div class="wrap">
+
+<!-- ===================== HERO / STATUS BOARD ===================== -->
+<header class="hero" id="board">
+  <p class="muted" style="margin-bottom:2px">
+    <span class="pulse" aria-hidden="true"></span>
+    Review status — <span class="ltr">EslaM-X/coreguard</span> · Gate <span class="ltr">4.1</span> · CoreGuard Assurance Platform · <span class="ltr">engine 2.1.2</span>
+  </p>
+  <h1>From a verification script to a governance system — and exactly where we stand</h1>
+  <p class="muted">A complete visual brief of the authoritative state: what was built, what the hashes prove, who decides, and why a Mainnet broadcast remains <bdi><span class="s-red">NOT AUTHORIZED</span></bdi> even though every test passes.</p>
+
+  <div class="board" role="list" aria-label="Status board">
+    <div class="tile decide" role="listitem">
+      <div class="k">Binding decision — after the governance records</div>
+      <div class="v">RELEASE APPROVED · <span class="s-amber">BROADCAST LOCKED</span></div>
+      <div class="d">The pinned release is approved under the <b>disclosed</b> single-operator mode; no transaction signing and no broadcast — the vault opens only with a <span class="ltr">P7</span> signature from a named human operator.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k">C7 — Security review</div>
+      <div class="v s-green">APPROVED <span class="tag t-a">single-op</span></div>
+      <div class="d">Accepted under the disclosed single-operator mode — risks R-1/R-2/R-3 accepted by name; upgrade to full independence via the external signature slot.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k">C8 — Evidence review</div>
+      <div class="v s-green">APPROVED <span class="tag t-a">single-op</span></div>
+      <div class="d">H1–H8 re-derived from a real GitHub clone on Windows — upgrade to full independence via the external signature slot.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k">C9 — Owner decision</div>
+      <div class="v s-green">EXECUTED <span class="tag t-a">delegated</span></div>
+      <div class="d">The approved release reference is pinned; transaction and broadcast authorization are deferred exclusively to <span class="ltr">P7</span>.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k">SELF-002 — Engine hygiene</div>
+      <div class="v s-green">RESOLVED</div>
+      <div class="d"><span class="ltr">exec=0 · net=0 · dyn=0</span> — a self-auditing AST check (ST21) inside <span class="ltr">SelfTest 21/21</span>.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k">ENV-003 — Trust root</div>
+      <div class="v s-green">RESOLVED</div>
+      <div class="d"><span class="ltr">cast.exe</span> inside the trust root: <span class="ltr">0xeba3df69…</span> · v1.8.0 · official channel.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k">LEG-001 — Legacy quarantine</div>
+      <div class="v s-green">RESOLVED</div>
+      <div class="d">19 legacy files quarantined byte-for-byte under <span class="ltr">legacy-quarantine/</span> — outside the scan roots.</div>
+    </div>
+    <div class="tile" role="listitem">
+      <div class="k">Current freeze</div>
+      <div class="v s-green">46/46 MATCH</div>
+      <div class="d"><span class="ltr">freeze-record-4.2.6</span> = 27 release + 19 quarantine entries · disk match proven.</div>
+    </div>
+    <div class="auth" role="listitem">
+      <b>Execution boundaries (no test result can override these):</b>
+      <div class="row">
+        <span class="chip g">RELEASE REFERENCE @ fa15eb2 = APPROVED (single-op)</span>
+        <span class="chip">TX SIGNING = NOT AUTHORIZED</span>
+        <span class="chip">COMMITINTENT = NOT AUTHORIZED</span>
+        <span class="chip">ANCHORPROOF = NOT AUTHORIZED</span>
+        <span class="chip">MAINNET BROADCAST = NOT AUTHORIZED</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout danger" style="margin-top:18px">
+    <b>The rule that explains everything:</b> passing tests grant no authorization. The verification tool holds no keys, reads no secrets, and cannot grant itself permission — the separation between the evidence, verification, review, authorization, and execution layers is what stops "33/33 PASS" from becoming an automatic broadcast. Even the original <span class="ltr">V06</span> failure (cast outside the trust root) was <b>correct behavior</b> to document, not a defect to hide.
+  </div>
+</header>
+
+<!-- ===================== LAYERS ===================== -->
+<section id="layers" aria-labelledby="h-layers">
+  <h2 id="h-layers">Architecture: five layers, and execution is sealed</h2>
+  <p class="muted">Evidence flows upward; authorization flows downward only through an explicit human signature at every gate. No layer can grant itself permission.</p>
+  <div class="layers figure">
+    <div class="layer"><span class="no" aria-hidden="true">1</span>
+      <b>Evidence layer</b>
+      <div class="sub">SHA-256 from disk · 8/8 manifest · an immutable bundle during review · cumulative freeze records (4.2.2 → 4.2.6)</div>
+    </div>
+    <div class="downflow" aria-hidden="true">▲ evidence</div>
+    <div class="layer"><span class="no" aria-hidden="true">2</span>
+      <b>Verification layer</b>
+      <div class="sub">The <span class="ltr">cg-assurance-verify.ps1</span> engine (AST + policy + 16 fail-closed negative tests) · an independent Node validator (649 checks) · the single-byte tamper test</div>
+    </div>
+    <div class="downflow" aria-hidden="true">▲ reproducible results</div>
+    <div class="layer"><span class="no" aria-hidden="true">3</span>
+      <b>Independent review layer</b>
+      <div class="sub">A human reviewer ≠ the author · recomputes every hash from disk personally · signs the H1–H8 matrix → closes C8 only</div>
+    </div>
+    <div class="downflow" aria-hidden="true">▲ signatures</div>
+    <div class="layer"><span class="no" aria-hidden="true">4</span>
+      <b>Authorization layer</b>
+      <div class="sub">C7 (security) · C8 (independent) · C9 (an explicit owner decision, precisely scoped) · a separate GO record</div>
+    </div>
+    <div class="downflow" aria-hidden="true">▼ explicit, separate authorization only</div>
+    <div class="layer sealed"><span class="no" aria-hidden="true">5</span>
+      <b>Execution boundary 🔒</b>
+      <div class="sub">Signing and broadcast under separate, pre-reviewed human control — <b class="s-red">currently sealed: NOT AUTHORIZED</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FINDINGS ===================== -->
+<section id="findings" aria-labelledby="h-findings">
+  <h2 id="h-findings">The three fixes: from fail-closed detection to closed proof</h2>
+  <p class="muted">The <span class="ltr">v4.2.2-remediation</span> cycle resolved the three blocking findings — each fix shown as before/after with inspectable evidence.</p>
+
+  <div class="grid">
+    <article class="card">
+      <h3>SELF-002 · Hygiene of the engine itself</h3>
+      <div class="ba">
+        <div class="side before">Engine <span class="ltr">2.1.0</span> carried two process-invocation sites (<span class="ltr">exec:2</span>) — a verification tool must not execute anything.</div>
+        <div class="arr" aria-hidden="true">→</div>
+        <div class="side after"><span class="ltr">v2.1.2: exec=0 · net=0 · dyn=0</span> — a permanent self-audit (ST21) that fails on the first future site.</div>
+      </div>
+      <div class="evi">Evidence: <span class="ltr">SelfTest → checks: 21; failures: 0</span> (exit 0) — re-run verbatim from the repository copy.</div>
+    </article>
+
+    <article class="card">
+      <h3>ENV-003 · The tool inside the trust root</h3>
+      <div class="ba">
+        <div class="side before"><span class="ltr">V06 FAIL (intentional)</span> — <span class="ltr">C:\Users\DeLL-L\foundry\cast.exe</span> outside the approved trust roots.</div>
+        <div class="arr" aria-hidden="true">→</div>
+        <div class="side after"><span class="ltr">V06-2</span> externally closed: <span class="ltr">…\.foundry\cast.exe</span> · <span class="ltr">0xeba3df69…</span> · 58,801,152B · cast 1.8.0 · the official <span class="ltr">foundryup</span> channel · a sole PATH entry.</div>
+      </div>
+      <div class="evi">Evidence: item H6 in the packet + the standard run report: <span class="ltr">ENV-003=within-trust-root</span>.</div>
+    </article>
+
+    <article class="card">
+      <h3>LEG-001 · Quarantining legacy broadcast paths</h3>
+      <div class="ba">
+        <div class="side before"><span class="ltr">cast send / --private-key / anchor / broadcast</span> scripts loose in the tree — readable as an approved execution path.</div>
+        <div class="arr" aria-hidden="true">→</div>
+        <div class="side after">19 files (18 scripts + README) under <span class="ltr">legacy-quarantine/2026-09-18-v4.2.2/</span> in: <span class="ltr">anchor/ · broadcast-and-tests/ · mainnet-gates/</span> — outside the LEG-001 scan roots.</div>
+      </div>
+      <div class="evi">Evidence: the <span class="ltr">orig|quarantine</span> pairs in the manifest (H5: 8/8 MATCH) prove byte preservation — quarantine is archival, never alteration.</div>
+    </article>
+  </div>
+</section>
+
+<!-- ===================== FREEZE ===================== -->
+<section id="freeze" aria-labelledby="h-freeze">
+  <h2 id="h-freeze">The freeze: an integrity triangle and the one-byte test</h2>
+  <p class="muted">The freeze record pins a SHA-256 for every file, from disk, at a moment in time. Its binding rule: <b>any edit after capture — even documentation — voids the freeze and demands a new cycle</b>. Every "did the bytes change?" dispute is therefore settled with a single command.</p>
+
+  <figure class="figure svgbg">
+    <svg viewBox="0 0 560 300" role="img" aria-label="The integrity triangle: disk, freeze record, and the GitHub archive, with the state of every edge" style="width:100%;height:auto;display:block">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#9fb0c9"></path>
+        </marker>
+      </defs>
+      <!-- headline: verified edge status -->
+      <text x="272" y="38" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">46/46 MATCH ✓ (from disk — proven)</text>
+      <!-- edges -->
+      <line x1="150" y1="105" x2="392" y2="105" stroke="#34d399" stroke-width="2.5" marker-end="url(#ar)" marker-start="url(#ar)"></line>
+      <line x1="115" y1="140" x2="230" y2="238" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#ar)" marker-start="url(#ar)"></line>
+      <line x1="435" y1="140" x2="330" y2="238" stroke="#223047" stroke-width="2" stroke-dasharray="4 6" marker-end="url(#ar)" marker-start="url(#ar)"></line>
+      <!-- edge labels -->
+      <text x="103" y="196" text-anchor="middle" fill="#fbbf24" font-size="12">proven in earlier cycles</text>
+      <text x="103" y="212" text-anchor="middle" fill="#fbbf24" font-size="11">(42/42, then 45/45)</text>
+      <text x="465" y="196" text-anchor="middle" fill="#9fb0c9" font-size="12">refreshed after each push</text>
+      <!-- nodes -->
+      <g font-family="Segoe UI,Tahoma,sans-serif">
+        <rect x="70" y="52" width="160" height="52" rx="12" fill="#0d1420" stroke="#223047"></rect>
+        <text x="150" y="76" text-anchor="middle" fill="#e9eef8" font-size="14" font-weight="700">Disk</text>
+        <text x="150" y="94" text-anchor="middle" fill="#9fb0c9" font-size="11">the live source of truth</text>
+        <rect x="330" y="52" width="160" height="52" rx="12" fill="#0d1420" stroke="#223047"></rect>
+        <text x="410" y="76" text-anchor="middle" fill="#e9eef8" font-size="14" font-weight="700">Freeze record</text>
+        <text x="410" y="94" text-anchor="middle" fill="#9fb0c9" font-size="11">freeze-record-4.2.6</text>
+        <rect x="205" y="238" width="170" height="52" rx="12" fill="#0d1420" stroke="#223047"></rect>
+        <text x="290" y="262" text-anchor="middle" fill="#e9eef8" font-size="14" font-weight="700">GitHub archive</text>
+        <text x="290" y="280" text-anchor="middle" fill="#9fb0c9" font-size="11">git archive @ commit</text>
+      </g>
+      <!-- tamper note -->
+      <rect x="18" y="238" width="150" height="52" rx="12" fill="#301418" stroke="#7a2f3d"></rect>
+      <text x="93" y="260" text-anchor="middle" fill="#f87171" font-size="11.5" font-weight="700">One byte flipped?</text>
+      <text x="93" y="278" text-anchor="middle" fill="#f87171" font-size="11">instant detection + exit 1</text>
+    </svg>
+    <figcaption>The green edge was proven in the latest verification session; the amber edge was proven in the 4.2.3/4.2.5 cycles and re-verified for 4.2.6 at push time (uncertainty documented on purpose).</figcaption>
+  </figure>
+
+  <div class="demo" role="group" aria-labelledby="demo-title">
+    <h3 id="demo-title" style="margin-top:0">🔧 Freeze-verifier simulation — flip a byte, watch the rejection</h3>
+    <p class="muted" style="font-size:.85rem">The displayed content = the real cast hash. The button flips a single nibble and recomputes SHA-256 (in your browser) exactly as the verifier does on disk.</p>
+    <div class="bytes" id="bytesEl" aria-label="File content, byte by byte"></div>
+    <div class="hashbox" id="hashEl">SHA-256: …</div>
+    <div class="verdict v-ok" id="verdictEl">… verifying</div>
+    <button id="tamperBtn" type="button">⚡ Flip one byte</button>
+  </div>
+
+  <h3>Anatomy of the actual record (fields present verbatim in <span class="ltr">freeze-record-4.2.6.json</span>)</h3>
+  <table>
+    <thead><tr><th>Field</th><th>Value / meaning</th></tr></thead>
+    <tbody>
+      <tr><td class="ltr">recordId / releaseId</td><td><span class="ltr">cg41-freeze-record-4.2.6</span> · <span class="ltr">4.2.6-overhaul</span> — supersedes <span class="ltr">4.2.5</span></td></tr>
+      <tr><td class="ltr">frozenAtUtc</td><td><span class="ltr">2026-09-18T09:31:01Z</span> — after capture, no edits; the sole exception: re-pinning the README hash after an edit (documented, timestamp preserved)</td></tr>
+      <tr><td class="ltr">sha256.releaseFiles + quarantineFiles</td><td><b>27 + 19 = 46 entries</b> — entry shape: <span class="ltr">{file:"README.md", sha256:"0xba265f10…", bytes:1402}</span></td></tr>
+      <tr><td class="ltr">excluded</td><td>exactly one — the record itself (self-referential); verified by a disk ↔ archive comparison</td></tr>
+      <tr><td class="ltr">cycleEvidence</td><td>selftest 21/21 · negative 16/16 (precond=0) · validator 649 · a determinism proof (regeneration = byte-identical) · clean clone BLOCKED</td></tr>
+      <tr><td class="ltr">decision</td><td><span class="ltr">CONDITIONAL NO-GO — C7=PARTIAL C8=PENDING C9=PENDING; … = NOT AUTHORIZED</span></td></tr>
+      <tr><td class="ltr">gitCommit</td><td><b class="s-green">present</b> — pinning is commit-anchored (<span class="ltr">gitCommit</span> = <span class="ltr">2cdda4f2…</span>) · the <span class="ltr">--disk</span> mode is diagnostics only, never evidence</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== SEMANTICS ===================== -->
+<section id="semantics" aria-labelledby="h-sem">
+  <h2 id="h-sem">fail-closed semantics: a language that cannot be forged</h2>
+  <p class="muted">A binding contract for engine 2.1.2 — developed after a negative scenario was found to "silently lose its precondition" while success was still being announced.</p>
+  <table>
+    <thead><tr><th>Status</th><th>Meaning</th><th>Counts as success in a mandatory negative scenario?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag t-g">PASS</span></td><td>The condition genuinely held, with evidence</td><td>in expect-pass cases only</td></tr>
+      <tr><td><span class="tag t-r">FAIL</span></td><td>A violation was caught by a closed check</td><td><b>Yes</b> — that is the goal in expect-fail</td></tr>
+      <tr><td><span class="tag t-a">BLOCKED</span></td><td>Could not proceed, blocker documented</td><td><b>Yes</b> — provided the blocker is documented</td></tr>
+      <tr><td><span class="tag t-b">INCONCLUSIVE</span></td><td>Insufficient evidence to judge</td><td>No</td></tr>
+      <tr><td><span class="tag t-b">NOT_APPLICABLE</span></td><td>Not applicable, with a documented reason</td><td><b class="s-red">No — ever</b> (the old Scenario 9 defect)</td></tr>
+      <tr><td><span class="tag t-r">PRECONDITION_FAILURE</span></td><td>A mandatory precondition was absent</td><td><b class="s-red">Fails the whole cycle: exit 1</b></td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <b>Golden rules shipped:</b> <span class="ltr">NOT_APPLICABLE ≠ PASS</span> · a missing manifest/evidence file = an explicit refusal, never a bypass · any unexplained difference halts the cycle and is never fixed by editing the report · the declared scenario count = the actual count (cosmetic Scenario 15 was removed: 17 → 16; the real failure it gestured at is covered by 14).
+  </div>
+</section>
+
+<!-- ===================== EVIDENCE / COMMANDS ===================== -->
+<section id="evidence" aria-labelledby="h-ev">
+  <h2 id="h-ev">Evidence: the packet's literal commands and their verified outputs</h2>
+  <p class="muted">Command text comes from the packet itself (packet 1.2.0) — each command is a single element that copies whole with one click (hashes at the full 64 hex chars, no ellipses, no wrapped lines). The last line is behavior display only and cannot be copied.</p>
+
+  <div class="terminal" role="figure" aria-label="Verification commands and their outputs">
+<div class="cmd">node verification/validate-freeze.mjs release/freeze/freeze-record-4.2.6.json</div>
+<div class="o">validate-freeze: PASS (46/46 MATCH)</div>
+<div class="n">exit 0 — historical records (4.2.2–4.2.5) intentionally fail: their pins are stale by design</div>
+<div class="n"> </div>
+<div class="cmd">powershell -NoProfile -ExecutionPolicy Bypass -File "verification/cg-assurance-verify.ps1" -SelfTest</div>
+<div class="o">checks: 21; failures: 0</div>
+<div class="n">exit 0 — includes ST21: zero execution sites in the engine (exec=0 net=0 dyn=0)</div>
+<div class="n"> </div>
+<div class="cmd">powershell -NoProfile -ExecutionPolicy Bypass -File "verification/cg-assurance-verify.ps1" -NegativeSuite -CastPath "C:\Users\DeLL-L\.foundry\cast.exe" -ExpectedCastSha256 "0xeba3df695d1c96cb54175183f89d62bafac7f728365987a1947743c6f3e91b36" -Manifest "release/v4.2.2-remediation/approved-evidence-manifest-v4.2.2.txt" -ManifestBase "&lt;repo-root&gt;\coreguard" -ExpectedManifestSha256 "0x73649ed34461637ea99eb6eb7ed985bd414916a7e64a760a3e360a69841be0dc"</div>
+<div class="o">negative suite: 16 scenarios; allFailClosed=True; preconditionFailures=0</div>
+<div class="n">exit 0</div>
+<div class="n"> </div>
+<div class="cmd">powershell -NoProfile -ExecutionPolicy Bypass -File "verification/cg-assurance-verify.ps1" -OutDir release -CastPath "C:\Users\DeLL-L\.foundry\cast.exe" -ExpectedCastSha256 "0xeba3df695d1c96cb54175183f89d62bafac7f728365987a1947743c6f3e91b36" -Manifest "release/v4.2.2-remediation/approved-evidence-manifest-v4.2.2.txt" -ExpectedManifestSha256 "0x73649ed34461637ea99eb6eb7ed985bd414916a7e64a760a3e360a69841be0dc"</div>
+<div class="o">status: VERIFIED-READONLY-ONLY · 33/33 PASS · ENV-003=within-trust-root · failClosedFailures=0</div>
+<div class="n">exit 0 — requires the reviews-extra evidence (deliberately outside the repo) · latest proof: the 4.2.6 cycle with the determinism proof (regeneration = the frozen bytes verbatim)</div>
+<div class="n"> </div>
+<div class="cmd">powershell -NoProfile -ExecutionPolicy Bypass -File "verification/cg-assurance-verify.ps1" -SelfCheckReport</div>
+<div class="o">self-check: PASS — dupIds=0 · boundedClaim=True</div>
+<div class="n"> </div>
+<div class="cmd">node verification/validate-report.mjs release/verification-report.json --expect "{\"summary.total\":33,\"summary.pass\":33,\"summary.fail\":0,\"summary.blocked\":0,\"summary.inconclusive\":0,\"summary.notApplicable\":0,\"status\":\"VERIFIED-READONLY-ONLY\",\"decision\":\"CONDITIONAL NO-GO\"}"</div>
+<div class="o">validate-report: PASS (649 checks, 0 errors)</div>
+<div class="n"> </div>
+<div class="n">Behavior display only — a clean clone without the reviews-extra evidence (not a command to run):</div>
+<div class="e">git clone github.com/EslaM-X/coreguard &amp;&amp; a standard run inside the clone → BLOCKED · exit 1 · INV-001 FAIL (failClosed=true)</div>
+<div class="n">The intended behavior (Option B): external evidence lives outside the repository on purpose — the clone refuses to issue a PASS verdict without evidence: no NOT_APPLICABLE, no bypass.</div>
+  </div>
+
+  <h3>Negative test families (16 scenarios, every one of them must fail closed)</h3>
+  <div class="grid">
+    <div class="card"><h3 style="font-size:.95rem">Byte integrity</h3><p class="muted" style="font-size:.85rem;margin:0">one-byte edit · wrong hash · missing file · tampered manifest / mismatched hash (NEG-wrong-manifest-hash)</p></div>
+    <div class="card"><h3 style="font-size:.95rem">RPC safety</h3><p class="muted" style="font-size:.85rem;margin:0">a method outside the allow-list · the send verb · an empty list (the closed POL-002 catalog)</p></div>
+    <div class="card"><h3 style="font-size:.95rem">Execution safety</h3><p class="muted" style="font-size:.85rem;margin:0">double spawn · dynamic invocation (scriptblocks/members)</p></div>
+    <div class="card"><h3 style="font-size:.95rem">Environment</h3><p class="muted" style="font-size:.85rem;margin:0">cast outside the trust root · cast missing · insufficient permissions</p></div>
+    <div class="card"><h3 style="font-size:.95rem">Report &amp; policy integrity</h3><p class="muted" style="font-size:.85rem;margin:0">duplicate IDs · a report edited after creation · a stale policy / mismatched hash · a tampered drift map (14)</p></div>
+  </div>
+</section>
+
+<!-- ===================== CYCLE TIMELINE ===================== -->
+<section id="cycle" aria-labelledby="h-cycle">
+  <h2 id="h-cycle">Five freeze cycles — each one caught a real defect</h2>
+  <p class="muted">This is the meta-proof that the governance works: no cycle ended without revealing something that would have gone unseen without the rule "any unexplained difference halts the cycle". All dates are <span class="ltr">2026-09-18</span>.</p>
+
+  <div class="tl">
+    <div class="node">
+      <h4>v4.2.2-remediation <span class="when">engine 2.0.0 → 2.1.0</span><span class="caught">fixed: SELF-002 · ENV-003 · LEG-001</span></h4>
+      <ul>
+        <li>The full remediation cycle for the three blocking findings (above) + the C7/C9 templates and the reviewer packet.</li>
+        <li>A later claim of "11 files changed after the freeze" was examined on disk (P6): both documentation files were <b>inside</b> the commit, and the tmp files were untracked — the report captures evidence, it does not rewrite it.</li>
+      </ul>
+    </div>
+    <div class="node">
+      <h4>v4.2.3-post-change-validation <span class="when">engine 2.1.1</span><span class="caught">caught: silent precondition loss</span></h4>
+      <ul>
+        <li>Deterministic comparison revealed Scenario 9 flipping from FAIL to <span class="ltr">NOT_APPLICABLE</span> when the manifest precondition was missing — while "17/17" was still being announced.</li>
+        <li>Fix: a fail-closed precondition guard. Re-freeze + an evidence-preservation proof for 4.2.2 (5/5 UNCHANGED).</li>
+      </ul>
+    </div>
+    <div class="node">
+      <h4>v4.2.4-closure <span class="when">engine 2.1.2</span><span class="caught">caught: mojibake + a cosmetic scenario</span></h4>
+      <ul>
+        <li><span class="ltr">PRECONDITION_FAILURE → exit 1</span> semantics; cosmetic Scenario 15 removed (17→16); the validator went 657→649.</li>
+        <li>CI went red: the encoding detector rejected CP1252 mojibake in two freeze records (PowerShell 5.1 had read BOM-less scripts as ANSI) → reverse decoding + re-pinned hashes → <span class="ltr">npm test 696/696</span> and CI green.</li>
+      </ul>
+    </div>
+    <div class="node">
+      <h4>v4.2.5-closure <span class="when">engine 2.1.2</span><span class="caught">caught: a stale internal manifest</span></h4>
+      <ul>
+        <li>Adopted "Option B" for external evidence — actually tested: a clean clone → <span class="ltr">BLOCKED exit 1</span>, exactly as documented.</li>
+        <li>45 entries; during verification the internal <span class="ltr">manifest.json</span> was found pinning pre-2.1.2 bytes → re-pinned.</li>
+      </ul>
+    </div>
+    <div class="node">
+      <h4>v4.2.6-overhaul / prune <span class="when">engine 2.1.2</span><span class="caught">closed: scope gaps + broken commands</span></h4>
+      <ul>
+        <li>README as the reviewer's entry point; fixed the literal H1-H8 commands (they still expected the old "17 scenarios / 657", and the negative command lacked preconditions — it would have failed any reviewer instantly); removed a duplicated documentation layer (3 files / 107 lines).</li>
+        <li>Final prune: two dead links and a stale "49" in the README → corrected; the README hash was re-pinned → <b>46/46 MATCH</b> from disk.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== C8 PACKET ===================== -->
+<section id="packet" aria-labelledby="h-packet">
+  <h2 id="h-packet">The C8 packet: what does the independent reviewer sign?</h2>
+  <p class="muted">The H1–H8 matrix (packet 1.2.0) — each item is an evidence binding that the reviewer verifies from disk personally, then signs. <b>A signature closes C8 only and grants no broadcast GO</b> — the owner decision (C9) is separate by construction.</p>
+  <table>
+    <thead><tr><th>Item</th><th>What it binds</th><th>Reference hash</th><th>Signature / date</th></tr></thead>
+    <tbody>
+      <tr><td><b>H1</b></td><td>Engine <span class="ltr">v2.1.2</span> — after the SELF-002 fix (<span class="ltr">exec=0 net=0 dyn=0</span>) and the <span class="ltr">PRECONDITION_FAILURE</span> semantics</td><td>recomputed from disk</td><td class="muted">—— awaiting ——</td></tr>
+      <tr><td><b>H2</b></td><td>The standard run report: <b>33/33 PASS · VERIFIED-READONLY-ONLY</b> · ENV-003 inside trust · LEG-001 clean</td><td><span class="ltr">0xffb7b589…7a1c</span> (46,812B)</td><td class="muted">—— awaiting ——</td></tr>
+      <tr><td><b>H3</b></td><td>The self-test TAP <b>21/21</b> (includes ST21, guarding against future execution sites)</td><td><span class="ltr">0x1ebf06fa…2209</span> (705B)</td><td class="muted">—— awaiting ——</td></tr>
+      <tr><td><b>H4</b></td><td>The negative suite <b>16/16 fail-closed · precond=0</b> — after removing cosmetic 15 (its coverage: 14)</td><td>re-derived from disk (regenerated on 2.1.2)</td><td class="muted">—— awaiting ——</td></tr>
+      <tr><td><b>H5</b></td><td>The approved evidence manifest <span class="ltr">v4.2.2</span> — 8/8 MATCH with <span class="ltr">orig|quarantine</span> pairs (proof of byte preservation in quarantine)</td><td><span class="ltr">0x73649ed3…e0dc</span> (1,033B)</td><td class="muted">—— awaiting ——</td></tr>
+      <tr><td><b>H6</b></td><td>The V06-2 closure: cast path · SHA-256 · version 1.8.0 · official source · sole PATH entry · the documented absence of an Authenticode signature</td><td><span class="ltr">0xeba3df69…91b36</span> (58,801,152B)</td><td class="muted">—— awaiting ——</td></tr>
+      <tr><td><b>H7–H8</b></td><td colspan="3" class="muted">The remaining packet items (completed at the actual reviewer handoff — not detailed here, to avoid claiming beyond what is proven)</td></tr>
+    </tbody>
+  </table>
+  <div class="callout ok">
+    <b>Before the packet is handed over, the remaining transition conditions must be complete:</b> an independent tree (disk ↔ record ↔ archive match) · no unexplained PENDING/BLOCKER items · no stale hashes · no undocumented post-freeze changes.
+  </div>
+</section>
+
+<!-- ===================== GOVERNORS (LIVE) ===================== -->
+<section id="gov" aria-labelledby="h-gov">
+  <h2 id="h-gov">The live governors page — who owns each gate, and who can upgrade it</h2>
+  <p class="muted">The gates were executed under the <b>disclosed single-operator mode</b> (<span class="ltr">GOVERNANCE-MODE.md</span> + <span class="ltr">GOVERNANCE-RECORDS.md</span>): every record carries a mandatory disclosure header, a named approval source, and an <b>empty upgrade slot</b> — the first independent human signature upgrades the record to full independence <b>with zero rework</b>.</p>
+
+  <div class="lineage" aria-label="Commit lineage">
+    <span class="lchip">ee9d7e3 baseline</span><span class="larr" aria-hidden="true">→</span>
+    <span class="lchip">d7ca118 EOL-CLOSED</span><span class="larr" aria-hidden="true">→</span>
+    <span class="lchip">ccd75e8 P1 addendum</span><span class="larr" aria-hidden="true">→</span>
+    <span class="lchip">f59411a handoff set</span><span class="larr" aria-hidden="true">→</span>
+    <span class="lchip">e3d2f25 C8 fix</span><span class="larr" aria-hidden="true">→</span>
+    <span class="lchip h">fa15eb2 governance executed</span>
+  </div>
+
+  <div class="gates">
+    <div class="gate" data-gate="c7">
+      <div class="k">C7 — Security</div>
+      <div class="st s-green">APPROVED <span class="tag t-a">single-op</span></div>
+      <div class="d">Threat model · fail-closed contract (16/16) · tamper in both modes · a read-only engine · quarantine 19/19 · no secrets · risks R-1/R-2/R-3 accepted <b>by name</b> · the F-1 structural finding deliberately open.</div>
+      <div class="src">Signature source: <span class="ltr">GOVERNANCE-RECORDS.md · Record 1</span><br>Signer: the Acting Owner (Codebuff session) under owner delegation — <b>no independence claimed</b></div>
+      <div class="slot"><b>Independent upgrade slot — empty</b><br>a human security reviewer's signature upgrades the record and auto-closes F-1</div>
+    </div>
+    <div class="gate" data-gate="c8">
+      <div class="k">C8 — Evidence</div>
+      <div class="st s-green">APPROVED <span class="tag t-a">single-op</span></div>
+      <div class="d">H1–H8 re-derived from a real GitHub clone: archive 46/46 · <span class="ltr">Dec-C-9</span> under <span class="ltr">autocrlf=true</span> · 21/21 · 657/0 · contract 13/13 · EX-1 CLOSED · EX-2 accepted.</div>
+      <div class="src">Signature source: <span class="ltr">GOVERNANCE-RECORDS.md · Record 2</span><br>Signer: the Acting Owner (Codebuff session) under owner delegation — <b>no independence claimed</b></div>
+      <div class="slot"><b>Independent upgrade slot — empty</b><br>a human evidence reviewer's signature upgrades the record automatically</div>
+    </div>
+    <div class="gate">
+      <div class="k">C9 — Owner decision</div>
+      <div class="st s-green">EXECUTED <span class="tag t-a">delegated</span></div>
+      <div class="d">The approved release reference is pinned (<span class="ltr">fa15eb2</span>) · expiry: anchor supersession or any signer filing a finding · revocation: an owner statement or an independent signature's refusal.</div>
+      <div class="src">Decision source: <span class="ltr">GOVERNANCE-RECORDS.md · Record 3</span><br>Signer: the Acting Owner under owner delegation — the original decision belongs to the project owner</div>
+      <div class="slot"><b>Independent ratification slot — optional</b><br>a human signature raises the decision's source from delegation to independent endorsement</div>
+    </div>
+    <div class="gate p7">
+      <div class="k">P7 — Execution authorization (the vault)</div>
+      <div class="st s-red">NOT AUTHORIZED</div>
+      <div class="d">Requires: a <b>named</b> human operator · a scope with value/gas ceilings · a personal signature — and keys never pass through this session or its tools.</div>
+      <div class="src">Source: <span class="ltr">FINAL-GO-GATE.md · P7</span> — structurally separate from C9</div>
+      <div class="slot"><b>The only slot that opens the vault</b><br>never filled electronically or by an agent — the operator's signature only</div>
+    </div>
+  </div>
+
+  <div class="sim" role="group" aria-labelledby="sim-title">
+    <div class="head">
+      <h3 id="sim-title">🎭 Independent-upgrade simulator — try it live</h3>
+      <div class="spacer"></div>
+      <button id="simBtn" type="button">✍️ Sign as an independent reviewer (simulated)</button>
+    </div>
+    <div class="row" aria-live="polite">
+      <span class="lchip">C7</span><span id="simC7State" class="muted">single-op</span>
+      <span class="lchip" style="margin-inline-start:14px">C8</span><span id="simC8State" class="muted">single-op</span>
+      <span class="lchip" style="margin-inline-start:14px">P7</span><span id="simP7State" class="muted">🔒 NOT AUTHORIZED — never affected</span>
+    </div>
+    <div class="note" id="simNote">
+      The simulation <b>touches nothing</b> in the repository or the signed records — it only shows what happens <b>formally</b>: the first independent human signature upgrades C7/C8 from single-operator mode to a fully independent endorsement <b>with zero rework</b> (the slots exist in <span class="ltr">GOVERNANCE-RECORDS.md</span> for exactly this purpose). And P7 — the vault — stays <b class="s-red">locked</b>: an independent upgrade re-rates records but grants no broadcast authority; a named human operator is a structural precondition no reviewer signature can bypass.
+    </div>
+  </div>
+
+  <div class="callout ok" style="margin-top:16px">
+    <b>"Live" in an honest sense:</b> this page is a generated snapshot — the binding source is the repository itself, and the links open the truth at the moment you click:
+    <a href="https://github.com/EslaM-X/coreguard/blob/main/coreguard-assurance-v4.2.2-remediation/GOVERNANCE-RECORDS.md" target="_blank" rel="noopener">governance records</a> ·
+    <a href="https://github.com/EslaM-X/coreguard/commit/fa15eb26ebf4e1acde660b8a14ead534f3a40506" target="_blank" rel="noopener"><span class="ltr">fa15eb2</span></a> ·
+    <a href="https://github.com/EslaM-X/coreguard/actions" target="_blank" rel="noopener">CI — latest run 35402919848 (5/5 ✓)</a> ·
+    <span class="ltr">validate-freeze: PASS 46/46 anchored @ c34cae8684c1</span>
+  </div>
+</section>
+
+<!-- ===================== PATH TO GO ===================== -->
+<section id="path" aria-labelledby="h-path">
+  <h2 id="h-path">The path to GO: nearly closed — one human operator signature separates us from opening the vault</h2>
+  <div class="flow" aria-label="Authorization path">
+    <div class="step"><span class="tag t-g">closed — single-op</span>
+      <b>C8 — Evidence approval</b>
+      <div class="who">H1–H8 re-derived from a real GitHub clone (46/46 · 21/21 · 657/0) — upgrade to full independence from the signature slot on the governors page</div>
+    </div>
+    <div class="connector" aria-hidden="true">↓</div>
+    <div class="step"><span class="tag t-g">closed — single-op</span>
+      <b>C7 — Security</b>
+      <div class="who">Threat model and boundaries reviewed · risks R-1/R-2/R-3 accepted by name — the independent audit remains in the upgrade slot</div>
+    </div>
+    <div class="connector" aria-hidden="true">↓</div>
+    <div class="step"><span class="tag t-g">executed — delegated</span>
+      <b>C9 — Owner decision</b>
+      <div class="who">The approved reference pinned · a narrow scope · expiry and revocation defined — broadcast itself is not authorized</div>
+    </div>
+    <div class="connector" aria-hidden="true">↓</div>
+    <div class="step"><span class="tag t-b">P6 recorded — 9/9</span>
+      <b>Final GO gate + the approved release record</b>
+      <div class="who">The reference release approved under single-operator mode — execution authorization (P7) is the only open item</div>
+    </div>
+    <div class="connector" aria-hidden="true">↓</div>
+    <div class="step vault here"><span class="youare">the only open item</span>
+      <b>🔒 P7 — Execution authorization by a named human operator</b>
+      <div class="who">A separate, bounded, pre-reviewed stage · the operator's personal signature — <b class="s-red">NOT AUTHORIZED until then</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OPEN ITEMS ===================== -->
+<section id="open" aria-labelledby="h-open">
+  <h2 id="h-open">What is not yet claimed — item by item, no varnish</h2>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th>Item</th><th>Evidence</th><th>Impact if addressed</th><th>Effort</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Commit-anchored freeze record (closed)</b></td>
+        <td>Closed in the 4.2.6 cycle: <span class="ltr">gitCommit</span> pinned, and the verifier hashes from the commit tree (<span class="ltr">git show</span>), not the disk — detection adversarially tested (10 scenarios)</td>
+        <td>Every claim verifies with one command and resolves to an immutable tree — the "did the bytes change after the freeze?" class that consumed two cycles is structurally dead</td>
+        <td><span class="tag t-g">minutes</span></td>
+      </tr>
+      <tr>
+        <td><b>External evidence not machine-defined</b></td>
+        <td><span class="ltr">reviews-extra</span> is absent from the record (text scan: false) — the Option B document was pruned away</td>
+        <td>A <span class="ltr">requiredExternalEvidence</span> matrix (path + hash + source) turns Option B from prose into an inspectable contract</td>
+        <td><span class="tag t-g">low</span></td>
+      </tr>
+      <tr>
+        <td><b>CI does not run the assurance cycle</b></td>
+        <td><span class="ltr">ci.yml</span>: <span class="ltr">npm test</span> only — the SelfTest / negative suite / validator run manually</td>
+        <td>A CI step for the environment-independent branch + a determinism re-proof on every push: evidence monitored continuously, not momentarily</td>
+        <td><span class="tag t-a">medium</span></td>
+      </tr>
+      <tr>
+        <td><b>JSON generated via PowerShell 5.1</b></td>
+        <td>CP1252 mojibake struck <b>twice</b> by the same mechanism (the 4.2.4 / 4.2.6 cycles) — the engine is 1,013 lines of PS</td>
+        <td>A Node generator beside <span class="ltr">validate-report.mjs</span> kills the defect class for good (PS for checking, Node for data)</td>
+        <td><span class="tag t-a">hours</span></td>
+      </tr>
+      <tr>
+        <td><b>Gate states duplicated across 4 documents</b></td>
+        <td>The <span class="ltr">C7/C8/C9</span> text lives in STATUS, the README, the record's decision, and the packet tail</td>
+        <td>A single <span class="ltr">gates.json</span> source consumed by the validator, the README, and the HTML board (generated, never handwritten)</td>
+        <td><span class="tag t-a">half a day</span></td>
+      </tr>
+      <tr>
+        <td><b>Push &amp; archive verification (closed)</b></td>
+        <td><span class="ltr">HEAD = origin/main = fa15eb2</span> · a clean tree · the real GitHub archive (<span class="ltr">main.tar.gz</span>) matches the pins <b>46/46</b></td>
+        <td>The triangle's amber edge closed by actual measurement — nothing left open on it</td>
+        <td><span class="tag t-g">done</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout warn" style="margin-top:18px">
+    <b>Stated uncertainty (deliberate, updated):</b> the "33/33 standard run" remains sourced from the freeze record (not re-run, preserving the frozen outputs), while "657 checks" was re-run from a real clone; the disk↔archive edge was closed by an actual 46/46 measurement from the real archive; and the C7/C8/C9 records are now disclosure-carrying papers, upgradeable by independent signatures. Current limits: governance is single-op until the upgrades complete — no claim broader than the evidence.
+  </div>
+</section>
+
+<footer>
+  <p><b>CoreGuard Gate 4.1</b> — a verification tool only: no keys, no signing, no broadcast.</p>
+  <p class="ltr" style="font-size:.8rem">RELEASE = APPROVED (single-op) · C7/C8/C9 = EXECUTED (disclosed Acting Owner) · TX SIGNING &amp; BROADCAST = NOT AUTHORIZED — P7 human gate</p>
+  <p class="muted" style="font-size:.78rem">A visual brief generated from session evidence and records — sources: freeze-record-4.2.6.json · GOVERNANCE-RECORDS.md · documented verification results</p>
+</footer>
+
+</div>
+
+<script>
+/* =====================================================================
+   TAMPER DEMO — three concerns, one owner each:
+
+   1. freezeModel  (state owner)   : tampered flag + derived content. The ONLY
+                                     place the tamper state exists.
+   2. hashEngine   (core logic)    : content → SHA-256 promise. No DOM, no state.
+   3. demoView     (rendering)     : renders (model, hash) pairs into the DOM.
+                                     The only code that touches elements.
+
+   Flow: button → freezeModel.toggle() → view.render(model, engine).
+   view is single-flight (one hash in flight); a toggle during flight
+   re-renders once the flight settles. No other module may set state.
+   ===================================================================== */
+(function(){
+  "use strict";
+
+  /* ---- core logic: pure hashing, no DOM, no state ---- */
+  var hashEngine = {
+    _enc: new TextEncoder(),
+    available: !!(window.crypto && window.crypto.subtle && window.crypto.subtle.digest),
+    of: function(content){
+      if (!this.available) return Promise.resolve(null);
+      var enc = this._enc;
+      return window.crypto.subtle.digest("SHA-256", enc.encode(content))
+        .then(function(buf){
+          var v = new Uint8Array(buf), out = "";
+          for (var i = 0; i < v.length; i++) out += ("0" + v[i].toString(16)).slice(-2);
+          return out;
+        });
+    }
+  };
+
+  /* ---- state owner: the model ---- */
+  /* All display strings + the two facts the demo teaches (46/46 clean, 45/46 tampered)
+     live in FACTS; TXT builds from them so the numbers can't drift apart. */
+  var FACTS = {
+    totalEntries: 46,
+    tamperedEntries: 45,
+    castHash: "EBA3DF695D1C96CB54175183F89D62BAFAC7F728365987A1947743C6F3E91B36"
+  };
+  var freezeModel = {
+    BASE: FACTS.castHash,
+    TAMPER_IDX: 12,
+    tampered: false,
+    content: function(){
+      if (!this.tampered) return this.BASE;
+      var c = this.BASE.charAt(this.TAMPER_IDX);
+      var flipped = "0123456789abcdef"[(c >= "0" && c <= "9") ? +c + 1 : (c === "f" ? 0 : parseInt(c, 16) + 1)];
+      return this.BASE.slice(0, this.TAMPER_IDX) + flipped + this.BASE.slice(this.TAMPER_IDX + 1);
+    },
+    toggle: function(){ this.tampered = !this.tampered; }
+  };
+
+  /* ---- rendering: only DOM writer ---- */
+  /* (nav current-section + command copy live in wiring below — same concern: presentation) */
+  var demoView = {
+    el: {
+      bytes: document.getElementById("bytesEl"),
+      hash: document.getElementById("hashEl"),
+      verdict: document.getElementById("verdictEl"),
+      btn: document.getElementById("tamperBtn")
+    },
+    TXT: {
+      okHash: "SHA-256: ",
+      tamperNote: "   ← recomputed from the flipped content",
+      noCrypto: "SHA-256 unavailable in this environment (insecure context) — display only",
+      noCryptoVerdict: "— could not compute SHA-256 here; the rule stands: any deviation = instant rejection (exit 1)",
+      bad: "✗ MISMATCH — " + FACTS.tamperedEntries + "/" + FACTS.totalEntries + " · instant rejection and instant detection (exit 1) — this is how every drift cycle was settled",
+      good: "✓ MATCH — " + FACTS.totalEntries + "/" + FACTS.totalEntries + " · accepted (exit 0)",
+      btnTampered: "↩ Restore the original byte",
+      btnClean: "⚡ Flip one byte"
+    },
+    flight: null,                       // one in-flight render; latest toggle wins after settle
+    show: function(tampered, hash){
+      var el = this.el, T = this.TXT;
+      if (hash === null){
+        el.hash.textContent = T.noCrypto;
+        this.verdict(T.noCryptoVerdict, false, tampered);
+        return;
+      }
+      el.hash.textContent = T.okHash + hash + (tampered ? T.tamperNote : "");
+      this.verdict(tampered ? T.bad : T.good, tampered, tampered);
+    },
+    verdict: function(text, bad, tampered){
+      this.el.verdict.className = "verdict " + (bad ? "v-bad" : "v-ok");
+      this.el.verdict.textContent = text;
+      this.el.btn.textContent = tampered ? this.TXT.btnTampered : this.TXT.btnClean;
+    },
+    bytes: function(content, tamperedIdx, tampered){
+      var html = "";
+      for (var i = 0; i < content.length; i++){
+        var ch = content.charAt(i);
+        html += (tampered && i === tamperedIdx) ? "<mark>" + ch + "</mark>" : ch;
+      }
+      this.el.bytes.innerHTML = html;
+    },
+    render: function(model){
+      var view = this, target = model.tampered;
+      if (this.flight) return;          // a render is in flight; settle handler re-renders
+      var content = model.content();
+      this.bytes(content, model.TAMPER_IDX, target);
+      this.flight = hashEngine.of(content).then(function(h){
+        view.flight = null;
+        view.show(target, h);
+        if (target !== model.tampered) view.render(model);  // flipped mid-hash → catch up
+      });
+      return this.flight;
+    }
+  };
+
+  /* ---- wiring: event → model → view. nothing else. ---- */
+  demoView.el.btn.addEventListener("click", function(){
+    freezeModel.toggle();
+    demoView.render(freezeModel);
+  });
+  demoView.render(freezeModel);
+
+  /* ---- export: print/PDF trigger — opens the browser dialog on the print theme ---- */
+  (function(){
+    var btn = document.getElementById("printBtn");
+    if (!btn) return;
+    btn.addEventListener("click", function(){ window.print(); });
+  })();
+
+  /* ---- governors: independent-signature SIMULATION ----
+     Three concerns, one owner each:
+     1. simModel  (state owner): the single seed of simulation state — signed or not.
+     2. simView   (only DOM writer): badges, status row, button, note.
+     3. wiring only: event → model → view.
+     The teaching rule is enforced inside the model itself: a simulation may
+     upgrade C7/C8 only; P7 has no upgrade path at all — no function can touch it.
+     All state derives from the click; reset restores the documented records. */
+  (function(){
+    var simModel = {
+      signed: false,
+      toggle: function(){ this.signed = !this.signed; }
+    };
+    var simView = {
+      el: {
+        btn: document.getElementById("simBtn"),
+        c7: document.getElementById("simC7State"),
+        c8: document.getElementById("simC8State"),
+        p7: document.getElementById("simP7State"),
+        note: document.getElementById("simNote")
+      },
+      TXT: {
+        signBtn: "✍️ Sign as an independent reviewer (simulated)",
+        resetBtn: "↩ Reset — back to the signed records",
+        signedTag: "INDEPENDENTLY SIGNED",
+        singleTag: "single-op",
+        noteSim: "You are in simulation mode: the badge above shows <b>INDEPENDENTLY SIGNED</b> with a dotted outline — a visual cue that this is an interactive display, while the repository still carries the single-operator signature. Formally, the exact same transition happens the moment a human independent reviewer signs in the upgrade slot — with zero rework.",
+        noteBase: "The simulation <b>touches nothing</b> in the repository or the signed records — it only shows what happens <b>formally</b>: the first independent human signature upgrades C7/C8 from single-operator mode to a fully independent endorsement <b>with zero rework</b> (the slots exist in <span class=\"ltr\">GOVERNANCE-RECORDS.md</span> for exactly this purpose). And P7 — the vault — stays <b class=\"s-red\">locked</b>: an independent upgrade re-rates records but grants no broadcast authority; a named human operator is a structural precondition no reviewer signature can bypass."
+      },
+      render: function(model){
+        var T = this.TXT, signed = model.signed;
+        var rowBadge = signed
+          ? '<span class="tag t-g">' + T.signedTag + '</span>'
+          : '<span class="tag t-a">' + T.singleTag + '</span>';
+        this.el.c7.innerHTML = rowBadge;
+        this.el.c8.innerHTML = rowBadge;
+        // live gate cards: swap the badges inside the governors grid itself
+        var gates = { c7: document.querySelector('[data-gate="c7"] .st'), c8: document.querySelector('[data-gate="c8"] .st') };
+        for (var k in gates){
+          gates[k].innerHTML = 'APPROVED ' + (signed
+            ? '<span class="tag t-g flip">' + T.signedTag + '</span> <span class="tag t-a">simulated</span>'
+            : '<span class="tag t-a">' + T.singleTag + '</span>');
+        }
+        this.el.btn.textContent = signed ? T.resetBtn : T.signBtn;
+        this.el.note.innerHTML = signed ? T.noteSim : T.noteBase;
+        // P7 stays untouched — structurally, no upgrade path exists
+      }
+    };
+    simView.el.btn.addEventListener("click", function(){
+      simModel.toggle();
+      simView.render(simModel);
+    });
+    simView.render(simModel);
+  })();
+
+  /* ---- nav: highlight the section currently in view (long-page orientation) ---- */
+  (function(){
+    var navBar = document.querySelector("nav");
+    function setNavH(){ document.documentElement.style.setProperty("--navH", (navBar.offsetHeight + 8) + "px"); }
+    setNavH();
+    window.addEventListener("resize", setNavH);
+    var links = Array.prototype.slice.call(document.querySelectorAll("nav a"));
+    var byId = {};
+    links.forEach(function(a){ byId[a.getAttribute("href").slice(1)] = a; });
+    var sections = links.map(function(a){ return document.getElementById(a.getAttribute("href").slice(1)); });
+    function currentSection(){
+      var best = sections[0];
+      for (var i = 0; i < sections.length; i++){
+        if (sections[i].getBoundingClientRect().top <= window.innerHeight * 0.35) best = sections[i];
+      }
+      return best;
+    }
+    var ticking = false;
+    window.addEventListener("scroll", function(){
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function(){
+        var cur = currentSection();
+        links.forEach(function(a){ a.classList.remove("active"); });
+        if (cur && byId[cur.id]) byId[cur.id].classList.add("active");
+        ticking = false;
+      });
+    }, {passive: true});
+    window.dispatchEvent(new Event("scroll"));
+  })();
+
+  /* ---- commands: click a cyan command line → copy it (reviewer runs these literally) ---- */
+  (function(){
+    var toast = document.createElement("div");
+    toast.className = "copied";
+    document.body.appendChild(toast);
+    var hideTimer = null;
+    function flash(msg){
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(function(){ toast.classList.remove("show"); }, 1600);
+    }
+    document.querySelectorAll("#evidence .terminal .cmd").forEach(function(line){
+      line.setAttribute("title", "Click to copy");
+      line.addEventListener("click", function(){
+        // one .cmd element = the full runnable command (multi-line display, single unit on copy)
+        var raw = line.textContent;
+        var done = function(){ flash("✓ Command copied — paste it into your terminal"); };
+        if (navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(raw).then(done, function(){ flash("Copy unavailable — select the text manually"); });
+        } else {
+          flash("Copy unavailable in this environment — select the text manually");
+        }
+      });
+    });
+  })();
+})();
+</script>
+</body>
+</html>

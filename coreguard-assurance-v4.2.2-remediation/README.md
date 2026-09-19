@@ -36,6 +36,7 @@ How to read this result:
 | 3 | [`release/freeze/freeze-record-4.2.6.json`](./release/freeze/freeze-record-4.2.6.json) | The frozen evidence: pins, anchor commit, documented re-pins |
 | 4 | `verification/validate-freeze.mjs` | Read-only verifier — never writes, never authorizes |
 | 5 | [`../docs/GOVERNANCE-DASHBOARD.html`](../docs/GOVERNANCE-DASHBOARD.html) | Visual governance board — the full status story, rendered. *Snapshot for reading; this repository remains the binding source* ([live page](https://eslam-x.github.io/coreguard/GOVERNANCE-DASHBOARD.html) via GitHub Pages) |
+| 6 | [`../docs/coreguard-gate41-visual.html`](../docs/coreguard-gate41-visual.html) + [`-en` mirror](../docs/coreguard-gate41-visual-en.html) | Bilingual session boards (AR primary / EN mirror) — 11-section narrative + live tamper & signature simulators. *Session snapshots for reading; the repository remains the binding source* |
 
 Older freeze records (4.2.2–4.2.5) and all changelogs are **historical**: preserved as-is, never rewritten.
 

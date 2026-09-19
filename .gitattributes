@@ -21,3 +21,10 @@ evidence/** -text
 # fresh Windows clone rewrite it to CRLF on disk -> --disk verification failed
 # for reviewers. -text keeps clean-clone bytes identical to the committed pin.
 docs/GOVERNANCE-DASHBOARD.html -text
+
+# Byte-exact preservation for the bilingual session boards (freeze-record pins
+# docs/coreguard-gate41-visual*.html): same rationale as the dashboard above —
+# core.autocrlf=true on fresh Windows clones would rewrite bytes and break
+# pinned-hash verification. Policy: docs/eol-policy.md
+docs/coreguard-gate41-visual.html -text
+docs/coreguard-gate41-visual-en.html -text
