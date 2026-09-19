@@ -37,8 +37,8 @@
     "releaseFiles": [
       {
         "file": "README.md",
-        "sha256": "0x76dc7b88c38ea4d0997e88db695c4e55b51df49f519e444d089ca89eb2087c97",
-        "bytes": 3972
+        "sha256": "0x57e709b8329ec8674bfc53940979ee54779c941ffe78a8467a4dee0ef02075eb",
+        "bytes": 4004
       },
       {
         "file": "CHANGELOG-v4.2.2.md",
@@ -275,8 +275,8 @@
     ]
   },
   "decision": "CONDITIONAL NO-GO — C7=PARTIAL C8=PENDING C9=PENDING; SIGNING/COMMITINTENT/ANCHORPROOF/MAINNET BROADCAST = NOT AUTHORIZED",
-  "gitCommit": "3bbdd983cadcd3bb4b19005252a0c07ef1d4f3a3",
-  "gitCommitNote": "anchor advanced to the dashboard-publication commit; prior anchors c34cae8684c18111d014c89af3be2cad0d86f531 and c1f0a67ed82de4ff89f362dcff82b2b1b0085f9f remain valid history; re-pin list documents the active exception per file (superseded entries live in git history)",
+  "gitCommit": "5fcc247214e5ba1af9f48d0e0f97b350fa29b280",
+  "gitCommitNote": "anchor advanced to the pages-link commit; prior anchors c34cae8684c18111d014c89af3be2cad0d86f531 and 3bbdd983cadcd3bb4b19005252a0c07ef1d4f3a3; prior anchors c34cae8684c18111d014c89af3be2cad0d86f531 and c1f0a67ed82de4ff89f362dcff82b2b1b0085f9f remain valid history; re-pin list documents the active exception per file (superseded entries live in git history)",
   "postCommitRePins": [
     {
       "file": "release/v4.2.2-remediation/H1-H8.md",
@@ -285,8 +285,8 @@
     },
     {
       "file": "README.md",
-      "commit": "3bbdd983cadcd3bb4b19005252a0c07ef1d4f3a3",
-      "reason": "review map gains the governance dashboard entry (item 5); re-pinned per integrity rule"
+      "commit": "5fcc247214e5ba1af9f48d0e0f97b350fa29b280",
+      "reason": "review map entry 5 now links the live GitHub Pages render of the dashboard; re-pinned per integrity rule"
     },
     {
       "file": "../docs/GOVERNANCE-DASHBOARD.html",
