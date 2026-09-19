@@ -141,3 +141,48 @@ formalized in [`OWNER-STANDING-DECLARATION.md`](./OWNER-STANDING-DECLARATION.md)
 (`cg-owner-standing-v1`) — independent review unavailable, accepted by name; transaction
 authorization remains the sole responsibility of the named human operator, per the binding
 P7 boundary (its §3).
+
+---
+
+## Record 4 — Gate 4.1 identity anchor: BROADCAST EXECUTED (Core Mainnet 1116)
+
+**Single-operator disclosure applies — this is an executed single-operator broadcast, not an
+independent review.** It was performed by the acting owner via the quarantined gate
+`gate-4.1-broadcast.ps1` after full delegated authorization for this specific transaction
+(the P7 §3 scope for this identity anchor), value 0, gas ceiling 300,000, nonce 8.
+
+**Executed transaction (verified on-chain, not asserted):**
+
+| Field | Value | How verified |
+|---|---|---|
+| Transaction | `0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567` | `eth_getTransactionByHash` (blob: from/to/nonce/input identical to reviewed payload) |
+| Block | `38827925` · gas 148,876 limit / **105,339 used** / price `60 gwei` | `eth_getTransactionReceipt` |
+| Receipt status | **`0x1` (success)** | receipt |
+| Function | `commitIntent(bytes32,bytes32,address,uint256,bytes)` · selector `0x4fd0505d` | ABI re-derived + byte-verified |
+| Contract | EvidenceRegistryV2 `0x66268a47e81b8f657798d7b5bbedc956df7b13fd` (chainId 1116) | live chainId + codeLen 3128 |
+| Signer | `0xEa41BecDeb612d8625bF3060809964F1DAB43244` (owner keystore, address-verified) | keystore derivation vs `.env` + gate-4.0 |
+| intentId | `0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d` | gate-4.0 evidence + readback |
+| intentCommitment | `0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6` | on-chain readback AFTER broadcast |
+| validUntil | `1789797609` | readback + review plan |
+| `IntentCommitted` log | topics[0..3] matched exactly (event sig, intentId, commitment, signer) | receipt log inspection |
+| On-chain readback | `intentCommits[intentId]` → commitment + signer + validUntil **all match** | `eth_call` post-broadcast |
+
+**Post-broadcast recovery review (manual, as the gate requires):** the gate wrote
+`evidence/gate-4.1-broadcast-recovery.json` during its own post-send verification because its
+log-match step hit a transient mismatch in that instant. The mandatory manual review —
+performed here, independently of the gate, from the committed evidence and live RPC — confirms
+the transaction **succeeded** (status `0x1`, log topics matched, readback committed by the exact
+signer/commitment/validUntil). **No retransmission ever occurred;** the gate's never-auto-resend
+contract was honored. The intent is now **committed on-chain**.
+
+**Evidence on disk:** `evidence/gate-4.1-broadcast.json` (success, authoritative) +
+`evidence/gate-4.1-broadcast-recovery.json` (the gate's transient post-send record). Neither
+contains any private key, passphrase, signature, or raw calldata.
+
+```
+Gate 4.1 identity anchor = COMMITTED ON CORE MAINNET 1116
+tx = 0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567 · block 38827925
+intentId = 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d
+Acting Operator: owner (keystore coreguard-anchor) · Date (UTC): 2026-09-19
+Independent countersignature (upgrades provenance): ______________
+```
