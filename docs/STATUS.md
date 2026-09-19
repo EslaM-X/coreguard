@@ -8,11 +8,14 @@ machine-measured, not estimated. Last verified: **2026-09-19**.
 
 | Item | Value | How verified |
 |---|---|---|
-| Test suite | **727 / 727 pass** | `npm test` (node `--test`) — 721 + 6 Gate 4.1 verifier regression tests |
+| Test suite | **749 / 749 pass** | `npm test` (node `--test`) — 727 + 12 actor-card + 10 recovery failure-injection |
 | Adversarial corpus | **73 / 73 pass** | `npm run corpus && npm run benchmark` |
 | Execution Integrity Benchmark | **10,000 runs · False Accept 0 · False Reject 0** | `npm run benchmark:10k` |
 | Mutation Laboratory | **1,000/1,000 mutants refused · 0 escaped** | `npm run mutation` |
-| AgentProof `verify-provenance` surface | **exit-code discipline 0/1/2/3/4** · badge honesty tests | `test/provenance/cli-verify-provenance.test.js` (part of the 727) |
+| AgentProof `verify-provenance` surface | **exit-code discipline 0/1/2/3/4** · badge honesty tests | `test/provenance/cli-verify-provenance.test.js` (part of the 749) |
+| Actor Classification Card | **12/12 tests** — HUMAN/AGENT/BOT/ROBOT/COMPANY buckets + maker/model/version | `test/provenance/actor-card.test.js` |
+| Recovery engine (F-4 root fix) | **10/10 failure-injection scenarios** — no manual reconstruction, no ambiguous success | `test/recovery/recovery.test.js` |
+| Secrets audit (full git history) | **PASS — 942 blobs, 0 embedded secrets** | `scripts/audit-secrets.mjs` |
 | `git diff --check` | clean | gate check |
 | Rust/WASM/independent parity | PASS | `test/independent-verifier/` |
 | C verifier | PASS | `test/verifier-c/` (frozen reference, untouched) |
@@ -37,11 +40,12 @@ machine-measured, not estimated. Last verified: **2026-09-19**.
 
 | Item | Value |
 |---|---|
-| Releases (local, per-workstream) | `v0.1.0` · `v0.1.1` · `v0.2.0` · `v0.2.1` · `v0.3.0` · `v0.4.0` · `v0.5.0` · `v0.5.1` · `attack-lab-v1.0.0-closed` |
+| Releases (local, per-workstream) | `v0.1.0` · `v0.1.1` · `v0.2.0` · `v0.2.1` · `v0.3.0` · `v0.4.0` · `v0.5.0` · `v0.5.1` · `attack-lab-v1.0.0-closed` · `rc-2026-09-19-a` |
 | v0.5.0 | **EvidenceRegistryV2 live on Core Mainnet (Phase 3)** — deploy + commitIntent + anchorProof + readback + independent verify, frozen in `evidence/` |
 | v0.5.1 | **Repository encoding hygiene** — prior-art mojibake recovered, stray BOMs removed, permanent guard added; `npm test` **654/654**; frozen `scripts/verify-live.json` untouched |
 | v0.5.2 | **AgentProof CLI surface (CGEP/1:VERIFY-PROVENANCE §10)** — `verify-provenance` subcommand + honest badge rendering + deterministic fixtures (`examples/provenance/`); `npm test` **721/721** (was 713 at `d7ca118`, +8 from `cli-verify-provenance.test.js`); freeze 46/46 still anchored |
 | v0.5.3 | **Gate 4.1 identity anchor live on Core Mainnet** — `intentId 0xc4799b1d…60000d` committed in `commitIntent` (block `38827925`, status `0x1`); **ON-CHAIN SUCCESS verified 66/66** from raw dumps (`evidence/raw/` + `scripts/verify-gate-4.1-onchain.mjs`); **GOVERNANCE PENDING** (P7 §5/§6 human signature required — project NOT closed); `evidence/gate-4.1-broadcast.json` explicitly tagged **reconstructed** (gate crashed post-send; never re-sent); finding F-4 filed |
+| **v0.5.4 (2026-09-19, this session)** | **Gate 3+4+5 + actor classification + Gate 7 RC manifest** — `@coreguard/recovery` (crash-safe broadcast pipeline, F-4 root fix; write-ahead journal, no ambiguous success) with **10/10** failure-injection tests; `scripts/audit-secrets.mjs` full-history secrets audit (**942 blobs, 0 embedded secrets**); `packages/provenance/actor-card.js` declared-level actor card (HUMAN/AGENT/BOT/ROBOT/COMPANY + maker/model/version, bilingual AR/EN, honest "declared, never detected") with **12/12** tests; `scripts/build-rc-manifest.mjs` + `docs/rc-manifest-2026-09-19.json` (**RC candidate `rc-2026-09-19-a`**, 581 files SHA-256, tag created); `npm test` **749/749**; freeze 47/47 still anchored (no pinned file touched); CI green ×2 |
 | Verifier version in receipts | `0.1.0` (release boundary locked) |
 | Verification levels | L0 · L1 · L2 claimable; L3/L4 exist but **not claimable** (INCONCLUSIVE, `REQUIRED_BY_LEVEL`) |
 | EvidenceRegistryV2 | implemented; `forge build` clean (solc 0.8.24) + `forge test` 14/14 (local pass); mirror suite 12/12 |
