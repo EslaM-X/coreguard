@@ -1,13 +1,13 @@
 {
   "recordId": "coreguard-rc-manifest-001",
   "candidate": "rc-2026-09-19-a",
-  "status": "DRAFT - working tree is DIRTY (uncommitted changes included above); not a release, pending commit + owner GO",
+  "status": "DRAFT - clean working tree; not a release, pending owner GO",
   "generatedBy": "scripts/build-rc-manifest.cjs (node, zero-dep)",
-  "generatedAtUtc": "2026-09-19T08:44:48.752Z",
-  "headCommit": "b8007686d2c06787c7563a9199f11766b4060ae6",
-  "headDirty": true,
+  "generatedAtUtc": "2026-09-19T08:54:53.007Z",
+  "headCommit": "be5ce867de011c7f9f8749a9fbf19d1f7c82f56d",
+  "headDirty": false,
   "counts": {
-    "files": 572
+    "files": 581
   },
   "sha256": {
     ".env.example": "0839e9be9450ddcdab8b7816e01365e0ba03c71b690df7ab1a0acf3fa122d96b",
@@ -198,6 +198,7 @@
     "docs/DEPLOYMENT.md": "9e150fa61a5d532c84319998ad099f8d274ccd41c46d71bbea0a2c93384fa97a",
     "docs/FUNDING.md": "d736b9c3f4512522736464df47d4e054313f59535bc4df74d368299428d41cb8",
     "docs/GOVERNANCE-DASHBOARD.html": "9db115d610b04dd7190c8b81c73c11dc20f1dd106653704744c5168ab4ecc828",
+    "docs/PRODUCTION-ROADMAP.md": "3cebd469bd4ab842b3fd8c75a82e45340b2f39b7153b7ad4a4ddfe6cfc3f6215",
     "docs/STATUS.md": "95ee619b31837a2a7b35722f8cf156c42ae1c89ce6e9717e464d0b3fc5392c1b",
     "docs/VERIFY-RUN.md": "bc6d65002c3f331946452a486327ad32706b37a02e3883a4e8ca25d7affb3380",
     "docs/adoption/README.md": "23416a2391912467d7f83a51ed91cbc3c6f79a6ccf3456b275298da6354c29fb",
@@ -216,6 +217,7 @@
     "docs/eol-policy.md": "39cbc330c6356bbdf9f48929d98937aaf188cb1ab4b89dcb255f8fb568154d24",
     "docs/pilot-1.md": "18449d9e988a33a338fe528f20a4118718a847298688177a484b4aaf02c59537",
     "docs/plan-90d-repo.md": "dd8b2af595a0bf1091ce54579fca8451061a139a98e3e09c65346bb16c1d17a7",
+    "docs/rc-manifest-2026-09-19.json": "df8b1145ed71dc8312ee448ece9df794b9b73e2a995c1d82e48c06b500edde95",
     "docs/value-hypothesis.md": "d81c142e25a6fb802a083ff7cd5afde3f1b44bb3f0633e6c3a7cef801a02af0d",
     "docs/ws-5.md": "f452596641f8453dad2b2f7c4d2d02e85989ad5b0aad9a59e185046cc5532f3b",
     "evidence/gate-3.0-preflight.json": "deb72eec94ed5da4717f25e676a890d66865ff39789875d850d3a4cec6d9b88d",
@@ -360,6 +362,7 @@
     "packages/policy/index.js": "c319c2046ff28e71cef643225ab447907bda61567341f427879958c92d2cd242",
     "packages/policy/package.json": "3ef1b1cc721f25fca5a795d8d8c058323f0dceab86bc82ece0401866a71a76ee",
     "packages/policy/rules/index.js": "e2f88b17803a59405df6f799d2132c5c8e28e7ce9e517d1b6f7c2d369cb6430e",
+    "packages/provenance/actor-card.js": "a0e469bdbd6f64bd33e92c5168a4f3f442463e8b144e326f629c54b4f067fb40",
     "packages/provenance/attestation.js": "4fb505b2dce6c19d23817eadce88bf9ca73f498c0adeb90d2cc6678729487ffc",
     "packages/provenance/authorization-probe.js": "a4c179f6df9dd38a91608edcd6082bd076b10b67d925dd64b274dbc5a4ac4cce",
     "packages/provenance/canonical.js": "6a798146f906c15b1e9138cae54fcf210b88b258282cea7551b57a82f95d6dd9",
@@ -371,6 +374,8 @@
     "packages/provenance/manifest.js": "a8fac03188088e09d8c4991ee99427f1fb3eda597a06f335c746fbf3d2554fa0",
     "packages/provenance/package.json": "9a2527805c6592322fc4b8516fdba35e356c5694a3bac8462b16e8248f2887db",
     "packages/provenance/taxonomy.js": "8811cbf72ffe27dc63c70c133e9bb11f37d6bcd3df280e9bdae4cfd87c4e5bb6",
+    "packages/recovery/index.js": "773e7356ecc4ddd8d5769e85e776f192b1498471acbb2ac2dc8f0437e78fa596",
+    "packages/recovery/package.json": "557641dd23da2647df6414b22de9c50348d8eb420d0c8157440753be83f38216",
     "packages/replay/index.js": "aad3699a37d8a42b4a1791548b2754ed933f747f2ad8498bf5c6b8a2047f32a0",
     "packages/replay/package.json": "fbf9d14df8d7afc2b1280a67d6267a6002b5c0392b0543f1d023733ad552e94f",
     "packages/sdk/README.md": "336c721ebe06637b4e7f2d0fdc362e721fa1b5f8f084dc0cea2abc468b47abbf",
@@ -402,7 +407,9 @@
     "script/Deploy.s.sol": "6411800f33824aba1e565f6a408c0ca71b2a6c56c73a3f5decc824d6ddd5df99",
     "scripts/anchor-proof.json": "38fa2579f4074f5667cdd307d4fea06890c49163550e07549ec1f4299e2b510d",
     "scripts/anchor-verdict.mjs": "e80ea0b204f4b5bdca62a9bbf0ad226602b5b0be4f4471c5912793194ff9261b",
+    "scripts/audit-secrets.mjs": "fb3c19c600459bbe46a8d2629973c1f56715000d8bc9c390b4fd129024da9a9b",
     "scripts/benchmark-10k.mjs": "1ad5d0b280207f78da584b88b41c3a86ec4350e66a0ef482a4b7ad1f62091a54",
+    "scripts/build-rc-manifest.mjs": "3ec129fa456ef2a520d2fe215997d2e09338eef805657709d66f9b8ad87d6e3a",
     "scripts/build-verifier.mjs": "fb74c52649ee997e20436193e0e1a2fd9bed94638114f637d0c098d563870e97",
     "scripts/capture-live/capture.mjs": "eff933cee1f5994cd75996e9fff7109e44d4632a22987014e7b9b5e2fd3de98c",
     "scripts/compute-commitment.mjs": "8bfd5920d01ebac9a627e6cf51600467a518afa020080f5475872d462a7b0172",
@@ -557,6 +564,7 @@
     "test/p2/consensus/helpers.js": "66c9f516f3039b7ea09356e8387064e5a4e853c2ecbf4b443eefadf05b5a745a",
     "test/p2/mandate.test.js": "a3f113f4a283d733389b938bb01d28a876ac07565d737a788a1894db80d1e29e",
     "test/p2/sdc.test.js": "ab91e85426b49635c58897c19b053183311423a5acb9675265a60edfb2dab686",
+    "test/provenance/actor-card.test.js": "608af35b96470261ef66a7bba7edbd6e82f0b486786a6bef8b0f3fdca83ddc72",
     "test/provenance/attestation.test.js": "ad56e694e9fcc86f2fa6d7e8bf95dc821af5ec00d57cbe29f2bf96194423bc91",
     "test/provenance/cli-verify-provenance.test.js": "a38d6df0626e3170fefbbfb0b182ef1bfa04a023f48132f72267c49b7801f475",
     "test/provenance/contract-auth.test.js": "97d8c8345dd25637746a9446685495036c3b64573a2856e2843dde528e252776",
@@ -570,6 +578,7 @@
     "test/provenance/schema-b1.test.js": "ea7ddb8624b8a3ee7a7d7f0d74be39743484348da5dc9693fff97cd1760481ce",
     "test/provenance/verify-contract-path.test.js": "944cfca561e33338ae4c6b1e0bec704213dfa4c5f189a5f56aeb31d33c599a3b",
     "test/provenance/verify-provenance.test.js": "9b026eb2291972e97d0817b8883a6b7d1b1dcbcc7494374396e1cff01b9a34c8",
+    "test/recovery/recovery.test.js": "536a31bb7a07b9e2a5c01fd05beacf6695e531a10ff1221c92cd7f345a1c1177",
     "test/sdk/guard.test.js": "d60ec66b93a98be90e6713de88efbdf404a9adbbc48595477cec56a85a0a96a3",
     "test/sdk/helpers.js": "37cfeeefee534e86c9d67d0526a03bd13215404f73be8c82e7a24391c553b999",
     "test/sdk/sdk-binding.test.js": "3b8fe02843fb506c20c81230a971d98c942f186b710a46780487d119b037daf6",
@@ -1525,6 +1534,11 @@
       "bytes": 70787
     },
     {
+      "file": "docs/PRODUCTION-ROADMAP.md",
+      "sha256": "3cebd469bd4ab842b3fd8c75a82e45340b2f39b7153b7ad4a4ddfe6cfc3f6215",
+      "bytes": 13057
+    },
+    {
       "file": "docs/STATUS.md",
       "sha256": "95ee619b31837a2a7b35722f8cf156c42ae1c89ce6e9717e464d0b3fc5392c1b",
       "bytes": 7578
@@ -1613,6 +1627,11 @@
       "file": "docs/plan-90d-repo.md",
       "sha256": "dd8b2af595a0bf1091ce54579fca8451061a139a98e3e09c65346bb16c1d17a7",
       "bytes": 10984
+    },
+    {
+      "file": "docs/rc-manifest-2026-09-19.json",
+      "sha256": "df8b1145ed71dc8312ee448ece9df794b9b73e2a995c1d82e48c06b500edde95",
+      "bytes": 168180
     },
     {
       "file": "docs/value-hypothesis.md",
@@ -2335,6 +2354,11 @@
       "bytes": 2202
     },
     {
+      "file": "packages/provenance/actor-card.js",
+      "sha256": "a0e469bdbd6f64bd33e92c5168a4f3f442463e8b144e326f629c54b4f067fb40",
+      "bytes": 4419
+    },
+    {
       "file": "packages/provenance/attestation.js",
       "sha256": "4fb505b2dce6c19d23817eadce88bf9ca73f498c0adeb90d2cc6678729487ffc",
       "bytes": 15489
@@ -2388,6 +2412,16 @@
       "file": "packages/provenance/taxonomy.js",
       "sha256": "8811cbf72ffe27dc63c70c133e9bb11f37d6bcd3df280e9bdae4cfd87c4e5bb6",
       "bytes": 2207
+    },
+    {
+      "file": "packages/recovery/index.js",
+      "sha256": "773e7356ecc4ddd8d5769e85e776f192b1498471acbb2ac2dc8f0437e78fa596",
+      "bytes": 17841
+    },
+    {
+      "file": "packages/recovery/package.json",
+      "sha256": "557641dd23da2647df6414b22de9c50348d8eb420d0c8157440753be83f38216",
+      "bytes": 389
     },
     {
       "file": "packages/replay/index.js",
@@ -2545,9 +2579,19 @@
       "bytes": 7210
     },
     {
+      "file": "scripts/audit-secrets.mjs",
+      "sha256": "fb3c19c600459bbe46a8d2629973c1f56715000d8bc9c390b4fd129024da9a9b",
+      "bytes": 6177
+    },
+    {
       "file": "scripts/benchmark-10k.mjs",
       "sha256": "1ad5d0b280207f78da584b88b41c3a86ec4350e66a0ef482a4b7ad1f62091a54",
       "bytes": 10651
+    },
+    {
+      "file": "scripts/build-rc-manifest.mjs",
+      "sha256": "3ec129fa456ef2a520d2fe215997d2e09338eef805657709d66f9b8ad87d6e3a",
+      "bytes": 2079
     },
     {
       "file": "scripts/build-verifier.mjs",
@@ -3320,6 +3364,11 @@
       "bytes": 5513
     },
     {
+      "file": "test/provenance/actor-card.test.js",
+      "sha256": "608af35b96470261ef66a7bba7edbd6e82f0b486786a6bef8b0f3fdca83ddc72",
+      "bytes": 4468
+    },
+    {
       "file": "test/provenance/attestation.test.js",
       "sha256": "ad56e694e9fcc86f2fa6d7e8bf95dc821af5ec00d57cbe29f2bf96194423bc91",
       "bytes": 5687
@@ -3383,6 +3432,11 @@
       "file": "test/provenance/verify-provenance.test.js",
       "sha256": "9b026eb2291972e97d0817b8883a6b7d1b1dcbcc7494374396e1cff01b9a34c8",
       "bytes": 10921
+    },
+    {
+      "file": "test/recovery/recovery.test.js",
+      "sha256": "536a31bb7a07b9e2a5c01fd05beacf6695e531a10ff1221c92cd7f345a1c1177",
+      "bytes": 9958
     },
     {
       "file": "test/sdk/guard.test.js",
