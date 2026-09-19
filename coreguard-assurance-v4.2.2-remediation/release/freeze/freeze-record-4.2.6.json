@@ -25,9 +25,9 @@
     "cleanClone": "BLOCKED, exit 1 - documented Option-B fail-closed (INV-001 FAIL failClosed=true; kit absent by design)"
   },
   "categoryCounts": {
-    "releaseFiles": 27,
+    "releaseFiles": 30,
     "quarantineFiles": 19,
-    "total": 46,
+    "total": 49,
     "excluded": 1,
     "excludedList": [
       "release/freeze/freeze-record-4.2.6.json (self-reference; verified via disk-vs-GitHub-archive comparison)"
@@ -37,8 +37,8 @@
     "releaseFiles": [
       {
         "file": "README.md",
-        "sha256": "0x57e709b8329ec8674bfc53940979ee54779c941ffe78a8467a4dee0ef02075eb",
-        "bytes": 4004
+        "sha256": "0x75afad1fed924ea34b5c209834fb9ec1c5174c9b4f704be1366fd68a245a3cd6",
+        "bytes": 4339
       },
       {
         "file": "CHANGELOG-v4.2.2.md",
@@ -174,6 +174,16 @@
         "file": "../docs/GOVERNANCE-DASHBOARD.html",
         "sha256": "0x9db115d610b04dd7190c8b81c73c11dc20f1dd106653704744c5168ab4ecc828",
         "bytes": 70787
+      },
+      {
+        "file": "../docs/coreguard-gate41-visual.html",
+        "sha256": "0xdb756715318004100d88aaaafa867a48e947b28a0fca430d37596a63123aa49c",
+        "bytes": 145569
+      },
+      {
+        "file": "../docs/coreguard-gate41-visual-en.html",
+        "sha256": "0x12b826918898dd693cc07f4420ab6f2ad146c45bab89c0565bf608e4db7686ee",
+        "bytes": 70787
       }
     ],
     "quarantineFiles": [
@@ -275,8 +285,8 @@
     ]
   },
   "decision": "CONDITIONAL NO-GO — C7=PARTIAL C8=PENDING C9=PENDING; SIGNING/COMMITINTENT/ANCHORPROOF/MAINNET BROADCAST = NOT AUTHORIZED",
-  "gitCommit": "5fcc247214e5ba1af9f48d0e0f97b350fa29b280",
-  "gitCommitNote": "anchor advanced to the pages-link commit; prior anchors c34cae8684c18111d014c89af3be2cad0d86f531 and 3bbdd983cadcd3bb4b19005252a0c07ef1d4f3a3; prior anchors c34cae8684c18111d014c89af3be2cad0d86f531 and c1f0a67ed82de4ff89f362dcff82b2b1b0085f9f remain valid history; re-pin list documents the active exception per file (superseded entries live in git history)",
+  "gitCommit": "71cde7f75c866261b8366ea52164abcf1f9617e7",
+  "gitCommitNote": "anchor advanced to the boards-publication commit; prior anchors 5fcc247214e5ba1af9f48d0e0f97b350fa29b280, 3bbdd983cadcd3bb4b19005252a0c07ef1d4f3a3 and c34cae8684c18111d014c89af3be2cad0d86f531 remain valid history; re-pin list documents the active exception per file (superseded entries live in git history)",
   "postCommitRePins": [
     {
       "file": "release/v4.2.2-remediation/H1-H8.md",
@@ -284,14 +294,24 @@
       "reason": "packet 1.2.1 commit-anchored command update; re-pinned per integrity rule"
     },
     {
-      "file": "README.md",
-      "commit": "5fcc247214e5ba1af9f48d0e0f97b350fa29b280",
-      "reason": "review map entry 5 now links the live GitHub Pages render of the dashboard; re-pinned per integrity rule"
-    },
-    {
       "file": "../docs/GOVERNANCE-DASHBOARD.html",
       "commit": "3bbdd983cadcd3bb4b19005252a0c07ef1d4f3a3",
       "reason": "interactive governance board published to docs/ for the GitHub audience; pinned from its publication commit"
+    },
+    {
+      "file": "README.md",
+      "commit": "71cde7f75c866261b8366ea52164abcf1f9617e7",
+      "reason": "review map entry 6 added: bilingual session boards published to docs/; re-pinned per integrity rule"
+    },
+    {
+      "file": "../docs/coreguard-gate41-visual.html",
+      "commit": "71cde7f75c866261b8366ea52164abcf1f9617e7",
+      "reason": "bilingual AR-primary session board published verbatim to docs/; pinned from its publication commit"
+    },
+    {
+      "file": "../docs/coreguard-gate41-visual-en.html",
+      "commit": "71cde7f75c866261b8366ea52164abcf1f9617e7",
+      "reason": "EN mirror session board published verbatim to docs/; pinned from its publication commit"
     }
   ]
 }
