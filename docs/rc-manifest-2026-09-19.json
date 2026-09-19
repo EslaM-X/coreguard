@@ -3,15 +3,15 @@
   "candidate": "rc-2026-09-19-a",
   "status": "DRAFT - clean working tree; not a release, pending owner GO",
   "generatedBy": "scripts/build-rc-manifest.cjs (node, zero-dep)",
-  "generatedAtUtc": "2026-09-19T08:54:53.007Z",
-  "headCommit": "be5ce867de011c7f9f8749a9fbf19d1f7c82f56d",
+  "generatedAtUtc": "2026-09-19T10:40:02.612Z",
+  "headCommit": "a151a59af21af2250be32f9d2fac8ef46073ee4c",
   "headDirty": false,
   "counts": {
-    "files": 581
+    "files": 583
   },
   "sha256": {
     ".env.example": "0839e9be9450ddcdab8b7816e01365e0ba03c71b690df7ab1a0acf3fa122d96b",
-    ".gitattributes": "a9e174244a0551cbf7d85ad14bdc2b4be158df4e4a880682cf99802dd663e3df",
+    ".gitattributes": "abe24ae0fcc71066598f6a34fb6052ba31518710ea42132e2f17009e28d146b3",
     ".github/actions/coreguard-verify/action.yml": "827b01f1a9d947b525e1e98dd6f02d3688cfb83f205f8d725a04c30e14847003",
     ".github/actions/coreguard-verify/verify.mjs": "a32feaee72891a1f93874690ec617659f700d62905647b94310ef2c99ac4a999",
     ".github/workflows/ci.yml": "c385b1bde7f9b17d87d70f5db8dbdc823a125c235e006d4f65fed2a4b1cc6472",
@@ -196,10 +196,11 @@
     "docs/ARCHITECTURE.md": "d7736642a6d9aed3841dcdd74cd3f2c5d052c23cd10a7a6db73e03a8d373bd7c",
     "docs/COMMUNITY.md": "6d94cc65458cba1e6065f95a3a607f946931ad08618e0654eb4b33867bb74c01",
     "docs/DEPLOYMENT.md": "9e150fa61a5d532c84319998ad099f8d274ccd41c46d71bbea0a2c93384fa97a",
+    "docs/FINAL-REPORT-2026-09-19.md": "eaa74129591c847ff58748caf3e5529377904d79d863aee21eb3fc228cda2cb2",
     "docs/FUNDING.md": "d736b9c3f4512522736464df47d4e054313f59535bc4df74d368299428d41cb8",
     "docs/GOVERNANCE-DASHBOARD.html": "9db115d610b04dd7190c8b81c73c11dc20f1dd106653704744c5168ab4ecc828",
     "docs/PRODUCTION-ROADMAP.md": "3cebd469bd4ab842b3fd8c75a82e45340b2f39b7153b7ad4a4ddfe6cfc3f6215",
-    "docs/STATUS.md": "95ee619b31837a2a7b35722f8cf156c42ae1c89ce6e9717e464d0b3fc5392c1b",
+    "docs/STATUS.md": "dd59c1b531ff78372b820b6c6b2d2ed27f8b23970570bed7eb8e901fe73ea923",
     "docs/VERIFY-RUN.md": "bc6d65002c3f331946452a486327ad32706b37a02e3883a4e8ca25d7affb3380",
     "docs/adoption/README.md": "23416a2391912467d7f83a51ed91cbc3c6f79a6ccf3456b275298da6354c29fb",
     "docs/adoption/core-value.md": "11679868f9eefd6bcaf6b29b6a012bd28f4520bcfc055ceb7595a071941610dd",
@@ -217,7 +218,7 @@
     "docs/eol-policy.md": "39cbc330c6356bbdf9f48929d98937aaf188cb1ab4b89dcb255f8fb568154d24",
     "docs/pilot-1.md": "18449d9e988a33a338fe528f20a4118718a847298688177a484b4aaf02c59537",
     "docs/plan-90d-repo.md": "dd8b2af595a0bf1091ce54579fca8451061a139a98e3e09c65346bb16c1d17a7",
-    "docs/rc-manifest-2026-09-19.json": "df8b1145ed71dc8312ee448ece9df794b9b73e2a995c1d82e48c06b500edde95",
+    "docs/rc-manifest-2026-09-19.json": "a747e48890f79072e39d306498ba132c98137d239723fbf7bf5af6115a48f540",
     "docs/value-hypothesis.md": "d81c142e25a6fb802a083ff7cd5afde3f1b44bb3f0633e6c3a7cef801a02af0d",
     "docs/ws-5.md": "f452596641f8453dad2b2f7c4d2d02e85989ad5b0aad9a59e185046cc5532f3b",
     "evidence/gate-3.0-preflight.json": "deb72eec94ed5da4717f25e676a890d66865ff39789875d850d3a4cec6d9b88d",
@@ -231,6 +232,7 @@
     "evidence/gate-4.1-broadcast.json": "a5522a9157fbd5c53e8717e3008c1e27486aa244e13826b27de7305b54ba6a1e",
     "evidence/gate-4.1-identity-preflight.json": "61d127f258a781561ffd9c9431efc667c5df111029fc23d03e4fed48304dbccf",
     "evidence/gate-4.1-independent-verify.json": "886792b8f955902c0e28ec57cea39f19ff0490e66ce32cc2e31d58c280cf42e9",
+    "evidence/gate-4.1-live-reconfirmation-2026-09-19.json": "610a24e2ceb53fba4bf50d11980c381a2756763b94564554696d63ff18a90a02",
     "evidence/gate-4.1-verification-reconciliation.md": "34d394b2b4f8a603805acc0a5ff8b0c80d1c232db55a78c9a3ba97e89397fc6d",
     "evidence/phase-3-evidence-freeze.json": "1666e898107f90971c02b249ed16167d8984f9176dafd5755b0de868fa663ed2",
     "evidence/raw/gate-4.1-readback.ankr.json": "d60bf0b6f2128ca7ee0e70145e68afe838e38268e2088d6ba8c6959f100ccf9a",
@@ -600,8 +602,8 @@
     },
     {
       "file": ".gitattributes",
-      "sha256": "a9e174244a0551cbf7d85ad14bdc2b4be158df4e4a880682cf99802dd663e3df",
-      "bytes": 781
+      "sha256": "abe24ae0fcc71066598f6a34fb6052ba31518710ea42132e2f17009e28d146b3",
+      "bytes": 1129
     },
     {
       "file": ".github/actions/coreguard-verify/action.yml",
@@ -1524,6 +1526,11 @@
       "bytes": 4988
     },
     {
+      "file": "docs/FINAL-REPORT-2026-09-19.md",
+      "sha256": "eaa74129591c847ff58748caf3e5529377904d79d863aee21eb3fc228cda2cb2",
+      "bytes": 3493
+    },
+    {
       "file": "docs/FUNDING.md",
       "sha256": "d736b9c3f4512522736464df47d4e054313f59535bc4df74d368299428d41cb8",
       "bytes": 2749
@@ -1540,8 +1547,8 @@
     },
     {
       "file": "docs/STATUS.md",
-      "sha256": "95ee619b31837a2a7b35722f8cf156c42ae1c89ce6e9717e464d0b3fc5392c1b",
-      "bytes": 7578
+      "sha256": "dd59c1b531ff78372b820b6c6b2d2ed27f8b23970570bed7eb8e901fe73ea923",
+      "bytes": 9364
     },
     {
       "file": "docs/VERIFY-RUN.md",
@@ -1630,8 +1637,8 @@
     },
     {
       "file": "docs/rc-manifest-2026-09-19.json",
-      "sha256": "df8b1145ed71dc8312ee448ece9df794b9b73e2a995c1d82e48c06b500edde95",
-      "bytes": 168180
+      "sha256": "a747e48890f79072e39d306498ba132c98137d239723fbf7bf5af6115a48f540",
+      "bytes": 170564
     },
     {
       "file": "docs/value-hypothesis.md",
@@ -1697,6 +1704,11 @@
       "file": "evidence/gate-4.1-independent-verify.json",
       "sha256": "886792b8f955902c0e28ec57cea39f19ff0490e66ce32cc2e31d58c280cf42e9",
       "bytes": 17697
+    },
+    {
+      "file": "evidence/gate-4.1-live-reconfirmation-2026-09-19.json",
+      "sha256": "610a24e2ceb53fba4bf50d11980c381a2756763b94564554696d63ff18a90a02",
+      "bytes": 1175
     },
     {
       "file": "evidence/gate-4.1-verification-reconciliation.md",
