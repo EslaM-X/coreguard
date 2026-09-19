@@ -71,6 +71,15 @@ inventory for the exact ID set. Category totals (from `SCHEMA.byCategory`):
 
 ## 3. Reproducibility from a bare clone
 
+**Precise claim (reviewer requirement):** the **original** v1 verifier (commit
+`2dd2705`, which produced the 54/54) was **NOT** runnable from a bare clone — it
+imported the external `@noble/hashes` package and therefore failed with
+`ERR_MODULE_NOT_FOUND` in a fresh checkout with no `node_modules` (reproduced
+twice during this round). The 54/54 result was produced in a working tree that
+*had* node_modules. The claim "reproducible from a bare clone" applies **only to
+the v2.1.0 fix**: after the documented fixes (inline Keccak, RHO-table
+correction, schema/inventory), it **reproduced successfully**, yielding:
+
 ```
 git clone <repo> /tmp/check
 cd /tmp/check                      # no npm install, no node_modules
@@ -80,6 +89,11 @@ node --test test/independent-verifier/gate41-verifier.test.js   # 6/6
 node scripts/verify-gate-4.1-onchain.mjs --json > /tmp/regen.json
 sha256sum /tmp/regen.json evidence/gate-4.1-independent-verify.json   # identical
 ```
+
+And this was executed on commit `50b4943` in an empty clone (no node_modules):
+`node scripts/verify-gate-4.1-onchain.mjs --json` -> **PASS 66/66, schema
+2.1.0**, output **byte-identical** to the committed
+`evidence/gate-4.1-independent-verify.json`.
 
 ## 3.b Test-count note (721 -> 727)
 
