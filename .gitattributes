@@ -15,3 +15,9 @@ evidence/raw/** -text
 # Byte-exact preservation for the whole evidence tree (derived results + raw):
 # keeps reproduce-from-clone step byte-exact (result JSON re-generation diff).
 evidence/** -text
+
+# Byte-exact preservation for the frozen bilingual dashboard (freeze-record
+# pins ../docs/GOVERNANCE-DASHBOARD.html): system core.autocrlf=true made a
+# fresh Windows clone rewrite it to CRLF on disk -> --disk verification failed
+# for reviewers. -text keeps clean-clone bytes identical to the committed pin.
+docs/GOVERNANCE-DASHBOARD.html -text
