@@ -2,16 +2,17 @@
 
 **Authoritative status file.** All repo docs (`README`, `docs/FUNDING.md`) point
 here instead of duplicating numbers. Facts only — every metric below is
-machine-measured, not estimated. Last verified: **2026-09-17**.
+machine-measured, not estimated. Last verified: **2026-09-19**.
 
 ## Repo truth (measured this day)
 
 | Item | Value | How verified |
 |---|---|---|
-| Test suite | **654 / 654 pass** | `npm test` (node `--test`) |
+| Test suite | **721 / 721 pass** | `npm test` (node `--test`) |
 | Adversarial corpus | **73 / 73 pass** | `npm run corpus && npm run benchmark` |
 | Execution Integrity Benchmark | **10,000 runs · False Accept 0 · False Reject 0** | `npm run benchmark:10k` |
 | Mutation Laboratory | **1,000/1,000 mutants refused · 0 escaped** | `npm run mutation` |
+| AgentProof `verify-provenance` surface | **exit-code discipline 0/1/2/3/4** · badge honesty tests | `test/provenance/cli-verify-provenance.test.js` (part of the 721) |
 | `git diff --check` | clean | gate check |
 | Rust/WASM/independent parity | PASS | `test/independent-verifier/` |
 | C verifier | PASS | `test/verifier-c/` (frozen reference, untouched) |
@@ -38,6 +39,7 @@ machine-measured, not estimated. Last verified: **2026-09-17**.
 | Releases (local, per-workstream) | `v0.1.0` · `v0.1.1` · `v0.2.0` · `v0.2.1` · `v0.3.0` · `v0.4.0` · `v0.5.0` · `v0.5.1` · `attack-lab-v1.0.0-closed` |
 | v0.5.0 | **EvidenceRegistryV2 live on Core Mainnet (Phase 3)** — deploy + commitIntent + anchorProof + readback + independent verify, frozen in `evidence/` |
 | v0.5.1 | **Repository encoding hygiene** — prior-art mojibake recovered, stray BOMs removed, permanent guard added; `npm test` **654/654**; frozen `scripts/verify-live.json` untouched |
+| v0.5.2 | **AgentProof CLI surface (CGEP/1:VERIFY-PROVENANCE §10)** — `verify-provenance` subcommand + honest badge rendering + deterministic fixtures (`examples/provenance/`); `npm test` **721/721** (was 713 at `d7ca118`, +8 from `cli-verify-provenance.test.js`); freeze 46/46 still anchored |
 | Verifier version in receipts | `0.1.0` (release boundary locked) |
 | Verification levels | L0 · L1 · L2 claimable; L3/L4 exist but **not claimable** (INCONCLUSIVE, `REQUIRED_BY_LEVEL`) |
 | EvidenceRegistryV2 | implemented; `forge build` clean (solc 0.8.24) + `forge test` 14/14 (local pass); mirror suite 12/12 |

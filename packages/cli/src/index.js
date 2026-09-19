@@ -4,6 +4,7 @@
  * analyze    — Analyze an execution against intent and policy (on-chain or offline)
  * verify     — Independently verify an execution receipt
  * verify-run — External verification surface (CGEP/1:VERIFY-RUN) with exit codes
+ * verify-provenance — AgentProof: verify a declared provenance manifest (§10)
  * report     — Render a human-readable report from a receipt
  * demo       — Run the reference Vault demo ladder (allow | attack)
  *
@@ -13,6 +14,7 @@
  *   verify --receipt receipt.json [--intent intent.json --policy policy.json --trace trace.json]
  *   verify-run --receipt receipt.json --intent intent.json --policy policy.json --trace trace.json --json
  *   verify-run --bundle verify-bundle.json [--rpc https://rpc.test2.btcs.network] [--json]
+ *   verify-provenance --manifest manifest.json --evidence evidence.json [--json]
  *   report --receipt receipt.json
  *   demo [allow|attack]
  */
@@ -27,6 +29,7 @@ import { computeStateDelta, normalizeExecution } from "../../trace/index.js";
 import { createEvidenceBundle, createReceipt } from "../../evidence/index.js";
 import { verifyReceipt } from "../../verifier/index.js";
 import { runVerification, deriveRpcBindings } from "../../verifier/run.js";
+import { runVerifyProvenanceCli } from "./verify-provenance.js";
 import { CoreTestnet2Adapter } from "../../canonical/chain-adapter.js";
 
 const VERIFIER_VERSION = "0.1.0";
@@ -57,6 +60,7 @@ Usage:
   coreguard verify  --receipt <file> [--intent <file> --policy <file> --trace <file>]
   coreguard verify-run [--receipt <file>] [--evidence <file>] [--intent <file>] [--policy <file>]
                        [--trace <file>] [--bundle <file>] [--rpc <url>] [--json]
+  coreguard verify-provenance --manifest <file> --evidence <file> [--json]
   coreguard report  --receipt <file>
   coreguard demo [allow|attack]
 
@@ -65,6 +69,10 @@ Commands:
   verify     Independently verify an execution receipt
   verify-run External verification surface (CGEP/1:VERIFY-RUN). Exit codes:
              0=VERIFIED · 1=CLI/input error · 2=INVALID · 3=UNVERIFIED · 4=INCONCLUSIVE
+  verify-provenance
+             AgentProof surface (CGEP/1:VERIFY-PROVENANCE). Exit codes same
+             discipline: 0=verified · 1=CLI/input error · 2=invalid ·
+             3=not proven/unverified · 4=inconclusive
   report     Render a human-readable report from a receipt
   demo       Reference Vault ladder: allow (deposit ALLOW → VERIFIED → anchor)
              or attack (six blocked attacks + post-execution INVALID)
@@ -82,6 +90,8 @@ async function main() {
       return await cmdVerify(args.slice(1));
     case "verify-run":
       return await cmdVerifyRun(args.slice(1));
+    case "verify-provenance":
+      return await cmdVerifyProvenance(args.slice(1));
     case "report":
       return await cmdReport(args.slice(1));
     case "demo":
@@ -290,6 +300,24 @@ async function cmdVerifyRun(args) {
 
   process.exitCode = report.exitCode;
   return report;
+}
+
+async function cmdVerifyProvenance(args) {
+  const manifestFile = getArg(args, "--manifest");
+  const evidenceFile = getArg(args, "--evidence");
+  const json = args.includes("--json");
+
+  if (!manifestFile || !evidenceFile) {
+    console.error("Error: --manifest and --evidence are required");
+    process.exit(1);
+  }
+
+  const manifest = await loadJson(manifestFile, "manifest");
+  const evidence = await loadJson(evidenceFile, "evidence");
+
+  const exitCode = await runVerifyProvenanceCli({ manifest, evidence, json });
+  process.exitCode = exitCode;
+  return exitCode;
 }
 
 async function cmdRpcBindings(receipt, rpcUrl) {

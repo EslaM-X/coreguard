@@ -1,0 +1,25 @@
+{
+  "version": "CGEP/1",
+  "manifestKind": "STAMP",
+  "nonce": "1",
+  "declared": {
+    "signerBinding": {
+      "address": "0xe8bc0009ffc84a5c06c6e867e632d8469316ad3d"
+    },
+    "executorType": "AI_AGENT"
+  },
+  "executionRef": {
+    "chainId": "1116",
+    "txHash": "0x0000000000000000000000000000000000000000000000000000000000000ca1",
+    "blockNumber": "12345"
+  },
+  "manifestId": "0xdb20c8012cfae659479c409501e76e063f9a0469d84077fd592a42fab2633ebb",
+  "signature": {
+    "scheme": "EIP-712",
+    "signer": "0xe8bc0009ffc84a5c06c6e867e632d8469316ad3d",
+    "r": "bbb97a4dc430d3e903a33ee8dafbdebcba99640f04666042d3f66e10ce62428e",
+    "s": "533e5cbd4f815be75c71759157931ca01af20f7c6ab8e310921326d7c2e9723e",
+    "v": 27,
+    "digest": "0x6943e66b8757b7a6adae16bf002e742b2c2377fd3589336719c585df1901f57f"
+  }
+}

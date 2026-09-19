@@ -128,7 +128,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 654 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, encoding, attack-lab suites
+npm test              # 721 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, encoding, attack-lab suites
 npm run corpus        # deterministic 73-scenario adversarial corpus
 npm run benchmark     # 73/73 pass
 # Authoritative numbers live in docs/STATUS.md (one source of truth).
@@ -175,6 +175,8 @@ node packages/cli/src/index.js verify     --receipt <...> [--intent <...> --poli
 node packages/cli/src/index.js verify-run --receipt <...> [--evidence <...> --intent <...> --policy <...> --trace <...>] [--rpc <url>] [--json]
                                            # CGEP/1:VERIFY-RUN surface; exit 0=VERIFIED 2=INVALID 3=UNVERIFIED 4=INCONCLUSIVE
                                            # e.g. --bundle examples/transfer/verify-bundle.json
+node packages/cli/src/index.js verify-provenance --manifest <...> --evidence <...> [--json]
+                                           # CGEP/1:VERIFY-PROVENANCE surface (AgentProof); same exit-code discipline
 node packages/cli/src/index.js report     --receipt <...>                               # human-readable receipt
 node packages/cli/src/index.js demo   allow|attack     # reference Vault ladder (allow | attack)
 npx create-coreguard-integration <name>                # scaffold a consumer integration project
@@ -182,6 +184,29 @@ npx create-coreguard-integration <name>                # scaffold a consumer int
 
 `verify-run` is read-only: `--rpc` performs chainId/transaction/receipt/block
 binding only — it never sends or broadcasts. See [docs/VERIFY-RUN.md](docs/VERIFY-RUN.md).
+
+## AgentProof — actor provenance
+
+**Who is actually behind this execution?** AgentProof extends the receipt with a
+two-part answer that is *declared, never inferred*:
+
+- **executorType** (CGEP/1 §4 taxonomy): `HUMAN` · `AI_AGENT` · `BOT` ·
+  `AUTOMATION` · `ORGANIZATION` · `MULTISIG` · `CUSTODIAN` ·
+  `SMART_CONTRACT` · `PROTOCOL` · `UNKNOWN`
+- **cryptographic authority**: an EIP-712-signed REGISTRATION (identity root)
+  + per-execution STAMP manifest, replay-verified against the actual `tx.from`
+  (direct or via signed delegation chain), anchored to the EvidenceRegistry.
+
+A human is **never** shown as proven from behavior — human-ness renders
+`DECLARED` or `ATTESTED` at most (personality is never guessed). Badge states
+come from the open verifier only, so every badge is reproducible by `npm run
+verify-provenance`. Phase A = EOA signer binding; smart-contract/multisig
+authorization needs EIP-1271 (Phase B). Spec: [spec/CGEP-1-AGENT-PROVENANCE.md](spec/CGEP-1-AGENT-PROVENANCE.md).
+
+```bash
+npm run verify-provenance -- --manifest examples/provenance/manifest.json --evidence examples/provenance/evidence.json
+# exit code: 0=verified · 1=cli/input error · 2=invalid · 3=not proven/unverified · 4=inconclusive
+```
 
 ## On-chain
 
