@@ -1,0 +1,311 @@
+{
+  "tool": "coreguard-verify-gate-4.1-onchain",
+  "version": "1.0.0",
+  "date": "2026-09-19T05:26:01.193Z",
+  "sources": {
+    "tx": [
+      "ankr",
+      "coredao"
+    ],
+    "receipt": [
+      "ankr",
+      "coredao"
+    ],
+    "readback": [
+      "ankr",
+      "coredao"
+    ]
+  },
+  "expectations": {
+    "txHash": "0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567",
+    "registry": "0x66268a47e81b8f657798d7b5bbedc956df7b13fd",
+    "signer": "0xea41becdeb612d8625bf3060809964f1dab43244",
+    "intentId": "0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d",
+    "intentCommitment": "0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6",
+    "validUntil": 1789797609,
+    "nonce": 8,
+    "chainId": 1116,
+    "blockNumber": 38827925,
+    "status": "0x1",
+    "gasUsed": 105339,
+    "gasLimit": 148876,
+    "calldataSha256": "0xc10474ed9d0d2161d6de4eeb41e5ada0bd9ffcb4947d84e8d996b5781cda641b",
+    "selector": "0x4fd0505d",
+    "topic0": "0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127"
+  },
+  "checks": [
+    {
+      "name": "[ankr] tx.from == signer",
+      "ok": true,
+      "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
+    },
+    {
+      "name": "[ankr] tx.to == registry",
+      "ok": true,
+      "detail": "got 0x66268a47e81b8f657798d7b5bbedc956df7b13fd"
+    },
+    {
+      "name": "[ankr] tx.nonce == 8",
+      "ok": true,
+      "detail": "got 8"
+    },
+    {
+      "name": "[ankr] tx.chainId == 1116",
+      "ok": true,
+      "detail": "got 1116"
+    },
+    {
+      "name": "[ankr] tx.hash == published",
+      "ok": true,
+      "detail": "got 0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567"
+    },
+    {
+      "name": "[ankr] sha256(calldata) == pinned calldataSha256",
+      "ok": true,
+      "detail": "got 0xc10474ed9d0d2161d6de4eeb41e5ada0bd9ffcb4947d84e8d996b5781cda641b"
+    },
+    {
+      "name": "[ankr] calldata selector == commitIntent",
+      "ok": true,
+      "detail": "got 0x4fd0505d"
+    },
+    {
+      "name": "[ankr] calldata intentId == gate-4.0",
+      "ok": true,
+      "detail": "got 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d"
+    },
+    {
+      "name": "[ankr] calldata commitment == pinned",
+      "ok": true,
+      "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
+    },
+    {
+      "name": "[ankr] calldata signer == pinned",
+      "ok": true,
+      "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
+    },
+    {
+      "name": "[ankr] calldata validUntil == pinned",
+      "ok": true,
+      "detail": "got 1789797609"
+    },
+    {
+      "name": "[ankr] tx has ECDSA signature (r,s,v)",
+      "ok": true,
+      "detail": "r.len=66 s.len=66 v=0x8dc"
+    },
+    {
+      "name": "[coredao] tx.from == signer",
+      "ok": true,
+      "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
+    },
+    {
+      "name": "[coredao] tx.to == registry",
+      "ok": true,
+      "detail": "got 0x66268a47e81b8f657798d7b5bbedc956df7b13fd"
+    },
+    {
+      "name": "[coredao] tx.nonce == 8",
+      "ok": true,
+      "detail": "got 8"
+    },
+    {
+      "name": "[coredao] tx.chainId == 1116",
+      "ok": true,
+      "detail": "got 1116"
+    },
+    {
+      "name": "[coredao] tx.hash == published",
+      "ok": true,
+      "detail": "got 0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567"
+    },
+    {
+      "name": "[coredao] sha256(calldata) == pinned calldataSha256",
+      "ok": true,
+      "detail": "got 0xc10474ed9d0d2161d6de4eeb41e5ada0bd9ffcb4947d84e8d996b5781cda641b"
+    },
+    {
+      "name": "[coredao] calldata selector == commitIntent",
+      "ok": true,
+      "detail": "got 0x4fd0505d"
+    },
+    {
+      "name": "[coredao] calldata intentId == gate-4.0",
+      "ok": true,
+      "detail": "got 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d"
+    },
+    {
+      "name": "[coredao] calldata commitment == pinned",
+      "ok": true,
+      "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
+    },
+    {
+      "name": "[coredao] calldata signer == pinned",
+      "ok": true,
+      "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
+    },
+    {
+      "name": "[coredao] calldata validUntil == pinned",
+      "ok": true,
+      "detail": "got 1789797609"
+    },
+    {
+      "name": "[coredao] tx has ECDSA signature (r,s,v)",
+      "ok": true,
+      "detail": "r.len=66 s.len=66 v=0x8dc"
+    },
+    {
+      "name": "[ankr] receipt.txHash == published",
+      "ok": true,
+      "detail": "got 0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567"
+    },
+    {
+      "name": "[ankr] receipt.status == 0x1",
+      "ok": true,
+      "detail": "got 0x1"
+    },
+    {
+      "name": "[ankr] receipt.blockNumber == 38827925",
+      "ok": true,
+      "detail": "got 38827925"
+    },
+    {
+      "name": "[ankr] receipt.gasUsed == 105339",
+      "ok": true,
+      "detail": "got 105339"
+    },
+    {
+      "name": "[ankr] receipt.to == registry",
+      "ok": true,
+      "detail": "got 0x66268a47e81b8f657798d7b5bbedc956df7b13fd"
+    },
+    {
+      "name": "[ankr] receipt.from == signer",
+      "ok": true,
+      "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
+    },
+    {
+      "name": "[ankr] receipt has logs",
+      "ok": true,
+      "detail": "got 1"
+    },
+    {
+      "name": "[ankr] topic0 == keccak(event sig)",
+      "ok": true,
+      "detail": "computed 0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127"
+    },
+    {
+      "name": "[ankr] topics[1] == intentId",
+      "ok": true,
+      "detail": "got 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d"
+    },
+    {
+      "name": "[ankr] topics[2] == commitment",
+      "ok": true,
+      "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
+    },
+    {
+      "name": "[ankr] topics[3] == signer (indexed)",
+      "ok": true,
+      "detail": "got 0x000000000000000000000000ea41becdeb612d8625bf3060809964f1dab43244"
+    },
+    {
+      "name": "[ankr] log.data validUntil == pinned",
+      "ok": true,
+      "detail": "got 1789797609"
+    },
+    {
+      "name": "[coredao] receipt.txHash == published",
+      "ok": true,
+      "detail": "got 0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567"
+    },
+    {
+      "name": "[coredao] receipt.status == 0x1",
+      "ok": true,
+      "detail": "got 0x1"
+    },
+    {
+      "name": "[coredao] receipt.blockNumber == 38827925",
+      "ok": true,
+      "detail": "got 38827925"
+    },
+    {
+      "name": "[coredao] receipt.gasUsed == 105339",
+      "ok": true,
+      "detail": "got 105339"
+    },
+    {
+      "name": "[coredao] receipt.to == registry",
+      "ok": true,
+      "detail": "got 0x66268a47e81b8f657798d7b5bbedc956df7b13fd"
+    },
+    {
+      "name": "[coredao] receipt.from == signer",
+      "ok": true,
+      "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
+    },
+    {
+      "name": "[coredao] receipt has logs",
+      "ok": true,
+      "detail": "got 1"
+    },
+    {
+      "name": "[coredao] topic0 == keccak(event sig)",
+      "ok": true,
+      "detail": "computed 0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127"
+    },
+    {
+      "name": "[coredao] topics[1] == intentId",
+      "ok": true,
+      "detail": "got 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d"
+    },
+    {
+      "name": "[coredao] topics[2] == commitment",
+      "ok": true,
+      "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
+    },
+    {
+      "name": "[coredao] topics[3] == signer (indexed)",
+      "ok": true,
+      "detail": "got 0x000000000000000000000000ea41becdeb612d8625bf3060809964f1dab43244"
+    },
+    {
+      "name": "[coredao] log.data validUntil == pinned",
+      "ok": true,
+      "detail": "got 1789797609"
+    },
+    {
+      "name": "[ankr] readback.commitment == pinned",
+      "ok": true,
+      "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
+    },
+    {
+      "name": "[ankr] readback.validUntil == pinned",
+      "ok": true,
+      "detail": "got 1789797609"
+    },
+    {
+      "name": "[ankr] readback.signer == pinned",
+      "ok": true,
+      "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
+    },
+    {
+      "name": "[coredao] readback.commitment == pinned",
+      "ok": true,
+      "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
+    },
+    {
+      "name": "[coredao] readback.validUntil == pinned",
+      "ok": true,
+      "detail": "got 1789797609"
+    },
+    {
+      "name": "[coredao] readback.signer == pinned",
+      "ok": true,
+      "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
+    }
+  ],
+  "verdict": "PASS",
+  "checkCount": 54,
+  "passedChecks": 54
+}

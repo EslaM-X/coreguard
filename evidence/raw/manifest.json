@@ -1,0 +1,42 @@
+{
+  "tool": "coreguard-gate-4.1-raw-rpc-manifest",
+  "date": "2026-09-19T05:26:01.379Z",
+  "note": "Verbatim eth RPC responses, two independent endpoints. Not reformatted.",
+  "files": [
+    {
+      "file": "gate-4.1-readback.ankr.json",
+      "sha256": "0xd60bf0b6f2128ca7ee0e70145e68afe838e38268e2088d6ba8c6959f100ccf9a",
+      "bytes": 358
+    },
+    {
+      "file": "gate-4.1-readback.coredao.json",
+      "sha256": "0xd9fc8b28bf067e05251bd2ff28ef63e0c02e603d4765779d073c3898f794c22d",
+      "bytes": 359
+    },
+    {
+      "file": "gate-4.1-receipt.ankr.json",
+      "sha256": "0x4b113eb86e379a2b81e2633ddde2301d2c642481fabfd536def03bdc5ee610dc",
+      "bytes": 1829
+    },
+    {
+      "file": "gate-4.1-receipt.coredao.json",
+      "sha256": "0x4ee3f99a889b015d78082ef533e639854d26a2b966966d7d6f1c43e98280d24c",
+      "bytes": 1830
+    },
+    {
+      "file": "gate-4.1-tx.ankr.json",
+      "sha256": "0xe91a72e1bfd36cac7441fe5bd9476235c50ae23b06042fda1850ef015bf1cb0c",
+      "bytes": 1200
+    },
+    {
+      "file": "gate-4.1-tx.coredao.json",
+      "sha256": "0x7e6238f3bc83a2f2e1c0140dbde64fb0db0e7d5b31eca2150b04c1357907824c",
+      "bytes": 1201
+    },
+    {
+      "file": "manifest.json",
+      "sha256": "0x846afdf72d6cd4fe6b42cdae6e91c25e64d0fb94d02e2c458553342cf1332d3c",
+      "bytes": 1169
+    }
+  ]
+}

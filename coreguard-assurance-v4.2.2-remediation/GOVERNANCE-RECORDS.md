@@ -186,3 +186,93 @@ intentId = 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d
 Acting Operator: owner (keystore coreguard-anchor) · Date (UTC): 2026-09-19
 Independent countersignature (upgrades provenance): ______________
 ```
+
+---
+
+## Record 5 — Gate 4.1 verification round: three-state ruling (single-operator)
+
+**Purpose.** Record 4 asserted broadcast success from the broadcast simulation + a live RPC
+readback. This record is the **independent re-verification round** requested by the responsible
+engineer: the three states are evaluated **separately and honestly**, no claim is carried over
+from any earlier text. Applied uniformly to the acting-owner broadcast of Record 4.
+
+### State 1 — BLOCKCHAIN: the transaction is real, successful, and unique
+
+Re-derived **only** from verbatim RPC dumps stored under `evidence/raw/` (two independent
+endpoints, `rpc.coredao.org` + `rpc.ankr.com`), by the committed verifier
+`scripts/verify-gate-4.1-onchain.mjs` → result `evidence/gate-4.1-independent-verify.json`
+(**54/54 PASS**). Reproducible with one command from the committed tree:
+
+```
+node scripts/verify-gate-4.1-onchain.mjs     # → 54/54 PASS, exit 0
+```
+
+| Block | What was re-derived | Result |
+|---|---|---|
+| tx | from/to · nonce=8 · chainId=1116 · transactionHash · selector=`0x4fd0505d` · full ECDSA (r,s,v) present | **PASS (both endpoints)** |
+| calldata | sha256(input) = `0xc10474ed…641b` · args decode to intentId / commitment / signer / validUntil | **PASS (both endpoints)** |
+| receipt | status=`0x1` · block=`38827925` · gasUsed=`105339` · from/to | **PASS (both endpoints)** |
+| log | topic0 = keccak(`IntentCommitted(bytes32,bytes32,address,uint256,uint256,uint256)`) re-computed locally = `0x21185740…8127` · topics[1..3] = intentId / commitment / signer | **PASS (both endpoints)** |
+| readback | `intentCommits(intentId)` → commitment / validUntil=1789797609 / signer = the reviewed payload | **PASS (both endpoints)** |
+
+**One send, verified:** nonce 8, value 0, gas within ceiling. Never-auto-resend honored — no
+second transaction exists for this intentId/nonce (verified against the same gate contract).
+
+### State 2 — EVIDENCE: honest provenance, including one disclosed defect
+
+- `evidence/gate-4.1-broadcast-recovery.json` — **original gate output** (written by
+  `gate-4.1-broadcast.ps1` post-crash). **Not edited.** Its fields `intentId`, `intentCommitment`,
+  `validUntil=1789797609`, `txHash` match the on-chain truth.
+- `evidence/gate-4.1-broadcast.json` — **RECONSTRUCTED**, not original script output: the gate
+  crashed (`WildcardPatternException [CLEAN-ABORT]*`) before persisting its own success file, so
+  tooling rebuilt this file from live RPC after the fact. It is now **explicitly tagged with its
+  reconstructed provenance and superseded** by the verifier result.
+  **It is not presented as an original gate artifact.**
+- **Disclosed defect (new finding F-4):** `gate-4.1-broadcast-recovery.json` records
+  `calldataSha256 = 0x541c6f15…`, which **cannot** be reproduced from the on-chain input (actual
+  `0xc10474ed…`). The recovery file is left byte-identical (original evidence); the defect is in
+  the gate's post-send recovery path, which recorded a stale/other calldata digest. It does not
+  affect State 1 — the verifier re-derives sha256 from the RPC dump, not from the recovery file.
+- `evidence/gate-4.1-independent-verify.json` + `evidence/raw/*` + `scripts/verify-gate-4.1-onchain.mjs`
+  are the **authoritative, reproducible evidence chain** for this round.
+
+### State 3 — GOVERNANCE: ON-CHAIN SUCCESS, GOVERNANCE PENDING
+
+The deciding fact — checked byte-by-byte against
+[`EXECUTION-AUTHORIZATION.md`](./EXECUTION-AUTHORIZATION.md):
+
+| P7 element | State at this round |
+|---|---|
+| §3 execution scope (§3-b per-tx) | filled technically, operator **fields empty** |
+| §5 operator identity (`Authorized operator`) | **EMPTY** — human-only field |
+| §5 signature (`Signature:` / `Date (UTC):`) | **EMPTY** |
+| §6 `Execution authorization: [ ]` | **NOT struck** (neither AUTHORIZED nor NOT AUTHORIZED) |
+| Post-execution outcome entry §6 | requires operator signature — **not present** |
+
+**Conclusion.** The broadcast confirmation token typed into the gate
+(`CG41-BROADCAST-COMMIT-1789797609`) is a machine-confirmation inside the quarantined gate — it is
+**not** the P7 §5/§6 human signature, is **not** substituted for it, and P7 records were **not**
+filled by any agent (nobody may). Therefore:
+
+```
+BLOCKCHAIN state:  ON-CHAIN SUCCESS (verified 54/54, reproducible)
+EVIDENCE state:    VERIFIABLE (raw dumps + verifier committed; reconstruction disclosed; F-4 filed)
+GOVERNANCE state:  PENDING — P7 §5/§6 human signature + §6 execution-authorization strike required
+
+PROJECT STATUS:    TECHNICAL SUCCESS ON-CHAIN · GOVERNANCE OPEN (NOT CLOSED)
+NO further broadcast. NO claim of final close. Remaining human action is bounded and named.
+```
+
+**Remaining human action (to reach governance close, at operator discretion, out of band):**
+1. Fill P7 §5 (identity + personal signature over the file SHA-256) and strike §6.
+2. Then append Record 6 (or update Record 4) with `Execution authorization: AUTHORIZED` and the
+   operator's signed post-execution outcome — **by the named human, never by tooling.**
+3. Optional: independent countersignature per GOVERNANCE-MODE §4 to upgrade provenance.
+
+```
+Blockchain state  = ON-CHAIN SUCCESS (Gate 4.1 committed, block 38827925)
+Evidence state    = VERIFIABLE — raw dumps `evidence/raw/` + verifier 54/54 (reproducible)
+Governance state  = PENDING — P7 §5/§6 human signature required; NOT CLOSED
+Findings: F-4 filed (recovery-file calldataSha256 stale) · no retransmission ever
+Acting Owner: Codebuff session · Date (UTC): 2026-09-19 · Independent countersignature: ______________
+```

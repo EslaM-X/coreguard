@@ -31,7 +31,7 @@ machine-measured, not estimated. Last verified: **2026-09-19**.
 | V2 commitIntent tx | `0x0cd2a8c0de1b030552da16052650ae3c1d74821c2dfa3a4b40afa18d7367715c` · block `38764405` |
 | V2 anchorProof tx | `0x5b9e7d6806200d1f3603ebd0f759d224e3096951dfb6ecbf3539b8b6d3e478d2` · block `38764446` |
 | V2 verdict | **VERIFIED ANCHOR INTEGRITY (READBACK + INDEPENDENT RECOMPUTE)** |
-| **Gate 4.1 identity anchor (commitIntent)** | `0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567` · block `38827925` · `0x1` · intentId `0xc4799b1d…60000d` · **COMMITTED** (readback signer/commitment/validUntil matched) — `evidence/gate-4.1-broadcast.json` |
+| **Gate 4.1 identity anchor (commitIntent)** | `0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567` · block `38827925` · `0x1` · intentId `0xc4799b1d…60000d` · **COMMITTED** — **ON-CHAIN SUCCESS, GOVERNANCE PENDING** (P7 §5/§6 human signature required; not closed). Independent round: `scripts/verify-gate-4.1-onchain.mjs` **54/54 PASS** from raw dumps `evidence/raw/` (coredao + ankr) → `evidence/gate-4.1-independent-verify.json`. `evidence/gate-4.1-broadcast.json` is **reconstructed** (gate crashed post-send; tagged + superseded); discovery-finding F-4 filed |
 
 ## Code truth
 
@@ -41,7 +41,7 @@ machine-measured, not estimated. Last verified: **2026-09-19**.
 | v0.5.0 | **EvidenceRegistryV2 live on Core Mainnet (Phase 3)** — deploy + commitIntent + anchorProof + readback + independent verify, frozen in `evidence/` |
 | v0.5.1 | **Repository encoding hygiene** — prior-art mojibake recovered, stray BOMs removed, permanent guard added; `npm test` **654/654**; frozen `scripts/verify-live.json` untouched |
 | v0.5.2 | **AgentProof CLI surface (CGEP/1:VERIFY-PROVENANCE §10)** — `verify-provenance` subcommand + honest badge rendering + deterministic fixtures (`examples/provenance/`); `npm test` **721/721** (was 713 at `d7ca118`, +8 from `cli-verify-provenance.test.js`); freeze 46/46 still anchored |
-| v0.5.3 | **Gate 4.1 identity anchor live on Core Mainnet** — `intentId 0xc4799b1d…60000d` committed in `commitIntent` (block `38827925`, status `0x1`); frozen `evidence/gate-4.1-broadcast.json` + recovery record; never-auto-resend honored |
+| v0.5.3 | **Gate 4.1 identity anchor live on Core Mainnet** — `intentId 0xc4799b1d…60000d` committed in `commitIntent` (block `38827925`, status `0x1`); **ON-CHAIN SUCCESS verified 54/54** from raw dumps (`evidence/raw/` + `scripts/verify-gate-4.1-onchain.mjs`); **GOVERNANCE PENDING** (P7 §5/§6 human signature required — project NOT closed); `evidence/gate-4.1-broadcast.json` explicitly tagged **reconstructed** (gate crashed post-send; never re-sent); finding F-4 filed |
 | Verifier version in receipts | `0.1.0` (release boundary locked) |
 | Verification levels | L0 · L1 · L2 claimable; L3/L4 exist but **not claimable** (INCONCLUSIVE, `REQUIRED_BY_LEVEL`) |
 | EvidenceRegistryV2 | implemented; `forge build` clean (solc 0.8.24) + `forge test` 14/14 (local pass); mirror suite 12/12 |
