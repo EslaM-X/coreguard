@@ -3,8 +3,8 @@
   "candidate": "rc-2026-09-19-a",
   "status": "DRAFT - clean working tree; not a release, pending owner GO",
   "generatedBy": "scripts/build-rc-manifest.cjs (node, zero-dep)",
-  "generatedAtUtc": "2026-09-19T10:40:02.612Z",
-  "headCommit": "a151a59af21af2250be32f9d2fac8ef46073ee4c",
+  "generatedAtUtc": "2026-09-19T10:46:26.650Z",
+  "headCommit": "f31eaaec0d19c80466868a2e788342b08b923eef",
   "headDirty": false,
   "counts": {
     "files": 583
@@ -20,7 +20,7 @@
     "CHANGELOG.md": "e7aa65d197dfac0465cd2ff5ca935b063f145912845e6e6889c3d1c4b0c77945",
     "CONTRIBUTING.md": "c23273fa972e765ce61691ec11354e63f25cc8933317768a3e0a0dd9ee456b3d",
     "LICENSE": "177095f5436116e06b5e20de76751a2ed94ec66a92a4f876e3f5103cc3de2db6",
-    "README.md": "09f5651bfb7ad2449692eb5c6615bb093e3009752bdde55df09ed607a7bfffe0",
+    "README.md": "cb1e23969fec2ab2314a7d0c8caeb45dc9b4e14317d2395107b985fa92538fbc",
     "SECURITY.md": "0118b249181fb19b5c345276acaf78de11d0365cac8231f6337bfcaceb7f053d",
     "assets/core-guard-logo.png": "7d6086a586b934e20938ccd93d40826352548d81164eda29334a7d2ad00a6fc5",
     "benchmarks/corpus-manifest.json": "0b3b0aaca5bf141a831c62fdda6aa89b72fada75de7ac08bc638ff938d3bcfa7",
@@ -218,7 +218,7 @@
     "docs/eol-policy.md": "39cbc330c6356bbdf9f48929d98937aaf188cb1ab4b89dcb255f8fb568154d24",
     "docs/pilot-1.md": "18449d9e988a33a338fe528f20a4118718a847298688177a484b4aaf02c59537",
     "docs/plan-90d-repo.md": "dd8b2af595a0bf1091ce54579fca8451061a139a98e3e09c65346bb16c1d17a7",
-    "docs/rc-manifest-2026-09-19.json": "a747e48890f79072e39d306498ba132c98137d239723fbf7bf5af6115a48f540",
+    "docs/rc-manifest-2026-09-19.json": "9df07242e885a494b1f7081a57d1f8bca714b3f33df36e4ec18b7ad917c0088c",
     "docs/value-hypothesis.md": "d81c142e25a6fb802a083ff7cd5afde3f1b44bb3f0633e6c3a7cef801a02af0d",
     "docs/ws-5.md": "f452596641f8453dad2b2f7c4d2d02e85989ad5b0aad9a59e185046cc5532f3b",
     "evidence/gate-3.0-preflight.json": "deb72eec94ed5da4717f25e676a890d66865ff39789875d850d3a4cec6d9b88d",
@@ -227,10 +227,10 @@
     "evidence/gate-3.3-anchorproof.json": "e8f2f9493c8d24e5317b01189e6084195aff670d58835b671bd2c78b2cb73bba",
     "evidence/gate-3.4-readback.json": "88a3485322209727daaf058fc597a5e945f1b3704ba344f4344cfb111ea9d005",
     "evidence/gate-3.5-independent-verify.json": "48981ab286f9274697c9ebad7350ad84ee16509d11606c6efcf749f8cb393adc",
-    "evidence/gate-4.0-identity-preflight.json": "675dc752322e28013d3d944ac75acc4cfb468f7638cb7c5e2c9391149049e3cf",
-    "evidence/gate-4.1-broadcast-recovery.json": "f463af8b71ec4e60f6e5a5b0c54588cd84985b05ba69c1dd72728f6e77f9954f",
+    "evidence/gate-4.0-identity-preflight.json": "171fcf7e01e500f80e1e9df823a8c38343f1f256871d221db808319193028d05",
+    "evidence/gate-4.1-broadcast-recovery.json": "02aea66fc3b9071eb08858edc6da8faffeb04489e368fd9b32cbb05bc0b46fb7",
     "evidence/gate-4.1-broadcast.json": "a5522a9157fbd5c53e8717e3008c1e27486aa244e13826b27de7305b54ba6a1e",
-    "evidence/gate-4.1-identity-preflight.json": "61d127f258a781561ffd9c9431efc667c5df111029fc23d03e4fed48304dbccf",
+    "evidence/gate-4.1-identity-preflight.json": "49f6d83596b0df295e862e004f29111a947e70185a0a417f6ca91ed12aa26972",
     "evidence/gate-4.1-independent-verify.json": "886792b8f955902c0e28ec57cea39f19ff0490e66ce32cc2e31d58c280cf42e9",
     "evidence/gate-4.1-live-reconfirmation-2026-09-19.json": "610a24e2ceb53fba4bf50d11980c381a2756763b94564554696d63ff18a90a02",
     "evidence/gate-4.1-verification-reconciliation.md": "34d394b2b4f8a603805acc0a5ff8b0c80d1c232db55a78c9a3ba97e89397fc6d",
@@ -314,7 +314,7 @@
     "packages/cli/src/create-integration-bin.mjs": "fdb997077b2d2e3aba88fc9ae8a475ba9e518c884b9de9e0a501bda57cf81d2d",
     "packages/cli/src/index.js": "fb7c292eb748917079ec33ac89cdd1ba72e4edb9bdd71323f39658db2d09a006",
     "packages/cli/src/verify-provenance.js": "9d484737310683004d6798cdcb7ad782a6e0652990af9d67049c3885d48c3282",
-    "packages/consensus/index.js": "d6bbe12a1b3113e146e703b3eb6b5c11e6aee21a346c8921a43f5027b35e486b",
+    "packages/consensus/index.js": "fcd10dc722787165c4848056c96b7a34378bd4c94d8da11f3c2817c1301c2778",
     "packages/consensus/package.json": "9259f4bdf83e43498fea3cb791c6cdbfcfd951380d0f1c266275a789a647894f",
     "packages/crypto/index.js": "d27750d24669cc04ed315fb4236ed1a2f7e566c9d3b04e458cee656fde737815",
     "packages/crypto/package.json": "14de9b9657fb7636155fb2984548657cba8d2279b416e1c6d77b8abd5816baa8",
@@ -360,7 +360,7 @@
     "packages/intent/authorization.js": "8d82d9998752c940c421d75b8a70e34252ab7066c4b316ff28aebcb3aa3dc402",
     "packages/intent/index.js": "15a2515dbf9fbc7a7dfe584423c0e2bcfaeea69f2857374c359858a71e34a354",
     "packages/intent/package.json": "d27a96d603d48a2b40420c327fa8b889f723eaacfea1700bbc329a5eee2fa0b9",
-    "packages/mandate/index.js": "53db7f771eabb32db32a676e774404cf6350ff0abec55fdc1d250b356596d60d",
+    "packages/mandate/index.js": "fc74327b573bcca94b515f534a01af02ca4bc1e02f2dea44c75f10979a71e9e5",
     "packages/policy/index.js": "c319c2046ff28e71cef643225ab447907bda61567341f427879958c92d2cd242",
     "packages/policy/package.json": "3ef1b1cc721f25fca5a795d8d8c058323f0dceab86bc82ece0401866a71a76ee",
     "packages/policy/rules/index.js": "e2f88b17803a59405df6f799d2132c5c8e28e7ce9e517d1b6f7c2d369cb6430e",
@@ -385,7 +385,7 @@
     "packages/sdk/index.js": "b20cdd00230f65218618a98df1d51211a4d36177bdf73b880cb6929fade59dd9",
     "packages/sdk/package.json": "9c02992e811e40f8cd6077f2fa0482967afc7e43ed2928dc44f6d696f84b3119",
     "packages/sdk/verify-binding.js": "d08b12962d67b821edd9bd29902d6ad4d41863892d81ab693269c74df36d232f",
-    "packages/selective-disclosure/index.js": "71ae7c99dd67b6cbe771c70e992f63ae34d1772594ff7e34ed8c53c2eff81ecc",
+    "packages/selective-disclosure/index.js": "c2446d05d2a8a2f575f4763b2d19e34d72d03cda049726ea4a6446a6075e7b19",
     "packages/trace/index.js": "ea2a23eefc0af4fcd0248d5f115842023054a17269430ec1c5c67aff3e9b5ece",
     "packages/trace/package.json": "0069560dd49d20c5bff44aab8b25717bc273f3e3a9e3f88462e9d91e18a7f208",
     "packages/verifier-c/METADATA.json": "8254fed7c095712cb7eca21ba4938a35f7d9268cff561bbe71c73d5c69742c4c",
@@ -404,10 +404,10 @@
     "packages/verifier/run.js": "2b636e04ac70dbe6e2b326fd20a773b0a5fb83a0c1b078a8191412396dfd7601",
     "reviews/gate-4.1-broadcast-review.md": "519e2ebe776f5ac5cb63b5382faf5ce82738ea30fa90a98cf815ef87edb8f72e",
     "reviews/gate-4.1-final-hashes.txt": "e709f6125cdba8d515325c23bd6e8943aa9824c2fc0cace10abe1fcab67e8baf",
-    "reviews/gate-4.1-harness-results.txt": "57bfb765fb39c7e89e63395a1b864566f1a3221a9386f83d38491b13949ee7be",
+    "reviews/gate-4.1-harness-results.txt": "966ed3497e9bb94f0102bcee04b0b32f0a443669de63aff0fbfa679fabc80ccf",
     "reviews/gate-4.1-preflight-review.md": "fefd79fbf5f18f20d290b4223b121e50704e11d03097f97bb5c7c9559d680a0e",
     "script/Deploy.s.sol": "6411800f33824aba1e565f6a408c0ca71b2a6c56c73a3f5decc824d6ddd5df99",
-    "scripts/anchor-proof.json": "38fa2579f4074f5667cdd307d4fea06890c49163550e07549ec1f4299e2b510d",
+    "scripts/anchor-proof.json": "2890357541ae4cc242e635b1e32c9afd056f55b58a6cdcfd2008beeba92b94c4",
     "scripts/anchor-verdict.mjs": "e80ea0b204f4b5bdca62a9bbf0ad226602b5b0be4f4471c5912793194ff9261b",
     "scripts/audit-secrets.mjs": "fb3c19c600459bbe46a8d2629973c1f56715000d8bc9c390b4fd129024da9a9b",
     "scripts/benchmark-10k.mjs": "1ad5d0b280207f78da584b88b41c3a86ec4350e66a0ef482a4b7ad1f62091a54",
@@ -424,19 +424,19 @@
     "scripts/mainnet/gate-3.5-independent-verify.ps1": "4cb9e8ac965242b772020462f15a3f1e41f1974e2d2f1d9ae8bdbf2ab4b144a4",
     "scripts/mainnet/gate-3.6-freeze-evidence.ps1": "8d7210b72c2c06b2a08bb0b388fa46cddce52a8015cc82bfcec22ab7db11a5fa",
     "scripts/mainnet/gate-4.1-recovery-lib.ps1": "408c808df7ce01f3197a8974935cbfab5c00b435e0d4cb8d0d27b61ebd586bed",
-    "scripts/mainnet/gates/gate-3.1.ps1": "197611c133461b116566bbbb090052b06bd337501b8ddf635458dc0e8f216023",
-    "scripts/mainnet/gates/gate-3.2.ps1": "e283a8602973cd48e3e52bef286b2f722252b30a989d8f96acc59ad54d6c80c3",
-    "scripts/mainnet/gates/gate-3.3.ps1": "bda0c66d1ffb6c4a9a8cdbf424fabd6b5ead1027717f3564c3f5d1e9dee13788",
-    "scripts/mainnet/gates/gate-3.4.ps1": "950ff680ab0604dd6ac6e80f65045c4a710977f2c7daa4ec350ae4ed469f2313",
-    "scripts/mainnet/gates/gate-3.5.ps1": "a0361c0b2c9746fad0e3f689b9e520e19d4a980f5e4e7dd1095b506db13f1268",
-    "scripts/mainnet/gates/gate-3.6.ps1": "23cb5e5e8e3d8c04359f7bd329237e7e376df43dee3afe4571e49562415b8b77",
+    "scripts/mainnet/gates/gate-3.1.ps1": "b8b053c061efba910fe9e018a23e452f4f22f3d51189604d1eeebd74746b4583",
+    "scripts/mainnet/gates/gate-3.2.ps1": "e00b20bd3648d1017f88a838fc20a2470cd2539bde0157ad86c6daf3593be3ea",
+    "scripts/mainnet/gates/gate-3.3.ps1": "a9c0481b51580be51a2a1c050d7a27d25d546fca76961cbffb683e5c689af05e",
+    "scripts/mainnet/gates/gate-3.4.ps1": "f136fe7a96073dd5519acfe5b5159196d2a72798f98ee9547c19c8953ba0f934",
+    "scripts/mainnet/gates/gate-3.5.ps1": "e4a3c4a326314bd51796aee20f2bd2747707b4e4f6a0e44fbe25925bbffd9425",
+    "scripts/mainnet/gates/gate-3.6.ps1": "cd965687dc09ff8c986e739ab1d9b90d57ca2ff23c708eff49101558799ff5e4",
     "scripts/mutation-lab.mjs": "99ef46b01ad70f470b057354d53507a5ee69d8e6acecf7212a0e51a1fd262bc8",
     "scripts/run-tests.mjs": "8007f0ad010fd1b7d290c13a6fc1dae4a53429a76c91744d3569ef5da23f7942",
-    "scripts/testnet2/common.ps1": "2b8d1a276235a296d433f8c6d20675df3401a41f78d28ba32d6c26a478ad89bb",
-    "scripts/testnet2/phase2.ps1": "7699ba935df0f513efabd6508ef8a65a8f1dc749546bebf0cba10368923b32b0",
-    "scripts/testnet2/phase4.ps1": "73744f000f33ad27aed025a8b2abbe952506458000bcf933d3d35a81e7556cd4",
-    "scripts/testnet2/phase5.ps1": "174451c8e4b86879b99acaf5578cb0fcc60336685d95c0d0968acdbe220be0aa",
-    "scripts/verify-anchor.ps1": "2f44abfb25af324366333c6d43d28da33e5565afec5f13cbc9cdb0e1edc8f26d",
+    "scripts/testnet2/common.ps1": "5fd0edad9ed6b076b4f9a67fc64bc708f72a790c60086cf6d1e6052de39c6d55",
+    "scripts/testnet2/phase2.ps1": "890af6cebba9c05dee06dd20157b7ce6a2260344f2fc7a8db6eb970ce8a522fa",
+    "scripts/testnet2/phase4.ps1": "62d24e951a254f289c652946e3ca6809ee813929219923e7f3c826f2524dee5a",
+    "scripts/testnet2/phase5.ps1": "b97b3e137880e26db50d659f96e24ecd888ef5a3e9e64162450103480d4f5da9",
+    "scripts/verify-anchor.ps1": "acf1382a39c6f620d6f99fb3387352b86bdc92ee04becba0036800dac1dc28eb",
     "scripts/verify-anchor.sh": "07daf5f67bae3fba0638f1e584f3886438a65609060073b0d84027bd966af109",
     "scripts/verify-gate-4.1-onchain.mjs": "ef66bb2981dfacc0c0d9772b09acbc7e837d9bd27304ef64ecfb46e8df6a2a1c",
     "scripts/verify-live.json": "7424443549984ded77370d2443abd32bc410e174997c91d14d70a4dcd0f21ddc",
@@ -561,11 +561,11 @@
     "test/p1/replay-verifier.test.js": "b7d62479c2f685a3d54c01e32b41e5082721a7cc8cdcf43962f5f17d070e53cb",
     "test/p1/replay.test.js": "7464779d0f6c8ed8ac2a7ca3521f87692f5905f29ecf6e185d32f80d88e7c6be",
     "test/p1/signer-auth-verifier.test.js": "b4ea3e6059ab8dad26468f1058be94a277ad70d1e48ae2c363f47c74bcfcc91f",
-    "test/p2/consensus.test.js": "f53828240a7601a6b2d676b0cbb3bc12035fe9f20d6e676630628db899ea3f28",
+    "test/p2/consensus.test.js": "a25cb4334ecd650e1e4bb8477194487ffe64293bc9efa6081cbf5b96c05f08be",
     "test/p2/consensus/combiner.test.js": "8feae44208628fcc3fd17f58aed1aa2d6233ddf6f3cc567cef1e1881c7c7066a",
-    "test/p2/consensus/helpers.js": "66c9f516f3039b7ea09356e8387064e5a4e853c2ecbf4b443eefadf05b5a745a",
+    "test/p2/consensus/helpers.js": "40887afb02aec56398b6813ac7480b6ca0aa667e5a22a1f1379310609cee29ef",
     "test/p2/mandate.test.js": "a3f113f4a283d733389b938bb01d28a876ac07565d737a788a1894db80d1e29e",
-    "test/p2/sdc.test.js": "ab91e85426b49635c58897c19b053183311423a5acb9675265a60edfb2dab686",
+    "test/p2/sdc.test.js": "46525b51dd72abdb4cb2f42cf27b9e5af535e2dd52ee2e8604ccf8a547f293d4",
     "test/provenance/actor-card.test.js": "608af35b96470261ef66a7bba7edbd6e82f0b486786a6bef8b0f3fdca83ddc72",
     "test/provenance/attestation.test.js": "ad56e694e9fcc86f2fa6d7e8bf95dc821af5ec00d57cbe29f2bf96194423bc91",
     "test/provenance/cli-verify-provenance.test.js": "a38d6df0626e3170fefbbfb0b182ef1bfa04a023f48132f72267c49b7801f475",
@@ -647,8 +647,8 @@
     },
     {
       "file": "README.md",
-      "sha256": "09f5651bfb7ad2449692eb5c6615bb093e3009752bdde55df09ed607a7bfffe0",
-      "bytes": 14771
+      "sha256": "cb1e23969fec2ab2314a7d0c8caeb45dc9b4e14317d2395107b985fa92538fbc",
+      "bytes": 14505
     },
     {
       "file": "SECURITY.md",
@@ -1637,8 +1637,8 @@
     },
     {
       "file": "docs/rc-manifest-2026-09-19.json",
-      "sha256": "a747e48890f79072e39d306498ba132c98137d239723fbf7bf5af6115a48f540",
-      "bytes": 170564
+      "sha256": "9df07242e885a494b1f7081a57d1f8bca714b3f33df36e4ec18b7ad917c0088c",
+      "bytes": 171155
     },
     {
       "file": "docs/value-hypothesis.md",
@@ -1682,13 +1682,13 @@
     },
     {
       "file": "evidence/gate-4.0-identity-preflight.json",
-      "sha256": "675dc752322e28013d3d944ac75acc4cfb468f7638cb7c5e2c9391149049e3cf",
-      "bytes": 11992
+      "sha256": "171fcf7e01e500f80e1e9df823a8c38343f1f256871d221db808319193028d05",
+      "bytes": 11871
     },
     {
       "file": "evidence/gate-4.1-broadcast-recovery.json",
-      "sha256": "f463af8b71ec4e60f6e5a5b0c54588cd84985b05ba69c1dd72728f6e77f9954f",
-      "bytes": 1409
+      "sha256": "02aea66fc3b9071eb08858edc6da8faffeb04489e368fd9b32cbb05bc0b46fb7",
+      "bytes": 1382
     },
     {
       "file": "evidence/gate-4.1-broadcast.json",
@@ -1697,8 +1697,8 @@
     },
     {
       "file": "evidence/gate-4.1-identity-preflight.json",
-      "sha256": "61d127f258a781561ffd9c9431efc667c5df111029fc23d03e4fed48304dbccf",
-      "bytes": 1238
+      "sha256": "49f6d83596b0df295e862e004f29111a947e70185a0a417f6ca91ed12aa26972",
+      "bytes": 1211
     },
     {
       "file": "evidence/gate-4.1-independent-verify.json",
@@ -2117,8 +2117,8 @@
     },
     {
       "file": "packages/consensus/index.js",
-      "sha256": "d6bbe12a1b3113e146e703b3eb6b5c11e6aee21a346c8921a43f5027b35e486b",
-      "bytes": 6052
+      "sha256": "fcd10dc722787165c4848056c96b7a34378bd4c94d8da11f3c2817c1301c2778",
+      "bytes": 6051
     },
     {
       "file": "packages/consensus/package.json",
@@ -2347,8 +2347,8 @@
     },
     {
       "file": "packages/mandate/index.js",
-      "sha256": "53db7f771eabb32db32a676e774404cf6350ff0abec55fdc1d250b356596d60d",
-      "bytes": 7073
+      "sha256": "fc74327b573bcca94b515f534a01af02ca4bc1e02f2dea44c75f10979a71e9e5",
+      "bytes": 7072
     },
     {
       "file": "packages/policy/index.js",
@@ -2472,8 +2472,8 @@
     },
     {
       "file": "packages/selective-disclosure/index.js",
-      "sha256": "71ae7c99dd67b6cbe771c70e992f63ae34d1772594ff7e34ed8c53c2eff81ecc",
-      "bytes": 4658
+      "sha256": "c2446d05d2a8a2f575f4763b2d19e34d72d03cda049726ea4a6446a6075e7b19",
+      "bytes": 4657
     },
     {
       "file": "packages/trace/index.js",
@@ -2567,8 +2567,8 @@
     },
     {
       "file": "reviews/gate-4.1-harness-results.txt",
-      "sha256": "57bfb765fb39c7e89e63395a1b864566f1a3221a9386f83d38491b13949ee7be",
-      "bytes": 2260
+      "sha256": "966ed3497e9bb94f0102bcee04b0b32f0a443669de63aff0fbfa679fabc80ccf",
+      "bytes": 2212
     },
     {
       "file": "reviews/gate-4.1-preflight-review.md",
@@ -2582,8 +2582,8 @@
     },
     {
       "file": "scripts/anchor-proof.json",
-      "sha256": "38fa2579f4074f5667cdd307d4fea06890c49163550e07549ec1f4299e2b510d",
-      "bytes": 646
+      "sha256": "2890357541ae4cc242e635b1e32c9afd056f55b58a6cdcfd2008beeba92b94c4",
+      "bytes": 634
     },
     {
       "file": "scripts/anchor-verdict.mjs",
@@ -2667,33 +2667,33 @@
     },
     {
       "file": "scripts/mainnet/gates/gate-3.1.ps1",
-      "sha256": "197611c133461b116566bbbb090052b06bd337501b8ddf635458dc0e8f216023",
-      "bytes": 176
+      "sha256": "b8b053c061efba910fe9e018a23e452f4f22f3d51189604d1eeebd74746b4583",
+      "bytes": 175
     },
     {
       "file": "scripts/mainnet/gates/gate-3.2.ps1",
-      "sha256": "e283a8602973cd48e3e52bef286b2f722252b30a989d8f96acc59ad54d6c80c3",
-      "bytes": 176
+      "sha256": "e00b20bd3648d1017f88a838fc20a2470cd2539bde0157ad86c6daf3593be3ea",
+      "bytes": 175
     },
     {
       "file": "scripts/mainnet/gates/gate-3.3.ps1",
-      "sha256": "bda0c66d1ffb6c4a9a8cdbf424fabd6b5ead1027717f3564c3f5d1e9dee13788",
-      "bytes": 176
+      "sha256": "a9c0481b51580be51a2a1c050d7a27d25d546fca76961cbffb683e5c689af05e",
+      "bytes": 175
     },
     {
       "file": "scripts/mainnet/gates/gate-3.4.ps1",
-      "sha256": "950ff680ab0604dd6ac6e80f65045c4a710977f2c7daa4ec350ae4ed469f2313",
-      "bytes": 176
+      "sha256": "f136fe7a96073dd5519acfe5b5159196d2a72798f98ee9547c19c8953ba0f934",
+      "bytes": 175
     },
     {
       "file": "scripts/mainnet/gates/gate-3.5.ps1",
-      "sha256": "a0361c0b2c9746fad0e3f689b9e520e19d4a980f5e4e7dd1095b506db13f1268",
-      "bytes": 176
+      "sha256": "e4a3c4a326314bd51796aee20f2bd2747707b4e4f6a0e44fbe25925bbffd9425",
+      "bytes": 175
     },
     {
       "file": "scripts/mainnet/gates/gate-3.6.ps1",
-      "sha256": "23cb5e5e8e3d8c04359f7bd329237e7e376df43dee3afe4571e49562415b8b77",
-      "bytes": 176
+      "sha256": "cd965687dc09ff8c986e739ab1d9b90d57ca2ff23c708eff49101558799ff5e4",
+      "bytes": 175
     },
     {
       "file": "scripts/mutation-lab.mjs",
@@ -2707,28 +2707,28 @@
     },
     {
       "file": "scripts/testnet2/common.ps1",
-      "sha256": "2b8d1a276235a296d433f8c6d20675df3401a41f78d28ba32d6c26a478ad89bb",
-      "bytes": 4645
+      "sha256": "5fd0edad9ed6b076b4f9a67fc64bc708f72a790c60086cf6d1e6052de39c6d55",
+      "bytes": 4540
     },
     {
       "file": "scripts/testnet2/phase2.ps1",
-      "sha256": "7699ba935df0f513efabd6508ef8a65a8f1dc749546bebf0cba10368923b32b0",
-      "bytes": 2279
+      "sha256": "890af6cebba9c05dee06dd20157b7ce6a2260344f2fc7a8db6eb970ce8a522fa",
+      "bytes": 2230
     },
     {
       "file": "scripts/testnet2/phase4.ps1",
-      "sha256": "73744f000f33ad27aed025a8b2abbe952506458000bcf933d3d35a81e7556cd4",
-      "bytes": 8633
+      "sha256": "62d24e951a254f289c652946e3ca6809ee813929219923e7f3c826f2524dee5a",
+      "bytes": 8476
     },
     {
       "file": "scripts/testnet2/phase5.ps1",
-      "sha256": "174451c8e4b86879b99acaf5578cb0fcc60336685d95c0d0968acdbe220be0aa",
-      "bytes": 4040
+      "sha256": "b97b3e137880e26db50d659f96e24ecd888ef5a3e9e64162450103480d4f5da9",
+      "bytes": 3942
     },
     {
       "file": "scripts/verify-anchor.ps1",
-      "sha256": "2f44abfb25af324366333c6d43d28da33e5565afec5f13cbc9cdb0e1edc8f26d",
-      "bytes": 16105
+      "sha256": "acf1382a39c6f620d6f99fb3387352b86bdc92ee04becba0036800dac1dc28eb",
+      "bytes": 15794
     },
     {
       "file": "scripts/verify-anchor.sh",
@@ -3352,8 +3352,8 @@
     },
     {
       "file": "test/p2/consensus.test.js",
-      "sha256": "f53828240a7601a6b2d676b0cbb3bc12035fe9f20d6e676630628db899ea3f28",
-      "bytes": 5137
+      "sha256": "a25cb4334ecd650e1e4bb8477194487ffe64293bc9efa6081cbf5b96c05f08be",
+      "bytes": 5136
     },
     {
       "file": "test/p2/consensus/combiner.test.js",
@@ -3362,8 +3362,8 @@
     },
     {
       "file": "test/p2/consensus/helpers.js",
-      "sha256": "66c9f516f3039b7ea09356e8387064e5a4e853c2ecbf4b443eefadf05b5a745a",
-      "bytes": 2615
+      "sha256": "40887afb02aec56398b6813ac7480b6ca0aa667e5a22a1f1379310609cee29ef",
+      "bytes": 2614
     },
     {
       "file": "test/p2/mandate.test.js",
@@ -3372,8 +3372,8 @@
     },
     {
       "file": "test/p2/sdc.test.js",
-      "sha256": "ab91e85426b49635c58897c19b053183311423a5acb9675265a60edfb2dab686",
-      "bytes": 5513
+      "sha256": "46525b51dd72abdb4cb2f42cf27b9e5af535e2dd52ee2e8604ccf8a547f293d4",
+      "bytes": 5510
     },
     {
       "file": "test/provenance/actor-card.test.js",
