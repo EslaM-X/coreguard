@@ -47,9 +47,18 @@ function anchorCommit() {
   return rec.gitCommit;
 }
 
+// pinned-entry count is read from the record itself so the contract tracks
+// the freeze as it grows (27+19=46 at the 4.2.6 baseline, 28+19=47 once the
+// dashboard joined) — a hardcoded literal here would break on every honest
+// re-pin that adds coverage.
+function pinnedCount() {
+  const rec = JSON.parse(readFileSync(join(repoRoot, CURRENT), "utf8"));
+  return rec.sha256.releaseFiles.length + rec.sha256.quarantineFiles.length;
+}
+
 const cases = [
-  ["current anchored record", [CURRENT], 0, "PASS (46/46 MATCH, anchored @"],
-  ["--commit prefix equal to anchor", [CURRENT, "--commit", anchorCommit().slice(0, 7)], 0, "PASS (46/46 MATCH"],
+  ["current anchored record", [CURRENT], 0, `PASS (${pinnedCount()}/${pinnedCount()} MATCH, anchored @`],
+  ["--commit prefix equal to anchor", [CURRENT, "--commit", anchorCommit().slice(0, 7)], 0, `PASS (${pinnedCount()}/${pinnedCount()} MATCH`],
   ["--commit different tree", [CURRENT, "--commit", "a499cf4"], 1, "refusing to verify a different tree"],
   ["historical record, no anchor", [HISTORICAL], 1, "COMMIT-UNANCHORED"],
   ["no arguments", [], 2, "usage:"],
@@ -101,9 +110,11 @@ test("boundary: every postCommitRePins entry is honest vs its declared commit", 
   const rec = JSON.parse(readFileSync(join(repoRoot, CURRENT), "utf8"));
   assert.ok(rec.postCommitRePins.length > 0, "contract requires the whitelist mechanism to be exercised");
   for (const rp of rec.postCommitRePins) {
-    const rel = rp.file.startsWith("release/") || !rp.file.includes("/")
-      ? `coreguard-assurance-v4.2.2-remediation/${rp.file}`
-      : rp.file;
+    // mirror the verifier's treePath(): platform-relative for bare/release paths,
+    // repo-root relative for ../-prefixed entries (stripped, like repoRelPath)
+    const rel = rp.file.startsWith("../")
+      ? rp.file.replace(/^(\.\.\/)+/, "")
+      : `coreguard-assurance-v4.2.2-remediation/${rp.file}`;
     const blob = execFileSync("git", ["-C", repoRoot, "show", `${rp.commit}:${rel}`]);
     const pin = rec.sha256.releaseFiles.find((e) => e.file === rp.file).sha256;
     assert.equal("0x" + crypto.createHash("sha256").update(blob).digest("hex"), pin,
