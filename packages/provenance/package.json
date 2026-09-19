@@ -7,10 +7,12 @@
   "exports": {
     ".": "./index.js",
     "./authorization-probe.js": "./authorization-probe.js",
-    "./identity.js": "./identity.js"
+    "./identity.js": "./identity.js",
+    "./actor-card.js": "./actor-card.js"
   },
   "files": [
     "index.js",
+    "actor-card.js",
     "attestation.js",
     "authorization-probe.js",
     "canonical.js",

@@ -544,3 +544,10 @@ export async function verifyProvenance(manifest, evidence = {}, options = {}) {
 }
 
 export { verifyDelegationChain, revocationStatus, normalizeExecutorType };
+export {
+  classifyActor,
+  bucketForExecutorType,
+  actorCardLine,
+  ACTOR_BUCKETS,
+  BUCKET_LABELS,
+} from "./actor-card.js";
