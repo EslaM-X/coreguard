@@ -1,6 +1,23 @@
 {
   "tool": "coreguard-verify-gate-4.1-onchain",
-  "version": "2.0.0",
+  "version": "2.1.0",
+  "schema": {
+    "id": "cg41-assertion-inventory",
+    "version": "2.1.0",
+    "endpoints": [
+      "ankr",
+      "coredao"
+    ],
+    "checkCount": 66,
+    "uniqueCount": 37,
+    "byCategory": {
+      "spec": 4,
+      "tx": 26,
+      "receipt": 26,
+      "readback": 6,
+      "cross": 4
+    }
+  },
   "design": "ground-truth=evidence/raw/ dumps only; expectations derived from committed pre-broadcast evidence + Solidity spec text; no hex literals embedded; result file never read",
   "sources": {
     "tx": [
@@ -18,332 +35,530 @@
   },
   "checks": [
     {
-      "name": "[spec] recomputed commitIntent selector == documented",
+      "id": "SPEC-01",
+      "category": "spec",
+      "name": "recomputed commitIntent selector == documented",
+      "source": "keccak256(commitIntent(bytes32,bytes32,address,uint256,bytes))[0:4] — recomputed inline, not read from data",
       "ok": true,
       "detail": "recomputed 0x4fd0505d vs doc 0x4fd0505d"
     },
     {
-      "name": "[spec] recomputed IntentCommitted topic0 == documented",
+      "id": "SPEC-02",
+      "category": "spec",
+      "name": "recomputed IntentCommitted topic0 == documented",
+      "source": "keccak256(IntentCommitted(bytes32,bytes32,address,uint256,uint256,uint256)) — recomputed inline, not read from data",
       "ok": true,
       "detail": "recomputed 0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127 vs doc 0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127"
     },
     {
-      "name": "[spec] keccak('') sanity vector",
+      "id": "SPEC-03",
+      "category": "spec",
+      "name": "keccak('') sanity vector",
+      "source": "Keccak-256 reference vector c5d24601... validating the inline f1600",
       "ok": true,
       "detail": "got c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
     },
     {
-      "name": "[spec] keccak('hello') sanity vector (0x68656c6c6f hex)",
+      "id": "SPEC-04",
+      "category": "spec",
+      "name": "keccak('hello') sanity vector (0x68656c6c6f hex)",
+      "source": "Keccak-256 reference vector 1c8aff95... validating the inline f1600",
       "ok": true,
       "detail": "got 1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8"
     },
     {
-      "name": "[ankr] tx.from == pre-broadcast signer",
+      "id": "TX-01",
+      "category": "tx",
+      "name": "tx.from == pre-broadcast signer",
+      "source": "expected from evidence/gate-4.1-identity-preflight.json (pre-broadcast)",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[ankr] tx.to == registry",
+      "id": "TX-02",
+      "category": "tx",
+      "name": "tx.to == registry",
+      "source": "expected from evidence/gate-4.1-identity-preflight.json (pre-broadcast)",
       "ok": true,
       "detail": "got 0x66268a47e81b8f657798d7b5bbedc956df7b13fd"
     },
     {
-      "name": "[ankr] tx.nonce == 8",
+      "id": "TX-03",
+      "category": "tx",
+      "name": "tx.nonce == 8",
+      "source": "protocol property of the signer account at broadcast time",
       "ok": true,
       "detail": "got 8"
     },
     {
-      "name": "[ankr] tx.chainId == 1116",
+      "id": "TX-04",
+      "category": "tx",
+      "name": "tx.chainId == 1116",
+      "source": "Core Mainnet chain id (protocol constant)",
       "ok": true,
       "detail": "got 1116"
     },
     {
-      "name": "[ankr] tx.hash == gate recovery txHash",
+      "id": "TX-05",
+      "category": "tx",
+      "name": "tx.hash == gate recovery txHash",
+      "source": "expected from evidence/gate-4.1-broadcast-recovery.json (original gate output)",
       "ok": true,
       "detail": "got 0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567"
     },
     {
-      "name": "[ankr] sha256(calldata) reproducible (self-consistency)",
+      "id": "TX-06",
+      "category": "tx",
+      "name": "sha256(calldata) reproducible (self-consistency)",
+      "source": "computed from the raw dump itself; F-4: recovery-file calldataSha256 was stale, recomputation is authoritative",
       "ok": true,
       "detail": "got 0xc10474ed9d0d2161d6de4eeb41e5ada0bd9ffcb4947d84e8d996b5781cda641b"
     },
     {
-      "name": "[ankr] calldata selector == recomputed selector",
+      "id": "TX-07",
+      "category": "tx",
+      "name": "calldata selector == recomputed selector",
+      "source": "selector computed by SPEC-01 vs calldata head (4 bytes)",
       "ok": true,
       "detail": "got 0x4fd0505d"
     },
     {
-      "name": "[ankr] calldata intentId == preflight",
+      "id": "TX-08",
+      "category": "tx",
+      "name": "calldata intentId == preflight",
+      "source": "ABI words[0] vs preflight.intentId",
       "ok": true,
       "detail": "got 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d"
     },
     {
-      "name": "[ankr] calldata commitment == preflight",
+      "id": "TX-09",
+      "category": "tx",
+      "name": "calldata commitment == preflight",
+      "source": "ABI words[1] vs preflight.intentCommitment",
       "ok": true,
       "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
     },
     {
-      "name": "[ankr] calldata signer == preflight",
+      "id": "TX-10",
+      "category": "tx",
+      "name": "calldata signer == preflight",
+      "source": "ABI words[2] (last 20 bytes) vs preflight.signer",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[ankr] calldata validUntil == recovery.validUntil",
+      "id": "TX-11",
+      "category": "tx",
+      "name": "calldata validUntil == recovery.validUntil",
+      "source": "ABI words[3] vs recovery.validUntil (fresh-run value)",
       "ok": true,
       "detail": "got 1789797609 vs expected 1789797609"
     },
     {
-      "name": "[ankr] calldata last word == data length then ECDSA sig present",
+      "id": "TX-12",
+      "category": "tx",
+      "name": "calldata last word == data length then ECDSA sig present",
+      "source": "ABI tail structure: words[4]=offset, words[5]=len, then r/s/v",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "[ankr] tx has ECDSA signature (r,s,v)",
+      "id": "TX-13",
+      "category": "tx",
+      "name": "tx has ECDSA signature (r,s,v)",
+      "source": "signed tx r/s/v fields from eth_getTransactionByHash",
       "ok": true,
       "detail": "r.len=66 s.len=66 v=0x8dc"
     },
     {
-      "name": "[coredao] tx.from == pre-broadcast signer",
+      "id": "TX-01",
+      "category": "tx",
+      "name": "tx.from == pre-broadcast signer",
+      "source": "expected from evidence/gate-4.1-identity-preflight.json (pre-broadcast)",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[coredao] tx.to == registry",
+      "id": "TX-02",
+      "category": "tx",
+      "name": "tx.to == registry",
+      "source": "expected from evidence/gate-4.1-identity-preflight.json (pre-broadcast)",
       "ok": true,
       "detail": "got 0x66268a47e81b8f657798d7b5bbedc956df7b13fd"
     },
     {
-      "name": "[coredao] tx.nonce == 8",
+      "id": "TX-03",
+      "category": "tx",
+      "name": "tx.nonce == 8",
+      "source": "protocol property of the signer account at broadcast time",
       "ok": true,
       "detail": "got 8"
     },
     {
-      "name": "[coredao] tx.chainId == 1116",
+      "id": "TX-04",
+      "category": "tx",
+      "name": "tx.chainId == 1116",
+      "source": "Core Mainnet chain id (protocol constant)",
       "ok": true,
       "detail": "got 1116"
     },
     {
-      "name": "[coredao] tx.hash == gate recovery txHash",
+      "id": "TX-05",
+      "category": "tx",
+      "name": "tx.hash == gate recovery txHash",
+      "source": "expected from evidence/gate-4.1-broadcast-recovery.json (original gate output)",
       "ok": true,
       "detail": "got 0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567"
     },
     {
-      "name": "[coredao] sha256(calldata) reproducible (self-consistency)",
+      "id": "TX-06",
+      "category": "tx",
+      "name": "sha256(calldata) reproducible (self-consistency)",
+      "source": "computed from the raw dump itself; F-4: recovery-file calldataSha256 was stale, recomputation is authoritative",
       "ok": true,
       "detail": "got 0xc10474ed9d0d2161d6de4eeb41e5ada0bd9ffcb4947d84e8d996b5781cda641b"
     },
     {
-      "name": "[coredao] calldata selector == recomputed selector",
+      "id": "TX-07",
+      "category": "tx",
+      "name": "calldata selector == recomputed selector",
+      "source": "selector computed by SPEC-01 vs calldata head (4 bytes)",
       "ok": true,
       "detail": "got 0x4fd0505d"
     },
     {
-      "name": "[coredao] calldata intentId == preflight",
+      "id": "TX-08",
+      "category": "tx",
+      "name": "calldata intentId == preflight",
+      "source": "ABI words[0] vs preflight.intentId",
       "ok": true,
       "detail": "got 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d"
     },
     {
-      "name": "[coredao] calldata commitment == preflight",
+      "id": "TX-09",
+      "category": "tx",
+      "name": "calldata commitment == preflight",
+      "source": "ABI words[1] vs preflight.intentCommitment",
       "ok": true,
       "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
     },
     {
-      "name": "[coredao] calldata signer == preflight",
+      "id": "TX-10",
+      "category": "tx",
+      "name": "calldata signer == preflight",
+      "source": "ABI words[2] (last 20 bytes) vs preflight.signer",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[coredao] calldata validUntil == recovery.validUntil",
+      "id": "TX-11",
+      "category": "tx",
+      "name": "calldata validUntil == recovery.validUntil",
+      "source": "ABI words[3] vs recovery.validUntil (fresh-run value)",
       "ok": true,
       "detail": "got 1789797609 vs expected 1789797609"
     },
     {
-      "name": "[coredao] calldata last word == data length then ECDSA sig present",
+      "id": "TX-12",
+      "category": "tx",
+      "name": "calldata last word == data length then ECDSA sig present",
+      "source": "ABI tail structure: words[4]=offset, words[5]=len, then r/s/v",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "[coredao] tx has ECDSA signature (r,s,v)",
+      "id": "TX-13",
+      "category": "tx",
+      "name": "tx has ECDSA signature (r,s,v)",
+      "source": "signed tx r/s/v fields from eth_getTransactionByHash",
       "ok": true,
       "detail": "r.len=66 s.len=66 v=0x8dc"
     },
     {
-      "name": "[ankr] receipt.txHash == tx hash",
+      "id": "RC-01",
+      "category": "receipt",
+      "name": "receipt.txHash == tx hash",
+      "source": "matches tx.hash (TX-05)",
       "ok": true,
       "detail": "got 0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567"
     },
     {
-      "name": "[ankr] receipt.status == 0x1 (success)",
+      "id": "RC-02",
+      "category": "receipt",
+      "name": "receipt.status == 0x1 (success)",
+      "source": "execution success per eth_getTransactionReceipt",
       "ok": true,
       "detail": "got 0x1"
     },
     {
-      "name": "[ankr] receipt.blockNumber == 38827925",
+      "id": "RC-03",
+      "category": "receipt",
+      "name": "receipt.blockNumber == 38827925",
+      "source": "block where tx was finalized",
       "ok": true,
       "detail": "got 38827925"
     },
     {
-      "name": "[ankr] receipt.gasUsed == 105339",
+      "id": "RC-04",
+      "category": "receipt",
+      "name": "receipt.gasUsed == 105339",
+      "source": "gas actually consumed",
       "ok": true,
       "detail": "got 105339"
     },
     {
-      "name": "[ankr] receipt.to == registry",
+      "id": "RC-05",
+      "category": "receipt",
+      "name": "receipt.to == registry",
+      "source": "expected from preflight.registry",
       "ok": true,
       "detail": "got 0x66268a47e81b8f657798d7b5bbedc956df7b13fd"
     },
     {
-      "name": "[ankr] receipt.from == signer",
+      "id": "RC-06",
+      "category": "receipt",
+      "name": "receipt.from == signer",
+      "source": "expected from preflight.signer",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[ankr] receipt has >=1 log",
+      "id": "RC-07",
+      "category": "receipt",
+      "name": "receipt has >=1 log",
+      "source": "IntentCommitted event must be emitted",
       "ok": true,
       "detail": "logs=1"
     },
     {
-      "name": "[ankr] log.address == registry",
+      "id": "RC-08",
+      "category": "receipt",
+      "name": "log.address == registry",
+      "source": "emitter must be the registry contract",
       "ok": true,
       "detail": "got 0x66268a47e81b8f657798d7b5bbedc956df7b13fd"
     },
     {
-      "name": "[ankr] log.topics[0] == recomputed event topic0",
+      "id": "RC-09",
+      "category": "receipt",
+      "name": "log.topics[0] == recomputed event topic0",
+      "source": "topic0 computed by SPEC-02",
       "ok": true,
       "detail": "got 0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127"
     },
     {
-      "name": "[ankr] log.topics[1] == intentId",
+      "id": "RC-10",
+      "category": "receipt",
+      "name": "log.topics[1] == intentId",
+      "source": "indexed arg 1 vs preflight.intentId",
       "ok": true,
       "detail": "got 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d"
     },
     {
-      "name": "[ankr] log.topics[2] == commitment",
+      "id": "RC-11",
+      "category": "receipt",
+      "name": "log.topics[2] == commitment",
+      "source": "indexed arg 2 vs preflight.intentCommitment",
       "ok": true,
       "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
     },
     {
-      "name": "[ankr] log.topics[3] == signer (padded)",
+      "id": "RC-12",
+      "category": "receipt",
+      "name": "log.topics[3] == signer (padded)",
+      "source": "indexed arg 3 = address left-padded to 32 bytes",
       "ok": true,
       "detail": "got 0x000000000000000000000000ea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[ankr] log.data validUntil == 1789797609",
+      "id": "RC-13",
+      "category": "receipt",
+      "name": "log.data validUntil == 1789797609",
+      "source": "log.data words[0] (uint256) vs fresh-run validUntil",
       "ok": true,
       "detail": "got 1789797609"
     },
     {
-      "name": "[coredao] receipt.txHash == tx hash",
+      "id": "RC-01",
+      "category": "receipt",
+      "name": "receipt.txHash == tx hash",
+      "source": "matches tx.hash (TX-05)",
       "ok": true,
       "detail": "got 0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567"
     },
     {
-      "name": "[coredao] receipt.status == 0x1 (success)",
+      "id": "RC-02",
+      "category": "receipt",
+      "name": "receipt.status == 0x1 (success)",
+      "source": "execution success per eth_getTransactionReceipt",
       "ok": true,
       "detail": "got 0x1"
     },
     {
-      "name": "[coredao] receipt.blockNumber == 38827925",
+      "id": "RC-03",
+      "category": "receipt",
+      "name": "receipt.blockNumber == 38827925",
+      "source": "block where tx was finalized",
       "ok": true,
       "detail": "got 38827925"
     },
     {
-      "name": "[coredao] receipt.gasUsed == 105339",
+      "id": "RC-04",
+      "category": "receipt",
+      "name": "receipt.gasUsed == 105339",
+      "source": "gas actually consumed",
       "ok": true,
       "detail": "got 105339"
     },
     {
-      "name": "[coredao] receipt.to == registry",
+      "id": "RC-05",
+      "category": "receipt",
+      "name": "receipt.to == registry",
+      "source": "expected from preflight.registry",
       "ok": true,
       "detail": "got 0x66268a47e81b8f657798d7b5bbedc956df7b13fd"
     },
     {
-      "name": "[coredao] receipt.from == signer",
+      "id": "RC-06",
+      "category": "receipt",
+      "name": "receipt.from == signer",
+      "source": "expected from preflight.signer",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[coredao] receipt has >=1 log",
+      "id": "RC-07",
+      "category": "receipt",
+      "name": "receipt has >=1 log",
+      "source": "IntentCommitted event must be emitted",
       "ok": true,
       "detail": "logs=1"
     },
     {
-      "name": "[coredao] log.address == registry",
+      "id": "RC-08",
+      "category": "receipt",
+      "name": "log.address == registry",
+      "source": "emitter must be the registry contract",
       "ok": true,
       "detail": "got 0x66268a47e81b8f657798d7b5bbedc956df7b13fd"
     },
     {
-      "name": "[coredao] log.topics[0] == recomputed event topic0",
+      "id": "RC-09",
+      "category": "receipt",
+      "name": "log.topics[0] == recomputed event topic0",
+      "source": "topic0 computed by SPEC-02",
       "ok": true,
       "detail": "got 0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127"
     },
     {
-      "name": "[coredao] log.topics[1] == intentId",
+      "id": "RC-10",
+      "category": "receipt",
+      "name": "log.topics[1] == intentId",
+      "source": "indexed arg 1 vs preflight.intentId",
       "ok": true,
       "detail": "got 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d"
     },
     {
-      "name": "[coredao] log.topics[2] == commitment",
+      "id": "RC-11",
+      "category": "receipt",
+      "name": "log.topics[2] == commitment",
+      "source": "indexed arg 2 vs preflight.intentCommitment",
       "ok": true,
       "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
     },
     {
-      "name": "[coredao] log.topics[3] == signer (padded)",
+      "id": "RC-12",
+      "category": "receipt",
+      "name": "log.topics[3] == signer (padded)",
+      "source": "indexed arg 3 = address left-padded to 32 bytes",
       "ok": true,
       "detail": "got 0x000000000000000000000000ea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[coredao] log.data validUntil == 1789797609",
+      "id": "RC-13",
+      "category": "receipt",
+      "name": "log.data validUntil == 1789797609",
+      "source": "log.data words[0] (uint256) vs fresh-run validUntil",
       "ok": true,
       "detail": "got 1789797609"
     },
     {
-      "name": "[ankr] readback.commitment == commitment on-chain",
+      "id": "RB-01",
+      "category": "readback",
+      "name": "readback.commitment == commitment on-chain",
+      "source": "eth_call intentCommits -> commitment",
       "ok": true,
       "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
     },
     {
-      "name": "[ankr] readback.validUntil == 1789797609",
+      "id": "RB-02",
+      "category": "readback",
+      "name": "readback.validUntil == 1789797609",
+      "source": "eth_call intentCommits -> validUntil",
       "ok": true,
       "detail": "got 1789797609"
     },
     {
-      "name": "[ankr] readback.signer == signer on-chain",
+      "id": "RB-03",
+      "category": "readback",
+      "name": "readback.signer == signer on-chain",
+      "source": "eth_call intentCommits -> signer",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[coredao] readback.commitment == commitment on-chain",
+      "id": "RB-01",
+      "category": "readback",
+      "name": "readback.commitment == commitment on-chain",
+      "source": "eth_call intentCommits -> commitment",
       "ok": true,
       "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
     },
     {
-      "name": "[coredao] readback.validUntil == 1789797609",
+      "id": "RB-02",
+      "category": "readback",
+      "name": "readback.validUntil == 1789797609",
+      "source": "eth_call intentCommits -> validUntil",
       "ok": true,
       "detail": "got 1789797609"
     },
     {
-      "name": "[coredao] readback.signer == signer on-chain",
+      "id": "RB-03",
+      "category": "readback",
+      "name": "readback.signer == signer on-chain",
+      "source": "eth_call intentCommits -> signer",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[cross] tx from/to/chainId agree across endpoints",
+      "id": "CR-01",
+      "category": "cross",
+      "name": "tx from/to/chainId agree across endpoints",
+      "source": "ankr vs coredao must agree",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "[cross] tx nonce agree across endpoints",
+      "id": "CR-02",
+      "category": "cross",
+      "name": "tx nonce agree across endpoints",
+      "source": "ankr vs coredao must agree",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "[cross] sha256(calldata) identical across endpoints",
+      "id": "CR-03",
+      "category": "cross",
+      "name": "sha256(calldata) identical across endpoints",
+      "source": "ankr vs coredao raw calldata must hash equal",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "[cross] receipt status/block/gas agree across endpoints",
+      "id": "CR-04",
+      "category": "cross",
+      "name": "receipt status/block/gas agree across endpoints",
+      "source": "ankr vs coredao must agree",
       "ok": true,
       "detail": ""
     }

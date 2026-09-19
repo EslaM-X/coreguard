@@ -276,3 +276,42 @@ Governance state  = PENDING — P7 §5/§6 human signature required; NOT CLOSED
 Findings: F-4 filed (recovery-file calldataSha256 stale) · no retransmission ever
 Acting Owner: Codebuff session · Date (UTC): 2026-09-19 · Independent countersignature: ______________
 ```
+
+---
+
+### Record 5 — Addendum A: verification reconciliation (54/54 -> 66/66)
+
+**Context.** Independent review requested an auditable reconciliation of the PASS count and
+the verifier change between `2dd2705` and `d543fff` (`@noble/hashes` removal + Keccak port).
+This addendum answers it; machine-readable schema lives in the verifier (`SCHEMA`,
+`--inventory`) and `evidence/gate-4.1-verification-reconciliation.md`.
+
+**Facts (verified, not asserted):**
+1. **Evidence inputs never changed.** `evidence/raw/*.json` + `manifest.json` are
+   byte-identical across `2dd2705`..`d543fff`..HEAD (regression test re-hashes all 6 dumps
+   against the manifest pins). `gate-4.1-identity-preflight.json` and
+   `gate-4.1-broadcast-recovery.json` untouched. So 54 and 66 report the same evidence.
+2. **The count grew by exactly +12 = +6 unique assertions**, and the old 54 are a strict
+   subset (re-named with IDs), split as: +2 `[spec]` keccak sanity vectors, +2 `[spec]`
+   selector/topic0 recomputation, +2 `[tx]` calldata-tail+ECDSA (2 RPCs), +2 `[receipt]`
+   log.address (2 RPCs), +4 `[cross]` agreement checks.
+3. **v1 was executed with `@noble/hashes`** (external dep); the 54/54 at `2dd2705` is
+   therefore **not** reproducible from a bare clone. v2 (inline Keccak, `RHO` table
+   corrected, locked by `SPEC-03/SPEC-04` vectors) is reproducible: PASS 66/66 from a bare
+   clone with `node` only, output byte-identical to the committed result, `--json`
+   byte-deterministic. The honest claim is: *the OLD verifier was not standalone; the NEW
+   one is, and it re-derives the same facts plus 12 more assertions*.
+4. **Regression guard added:** `test/independent-verifier/gate41-verifier.test.js` (6 tests)
+   locks self-containment, crypto vectors, count/schema totals, determinism, committed-result
+   reproducibility, and manifest pins. `npm test` is now **727/727** (was 721).
+5. **Governance unchanged:** P7 §5/§6 remain EMPTY (human-only); the token is not a
+   signature; NO retransmission; **NOT CLOSED**. The reviewer still must independently open
+   the RPC dumps, the commit diffs, and the CI logs.
+
+**Status (unchanged):**
+```
+BLOCKCHAIN:       ON-CHAIN SUCCESS — per announced evidence (independent RPC proofs on file)
+VERIFICATION:     STRONGER + schema/version + regression tests, REMAINS SUBJECT TO INDEPENDENT REVIEW
+EVIDENCE:         VERIFIABLE, F-4 DISCLOSED
+GOVERNANCE:       PENDING — NOT CLOSED (P7 §5/§6 human signature required)
+```

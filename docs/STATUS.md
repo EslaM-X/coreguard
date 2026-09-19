@@ -8,11 +8,11 @@ machine-measured, not estimated. Last verified: **2026-09-19**.
 
 | Item | Value | How verified |
 |---|---|---|
-| Test suite | **721 / 721 pass** | `npm test` (node `--test`) |
+| Test suite | **727 / 727 pass** | `npm test` (node `--test`) — 721 + 6 Gate 4.1 verifier regression tests |
 | Adversarial corpus | **73 / 73 pass** | `npm run corpus && npm run benchmark` |
 | Execution Integrity Benchmark | **10,000 runs · False Accept 0 · False Reject 0** | `npm run benchmark:10k` |
 | Mutation Laboratory | **1,000/1,000 mutants refused · 0 escaped** | `npm run mutation` |
-| AgentProof `verify-provenance` surface | **exit-code discipline 0/1/2/3/4** · badge honesty tests | `test/provenance/cli-verify-provenance.test.js` (part of the 721) |
+| AgentProof `verify-provenance` surface | **exit-code discipline 0/1/2/3/4** · badge honesty tests | `test/provenance/cli-verify-provenance.test.js` (part of the 727) |
 | `git diff --check` | clean | gate check |
 | Rust/WASM/independent parity | PASS | `test/independent-verifier/` |
 | C verifier | PASS | `test/verifier-c/` (frozen reference, untouched) |
