@@ -1,0 +1,25 @@
+{
+  "gate": "4.1-live-reconfirmation",
+  "purpose": "Re-confirm Gate 4.1 broadcast on Core Mainnet via two independent RPC providers at release-activation time (2026-09-19). No new broadcast issued: the original transaction was rebuilt-on-evidence, is on-chain, and is now re-verified LIVE without re-broadcast.",
+  "createdAtUtc": "2026-09-19",
+  "chainId": 1116,
+  "transaction": {
+    "hash": "0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567",
+    "from": "0xea41becdeb612d8625bf3060809964f1dab43244",
+    "to": "0x66268a47e81b8f657798d7b5bbedc956df7b13fd",
+    "nonce": 8,
+    "blockNumber": "0x2507795",
+    "receiptStatus": "0x1",
+    "gasUsed": "0x19b7b"
+  },
+  "crossRpc": {
+    "note": "rpc.coredao.org and rpc.ankr.com return identical tx+receipt for the hash; both status 0x1",
+    "providers": ["rpc.coredao.org", "rpc.ankr.com"]
+  },
+  "independentVerifier": {
+    "tool": "scripts/verify-gate-4.1-onchain.mjs",
+    "result": "PASS 66/66"
+  },
+  "status": "LIVE-CONFIRMED",
+  "reBroadcast": "NOT PERFORMED — the transaction already exists on-chain; issuing a duplicate would violate evidence discipline and the never-auto-resend contract."
+}
