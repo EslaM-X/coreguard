@@ -8,7 +8,7 @@
         "createdAtUtc": "2026-09-19T05:01:45Z",
         "reconstructionReason": "gate-4.1-broadcast.ps1 wrote gate-4.1-broadcast-recovery.json then crashed with WildcardPatternException ([CLEAN-ABORT]* invalid wildcard) before persisting its own success file; transaction had nevertheless reached the chain",
         "basedOn": "live eth_getTransactionByHash + eth_getTransactionReceipt + eth_call intentCommits readback (rpc.coredao.org + rpc.ankr.com)",
-        "supersededBy": "evidence/gate-4.1-independent-verify.json (54/54 PASS, reproducible from evidence/raw/ via scripts/verify-gate-4.1-onchain.mjs)"
+        "supersededBy": "evidence/gate-4.1-independent-verify.json (66/66 PASS, reproducible from evidence/raw/ via scripts/verify-gate-4.1-onchain.mjs)"
     },
     "chainId": 1116,
     "registry": "0x66268a47e81b8f657798d7b5bbedc956df7b13fd",
@@ -47,7 +47,7 @@
         "manifest": "evidence/raw/manifest.json",
         "verifier": "scripts/verify-gate-4.1-onchain.mjs",
         "result": "evidence/gate-4.1-independent-verify.json",
-        "verdict": "PASS 54/54",
+        "verdict": "PASS 66/66",
         "calldataSha256OnChain": "0xc10474ed9d0d2161d6de4eeb41e5ada0bd9ffcb4947d84e8d996b5781cda641b"
     }
 }

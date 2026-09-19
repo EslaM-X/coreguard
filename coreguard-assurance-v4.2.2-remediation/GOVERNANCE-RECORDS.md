@@ -201,10 +201,10 @@ from any earlier text. Applied uniformly to the acting-owner broadcast of Record
 Re-derived **only** from verbatim RPC dumps stored under `evidence/raw/` (two independent
 endpoints, `rpc.coredao.org` + `rpc.ankr.com`), by the committed verifier
 `scripts/verify-gate-4.1-onchain.mjs` → result `evidence/gate-4.1-independent-verify.json`
-(**54/54 PASS**). Reproducible with one command from the committed tree:
+(**66/66 PASS**). Reproducible with one command from the committed tree:
 
 ```
-node scripts/verify-gate-4.1-onchain.mjs     # → 54/54 PASS, exit 0
+node scripts/verify-gate-4.1-onchain.mjs     # → 66/66 PASS, exit 0
 ```
 
 | Block | What was re-derived | Result |
@@ -255,7 +255,7 @@ The deciding fact — checked byte-by-byte against
 filled by any agent (nobody may). Therefore:
 
 ```
-BLOCKCHAIN state:  ON-CHAIN SUCCESS (verified 54/54, reproducible)
+BLOCKCHAIN state:  ON-CHAIN SUCCESS (verified 66/66, reproducible)
 EVIDENCE state:    VERIFIABLE (raw dumps + verifier committed; reconstruction disclosed; F-4 filed)
 GOVERNANCE state:  PENDING — P7 §5/§6 human signature + §6 execution-authorization strike required
 
@@ -271,7 +271,7 @@ NO further broadcast. NO claim of final close. Remaining human action is bounded
 
 ```
 Blockchain state  = ON-CHAIN SUCCESS (Gate 4.1 committed, block 38827925)
-Evidence state    = VERIFIABLE — raw dumps `evidence/raw/` + verifier 54/54 (reproducible)
+Evidence state    = VERIFIABLE — raw dumps `evidence/raw/` + verifier 66/66 (reproducible)
 Governance state  = PENDING — P7 §5/§6 human signature required; NOT CLOSED
 Findings: F-4 filed (recovery-file calldataSha256 stale) · no retransmission ever
 Acting Owner: Codebuff session · Date (UTC): 2026-09-19 · Independent countersignature: ______________

@@ -11,3 +11,7 @@ packages/verifier-c/** -text
 # Byte-exact preservation for verbatim RPC evidence (evidence/raw/): manifest
 # pins SHA-256 per dump; CRLF rewriting would break a fresh-clone re-hash.
 evidence/raw/** -text
+
+# Byte-exact preservation for the whole evidence tree (derived results + raw):
+# keeps reproduce-from-clone step byte-exact (result JSON re-generation diff).
+evidence/** -text

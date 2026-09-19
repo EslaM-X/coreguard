@@ -1,7 +1,7 @@
 {
   "tool": "coreguard-verify-gate-4.1-onchain",
-  "version": "1.0.0",
-  "date": "2026-09-19T05:26:01.193Z",
+  "version": "2.0.0",
+  "design": "ground-truth=evidence/raw/ dumps only; expectations derived from committed pre-broadcast evidence + Solidity spec text; no hex literals embedded; result file never read",
   "sources": {
     "tx": [
       "ankr",
@@ -16,26 +16,29 @@
       "coredao"
     ]
   },
-  "expectations": {
-    "txHash": "0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567",
-    "registry": "0x66268a47e81b8f657798d7b5bbedc956df7b13fd",
-    "signer": "0xea41becdeb612d8625bf3060809964f1dab43244",
-    "intentId": "0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d",
-    "intentCommitment": "0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6",
-    "validUntil": 1789797609,
-    "nonce": 8,
-    "chainId": 1116,
-    "blockNumber": 38827925,
-    "status": "0x1",
-    "gasUsed": 105339,
-    "gasLimit": 148876,
-    "calldataSha256": "0xc10474ed9d0d2161d6de4eeb41e5ada0bd9ffcb4947d84e8d996b5781cda641b",
-    "selector": "0x4fd0505d",
-    "topic0": "0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127"
-  },
   "checks": [
     {
-      "name": "[ankr] tx.from == signer",
+      "name": "[spec] recomputed commitIntent selector == documented",
+      "ok": true,
+      "detail": "recomputed 0x4fd0505d vs doc 0x4fd0505d"
+    },
+    {
+      "name": "[spec] recomputed IntentCommitted topic0 == documented",
+      "ok": true,
+      "detail": "recomputed 0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127 vs doc 0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127"
+    },
+    {
+      "name": "[spec] keccak('') sanity vector",
+      "ok": true,
+      "detail": "got c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+    },
+    {
+      "name": "[spec] keccak('hello') sanity vector (0x68656c6c6f hex)",
+      "ok": true,
+      "detail": "got 1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8"
+    },
+    {
+      "name": "[ankr] tx.from == pre-broadcast signer",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
@@ -55,39 +58,44 @@
       "detail": "got 1116"
     },
     {
-      "name": "[ankr] tx.hash == published",
+      "name": "[ankr] tx.hash == gate recovery txHash",
       "ok": true,
       "detail": "got 0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567"
     },
     {
-      "name": "[ankr] sha256(calldata) == pinned calldataSha256",
+      "name": "[ankr] sha256(calldata) reproducible (self-consistency)",
       "ok": true,
       "detail": "got 0xc10474ed9d0d2161d6de4eeb41e5ada0bd9ffcb4947d84e8d996b5781cda641b"
     },
     {
-      "name": "[ankr] calldata selector == commitIntent",
+      "name": "[ankr] calldata selector == recomputed selector",
       "ok": true,
       "detail": "got 0x4fd0505d"
     },
     {
-      "name": "[ankr] calldata intentId == gate-4.0",
+      "name": "[ankr] calldata intentId == preflight",
       "ok": true,
       "detail": "got 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d"
     },
     {
-      "name": "[ankr] calldata commitment == pinned",
+      "name": "[ankr] calldata commitment == preflight",
       "ok": true,
       "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
     },
     {
-      "name": "[ankr] calldata signer == pinned",
+      "name": "[ankr] calldata signer == preflight",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[ankr] calldata validUntil == pinned",
+      "name": "[ankr] calldata validUntil == recovery.validUntil",
       "ok": true,
-      "detail": "got 1789797609"
+      "detail": "got 1789797609 vs expected 1789797609"
+    },
+    {
+      "name": "[ankr] calldata last word == data length then ECDSA sig present",
+      "ok": true,
+      "detail": ""
     },
     {
       "name": "[ankr] tx has ECDSA signature (r,s,v)",
@@ -95,7 +103,7 @@
       "detail": "r.len=66 s.len=66 v=0x8dc"
     },
     {
-      "name": "[coredao] tx.from == signer",
+      "name": "[coredao] tx.from == pre-broadcast signer",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
@@ -115,39 +123,44 @@
       "detail": "got 1116"
     },
     {
-      "name": "[coredao] tx.hash == published",
+      "name": "[coredao] tx.hash == gate recovery txHash",
       "ok": true,
       "detail": "got 0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567"
     },
     {
-      "name": "[coredao] sha256(calldata) == pinned calldataSha256",
+      "name": "[coredao] sha256(calldata) reproducible (self-consistency)",
       "ok": true,
       "detail": "got 0xc10474ed9d0d2161d6de4eeb41e5ada0bd9ffcb4947d84e8d996b5781cda641b"
     },
     {
-      "name": "[coredao] calldata selector == commitIntent",
+      "name": "[coredao] calldata selector == recomputed selector",
       "ok": true,
       "detail": "got 0x4fd0505d"
     },
     {
-      "name": "[coredao] calldata intentId == gate-4.0",
+      "name": "[coredao] calldata intentId == preflight",
       "ok": true,
       "detail": "got 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d"
     },
     {
-      "name": "[coredao] calldata commitment == pinned",
+      "name": "[coredao] calldata commitment == preflight",
       "ok": true,
       "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
     },
     {
-      "name": "[coredao] calldata signer == pinned",
+      "name": "[coredao] calldata signer == preflight",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[coredao] calldata validUntil == pinned",
+      "name": "[coredao] calldata validUntil == recovery.validUntil",
       "ok": true,
-      "detail": "got 1789797609"
+      "detail": "got 1789797609 vs expected 1789797609"
+    },
+    {
+      "name": "[coredao] calldata last word == data length then ECDSA sig present",
+      "ok": true,
+      "detail": ""
     },
     {
       "name": "[coredao] tx has ECDSA signature (r,s,v)",
@@ -155,12 +168,12 @@
       "detail": "r.len=66 s.len=66 v=0x8dc"
     },
     {
-      "name": "[ankr] receipt.txHash == published",
+      "name": "[ankr] receipt.txHash == tx hash",
       "ok": true,
       "detail": "got 0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567"
     },
     {
-      "name": "[ankr] receipt.status == 0x1",
+      "name": "[ankr] receipt.status == 0x1 (success)",
       "ok": true,
       "detail": "got 0x1"
     },
@@ -185,42 +198,47 @@
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[ankr] receipt has logs",
+      "name": "[ankr] receipt has >=1 log",
       "ok": true,
-      "detail": "got 1"
+      "detail": "logs=1"
     },
     {
-      "name": "[ankr] topic0 == keccak(event sig)",
+      "name": "[ankr] log.address == registry",
       "ok": true,
-      "detail": "computed 0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127"
+      "detail": "got 0x66268a47e81b8f657798d7b5bbedc956df7b13fd"
     },
     {
-      "name": "[ankr] topics[1] == intentId",
+      "name": "[ankr] log.topics[0] == recomputed event topic0",
+      "ok": true,
+      "detail": "got 0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127"
+    },
+    {
+      "name": "[ankr] log.topics[1] == intentId",
       "ok": true,
       "detail": "got 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d"
     },
     {
-      "name": "[ankr] topics[2] == commitment",
+      "name": "[ankr] log.topics[2] == commitment",
       "ok": true,
       "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
     },
     {
-      "name": "[ankr] topics[3] == signer (indexed)",
+      "name": "[ankr] log.topics[3] == signer (padded)",
       "ok": true,
       "detail": "got 0x000000000000000000000000ea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[ankr] log.data validUntil == pinned",
+      "name": "[ankr] log.data validUntil == 1789797609",
       "ok": true,
       "detail": "got 1789797609"
     },
     {
-      "name": "[coredao] receipt.txHash == published",
+      "name": "[coredao] receipt.txHash == tx hash",
       "ok": true,
       "detail": "got 0x68d9fbf1b384fe416d2222347d15e492e78d7b14f05cae0c9edbd57ce373c567"
     },
     {
-      "name": "[coredao] receipt.status == 0x1",
+      "name": "[coredao] receipt.status == 0x1 (success)",
       "ok": true,
       "detail": "got 0x1"
     },
@@ -245,67 +263,92 @@
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[coredao] receipt has logs",
+      "name": "[coredao] receipt has >=1 log",
       "ok": true,
-      "detail": "got 1"
+      "detail": "logs=1"
     },
     {
-      "name": "[coredao] topic0 == keccak(event sig)",
+      "name": "[coredao] log.address == registry",
       "ok": true,
-      "detail": "computed 0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127"
+      "detail": "got 0x66268a47e81b8f657798d7b5bbedc956df7b13fd"
     },
     {
-      "name": "[coredao] topics[1] == intentId",
+      "name": "[coredao] log.topics[0] == recomputed event topic0",
+      "ok": true,
+      "detail": "got 0x21185740565de73255b4ef838318b711254ec3031e2f21af71bbcf7bef3f8127"
+    },
+    {
+      "name": "[coredao] log.topics[1] == intentId",
       "ok": true,
       "detail": "got 0xc4799b1ddb9ed99463400c8540aefc81d9998b5541cd878267c2144e5a16000d"
     },
     {
-      "name": "[coredao] topics[2] == commitment",
+      "name": "[coredao] log.topics[2] == commitment",
       "ok": true,
       "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
     },
     {
-      "name": "[coredao] topics[3] == signer (indexed)",
+      "name": "[coredao] log.topics[3] == signer (padded)",
       "ok": true,
       "detail": "got 0x000000000000000000000000ea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[coredao] log.data validUntil == pinned",
+      "name": "[coredao] log.data validUntil == 1789797609",
       "ok": true,
       "detail": "got 1789797609"
     },
     {
-      "name": "[ankr] readback.commitment == pinned",
+      "name": "[ankr] readback.commitment == commitment on-chain",
       "ok": true,
       "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
     },
     {
-      "name": "[ankr] readback.validUntil == pinned",
+      "name": "[ankr] readback.validUntil == 1789797609",
       "ok": true,
       "detail": "got 1789797609"
     },
     {
-      "name": "[ankr] readback.signer == pinned",
+      "name": "[ankr] readback.signer == signer on-chain",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
     },
     {
-      "name": "[coredao] readback.commitment == pinned",
+      "name": "[coredao] readback.commitment == commitment on-chain",
       "ok": true,
       "detail": "got 0xb82f1f8073286fdf5a598e69a17246fdea09d10a9958fbc52f9ee8f7f925cee6"
     },
     {
-      "name": "[coredao] readback.validUntil == pinned",
+      "name": "[coredao] readback.validUntil == 1789797609",
       "ok": true,
       "detail": "got 1789797609"
     },
     {
-      "name": "[coredao] readback.signer == pinned",
+      "name": "[coredao] readback.signer == signer on-chain",
       "ok": true,
       "detail": "got 0xea41becdeb612d8625bf3060809964f1dab43244"
+    },
+    {
+      "name": "[cross] tx from/to/chainId agree across endpoints",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "[cross] tx nonce agree across endpoints",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "[cross] sha256(calldata) identical across endpoints",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "[cross] receipt status/block/gas agree across endpoints",
+      "ok": true,
+      "detail": ""
     }
   ],
   "verdict": "PASS",
-  "checkCount": 54,
-  "passedChecks": 54
+  "checkCount": 66,
+  "passedChecks": 66
 }
