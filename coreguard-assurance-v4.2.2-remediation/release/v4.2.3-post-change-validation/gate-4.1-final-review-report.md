@@ -4,24 +4,29 @@ Status: **REVIEW REPORT** — not a closure, not an authorization. No broadcast
 was made and none is requested.
 
 - Report date: 2026-09-19
-- Last published reference: `c8f516634ef4a97b41fa423f6ca5bd115fe0b966` (main)
-- Preceding verification reference: `50b49434d98b2a81810c79f9b431c3046aa9d673`
-- Independent round reference: `d543fff97c328d2345feeca6bc6b09d9569cf7fd`
-- Baseline (54/54) reference: `2dd27058c43c3decd37cdf89a6d63aa27ece40c5`
+- Last published reference: `c61c7aebb5f7a297a2bcf281c38254cebe3abf54` (main)
+- Previous references (history): `c8f516634ef4a97...` (docs fix) → `50b49434d98b2a8...`
+  (verifier v2.1.0) → `d543fff97c328d23...` (verifier v2) → `2dd27058c43c3de...`
+  (independent round / 54/54 baseline)
+- This report itself is committed as part of `c61c7ae`. This copy (post-`89`
+  update) documents run 89, which ran against the original `c61c7ae` blob; the
+  report text is intentionally maintained as the single living record of the
+  review outcome.
 
 ---
 
 ## 1. What changed since the previous review round
 
-Two documentary commits only — no verifier, evidence, raw-dump, or freeze-record modifications:
+Three documentary commits only — no verifier, evidence, raw-dump, or freeze-record
+modifications in the last two:
 
 | Commit | Scope | Nature |
 |---|---|---|
 | `50b4943` | verifier v2.1.0 (schema/inventory), regression tests, reconciliation doc, result JSON | code + docs |
-| `c8f5166` | `evidence/gate-4.1-verification-reconciliation.md` §3 (14 lines added) | **docs only** |
+| `c8f5166` | `evidence/gate-4.1-verification-reconciliation.md` §3 (14 lines, precision fix) | **docs only** |
+| `c61c7ae` | this review report under `release/v4.2.3-post-change-validation/` | **docs only** |
 
-Both pushed to `main`. The repository is in sync with `origin/main`
-(`c8f5166` = `origin/main`).
+All pushed to `main`; repo in sync with `origin/main`.
 
 ## 2. CI verification — run 88 (commit `c8f5166`)
 
@@ -35,6 +40,14 @@ Both pushed to `main`. The repository is in sync with `origin/main`
   - Engine (node) (20): `# tests 727 / # pass 727 / # fail 0`
   - Engine (node) (22): `# tests 727 / # pass 727 / # fail 0`
 - Contracts (foundry): 14 `[PASS]` assertions on `EvidenceRegistryV2`
+
+## 2.b CI verification — run 89 (final report commit `c61c7ae`)
+
+- Run: **89** — id `35429540950`, event `push`, status `completed`, conclusion **success**
+- `head_sha`: `c61c7aebb5f7a297a2bcf281c38254cebe3abf54` (full SHA confirmed in
+  `2_Run actions_checkout@v7.txt`)
+- Raw TAP: `# tests 727 / # pass 727 / # fail 0` in all three engine nodes
+- Contracts (foundry): 14 `[PASS]`
 
 Baseline for the +6 delta (run 86, `d543fff`): `# tests 721 / # pass 721 / # fail 0`
 in all three engine nodes — the 721→727 increase is exactly the six new
@@ -85,6 +98,13 @@ GOVERNANCE:       PENDING — NOT CLOSED (P7 §5/§6 human signature required)
 
 The broadcast-confirmation token inside the quarantined gate is **not** a P7
 signature, is not substituted for it, and P7 records were not filled by any tooling.
+
+## 5.b Latest CI runs on `main` (as of this report)
+
+| Commit | CI Run | Conclusion | Engine TAP | Forge |
+|---|---|---|---|---|
+| `c8f5166…` | 88 | success | 727/727/0 ×3 | 14 PASS |
+| `c61c7ae…` (this report) | 89 | success | 727/727/0 ×3 | 14 PASS |
 
 ## 6. Reviewer's note (explicit)
 
