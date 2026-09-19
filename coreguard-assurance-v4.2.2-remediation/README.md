@@ -35,6 +35,7 @@ How to read this result:
 | 2 | [`release/v4.2.2-remediation/H1-H8.md`](./release/v4.2.2-remediation/H1-H8.md) | Literal reviewer commands and the H1–H8 signature matrix — *the only approved command surface* |
 | 3 | [`release/freeze/freeze-record-4.2.6.json`](./release/freeze/freeze-record-4.2.6.json) | The frozen evidence: pins, anchor commit, documented re-pins |
 | 4 | `verification/validate-freeze.mjs` | Read-only verifier — never writes, never authorizes |
+| 5 | [`../docs/GOVERNANCE-DASHBOARD.html`](../docs/GOVERNANCE-DASHBOARD.html) | Visual governance board — the full status story, rendered. *Snapshot for reading; this repository remains the binding source* ([live view](../../blob/main/docs/GOVERNANCE-DASHBOARD.html)) |
 
 Older freeze records (4.2.2–4.2.5) and all changelogs are **historical**: preserved as-is, never rewritten.
 
