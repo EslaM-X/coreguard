@@ -125,7 +125,8 @@ curl -sS http://127.0.0.1:8787/health
 | `200` | full gate holds | `VERIFIED` / `EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE` |
 | `422` | fixture fails any check (F0–F3, E3–E5, B1–B3) — a rejected submission, not a server error | `REJECTED` / `FIXTURE_REJECTED` + per-check `FAIL` detail |
 | `400` | body is not valid JSON — malformed input is rejected, never a 5xx | `REJECTED` + named error |
-| `413` | body exceeds 1 MiB — rejected before parsing | `REJECTED` + named error |
+| `413` | body exceeds 1 MiB — rejected before parsing (declared `content-length` gate, and a streaming cap for chunked or lying senders) | `REJECTED` + named error |
+| `429` | per-address in-memory rate limit exceeded (fixed window, default 120/min; `retry-after` header) | `REJECTED` + named error |
 | `404` | unknown path or wrong method (e.g. `GET /verify`) | `REJECTED` + usage hint |
 
 Every response — including `404` and `/health` — carries the headers
@@ -144,6 +145,20 @@ Two wire-specific honesty rules:
   Record pins are enforced by the file-based verifier against `hashes.json`;
   the endpoint verifies the records *as submitted*. The mark exists so no one
   can misread a wire report as pin verification.
+
+Hardening for a deliberate public bind (both fail-closed, both tested):
+
+- **Rate limiting** — in-memory fixed window per direct peer address
+  (default 120/min via `rateLimit: { windowMs, max }`; `false` disables it
+  for platforms fronting their own). Keyed on `socket.remoteAddress` with no
+  `X-Forwarded-For` trust — a spoofable header would forge identity.
+  `/health` is exempt so floods can never lock out liveness probes. Responses
+  carry `x-ratelimit-limit/remaining/reset`; the 429 carries `retry-after`.
+  Memory is bounded: expired buckets drop on window rollover and the map
+  sweeps past a size threshold.
+- **Two-layer size gate** — a declared `content-length` over the cap is
+  refused before any body byte is read; the 1 MiB streaming cap remains the
+  truth for absent or lying declarations.
 
 Reference consumer: `examples/agent-platform-integration/run-http-payout-gate.mjs`
 holds a payout on wire reports — including a scenario rejection resting solely

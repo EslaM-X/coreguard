@@ -9,6 +9,13 @@
  *   POST /verify          body = fixture JSON  → DDE/1 verification report
  *   POST /peoples-court   body = fixture JSON  → + evidence-class projection
  *   GET  /health                               → liveness + boundary banner
+ *   rate limit            in-memory fixed window per peer address (429 +
+ *                         retry-after); /health is exempt so liveness probes
+ *                         never consume budget and floods cannot lock out
+ *                         monitoring
+ *   size guard, 2 layers  declared content-length over the cap → 413 before
+ *                         any body byte is read; the streaming cap remains
+ *                         the truth for chunked or lying senders
  *
  * The boundary survives the network hop verbatim: every response body carries
  * DDE-BOUNDARY, and `decision` is limited to
@@ -24,6 +31,11 @@
  *     with 413 before parsing. Fail-closed.
  *   - Malformed JSON → 400 with a REJECTED status, not a 5xx: a bad fixture
  *     is a rejected submission, not a server failure.
+ *   - Rate limiting keyed on the direct peer address; no X-Forwarded-For
+ *     trust is added — a spoofable header would let callers forge identity
+ *     (fail-closed identity). Memory is bounded: buckets expire on window
+ *     rollover and sweep on a size threshold.
+ *   - `rateLimit: false` disables limiting; `{ windowMs, max }` tunes it.
  *
  * @module @coreguard/delivery/http
  */
@@ -40,6 +52,76 @@ import {
  *  anything larger is rejected before parsing (fail-closed). */
 export const MAX_BODY_BYTES = 1024 * 1024;
 
+/** Rate limiting defaults: 120 verification requests per address per minute.
+ *  Tuned to leave honest integrations (which verify once per delivery event)
+ *  far outside the ceiling while capping floods. */
+export const RATE_LIMIT_DEFAULTS = Object.freeze({
+  windowMs: 60_000,
+  max: 120,
+  pruneAt: 10_000,
+});
+
+/** Shared 413 payload — the same rejection no matter which size layer trips. */
+function oversizeBody() {
+  return {
+    status: "REJECTED",
+    error: `request body exceeds ${MAX_BODY_BYTES} bytes — fixtures are small JSON documents (fail-closed)`,
+    ddeVersion: DDE_VERSION,
+    boundary: BOUNDARY_BANNER.statement,
+  };
+}
+
+/**
+ * In-memory fixed-window rate limiter keyed by caller-supplied keys (the
+ * handler uses the peer address). A bucket anchors to its first hit and
+ * resets after `windowMs`; memory stays bounded because expired buckets are
+ * dropped lazily on hit and swept when the map crosses `pruneAt` entries.
+ * Exported for direct unit tests with an injected clock.
+ *
+ * @param {object} [opts]
+ * @param {number} [opts.windowMs=60000]
+ * @param {number} [opts.max=120]
+ * @param {number} [opts.pruneAt=10000]
+ * @param {() => number} [opts.now=Date.now] injectable clock for tests
+ */
+export function createRateLimiter({
+  windowMs = RATE_LIMIT_DEFAULTS.windowMs,
+  max = RATE_LIMIT_DEFAULTS.max,
+  pruneAt = RATE_LIMIT_DEFAULTS.pruneAt,
+  now = Date.now,
+} = {}) {
+  if (!Number.isFinite(windowMs) || windowMs <= 0) throw new Error("rate limit windowMs must be a positive number");
+  if (!Number.isFinite(max) || max <= 0) throw new Error("rate limit max must be a positive number");
+  if (!Number.isFinite(pruneAt) || pruneAt < 1) throw new Error("rate limit pruneAt must be >= 1");
+  const buckets = new Map(); // key → { windowStart, count }
+  const sweep = (t) => { for (const [k, b] of buckets) if (t - b.windowStart >= windowMs) buckets.delete(k); };
+  return {
+    windowMs,
+    max,
+    /** Tracked keys — exposed for tests and ops introspection. */
+    size: () => buckets.size,
+    /**
+     * @param {string} key
+     * @returns {{allowed: boolean, remaining: number, resetSec: number, retryAfterSec?: number}}
+     */
+    check(key) {
+      const t = now();
+      if (buckets.size >= pruneAt) sweep(t);
+      let b = buckets.get(key);
+      if (!b || t - b.windowStart >= windowMs) {
+        b = { windowStart: t, count: 0 };
+        buckets.set(key, b);
+      }
+      const resetSec = Math.max(0, Math.ceil((b.windowStart + windowMs - t) / 1000));
+      if (b.count >= max) {
+        return { allowed: false, remaining: 0, resetSec, retryAfterSec: Math.max(1, resetSec) };
+      }
+      b.count += 1;
+      return { allowed: true, remaining: max - b.count, resetSec };
+    },
+  };
+}
+
 /**
  * Build a DDE HTTP request handler. Exported for tests and custom servers;
  * `startDeliveryEndpoint` is the one-command entry.
@@ -47,19 +129,51 @@ export const MAX_BODY_BYTES = 1024 * 1024;
  * @param {object} [opts]
  * @param {object} [opts.evm] optional EVM adapter forwarded to the engine for
  *        consent signature replay (E5). Absent → E5 NOT_RUN (never fabricated).
+ * @param {object|false} [opts.rateLimit] `false` disables limiting; otherwise
+ *        `{ windowMs, max }` tunes the per-address in-memory fixed window
+ *        (default 120/min). `/health` is always exempt.
  * @returns {(req: import("node:http").IncomingMessage, res: import("node:http").ServerResponse) => Promise<void>}
  */
-export function createDeliveryRequestHandler({ evm = undefined } = {}) {
+export function createDeliveryRequestHandler({ evm = undefined, rateLimit } = {}) {
+  const limiter = rateLimit === false ? null : createRateLimiter(rateLimit ?? {});
   return async function handle(req, res) {
-    const send = (code, payload) => {
+    const send = (code, payload, extraHeaders = {}) => {
       const body = JSON.stringify(payload, null, 2) + "\n";
       res.writeHead(code, {
         "content-type": "application/json; charset=utf-8",
         "x-dde-version": DDE_VERSION,
         "x-dde-boundary": BOUNDARY_BANNER.code,
+        ...extraHeaders,
       });
       res.end(body);
     };
+
+    // Rate limit — every endpoint except /health. Keyed on the direct peer
+    // address: no X-Forwarded-For trust (a spoofable header would forge
+    // identity — fail-closed identity). /health stays free so a flood can
+    // never lock out liveness probes.
+    if (!(req.method === "GET" && req.url === "/health") && limiter) {
+      const verdict = limiter.check(req.socket.remoteAddress || "unknown");
+      res.setHeader("x-ratelimit-limit", String(limiter.max));
+      res.setHeader("x-ratelimit-remaining", String(verdict.remaining));
+      res.setHeader("x-ratelimit-reset", String(verdict.resetSec));
+      if (!verdict.allowed) {
+        return send(429, {
+          status: "REJECTED",
+          error: `rate limit exceeded — max ${limiter.max} requests per ${Math.round(limiter.windowMs / 1000)}s window per address (fail-closed); retry later`,
+          ddeVersion: DDE_VERSION,
+          boundary: BOUNDARY_BANNER.statement,
+        }, { "retry-after": String(verdict.retryAfterSec) });
+      }
+    }
+
+    // Early size gate: a declared content-length over the cap is rejected
+    // before a single body byte is read. The streaming cap below remains the
+    // truth for absent or lying declarations (chunked, or actual > declared).
+    const declaredLength = Number(req.headers["content-length"]);
+    if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
+      return send(413, oversizeBody());
+    }
 
     // Liveness — carries the banner so even a probe quotes the boundary.
     if (req.method === "GET" && req.url === "/health") {
@@ -90,12 +204,7 @@ export function createDeliveryRequestHandler({ evm = undefined } = {}) {
       chunks.push(chunk);
     }
     if (oversized) {
-      return send(413, {
-        status: "REJECTED",
-        error: `request body exceeds ${MAX_BODY_BYTES} bytes — fixtures are small JSON documents (fail-closed)`,
-        ddeVersion: DDE_VERSION,
-        boundary: BOUNDARY_BANNER.statement,
-      });
+      return send(413, oversizeBody());
     }
 
     let fixture;
@@ -133,10 +242,12 @@ export function createDeliveryRequestHandler({ evm = undefined } = {}) {
  * @param {string} [opts.host="127.0.0.1"] loopback by default — bind a public
  *        interface deliberately, never by accident
  * @param {object} [opts.evm] optional EVM adapter for consent replay (E5)
+ * @param {object|false} [opts.rateLimit] `false` disables; `{ windowMs, max }`
+ *        tunes the per-address fixed window (default 120/min)
  * @returns {Promise<import("node:http").Server>}
  */
-export async function startDeliveryEndpoint({ port = 8787, host = "127.0.0.1", evm = undefined } = {}) {
-  const server = createServer(createDeliveryRequestHandler({ evm }));
+export async function startDeliveryEndpoint({ port = 8787, host = "127.0.0.1", evm = undefined, rateLimit } = {}) {
+  const server = createServer(createDeliveryRequestHandler({ evm, rateLimit }));
   await new Promise((resolve, reject) => {
     server.once("error", reject);
     server.listen(port, host, resolve);

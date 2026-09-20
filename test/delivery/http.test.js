@@ -16,7 +16,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { startDeliveryEndpoint, MAX_BODY_BYTES } from "../../packages/delivery/http.js";
+import { startDeliveryEndpoint, MAX_BODY_BYTES, createRateLimiter, RATE_LIMIT_DEFAULTS } from "../../packages/delivery/http.js";
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const FIXTURE_DIR = join(REPO, "examples", "delivery-fixture");
@@ -43,8 +43,8 @@ function loadFixture() {
   return fixture;
 }
 
-async function withServer(fn) {
-  const server = await startDeliveryEndpoint({ port: 0 });
+async function withServer(fn, startOpts = {}) {
+  const server = await startDeliveryEndpoint({ port: 0, ...startOpts });
   const { port } = server.address();
   const base = `http://127.0.0.1:${port}`;
   const post = async (path, body, headers = { "content-type": "application/json" }) => {
@@ -144,4 +144,132 @@ test("default bind is loopback — never a public interface by accident", async 
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
   assert.equal(server.address().address, "127.0.0.1");
   server.close();
+});
+
+// ---------------------------------------------------------------------------
+// rate limiting + early size gate — hardening for a deliberate public bind
+// ---------------------------------------------------------------------------
+
+test("rate limiter unit: allows up to max, then refuses with retry-after", () => {
+  let t = 1_000_000;
+  const rl = createRateLimiter({ windowMs: 60_000, max: 3, now: () => t });
+  assert.equal(rl.check("ip").allowed, true);
+  assert.equal(rl.check("ip").allowed, true);
+  const third = rl.check("ip");
+  assert.equal(third.allowed, true);
+  assert.equal(third.remaining, 0);
+  const fourth = rl.check("ip");
+  assert.equal(fourth.allowed, false);
+  assert.equal(fourth.remaining, 0);
+  assert.ok(fourth.retryAfterSec >= 1);
+  assert.ok(fourth.resetSec > 0 && fourth.resetSec <= 60);
+  // a different address has its own budget
+  assert.equal(rl.check("other-ip").allowed, true);
+});
+
+test("rate limiter unit: fixed window rolls over and resets the budget", () => {
+  let t = 2_000_000;
+  const rl = createRateLimiter({ windowMs: 1_000, max: 1, now: () => t });
+  assert.equal(rl.check("ip").allowed, true);
+  assert.equal(rl.check("ip").allowed, false);
+  t += 1_001; // window rollover
+  const again = rl.check("ip");
+  assert.equal(again.allowed, true);
+  assert.equal(again.remaining, 0); // fresh window, full budget consumed by this hit
+});
+
+test("rate limiter unit: expired buckets are dropped — memory stays bounded", () => {
+  let t = 3_000_000;
+  const rl = createRateLimiter({ windowMs: 1_000, max: 1, pruneAt: 5, now: () => t });
+  for (let i = 0; i < 5; i++) rl.check(`ip-${i}`);
+  assert.equal(rl.size(), 5);
+  t += 1_001; // all five now expired; the 6th key triggers the sweep
+  rl.check("ip-5");
+  assert.ok(rl.size() <= 2, `sweep should drop expired buckets, got ${rl.size()}`);
+});
+
+test("rate limiter unit: invalid options throw — misconfiguration cannot widen the gate", () => {
+  assert.throws(() => createRateLimiter({ windowMs: 0 }), /windowMs/);
+  assert.throws(() => createRateLimiter({ max: -1 }), /max/);
+  assert.throws(() => createRateLimiter({ pruneAt: 0 }), /pruneAt/);
+});
+
+test("endpoint: exceeding the window returns 429 + retry-after with the banner, then recovers", async () => {
+  await withServer(
+    async ({ base, post }) => {
+      const first = await post("/verify", loadFixture());
+      assert.equal(first.code, 200);
+      const blocked = await post("/verify", loadFixture());
+      assert.equal(blocked.code, 429);
+      assert.equal(blocked.body.status, "REJECTED");
+      assert.match(blocked.body.error, /rate limit exceeded/);
+      assert.equal(blocked.boundaryHeader, "DDE-BOUNDARY");
+      assert.match(blocked.body.boundary, /does not decide delivery conformity/);
+      const r = await fetch(base + "/verify", { method: "POST", body: "{}" }); // raw fetch for headers
+      assert.equal(r.status, 429);
+      assert.ok(Number(r.headers.get("retry-after")) >= 1);
+      assert.equal(r.headers.get("x-dde-boundary"), "DDE-BOUNDARY");
+      await new Promise((r2) => setTimeout(r2, 150)); // window rolls over
+      const recovered = await post("/verify", loadFixture());
+      assert.equal(recovered.code, 200);
+    },
+    { rateLimit: { windowMs: 100, max: 1 } }
+  );
+});
+
+test("endpoint: /health is exempt — a flood can never lock out liveness probes", async () => {
+  await withServer(
+    async ({ base, post }) => {
+      assert.equal((await post("/verify", loadFixture())).code, 200);
+      assert.equal((await post("/verify", loadFixture())).code, 429); // budget spent
+      for (let i = 0; i < 5; i++) {
+        const h = await fetch(base + "/health");
+        assert.equal(h.status, 200);
+        assert.equal((await h.json()).status, "OK");
+      }
+    },
+    { rateLimit: { windowMs: 60_000, max: 1 } }
+  );
+});
+
+test("endpoint: allowed POSTs carry x-ratelimit-* headers", async () => {
+  await withServer(async ({ base }) => {
+    const r = await fetch(base + "/verify", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(loadFixture()),
+    });
+    assert.equal(r.status, 200);
+    assert.equal(r.headers.get("x-ratelimit-limit"), String(RATE_LIMIT_DEFAULTS.max));
+    assert.ok(Number(r.headers.get("x-ratelimit-remaining")) >= 0);
+    assert.ok(Number(r.headers.get("x-ratelimit-reset")) >= 0);
+  });
+});
+
+test("endpoint: declared content-length over the cap is refused before reading the body", async () => {
+  await withServer(async ({ base }) => {
+    const bloated = JSON.stringify({ padding: "x".repeat(MAX_BODY_BYTES + 1) });
+    const r = await fetch(base + "/verify", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: bloated,
+    });
+    assert.equal(r.status, 413);
+    const b = await r.json();
+    assert.equal(b.status, "REJECTED");
+    assert.match(b.error, /exceeds 1048576 bytes/);
+    assert.equal(r.headers.get("x-dde-boundary"), "DDE-BOUNDARY");
+  });
+});
+
+test("endpoint: rateLimit:false disables limiting — the platform may front it with its own", async () => {
+  await withServer(
+    async ({ post }) => {
+      for (let i = 0; i < 5; i++) {
+        const { code } = await post("/verify", loadFixture());
+        assert.equal(code, 200);
+      }
+    },
+    { rateLimit: false }
+  );
 });

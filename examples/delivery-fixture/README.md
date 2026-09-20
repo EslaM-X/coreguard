@@ -81,15 +81,23 @@ banner in the body.
 | `422` | fixture fails any F/E/B check (also: empty object) | `FIXTURE_REJECTED` |
 | `400` | body is not valid JSON | rejected submission (named error) |
 | `413` | body exceeds 1 MiB (rejected pre-parse) | rejected submission (named error) |
+| `429` | per-address rate limit exceeded (fixed window, default 120/min; `retry-after` header) | rejected submission (named error) |
 | `404` | unknown path or wrong method | usage hint |
 
 Wire-specific honesty rules: consent replay (E5) reports `NOT_RUN` unless the
 caller injects an EVM adapter (zero outbound calls, never fabricated over the
 wire), and `/peoples-court` marks `hashesManifest: NOT_EVALUATED_OVER_HTTP` —
 record pins are enforced by the file-based verifier, so a wire report is never
-mistakable for pin verification. A worked consumer — a platform holding a
-payout on wire reports, including a criteria-based scenario rejection — lives
-in `examples/agent-platform-integration/run-http-payout-gate.mjs`.
+mistakable for pin verification. Hardening for a public bind, both fail-closed
+and tested: an in-memory fixed-window rate limiter per direct peer address
+(default 120/min, tunable via `rateLimit: { windowMs, max }`, `false` to
+disable; no `X-Forwarded-For` trust; `/health` exempt so a flood cannot lock
+out liveness probes; `x-ratelimit-*` headers plus `retry-after` on 429), and a
+two-layer size gate (declared `content-length` refused before any body byte
+is read; the 1 MiB streaming cap stays the truth for chunked or lying
+senders). A worked consumer — a platform holding a payout on wire reports,
+including a criteria-based scenario rejection — lives in
+`examples/agent-platform-integration/run-http-payout-gate.mjs`.
 
 ## The records
 
