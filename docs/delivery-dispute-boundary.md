@@ -166,6 +166,66 @@ Hardening for a deliberate public bind (both fail-closed, both tested):
   refused before any body byte is read; the 1 MiB streaming cap remains the
   truth for absent or lying declarations.
 
+### Wire-level integration — a copy-ready payout gate
+
+Any external platform (agent marketplace, escrow provider, settlement rails)
+integrates in three lines: POST the fixture to `/verify` before releasing a
+payout, and hold the release until the counterparty's criteria-based acceptance
+record arrives. The snippet below is the canonical gate — the same shape the
+reference consumer runs as a live five-scenario demo:
+
+```js
+// your platform, before releasing any payout:
+import { loadFixtureFromDir } from "@coreguard/delivery/sdk"; // or build the fixture object yourself
+
+const endpoint = process.env.DDE_ENDPOINT ?? "http://127.0.0.1:8787";
+
+export async function payoutGate(fixture) {
+  const res = await fetch(`${endpoint}/verify`, {
+    method: "POST",
+    headers: { "content-type": "application/json", connection: "close" },
+    body: JSON.stringify(fixture),
+  });
+
+  // 200 = evidence VERIFIED · 422 = fixture REJECTED (checks name why)
+  // 400/413/429 = submission-level rejections — never treat as "verified"
+  const report = await res.json();
+  const evidenceOk =
+    res.status === 200 &&
+    report.status === "VERIFIED" &&
+    report.decision === "EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE";
+
+  // Release is the COUNTERPARTY's criteria-based acceptance record —
+  // never payment settlement, never execution success alone (F1/B1/B2).
+  const counterpartyAccepted =
+    fixture.acceptanceRecord?.verdict === "ACCEPTED" &&
+    fixture.acceptanceRecord?.basis?.includes("CRITERIA_EVALUATION") &&
+    Array.isArray(fixture.acceptanceRecord?.evaluations) &&
+    fixture.acceptanceRecord.evaluations.length > 0;
+
+  return evidenceOk && counterpartyAccepted
+    ? { release: true, decision: report.decision }
+    : { release: false, decision: report.decision, wire: res.status }; // HOLD
+}
+```
+
+Behavior across the whole decision space (each row exercised live against a
+running endpoint before it was written here):
+
+| Fixture state | Wire | Gate |
+|---|---|---|
+| Delivery submitted, acceptance pending | `200 VERIFIED` | 🔒 HOLD |
+| Counterparty rejects on a named criterion (`C-QUALITY`) | `200 VERIFIED` | 🔒 HOLD |
+| Any artifact byte flipped → E3 names both hashes | `422 REJECTED` | 🔒 HOLD |
+| Verdict flipped to `ACCEPTED` but `basis=["PAYMENT_SETTLED"]` | `422 REJECTED` (F1 kills payment-based acceptance) | 🔒 HOLD |
+| Counterparty accepts on the same criteria | `200 VERIFIED` | ✓ RELEASE |
+
+What the endpoint never returns: a conformity verdict. `decision` never exceeds
+the two-word `EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE`,
+and every response — including `429` and `404` — carries
+`x-dde-boundary: DDE-BOUNDARY`, so even a rejection quote keeps the boundary
+attached.
+
 Reference consumer: `examples/agent-platform-integration/run-http-payout-gate.mjs`
 holds a payout on wire reports — including a scenario rejection resting solely
 on a failing acceptance criterion (`C-QUALITY`), which returns `200 VERIFIED`
