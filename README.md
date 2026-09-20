@@ -128,7 +128,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 721 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, encoding, attack-lab suites
+npm test              # 824 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, encoding, attack-lab, DDE delivery/dispute suites
 npm run corpus        # deterministic 73-scenario adversarial corpus
 npm run benchmark     # 73/73 pass
 # Authoritative numbers live in docs/STATUS.md (one source of truth).
@@ -184,6 +184,86 @@ npx create-coreguard-integration <name>                # scaffold a consumer int
 
 `verify-run` is read-only: `--rpc` performs chainId/transaction/receipt/block
 binding only — it never sends or broadcasts. See [docs/VERIFY-RUN.md](docs/VERIFY-RUN.md).
+
+## Payment gating integration (DDE/1)
+
+The Delivery & Dispute Evidence layer is embeddable: any agent platform, escrow
+provider or settlement tooling can hold a payout until delivery evidence **and**
+an explicit party acceptance say otherwise — while never letting execution proof
+decide conformity. One sentence binds every report the SDK returns:
+
+> **Execution verification does not decide delivery conformity.**
+
+### The lock/release arc
+
+The gate has exactly one key, and it is not a receipt:
+
+| Act | What happens | Gate |
+|---|---|---|
+| pending | delivery submitted, no verdict yet | 🔒 HOLD |
+| party act | client records **REJECTED** on a named criterion (e.g. C-QUALITY: 2 color tokens, 3 required) | 🔒 HOLD |
+| tamper | provider re-submits after flipping one artifact byte → `422`, E3 names the byte and both hashes | 🔒 HOLD |
+| **the boundary** | evidence **VERIFIED** on the wire, client's **REJECTED** verdict on file — execution and payment settlement proven, **neither decides conformity** | 🔒 HOLD |
+| counterfactual | client records **ACCEPTED** on the same criteria evaluations | ✓ **RELEASE** |
+
+The only thing that opens the gate is a party acceptance record resting on
+criterion evaluations. Signatures, receipts and settlement are admissible
+evidence — never a verdict.
+
+### Two-line SDK integration
+
+```js
+import { verifyFixture, releaseWhen } from "@coreguard/delivery/sdk";
+
+const report = await verifyFixture({ fixtureDir: "./cases/case-17" }); // or { fixture }
+const gate   = releaseWhen(report, () => acceptanceOnFile() === "ACCEPTED"); // YOUR condition
+if (!gate.release) holdPayout(gate.reasons); // named reasons, never vague symbols
+else releasePayout();
+```
+
+- `verifyFixture` runs the **full fail-closed gate** (F0–F3, E3–E5, B1–B3) —
+  zero checks added, zero stripped. Every report carries the boundary banner
+  (`boundaryCode: "DDE-BOUNDARY"`), so quoting a report quotes the boundary.
+- `releaseWhen` **structurally refuses** release without a VERIFIED report,
+  even if your predicate says yes; a throwing predicate is a HOLD, not a crash.
+- Consent replay (E5) runs only with an EVM adapter you inject; absent →
+  `NOT_RUN`, never fabricated. The SDK never signs, never broadcasts, never
+  judges conformity.
+
+(Inside this repo, import from `packages/delivery/sdk.js` — the package
+specifier above is the installed surface with the same exports.)
+
+### Or verify over HTTP
+
+```bash
+# from a repo checkout — loopback by default; a public bind is a deliberate act
+node -e "import('./packages/delivery/http.js').then(m => m.startDeliveryEndpoint({ port: 8787 }))"
+
+# from an installed package: import { startDeliveryEndpoint } from "@coreguard/delivery/http";
+curl -sS -X POST http://127.0.0.1:8787/verify \
+  -H "content-type: application/json" --data-binary @fixture.json
+# → 200 VERIFIED (decision: EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE)
+#   or 422 FIXTURE_REJECTED with the failing check named
+```
+
+Per-address rate limiting (429 + `retry-after`, `/health` exempt), a pre-parse
+1 MiB size gate, and a decision vocabulary that never exceeds
+`EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE` /
+`FIXTURE_REJECTED` — no network path can decide conformity. Full status-code
+table and wire honesty rules: [docs/delivery-dispute-boundary.md](docs/delivery-dispute-boundary.md) §6.
+
+### Run the worked example
+
+```bash
+node examples/agent-platform-integration/run-integration-demo.mjs  # SDK arc — 4 holds, 1 release (exit contract)
+node examples/agent-platform-integration/run-http-payout-gate.mjs  # wire-level — incl. a criteria-based scenario rejection
+npm run benchmark:dde                                              # verify perf: median < 50ms budget (measured ~0.7ms)
+```
+
+Both demos exit `0` only on the exact arc: HOLD ×4 → RELEASE ×1 — any drift
+from the boundary fails them, and CI runs both on every push. Fixture and
+records: [examples/delivery-fixture/](examples/delivery-fixture/) · live
+bilingual demo: [DELIVERY-DISPUTE-DEMO.html](https://eslam-x.github.io/coreguard/DELIVERY-DISPUTE-DEMO.html).
 
 ## AgentProof — actor provenance
 
