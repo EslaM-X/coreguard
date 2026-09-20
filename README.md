@@ -265,6 +265,12 @@ from the boundary fails them, and CI runs both on every push. Fixture and
 records: [examples/delivery-fixture/](examples/delivery-fixture/) · live
 bilingual demo: [DELIVERY-DISPUTE-DEMO.html](https://eslam-x.github.io/coreguard/DELIVERY-DISPUTE-DEMO.html).
 
+Got a **real** paid transaction with two consenting parties? The
+[real-fixture intake kit](examples/real-fixture-intake/) converts it into a
+redacted review-ready fixture: bilateral consent with a named disclosure
+scope, a removal checklist, a fail-closed pre-publication gate, and the
+submission procedure.
+
 ## AgentProof — actor provenance
 
 **Who is actually behind this execution?** AgentProof extends the receipt with a

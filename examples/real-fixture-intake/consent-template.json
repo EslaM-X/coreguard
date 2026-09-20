@@ -1,5 +1,5 @@
 {
-  "_readme": "Template for BOTH parties' consent in a real bilateral dispute fixture. Sections A and B are the legally meaningful records; section C shows the exact wire format the DDE engine verifies (E5 CONSENT_BINDING). Fill every field, sign the digests off-platform with each party's own key, and never paste private keys anywhere. Nothing in this template is legal advice — parties should have their own counsel review the underlying agreement and the scope of disclosure.",
+  "_readme": "Template for BOTH parties' consent in a real bilateral dispute fixture. Section A is the legally meaningful record; section B is the named DISCLOSURE SCOPE (what reviewers may see, what is withheld, for how long, and how either party revokes consent — one scope, both parties, one fixtureRef); section C shows the exact wire format the DDE engine verifies (E5 CONSENT_BINDING). Fill every field, sign the digests off-platform with each party's own key, and never paste private keys anywhere. Nothing in this template is legal advice — parties should have their own counsel review the underlying agreement and the scope of disclosure.",
   "templateId": "DDE-REAL-INTAKE-CONSENT-v1",
   "chainId": "1116",
   "A_redactionGrants": [
@@ -8,7 +8,7 @@
       "partyRole": "",
       "grantorAddress": "0x… (party A's own wallet address; E5 replays the signature to this exact address)",
       "fixtureRef": "0x… (32-byte hex — computed in step 2 of the procedure; both parties MUST sign the same value)",
-      "scope": "Redacted public review of this fixture: agreed scope: [what reviewers may see, e.g. the ten DDE records and their hashes]; excluded: [anything withheld]; duration: [e.g. until 2027-01-01 UTC]; revocation: [how either party withdraws consent].",
+      "scope": "One-line summary of the shared disclosure scope in section B (the E5-replayed string); the full scope lives in section B_disclosureScope.",
       "signature": { "r": "", "s": "", "v": 0, "digest": "0x… (EIP-712 digest of grantor/fixtureRef/scope below domain 'CoreGuard DDE Redaction Grant' v1 chainId 1116 — sign off-platform, or via tools/e2e-sign)" }
     },
     {
@@ -16,17 +16,28 @@
       "partyRole": "",
       "grantorAddress": "0x…",
       "fixtureRef": "0x… (identical to party A's — one fixture, one reference)",
-      "scope": "…",
+      "scope": "One-line summary of the shared disclosure scope in section B — MUST be the identical string in both grants.",
       "signature": { "r": "", "s": "", "v": 0, "digest": "0x…" }
     }
   ],
-  "B_disclosureConsent": {
-    "publicRepository": { "permitted": false, "conditions": "" },
-    "sharedWithCounterparty": { "permitted": false, "conditions": "" },
-    "sharedWithNamedReviewer": { "permitted": false, "reviewerName": "", "conditions": "" },
-    "confidentialityDurationUtc": "",
-    "eachPartyMayPublishOwnPosition": false,
-    "attribution": "How each party wishes to be named, or 'anonymous party A/B'"
+  "B_disclosureScope": {
+    "_what": "The named disclosure scope for this intake — one scope, signed by both parties over the same fixtureRef. Answer each of the six questions explicitly; empty fields keep the gate red.",
+    "reviewersMaySee": "",
+    "explicitlyWithheld": "",
+    "durationUtc": "",
+    "revocation": "",
+    "channels": { "publicRepository": false, "sharedWithCounterparty": false, "sharedWithNamedReviewer": false, "namedReviewer": "" },
+    "attribution": "How each party wishes to be named, or 'anonymous party A/B'",
+    "publishOwnPosition": false,
+    "confidentialityExpiresUtc": "",
+    "crossChecks": {
+      "_what": "Signed by both parties as an integrity declaration — the gate cross-checks these against the removed-data checklist and the records as submitted.",
+      "redactionCompletePerChecklist": false,
+      "checklistRef": "DDE-REAL-INTAKE-REMOVAL-v1 for the same caseRef, completed and signed",
+      "recordsAsSubmittedMatchScope": false,
+      "secretsRemovedConfirmed": false,
+      "personalDataRemovedConfirmed": false
+    }
   },
   "C_recordClosureConsent": {
     "recordClosesAtUtc": "",
@@ -43,5 +54,6 @@
     "realSignatures": true,
     "noCoercion": "Both parties confirm consent was given freely.",
     "perjuryAwareness": "Both parties confirm the statements above are accurate to the best of their knowledge."
-  }
+  },
+  "_provenance": "TEMPLATE — a fill-in guide with zero real data; never submit this file itself as a consent record. Sections map to the procedure README: A → E5-replayed grants (C wire format), B → the disclosure scope (copy into consent-and-disclosure.json disclosure), C → record closure, D → declarations. Cross-checked by examples/real-fixture-intake/prelude.mjs (gate) and contract-tested in test/delivery/intake.test.js."
 }

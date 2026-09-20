@@ -1,5 +1,18 @@
 # Real-Fixture Intake Kit — from a real bilateral dispute to a DDE fixture
 
+People's Court's own words set the bar — *"not a synthetic demo"* — and ask
+for the disclosure scope both parties authorized. This kit turns a real paid
+transaction with two reachable, consenting parties into a redacted DDE
+fixture: a bilateral consent template (with a **named disclosure scope**
+section — reviewers-may-see / withheld / duration / revocation, signed over
+one `fixtureRef`), a removal checklist, a fail-closed pre-publication gate,
+and the conversion procedure.
+
+> **The disclosure scope is the intake's core record.** Both parties sign it
+> (consent-template.json `B_disclosureScope`), it binds the review channels,
+> and its `crossChecks` integrity block is **enforced by the gate** — a
+> candidate whose signed scope omits or falsifies a cross-check stays RED.
+
 Everything People's Court / Epistemic Labs asked for, in the order they
 asked: **a real, redacted bilateral failure fixture with reachable
 parties** — not a synthetic demo. This kit is how a real dispute becomes

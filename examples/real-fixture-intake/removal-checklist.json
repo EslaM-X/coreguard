@@ -13,6 +13,13 @@
     "noPhoneNumbersInRecords": false,
     "signaturesAreSignaturesOnly": "EIP-712 r/s/v/digest fields are expected and allowed; any other 32-byte hex blob in a non-signature field must be justified in notes"
   },
+  "scopeResponseItems": {
+    "_readme": "The removed-data answers that correspond to the disclosure scope signed in consent-template.json section B_disclosureScope (crossChecks). The gate checks consent ↔ checklist consistency; the operator fills both from the same review session.",
+    "secretsRemovedConfirmed": "Everything the secret scanner hunts was removed; re-run examples/real-fixture-intake/prelude.mjs until GATE GREEN",
+    "personalDataRemovedConfirmed": "All humanChecks items below answered and applied (names, emails, entities, third-party data, URLs)",
+    "redactionCompletePerChecklist": "Every machineChecks box TRUE and every humanChecks item resolved in writing",
+    "checklistRef": "This checklist: DDE-REAL-INTAKE-REMOVAL-v1 for the same caseRef — referenced by the signed scope"
+  },
   "humanChecks": {
     "partiesPseudonymizedAddresses": "HUMAN — replace party names, emails, legal entity names with the wallet addresses the parties consent to publish; keep role labels (client/provider) only",
     "offChainArtifactsRedacted": "HUMAN — delivered artifacts often embed names/logos/paths/user data; redact content, then re-pin SHA-256 in delivery-manifest.json",

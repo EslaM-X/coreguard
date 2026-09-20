@@ -195,6 +195,25 @@ for (const f of files) {
   for (const h of realHits) add(`possible secret/personal data in ${h.path} — pattern: ${h.pattern} (${h.sample})`);
 }
 
+// ---------------------------------------- consent ↔ checklist scope consistency
+
+// The signed disclosure scope (consent-template.json §B_disclosureScope
+// crossChecks) must agree with the removed-data checklist completed by the
+// intake operator — one review session, two files, no contradictions.
+let scopeConsent = null;
+try { scopeConsent = JSON.parse(readFileSync(consentPath, "utf8")); } catch { /* already reported above */ }
+const cross = scopeConsent?.disclosureScope?.crossChecks;
+if (!cross || typeof cross !== "object") {
+  add("consent disclosureScope.crossChecks missing — the signed scope must include the redaction-completion cross-checks (consent-template.json §B_disclosureScope)");
+} else {
+  for (const key of ["redactionCompletePerChecklist", "recordsAsSubmittedMatchScope", "secretsRemovedConfirmed", "personalDataRemovedConfirmed"]) {
+    if (cross[key] !== true) add(`disclosureScope.crossChecks.${key} must be true in the signed scope`);
+  }
+  if (!cross.checklistRef || !/DDE-REAL-INTAKE-REMOVAL-v1/.test(String(cross.checklistRef))) {
+    add('disclosureScope.crossChecks.checklistRef must reference the completed removal checklist ("DDE-REAL-INTAKE-REMOVAL-v1 for the same caseRef")');
+  }
+}
+
 // ------------------------------------------------------------------ output
 
 const verdict = findings.length === 0 ? "GATE GREEN — proceed to fixture conversion" : "GATE RED — resolve findings before conversion";

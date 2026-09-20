@@ -127,3 +127,9 @@ Boundary document: [`docs/delivery-dispute-boundary.md`](../../docs/delivery-dis
 Engine: [`packages/delivery/index.js`](../../packages/delivery/index.js)
 Tests: `test/delivery/fixture.test.js` (33 tests — happy path, one mutation per
 F/E/B check, determinism, and the compound attack batteries)
+
+This fixture is the **synthetic schema exercise**. For a real paid transaction
+with two consenting parties, use the
+[real-fixture intake kit](../real-fixture-intake/) — bilateral consent with a
+signed disclosure scope, removal checklist, fail-closed gate, and conversion
+procedure.

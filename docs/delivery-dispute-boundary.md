@@ -146,6 +146,12 @@ Two wire-specific honesty rules:
   the endpoint verifies the records *as submitted*. The mark exists so no one
   can misread a wire report as pin verification.
 
+For a **real** bilateral case (not the synthetic exercise): the
+[real-fixture intake kit](../examples/real-fixture-intake/) provides the
+bilateral consent template with a named disclosure scope (both parties sign
+one `fixtureRef`; the gate enforces the scope's redaction cross-checks), the
+removal checklist, and the conversion + submission procedure.
+
 Hardening for a deliberate public bind (both fail-closed, both tested):
 
 - **Rate limiting** — in-memory fixed window per direct peer address

@@ -45,6 +45,22 @@ function makeCandidate(root) {
     if (name === "consent-and-disclosure.json") {
       const c = JSON.parse(txt);
       c.disclosure.realDisputeExists = true;
+      // The modeled party pair signs the disclosure scope (template §B_disclosureScope):
+      // both-parties integrity cross-checks the gate enforces against the checklist.
+      c.disclosureScope = {
+        reviewersMaySee: "the ten DDE records and their hashes (modeled)",
+        explicitlyWithheld: "none beyond redacted identities",
+        durationUtc: "until 2027-01-01T00:00:00Z",
+        revocation: "either party may withdraw by written notice",
+        channels: { publicRepository: true, sharedWithCounterparty: true, sharedWithNamedReviewer: false, namedReviewer: "" },
+        crossChecks: {
+          redactionCompletePerChecklist: true,
+          recordsAsSubmittedMatchScope: true,
+          secretsRemovedConfirmed: true,
+          personalDataRemovedConfirmed: true,
+          checklistRef: "DDE-REAL-INTAKE-REMOVAL-v1 for the same caseRef",
+        },
+      };
       c.provenance = "REAL — modeled intake candidate for gate self-test; signatures retained";
       txt = JSON.stringify(c, null, 2) + "\n";
     } else {
@@ -138,4 +154,30 @@ test("usage error: missing directory is exit 2, not a gate verdict", () => {
   const r = spawnSync(process.execPath, [PRELUDE], { cwd: REPO, encoding: "utf8" });
   assert.equal(r.status, 2);
   assert.match(r.stderr, /usage:/);
+});
+
+test("signed disclosure scope is enforced: missing/false crossChecks keep the gate red", () => {
+  // The scope block (consent-template.json §B_disclosureScope) is not optional:
+  // a candidate whose signed scope omits or falsifies a cross-check stays RED.
+  for (const mutate of [
+    (c) => { delete c.disclosureScope.crossChecks; },
+    (c) => { c.disclosureScope.crossChecks.secretsRemovedConfirmed = false; },
+    (c) => { c.disclosureScope.crossChecks.checklistRef = ""; },
+  ]) {
+    const dir = makeCandidate(mkdtempSync(join(tmpdir(), "dde-scope-")));
+    try {
+      const manifest = JSON.parse(readFileSync(join(dir, "hashes.json"), "utf8"));
+      const c = JSON.parse(readFileSync(join(dir, "consent-and-disclosure.json"), "utf8"));
+      mutate(c);
+      const txt = JSON.stringify(c, null, 2) + "\n";
+      writeFileSync(join(dir, "consent-and-disclosure.json"), txt);
+      manifest.files["consent-and-disclosure.json"] = sha256(Buffer.from(txt, "utf8"));
+      writeFileSync(join(dir, "hashes.json"), JSON.stringify(manifest, null, 2) + "\n");
+      const r = runPrelude(dir);
+      assert.equal(r.status, 1, `expected RED for mutated scope:\n${r.stdout}`);
+      assert.match(r.stdout, /disclosureScope\.crossChecks|GATE RED/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
 });
