@@ -1,0 +1,20 @@
+{
+  "name": "@coreguard/pricing",
+  "version": "0.1.0",
+  "description": "CoreGuard pricing plans — hypothesis-marked, decision-gate-locked (no enforcement)",
+  "type": "module",
+  "main": "./pricing.js",
+  "exports": {
+    ".": "./pricing.js"
+  },
+  "files": [
+    "pricing.js"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT"
+}

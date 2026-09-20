@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoreGuard DApp — Core Network · تثبيت البروف على Core</title>
+<style>
+  :root{
+    --bg:#0a0e17; --panel:#101826; --panel2:#0d1522; --line:#243652;
+    --ink:#eaf0f9; --muted:#8fa3c0; --green:#2fe4a8; --red:#ff7d7d;
+    --amber:#ffb648; --blue:#4a9eff; --violet:#a78bfa;
+    --core:#f2b64e; --cg:#34d399;
+    --mono:ui-monospace,'Cascadia Code',Consolas,monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{background:var(--bg); color:var(--ink); font:15px/1.65 system-ui,'Segoe UI',sans-serif; padding-bottom:70px}
+  .wrap{max-width:1060px; margin:0 auto; padding:0 20px}
+  a{color:var(--blue)}
+  .ltr{direction:ltr; unicode-bidi:isolate; font-family:var(--mono)}
+  header{padding:36px 0 18px; border-bottom:1px solid var(--line)}
+  h1{font-size:26px; letter-spacing:.2px}
+  .sub{color:var(--muted); margin-top:6px; max-width:780px}
+  nav{position:sticky; top:0; z-index:9; background:rgba(10,14,23,.94); backdrop-filter:blur(6px); border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex; gap:4px; align-items:center; flex-wrap:wrap; padding:8px 20px}
+  nav a{color:var(--muted); text-decoration:none; font-size:13px; padding:5px 10px; border-radius:7px}
+  nav a:hover{color:var(--ink); background:var(--panel)}
+  #langBtn{margin-inline-start:auto; background:var(--panel); border:1px solid var(--line); color:var(--ink); font:600 13px system-ui; padding:5px 14px; border-radius:7px; cursor:pointer}
+  #langBtn:hover{border-color:var(--blue)}
+  section{padding:34px 0 6px}
+  h2{font-size:19px; margin-bottom:14px; padding-inline-start:11px; border-inline-start:3px solid var(--blue)}
+  .grid{display:grid; gap:14px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px}
+  .card h3{font-size:14.5px; margin-bottom:8px}
+  .card .d{color:var(--muted); font-size:13.5px}
+  /* Core-style accent for the cross-chain / Core-branding visual identity */
+  .card.core{border-color:color-mix(in srgb,var(--core) 55%,transparent); background:linear-gradient(160deg,var(--panel),color-mix(in srgb,var(--core) 7%,var(--panel2)))}
+  .card.core h3{color:var(--core)}
+  .card.cg{border-color:color-mix(in srgb,var(--cg) 55%,transparent)}
+  .card.cg h3{color:var(--cg)}
+  .tag{display:inline-block; font:700 10.5px var(--mono); letter-spacing:.6px; padding:2px 9px; border-radius:20px; border:1px solid; vertical-align:2px}
+  .t-g{color:var(--green); border-color:color-mix(in srgb,var(--green) 45%,transparent)}
+  .t-r{color:var(--red); border-color:color-mix(in srgb,var(--red) 45%,transparent)}
+  .t-a{color:var(--amber); border-color:color-mix(in srgb,var(--amber) 45%,transparent)}
+  .t-b{color:var(--blue); border-color:color-mix(in srgb,var(--blue) 45%,transparent)}
+  .t-core{color:var(--core); border-color:color-mix(in srgb,var(--core) 45%,transparent)}
+  table{border-collapse:collapse; width:100%; font-size:13.5px}
+  th,td{text-align:start; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{color:var(--muted); font-weight:600; font-size:12px; letter-spacing:.4px}
+  .mini{font:12.5px var(--mono); color:var(--muted)}
+  .ok{color:var(--green)} .bad{color:var(--red)} .warn{color:var(--amber)}
+  #cicBadge{display:none; margin:10px 0 0; padding:8px 12px; border:1px solid var(--line); border-radius:8px; font-size:12.5px; color:var(--muted)}
+  #cicDot{display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--muted); margin-inline-end:7px; vertical-align:1px}
+  @media print{nav,#langBtn,.noPrint{display:none}}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <a href="#identity" data-i18n="nav1">Identity</a>
+  <a href="#plan" data-i18n="nav2">Plans &amp; pricing</a>
+  <a href="#verify" data-i18n="nav3">Anchor / verify</a>
+  <a href="#treasury" data-i18n="nav4">Treasury</a>
+  <a href="#chain" data-i18n="nav5">On Core</a>
+  <button id="langBtn" type="button" aria-label="Switch language" title="شغّل الإنجليزية">EN</button>
+</div></nav>
+
+<div class="wrap">
+<header>
+  <h1>CoreGuard <span style="color:var(--cg)">DApp</span> 🌍 <span class="tag t-core">CORE NETWORK</span></h1>
+  <p class="sub" data-i18n="headSub">
+    اعرف «من نفّذ المعاملة؟» — إنسان أو بوت أو روبوت أو شركة — وثبّت الإثبات على Core Mainnet
+    مقابل عمولة عادلة شفافة. البوت لا يُتحقق بواسطة تخمين، بل بالتصريح والإثبات.
+  </p>
+  <p class="sub ltr" data-i18n="headSubEn">Know who executed the transaction — human, bot, robot or company — and anchor the proof on Core Mainnet at a fair transparent commission. Persona is declared and proven, never guessed.</p>
+</header>
+
+<section id="identity"><h2 data-i18n="s1">بطاقة هوية المنفّذ (Actor Identity Card)</h2>
+  <div class="grid g2">
+    <div class="card"><h3>🤖 <span data-i18n="id1a">مثال: بوت / روبوت</span></h3>
+      <div class="d" data-i18n="id1b">النوع معلَن (BOT) والصانع/الطراز معلَن (manufacturer/model). CoreGuard لا يخمّن: لا إنسانًا ولا بوتًا. يُثبت التوقيع والارتباط بالمفتاح فقط.</div>
+      <div class="ltr mini" style="margin-top:8px">Bucket: BOT · Trust: VERIFIED<br>Model: acme/trader · provenance: declared</div>
+    </div>
+    <div class="card"><h3>👤 <span data-i18n="id2a">مثال: إنسان</span></h3>
+      <div class="d" data-i18n="id2b">الإنسان معلِّن DecLARED ويصل ATTESTED بشهادة من جهة موثوقة — لكنه لا يصل أبدًا VERIFIED؛ لا نكشف «الطبيعة الحقيقية». الصدق قاعدة الحوكمة.</div>
+      <div class="ltr mini" style="margin-top:8px">Bucket: HUMAN · Trust: DECLARED→ATTESTED<br>Never VERIFIED (honesty, CGEP/1 §6)</div>
+    </div>
+  </div>
+</section>
+
+<section id="plan"><h2 data-i18n="s2">الخطط والأسعار — مجاني أولًا (beta محدودة) ثم سعر عادل</h2>
+  <div class="grid g3">
+    <div class="card"><h3>🌱 <span data-i18n="p1n">Starter — مجاني</span> <span class="tag t-g">FREE</span></h3>
+      <div class="d" data-i18n="p1d">تحقق من الإثبات + بطاقة الهوية، حتى 10 عمليات/أسبوعًا. إثبات عام على Core. الهدف: إثبات القيمة قبل الطلب.</div>
+    </div>
+    <div class="card cg"><h3>⚡ <span data-i18n="p2n">Pro — اشتراك</span> <span class="tag t-b">PAID</span></h3>
+      <div class="d" data-i18n="p2d">تحقق غير محدود، وصول API آلي، دعم النزاعات (DDE/1) ورفع الأولوية، وتقارير بيانية. عمولة ثابتة صريحة لكل عملية تثبيت.</div>
+    </div>
+    <div class="card core"><h3>🏢 <span data-i18n="p3n">Enterprise / Core team</span> <span class="tag t-core">CUSTOM</span></h3>
+      <div class="d" data-i18n="p3d">منصات البوتات والروبوتات وشبكات الوكلاء: SLA، تخصيص بوليسي، تكامل HTTP مباشر، وشاشة عمولة مرن.</div>
+    </div>
+  </div>
+  <p class="mini" data-i18n="planNote" style="margin-top:10px">⚠️ الأسعار أعلاه «فرضية» حتى تفاعل Counterparty #1 (ElizaOS) يفتح بوابة قرار السعر الفعلي حسب التسلسل DOC-ADOPTION-LOCK: لا ادعاء تبني أو إيراد أو دعم Core.</p>
+</section>
+
+<section id="verify"><h2 data-i18n="s3">تثبيت وتحقق</h2>
+  <div class="card"><h3>🔗 <span data-i18n="v1">سير الإثبات على الشبكة</span></h3>
+    <table>
+      <tr><th data-i18n="vt1">المرحلة</th><th data-i18n="vt2">ما يحدث (اختصام، لا محتوى)</th><th data-i18n="vt3">الحالة</th></tr>
+      <tr><td class="mini">commitIntent</td><td data-i18n="v2">تعهّد النية + البصمة، ضمن نافذة validUntil</td><td><span class="t-g">LIVE</span></td></tr>
+      <tr><td class="mini">anchorProof</td><td data-i18n="v3">ربط سند التنفيذ + إصدار المُتحقق + النتيجة (VALID/INVALID/UNVERIFIED)</td><td><span class="t-g">TESTED</span><span class="warn" style="font-size:11px"> (V3 pending deploy)</span></td></tr>
+      <tr><td class="mini">feeWei</td><td data-i18n="v4">عمولة ثابتة صريحة في CORE تُحوَّل إلى خزانة DApp — لا خصم صامت</td><td><span class="t-b">CONFIG</span></td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="treasury"><h2 data-i18n="s4">الخزانة (العمولة — شفافة على السلسلة)</h2>
+  <div class="card cg"><div class="d" data-i18n="t1">
+    العقد EvidenceRegistryV3 يشحن عمولة ثابتة متساوية لكل عملية تثبيت (رسالة = feeWei بالضبط؛ أي زيادة/نقصان يرتد CommissionMismatch).
+    الأرصدة تتراكم في خزانة محاسبية فقط — سحبها حصري بسعر feeTo. لا إعادة دخول، لا تحويلات صامتة، لا «Winner» يُسمى في النزاعات (حد DDE/1).
+  </div></div>
+</section>
+
+<section id="chain"><h2 data-i18n="s5">لماذا Core؟</h2>
+  <div class="card core"><h3>◉ <span data-i18n="c1">بيئة Core الرئيسية — 1116</span></h3>
+    <div class="d" data-i18n="c2">هوية بصرية متسقة مع Core (لون Core أصفر ذهبي) مع هوية CoreGuard (أخضر داكن): كل طرف له لونه وبصمته. نفس البنية القابلة للتحقق: commitment+proof+receipt، وإثبات ETX حي قائم على Mainnet.</div>
+    <div class="ltr mini" style="margin-top:8px">chainId 1116 · EvidenceRegistryV3 · commission cap cfg<br>Live anchor: 0x3b0421…2714 · status 0x1 · live-verified</div>
+  </div>
+</section>
+
+<div id="cicBadge"><span id="cicDot"></span>
+  <span data-i18n="cic">حالة CI (dde surveillance):</span>
+</div>
+</div>
+
+<script>
+  // Hoisted bilingual prelude — reads live language at call time (AGENTS.md pattern).
+  const L = (o) => (o && typeof o === "object" ? (o[window.cgLang] ?? o.en) : o);
+  const I18N = {
+    nav1:{ar:"هوية المنفّذ",en:"Actor identity"},
+    nav2:{ar:"الخطط والأسعار",en:"Plans & pricing"},
+    nav3:{ar:"تثبيت وتحقق",en:"Anchor / verify"},
+    nav4:{ar:"الخزانة",en:"Treasury"},
+    nav5:{ar:"على Core",en:"On Core"},
+    headSub:{ar:"اعرف «من نفّذ؟» — وثبّت الإثبات على Core مقابل عمولة عادلة شفافة.",en:"Know who executed the tx and anchor the proof on Core at a fair transparent commission."},
+    headSubEn:{ar:"",en:""},
+    s1:{ar:"بطاقة هوية المنفّذ",en:"Actor Identity Card"},
+    s2:{ar:"الخطط والأسعار",en:"Plans & pricing"},
+    s3:{ar:"تثبيت وتحقق",en:"Anchor & verify"},
+    s4:{ar:"الخزانة والعمولة",en:"Treasury & commission"},
+    s5:{ar:"لماذا Core؟",en:"Why Core?"},
+    id1a:{ar:"بوت / روبوت",en:"Bot / robot"},
+    id1b:{ar:"النوع والصانع معلنان — CoreGuard لا يخمّن أبدًا.",en:"Type & maker declared — CoreGuard never guesses."},
+    id2a:{ar:"إنسان",en:"Human"},
+    id2b:{ar:"الإنسان المعلن يصل ATTESTED أقصى — الـVERIFIED مستحيل (الصدق).",en:"Declared human reaches ATTESTED at most — VERIFIED never (honesty)."},
+    p1n:{ar:"Starter — مجاني",en:"Starter — free"},
+    p1d:{ar:"تحقق + بطاقة هوية، 10/أسبوع. إثبات عام على Core.",en:"Verify + identity card, 10/week. Public anchor on Core."},
+    p2n:{ar:"Pro — اشتراك",en:"Pro — subscription"},
+    p2d:{ar:"غير محدود + API + دعم نزاعات DDE/1 + عمولة ثابتة.",en:"Unlimited + API + DDE/1 dispute support + flat commission."},
+    p3n:{ar:"Enterprise / فريق Core",en:"Enterprise / Core team"},
+    p3d:{ar:"منصات البوتات والروبوتات: SLA وتخصيص بوليسي وتكامل HTTP.",en:"Bot/robot platforms: SLA, custom policy, HTTP integration."},
+    planNote:{ar:"⚠️ الأسعار فرضية حتى استجابة ElizaOS (Counterparty #1).",en:"⚠️ Pricing is a hypothesis until ElizaOS (Counterparty #1) responds."},
+    v1:{ar:"سير الإثبات",en:"Proof flow"},
+    vt1:{ar:"المرحلة",en:"Stage"},
+    vt2:{ar:"ما يحدث",en:"Action"},
+    vt3:{ar:"الحالة",en:"Status"},
+    v2:{ar:"تعهّد النية + البصمة",en:"Intent commitment + fingerprint"},
+    v3:{ar:"ربط السند والنتيجة",en:"Bind receipt + result"},
+    v4:{ar:"عمولة ثابتة صريحة لخزانة DApp",en:"Explicit flat commission to DApp treasury"},
+    t1:{ar:"عمولة ثابتة = feeWei بالضبط؛ زيادة/نقصان يرتد. سحب الخزانة حصري feeTo. لا reentrancy، لا فائز يُسمى.",en:"Flat commission must match feeWei exactly; overpay/underpay revert. Treasury withdrawal is feeTo-only. No reentrancy, no named winner."},
+    c1:{ar:"حيث تعمل Core — 1116",en:"Where Core runs — 1116"},
+    c2:{ar:"هوية متسقة: Core بنفسجي‏/ذهبي، CoreGuard بأخضر داكن — كل طرف له لونه.",en:"Consistent identity: Core gold palette, CoreGuard dark green — each keeps its own."},
+    cic:{ar:"حالة CI (dde surveillance):",en:"CI status (dde surveillance):"},
+  };
+  function applyStatic(){
+    document.querySelectorAll("[data-i18n]").forEach(el=>{
+      const key=el.getAttribute("data-i18n");
+      if(key && I18N[key]) el.innerHTML = L(I18N[key]);
+    });
+    document.documentElement.lang = window.cgLang;
+    document.documentElement.dir = window.cgLang==="ar" ? "rtl" : "ltr";
+  }
+  window.cgLang="ar"; applyStatic();
+  document.getElementById("langBtn").addEventListener("click",()=>{
+    window.cgLang = window.cgLang==="ar" ? "en" : "ar";
+    applyStatic();
+    document.dispatchEvent(new CustomEvent("cg41:lang",{detail:{lang:window.cgLang}}));
+  });
+  // Live CI badge (identical honesty rule as the DDE board: offline → stays honest).
+  (async()=>{
+    try{
+      const r=await fetch("https://api.github.com/repos/EslaM-X/coreguard/actions/workflows/dde.yml",{headers:{accept:"application/vnd.github+json"}});
+      if(!r.ok) throw new Error("http "+r.status);
+      const wf=await r.json();
+      const state=(wf.state||"").toLowerCase();
+      const arm=state==="active";
+      document.getElementById("cicDot").style.background=arm?"var(--green)":"var(--red)";
+      document.getElementById("cicBadge").style.display="block";
+    }catch{/* offline: the checking line stays, honest by default */}
+  })();
+</script>
+</body>
+</html>

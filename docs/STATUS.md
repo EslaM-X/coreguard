@@ -2,13 +2,14 @@
 
 **Authoritative status file.** All repo docs (`README`, `docs/FUNDING.md`) point
 here instead of duplicating numbers. Facts only — every metric below is
-machine-measured, not estimated. Last verified: **2026-09-19**.
+machine-measured, not estimated. Last verified: **2026-09-20**.
 
 ## Repo truth (measured this day)
 
 | Item | Value | How verified |
 |---|---|---|
-| Test suite | **749 / 749 pass** | `npm test` (node `--test`) — 727 + 12 actor-card + 10 recovery failure-injection |
+| Test suite | **841 / 841 pass** | `npm test` (node `--test`) — includes 12 actor-card, 10 recovery, 9 pricing |
+| Foundry contracts | **34 / 34 pass** | `forge test --match-path "test/contract/*"` (V2: 14 + EvidenceRegistryV3: 20) |
 | Adversarial corpus | **73 / 73 pass** | `npm run corpus && npm run benchmark` |
 | Execution Integrity Benchmark | **10,000 runs · False Accept 0 · False Reject 0** | `npm run benchmark:10k` |
 | Mutation Laboratory | **1,000/1,000 mutants refused · 0 escaped** | `npm run mutation` |
@@ -51,6 +52,7 @@ machine-measured, not estimated. Last verified: **2026-09-19**.
 | Verifier version in receipts | `0.1.0` (release boundary locked) |
 | Verification levels | L0 · L1 · L2 claimable; L3/L4 exist but **not claimable** (INCONCLUSIVE, `REQUIRED_BY_LEVEL`) |
 | EvidenceRegistryV2 | implemented; `forge build` clean (solc 0.8.24) + `forge test` 14/14 (local pass); mirror suite 12/12 |
+| EvidenceRegistryV3 | implemented (`contracts/EvidenceRegistryV3.sol`) — flat `feeWei` commission + treasury; `forge test` 20/20 (part of 34/34); **not deployed** (owner-only decision) |
 | Verification-level truth + Trace Availability | implemented (`levelTruth`, `TRACE_AVAILABILITY`, additive receipt fields); suite 9/9 |
 | Canonicalization hardening | `securityUint` — no security-critical integer as JS `Number`; hex-spelling preserved |
 | Execution Integrity Benchmark | 10,000 generated executions, deterministic (`scripts/benchmark-10k.mjs`) |
@@ -59,6 +61,7 @@ machine-measured, not estimated. Last verified: **2026-09-19**.
 | Phase 1 · Reference Vault ladder | `npm run demo:vault` ALLOW → VERIFIED → anchor PLAN; `npm run demo:attack` **7/7 blocked** (6 PRE + 1 POST) |
 | Phase 1 · consumer integration | `create-coreguard-integration` template smoke 3/3 (`test/p1/create-integration.test.js`) |
 | Phase 1 · CI exposure | `.github/actions/coreguard-verify` composite action → receipt VERIFIED → `CoreGuard Verification: PASS` (engine job) |
+| **v0.5.5 (2026-09-20, this session)** | **Product-expansion pack** — (1) **Actor Identity Card** in `packages/provenance/actor-identity-card.js` (HUMAN/AGENT/BOT/ROBOT/COMPANY + maker/model/version + trust DECLARED→ATTESTED→VERIFIED; human never VERIFIED) wired into `verify-provenance` CLI + `12/12` tests; (2) **`EvidenceRegistryV3.sol`** — flat explicit `feeWei` commission paid atomically with `anchorProof`, `CommissionMismatch` on any mismatch, operator-only `withdrawTreasury`, `feeWei=0` = pure V2 path, domain-separated — `forge test` **34/34** (V2 14 + V3 20); (3) **hypothesis pricing** `packages/pricing/pricing.js` + `docs/pricing.md` (gate-locked, `gated:true`, never bills) with `9/9` tests; (4) **DApp surface** `docs/coreguard-dapp-core.html` (Core gold + CoreGuard green identity); (5) `submission/14-pitch-deck.md` + `submission/15-egypt-patent-file.md`; `npm test` **841/841**; pricing stays LOCKED — no committed pricing |
 
 ## Outreach truth (Decision-Gate inputs)
 

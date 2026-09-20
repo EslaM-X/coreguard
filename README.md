@@ -129,7 +129,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 824 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, encoding, attack-lab, DDE delivery/dispute suites
+npm test              # 841 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites
 npm run corpus        # deterministic 73-scenario adversarial corpus
 npm run benchmark     # 73/73 pass
 # Authoritative numbers live in docs/STATUS.md (one source of truth).
@@ -295,6 +295,48 @@ npm run verify-provenance -- --manifest examples/provenance/manifest.json --evid
 # exit code: 0=verified · 1=cli/input error · 2=invalid · 3=not proven/unverified · 4=inconclusive
 ```
 
+## Who ran this? — the moment, and why now
+
+Autonomous actors now move value: AI agents, keeper bots, trading robots,
+treasury daemons and company-controlled multisigs. The fastest-growing question
+in that world has no verifiable answer today — **not "is this transaction
+risky?", but "who declared responsibility for this exact execution, under what
+authority, and can anyone prove it afterward?"** CoreGuard is the execution-
+provenance + cryptographic-authority layer for that question, and AgentProof
+answers *who* as a **declared, signer-bound** fact (never a behavioral guess).
+
+> The honest positioning line, safe to repeat: **CoreGuard verifies declared
+> execution provenance and cryptographic authority for a specific execution.**
+> It is not an agent-identity registry, not a trust-score system, not an
+> "AI detector". See `spec/agent-provenance-prior-art.md` (Gate G-1).
+
+## Built for Core
+
+CoreGuard is built for Core's stack — the native programmable layer for
+Bitcoin — and is already proven live there (chainId 1116; anchor verdict
+VERIFIED ANCHOR INTEGRITY; independent cross-RPC readback). The product surface
+[DApp](docs/coreguard-dapp-core.html) carries **Core's visual identity (gold)
+alongside CoreGuard's own (deep green)**: consistent with the ecosystem, never
+a rebrand — every party keeps its own color and fingerprint.
+
+Aligned Core programs are tracked as **public, dated, planning-only facts**
+(never eligibility claims): Core Connect Global Buildathon (AI + Web3 infra
+categories), Core Commit Program (business-model / PMF criteria), and Core
+Ignition Builders' Incentive. Details + the criteria pre-mapping live in
+[docs/adoption/](docs/adoption/).
+
+## Plans and pricing (hypothesis — gate-locked)
+
+The product shows a three-tier structure — **Starter (free, 10/week)** →
+**Pro** → **Enterprise / Core team** — and the on-chain commission side is real:
+`EvidenceRegistryV3` charges a **flat, explicit `feeWei`** paid atomically with
+the anchor (any mismatch reverts), routed to an operator-only treasury, with
+`feeWei = 0` degenerating to the free path.
+
+**No committed pricing.** Per standing governance, pricing stays locked until
+the Decision Gate opens (after Counterparty #1). The machine view stamps
+`gated: true` on every output and never bills. See [docs/pricing.md](docs/pricing.md).
+
 ## On-chain
 
 | Network | Chain ID | RPC |
@@ -315,8 +357,10 @@ npm run anchor:verify                         # → scripts/verify-live.regenera
 ```
 spec/        CGEP/1 (draft) · master spec · canonical encoding · receipt · levels ·
              threat model · privacy model · competitive kill matrix · killer memos
-packages/    canonical · intent · policy · trace · evidence · firewall · verifier · evm · sdk · cli · delivery   (ESM)
+packages/    canonical · intent · policy · trace · evidence · firewall · verifier · evm · sdk · cli · delivery · provenance · pricing   (ESM)
              — sdk/guard.js = guard.authorize/verify/anchor Phase-1 surface
+             — provenance = Actor Identity Card + AgentProof surfaces (declared, never detected)
+             — pricing = hypothesis plan table, Decision-Gate-locked (no enforcement, never bills)
              — delivery = DDE/1 execution/acceptance boundary (engine + SDK + HTTP endpoint, zero-dep)
 contracts/   EvidenceRegistry.sol — commitment registry (deployable, `--legacy`)
 benchmarks/  generator + 73-scenario corpus: valid/invalid/mutations/tamper/performance
@@ -331,10 +375,11 @@ templates/   integration/ — consumer scaffold for create-coreguard-integration
 scripts/     anchor-local.ps1/.sh — local fork anchor proof ·
              compute-commitment — offline commitment plan ·
              verify-anchor — three-proofs anchor checker
-docs/        deployment · funding · contributing · security · delivery-dispute-boundary.md (DDE/1)
+docs/        deployment · funding · contributing · security · delivery-dispute-boundary.md (DDE/1) · pricing.md
              DELIVERY-DISPUTE-DEMO.html — live bilingual DDE demo
+             coreguard-dapp-core.html — Core-branded DApp surface (identity · plans · treasury · on-Core)
 docs/adoption/  WS-5 — adoption & institutional proof (demand/evidence layer)
-submission/  Investor / Core Submission Pack (13 items) — run `npm run demo:90s`
+submission/  Investor / Core Submission Pack (15 items) — run `npm run demo:90s`
 ```
 
 ## Roadmap
@@ -352,7 +397,7 @@ submission/  Investor / Core Submission Pack (13 items) — run `npm run demo:90
 CoreGuard is looking for funding and builders — milestone-based, Core-native,
 auditor-honest. Details: [docs/FUNDING.md](docs/FUNDING.md).
 
-Evaluating us? Start with the [Core Submission Pack (13 items)](submission/) —
+Evaluating us? Start with the [Core Submission Pack (15 items)](submission/) —
 `npm install && npm run demo:90s` reproduces the Mainnet-verified demo in seconds.
 
 ## License

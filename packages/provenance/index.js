@@ -551,3 +551,8 @@ export {
   ACTOR_BUCKETS,
   BUCKET_LABELS,
 } from "./actor-card.js";
+export {
+  composeIdentityCard,
+  identityCardFor,
+  identityCardLine,
+} from "./actor-identity-card.js";

@@ -269,6 +269,28 @@ test("F3: the honest fixture's declared state matches its records", () => {
   assert.equal(r.declared, "DISPUTE_OPEN");
 });
 
+test("F3: a closed dispute record (closedAtUtc) establishes RECORD_CLOSED", () => {
+  const f = defect((x) => {
+    x.lifecycleState = "RECORD_CLOSED";
+    x.disputeRecord.closedAtUtc = x.disputeRecord.recordClosesAtUtc;
+  });
+  const r = checkLifecycleConsistency(f);
+  assert.equal(r.result, "PASS");
+  assert.equal(r.declared, "RECORD_CLOSED");
+  assert.equal(r.expected, "RECORD_CLOSED");
+});
+
+test("F3: declaring RECORD_CLOSED without closedAtUtc fails — closure is established, not declared", () => {
+  const f = defect((x) => {
+    x.lifecycleState = "RECORD_CLOSED";
+    delete x.disputeRecord.closedAtUtc;
+  });
+  const r = checkLifecycleConsistency(f);
+  assert.equal(r.result, "FAIL");
+  assert.equal(r.declared, "RECORD_CLOSED");
+  assert.equal(r.expected, "DISPUTE_OPEN");
+});
+
 // ------------------------------------- F0 — required records
 
 test("F0: any missing mandatory record fails the gate", async () => {

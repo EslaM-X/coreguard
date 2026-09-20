@@ -19,6 +19,16 @@
  *            decides conformity)
  *   act 5 — counterfactual: the client records ACCEPTED on the
  *           same criteria evaluations                              → RELEASE
+ *   act 6 — mutual acceptance on file (both parties sign the
+ *           same criteria) — no dispute yet                        → RELEASE
+ *   act 7 — a dispute opens later; evidence stays VERIFIED but
+ *           movement freezes anyway                                → HOLD
+ *   act 8 — closure declared into the wire without closure
+ *           evidence (closedAtUtc still null); F3 names the
+ *           declared-vs-established mismatch                       → HOLD
+ *   act 9 — the dispute procedure closes the record (closedAtUtc
+ *           set outside DDE) — movement follows the closed
+ *           record; DDE names no winner                            → RELEASE
  *
  * The scenario rejection (act 2) is built the only way DDE/1 allows: a party
  * acceptance record resting on criterion evaluations — here quoting the
@@ -32,8 +42,8 @@
  *   node examples/agent-platform-integration/run-http-payout-gate.mjs
  *   node examples/agent-platform-integration/run-http-payout-gate.mjs --json
  *
- * Exit contract (both modes): acts 1–4 HOLD, act 5 RELEASES — exit 0. Any
- * other shape exits 1.
+ * Exit contract (both modes): acts 1–4 HOLD, acts 5–6 RELEASE, acts 7–8 HOLD,
+ * act 9 RELEASES — exit 0. Any other shape exits 1.
  */
 
 import { readFileSync } from "node:fs";
@@ -153,6 +163,88 @@ const acts = [];
   acts.push(settled);
 }
 
+// ------- acts 6–9 — the open-dispute arc: acceptance, freeze, refusal, closure
+//
+// Mutual acceptance is not immunity. A dispute re-opens the record and freezes
+// movement; closure cannot be declared into the wire — it must be established
+// by the dispute record itself (closedAtUtc). DDE names no winner; the
+// platform moves payment per the closed record, never per an engine verdict.
+
+const mutualAccepted = {
+  ...fixture.acceptanceRecord,
+  verdict: "ACCEPTED",
+  signedBy: [
+    fixture.disputeRecord.partyA.agentAddress,
+    fixture.disputeRecord.partyB.agentAddress,
+  ],
+  note: "Mutual acceptance on the same criteria evaluations — the client " +
+        "accepts despite the C-QUALITY miss under the rework agreement. A " +
+        "party act under DDE/1; not derived from execution facts.",
+};
+const acceptedNoDispute = {
+  ...fixture,
+  lifecycleState: "ACCEPTANCE_RECORDED",
+  acceptanceRecord: mutualAccepted,
+  disputeRecord: { ...fixture.disputeRecord, openedAtUtc: null }, // F0 needs the record; nothing opened it yet
+};
+const disputeOpen = {
+  ...acceptedNoDispute,
+  lifecycleState: "DISPUTE_OPEN",
+  disputeRecord: fixture.disputeRecord, // the dispute opens — openedAtUtc set
+};
+
+// ---------------- act 6 — mutual acceptance, dispute-free
+
+{
+  submittedFixture = acceptedNoDispute;
+  const { res, report } = await releaseCondition();
+  const gate = { release: report.status === "VERIFIED" && true /* both parties on file */ };
+  acts.push(settle(res, report, gate,
+    "mutual acceptance on file (both parties sign the same criteria) — no dispute yet",
+    ["mutual acceptance recorded by both parties on the same criteria evaluations — no dispute open, payout released"]));
+}
+
+// ------- act 7 — the dispute opens later: acceptance does not immunize payment
+
+{
+  submittedFixture = disputeOpen;
+  const { res, report } = await releaseCondition();
+  const gate = { release: false }; // dispute open — frozen regardless of acceptance
+  acts.push(settle(res, report, gate,
+    "dispute opens later — payment frozen despite mutual acceptance", [
+      "mutual acceptance on file — the dispute re-opens the record anyway",
+      `record state: DISPUTE_OPEN (opened ${fixture.disputeRecord.openedAtUtc}) — movement frozen until the record closes`,
+      `DDE decision: ${report.decision}`,
+    ]));
+}
+
+// ------------- act 8 — closure cannot be declared into the wire
+
+{
+  submittedFixture = { ...disputeOpen, lifecycleState: "RECORD_CLOSED" };
+  const { res, report } = await releaseCondition();
+  const gate = { release: false };
+  acts.push(settle(res, report, gate,
+    "closure declared into the wire without closure evidence — the wire refuses"));
+}
+
+// -------- act 9 — the record closes: movement follows the closed record
+
+{
+  submittedFixture = {
+    ...disputeOpen,
+    lifecycleState: "RECORD_CLOSED",
+    disputeRecord: { ...fixture.disputeRecord, closedAtUtc: fixture.disputeRecord.recordClosesAtUtc },
+  };
+  const { res, report } = await releaseCondition();
+  const gate = { release: report.status === "VERIFIED" && true /* record closed by the procedure */ };
+  acts.push(settle(res, report, gate,
+    "record closed by the dispute procedure — movement follows the closed record", [
+      `record closed at ${submittedFixture.disputeRecord.closedAtUtc} — closure belongs to the dispute procedure, outside DDE`,
+      "platform moves payment per the closed record — DDE named no winner (engineAdjudication: NONE)",
+    ]));
+}
+
 // ------------------------------------------------------------------- output
 
 // Teardown: the server is unref'd and every demo request used
@@ -171,7 +263,11 @@ if (jsonMode) {
   }, null, 2));
 }
 const ok = acts.slice(0, 4).every((a) => a.escrowState === "HELD") &&
-           acts[4].escrowState.startsWith("RELEASED");
+           acts[4].escrowState.startsWith("RELEASED") &&
+           acts[5].escrowState === "RELEASED" &&
+           acts[6].escrowState === "HELD" &&
+           acts[7].escrowState === "HELD" &&
+           acts[8].escrowState === "RELEASED";
 if (!jsonMode) {
   const line = "─".repeat(76);
   console.log(line);
@@ -193,11 +289,11 @@ if (!ok) process.exitCode = 1; // drain-exit: no hard kill mid-teardown
 // ------------------------------------------------------------------- helpers
 
 /** Settle the escrow from an HTTP response + wire report + platform gate. */
-function settle(res, report, gate, label) {
+function settle(res, report, gate, label, explicitReasons) {
   escrow.state = gate.release ? "RELEASED" : "HELD";
   escrow.releaseReasons = gate.release
-    ? ["acceptance condition met — payout released to the provider"]
-    : buildHoldReasons(res, report);
+    ? (explicitReasons ?? ["acceptance condition met — payout released to the provider"])
+    : (explicitReasons ?? buildHoldReasons(res, report));
   return { label, httpStatus: res.status, wireStatus: report.status, escrowState: escrow.state, reasons: escrow.releaseReasons };
 }
 
@@ -208,6 +304,9 @@ function buildHoldReasons(res, report) {
     reasons.push(`endpoint returned ${res.status} (${report.status}) — no release without a VERIFIED wire report`);
     for (const c of report.checks ?? []) {
       if (c.result === "FAIL") for (const m of c.mismatches ?? [c.name]) reasons.push(`  check ${c.id} FAIL — ${m}`);
+      if (c.id === "F3" && c.result === "FAIL" && c.declared) {
+        reasons.push(`  check F3 — declared ${c.declared} but the records establish ${c.expected} (closure is established by closedAtUtc, not declared)`);
+      }
     }
     if (report.error) reasons.push(`  endpoint said: ${report.error}`);
   } else {

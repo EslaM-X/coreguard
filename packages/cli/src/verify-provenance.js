@@ -129,9 +129,25 @@ export function renderBadge(out) {
 }
 
 /**
- * Print the human-readable report to stdout and return the exit code.
+ * Render the GenericIdentityCard style "purple identity badge" printer.
  */
-export function printProvenanceReport(out) {
+export function printIdentityCard(out, manifest) {
+  const card = identityCardFor(manifest, out);
+  if (!card) {
+    console.log("  Actor Card: (unavailable)");
+    return;
+  }
+  console.log(`${"─".repeat(56)}`);
+  console.log("Actor Card — who signed? (declared, never detected)");
+  for (const lang of ["ar", "en"]) {
+    console.log(`  [${lang}] ${identityCardLine(card, lang)}`);
+  }
+  console.log(`  Model:   ${card.modelLabel || "(none declared)"}`);
+  console.log(`  Trust:   ${card.trust} (${card.trustLabel ? card.trustLabel.en : ""})`);
+  console.log(`  Honest:  ${card.note}`);
+}
+import { identityCardFor, identityCardLine } from "../../provenance/actor-identity-card.js";
+export function printProvenanceReport(out, manifest) {
   const v = out.verdicts || {};
   const exitCode = exitCodeForProvenance(out);
 
@@ -142,6 +158,7 @@ export function printProvenanceReport(out) {
   console.log(`${"─".repeat(56)}`);
   console.log("Badge:");
   console.log(renderBadge(out));
+  if (manifest) printIdentityCard(out, manifest);
   console.log(`${"─".repeat(56)}`);
   console.log("Checks (state-only; commitments only, never bodies):");
   for (const [check, verdict] of Object.entries(v)) {
@@ -187,7 +204,7 @@ export async function runVerifyProvenanceCli({ manifest, evidence = {}, json = f
   if (json) {
     console.log(JSON.stringify({ contract: CONTRACT, version: VERIFIER_VERSION, exitCode, ...out }, null, 2));
   } else {
-    printProvenanceReport(out);
+    printProvenanceReport(out, manifest);
   }
 
   return exitCode;

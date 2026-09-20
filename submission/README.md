@@ -19,7 +19,7 @@ Not *"here is our project, please fund us."* The goal is:
 
 > **"We need to see this running on Core."**
 
-## The 13 items
+## The 15 items
 
 | # | Item | Where |
 |---|---|---|
@@ -36,6 +36,8 @@ Not *"here is our project, please fund us."* The goal is:
 | 11 | 12-month roadmap | [`11-roadmap-12-month.md`](11-roadmap-12-month.md) |
 | 12 | IP / patent strategy | [`12-ip-strategy.md`](12-ip-strategy.md) |
 | 13 | GitHub + release/tag evidence | [`13-github-evidence.md`](13-github-evidence.md) |
+| 14 | Investor / Core pitch deck | [`14-pitch-deck.md`](14-pitch-deck.md) |
+| 15 | Egypt patent file (lawyer handoff) | [`15-egypt-patent-file.md`](15-egypt-patent-file.md) |
 
 ## Fastest start
 

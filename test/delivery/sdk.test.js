@@ -5,6 +5,11 @@
  *   releaseWhen(report, predicate)      → release only on VERIFIED + explicit predicate
  *   demo arc                            → 4 HOLDs (pending / REJECTED / tamper / honest boundary)
  *                                         + 1 RELEASE (modeled party acceptance) — nothing between
+ *   wire arc (HTTP endpoint)            → 6 HOLDs (pending / REJECTED / tamper / honest
+ *                                         boundary / dispute-open / declared-closure)
+ *                                         + 3 RELEASEs (counterfactual / mutual both-party
+ *                                         acceptance / record-closed) — closure is established
+ *                                         by closedAtUtc, never declared into the wire
  */
 
 import { test } from "node:test";
@@ -86,12 +91,12 @@ test("demo: 4 HOLDs then 1 RELEASE — the boundary arc end-to-end", () => {
   assert.match(r.stdout, /NEITHER decides conformity/);
 });
 
-test("wire demo: payout gated over the DDE HTTP endpoint — 4 holds, 1 release", () => {
+test("wire demo: payout gated over the DDE HTTP endpoint — 6 holds, 3 releases", () => {
   const r = spawnSync(process.execPath, [WIRE_DEMO], { encoding: "utf8" });
   assert.equal(r.status, 0, `wire demo contract failed:\n${r.stdout}\n${r.stderr}`);
   assert.equal(r.stderr, "", "no libuv teardown noise may corrupt the verdict");
-  assert.equal((r.stdout.match(/🔒/g) || []).length, 4);
-  assert.equal((r.stdout.match(/✓/g) || []).length, 1);
+  assert.equal((r.stdout.match(/🔒/g) || []).length, 6);
+  assert.equal((r.stdout.match(/✓/g) || []).length, 3);
   // The scenario rejection is named: failing criterion by id, observed vs required.
   assert.match(r.stdout, /C-QUALITY/);
   assert.match(r.stdout, /2 color tokens/);
@@ -101,18 +106,26 @@ test("wire demo: payout gated over the DDE HTTP endpoint — 4 holds, 1 release"
   // The boundary rides the wire report verbatim.
   assert.match(r.stdout, /CONFORMITY_UNDECIDED_BY_ENGINE/);
   assert.match(r.stdout, /NEITHER decides conformity/);
+  // The open-dispute arc: acceptance is not immunity; closure is established, not declared.
+  assert.match(r.stdout, /dispute re-opens the record anyway/);
+  assert.match(r.stdout, /closure is established by closedAtUtc, not declared/);
+  assert.match(r.stdout, /DDE named no winner/);
 });
 
 test("wire demo --json: machine contract — statuses and gate arc", () => {
   const r = spawnSync(process.execPath, [WIRE_DEMO, "--json"], { encoding: "utf8" });
   assert.equal(r.status, 0);
   const j = JSON.parse(r.stdout);
-  assert.equal(j.acts.length, 5);
-  assert.deepEqual(j.acts.map((a) => a.httpStatus), [200, 200, 422, 200, 200]);
+  assert.equal(j.acts.length, 9);
+  assert.deepEqual(j.acts.map((a) => a.httpStatus), [200, 200, 422, 200, 200, 200, 200, 422, 200]);
   assert.deepEqual(j.acts.map((a) => a.wireStatus),
-    ["VERIFIED", "VERIFIED", "REJECTED", "VERIFIED", "VERIFIED"]);
-  assert.equal(j.acts.filter((a) => a.escrowState === "HELD").length, 4);
-  assert.ok(j.acts[4].escrowState.startsWith("RELEASED"));
+    ["VERIFIED", "VERIFIED", "REJECTED", "VERIFIED", "VERIFIED", "VERIFIED", "VERIFIED", "REJECTED", "VERIFIED"]);
+  assert.equal(j.acts.filter((a) => a.escrowState === "HELD").length, 6);
+  assert.ok(j.acts[4].escrowState.startsWith("RELEASED")); // counterfactual acceptance
+  assert.ok(j.acts[5].escrowState.startsWith("RELEASED")); // mutual both-party acceptance
+  assert.equal(j.acts[6].escrowState, "HELD");             // dispute open — frozen
+  assert.equal(j.acts[7].escrowState, "HELD");             // closure declared w/o evidence — refused
+  assert.ok(j.acts[8].escrowState.startsWith("RELEASED")); // record closed by the procedure
 });
 
 test("perf: verifyFixture stays inside the 50ms budget — measured, not promised", async () => {

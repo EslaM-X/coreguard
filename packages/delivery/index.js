@@ -398,11 +398,14 @@ export async function checkConsentBinding(fixture, evm = undefined) {
  * F3 — LIFECYCLE CONSISTENCY: the declared fixture state must match what its
  * records actually establish. Records establish a state; the declared state
  * is checked against them — never inferred silently in the other direction.
+ * A closed dispute record (closedAtUtc set) establishes RECORD_CLOSED; closure
+ * of the record is NOT adjudication — B3 still names no winner.
  */
 export function checkLifecycleConsistency(fixture) {
   const declared = fixture && fixture.lifecycleState;
   const expected =
-    fixture && fixture.disputeRecord && fixture.disputeRecord.openedAtUtc ? "DISPUTE_OPEN"
+    fixture && fixture.disputeRecord && fixture.disputeRecord.closedAtUtc ? "RECORD_CLOSED"
+    : fixture && fixture.disputeRecord && fixture.disputeRecord.openedAtUtc ? "DISPUTE_OPEN"
     : fixture && fixture.acceptanceRecord && fixture.acceptanceRecord.verdict ? "ACCEPTANCE_RECORDED"
     : fixture && fixture.delivery && fixture.delivery.submittedAtUtc ? "DELIVERY_SUBMITTED"
     : "DRAFT";
