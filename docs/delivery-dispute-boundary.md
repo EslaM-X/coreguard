@@ -1,6 +1,6 @@
 # Delivery & Dispute Evidence — Integration Boundary (DDE/1)
 
-**Status:** draft for counterparty review · **Version:** DDE/1 · **Date:** 2026-09-19
+**Status:** draft for counterparty review · **Version:** DDE/1 · **Date:** 2026-09-19 · **Verified:** `node examples/delivery-fixture/verify-fixture.mjs` · **Benchmarked:** `npm run benchmark:dde` (verify budget: median < 50 ms/fixture; measured ≈ 0.7 ms median, ~65× headroom)
 **Engine:** `packages/delivery/index.js` (zero dependencies) · **Fixture:** `examples/delivery-fixture/` · **Verify:** `node examples/delivery-fixture/verify-fixture.mjs` · **HTTP:** `packages/delivery/http.js` (§6)
 
 > **The boundary in one sentence.** Execution verification does not decide

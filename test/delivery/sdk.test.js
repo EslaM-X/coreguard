@@ -10,6 +10,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { performance } from "node:perf_hooks";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { verifyFixture, releaseWhen, loadFixtureFromDir } from "../../packages/delivery/sdk.js";
@@ -18,6 +19,7 @@ const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const FIXTURE_DIR = join(REPO, "examples", "delivery-fixture");
 const DEMO = join(REPO, "examples", "agent-platform-integration", "run-integration-demo.mjs");
 const WIRE_DEMO = join(REPO, "examples", "agent-platform-integration", "run-http-payout-gate.mjs");
+const PERF_RUNNER = join(REPO, "scripts", "benchmark-dde.mjs");
 
 test("verifyFixture via fixtureDir: VERIFIED report stamped with the boundary", async () => {
   const report = await verifyFixture({ fixtureDir: FIXTURE_DIR });
@@ -111,4 +113,29 @@ test("wire demo --json: machine contract — statuses and gate arc", () => {
     ["VERIFIED", "VERIFIED", "REJECTED", "VERIFIED", "VERIFIED"]);
   assert.equal(j.acts.filter((a) => a.escrowState === "HELD").length, 4);
   assert.ok(j.acts[4].escrowState.startsWith("RELEASED"));
+});
+
+test("perf: verifyFixture stays inside the 50ms budget — measured, not promised", async () => {
+  await verifyFixture({ fixtureDir: FIXTURE_DIR }); // warmup (JIT + fs cache)
+  const samples = [];
+  for (let i = 0; i < 25; i++) {
+    const t0 = performance.now();
+    const report = await verifyFixture({ fixtureDir: FIXTURE_DIR });
+    const dt = performance.now() - t0;
+    assert.equal(report.status, "VERIFIED");
+    samples.push(dt);
+  }
+  const median = samples.sort((a, b) => a - b)[12];
+  assert.ok(median < 50, `median verify time ${median.toFixed(2)}ms must stay under the 50ms budget`);
+});
+
+test("perf gate runner: PASS with machine report — the benchmark itself stays under watch", () => {
+  const r = spawnSync(process.execPath, [PERF_RUNNER, "--json"], { encoding: "utf8" });
+  assert.equal(r.status, 0, `perf gate failed:\n${r.stdout}\n${r.stderr}`);
+  const j = JSON.parse(r.stdout);
+  assert.equal(j.gate, "PASS");
+  assert.equal(j.verifiedRuns, j.iterations);
+  assert.ok(j.stats.median <= j.budget.medianMs, `median ${j.stats.median}ms over budget`);
+  assert.ok(j.stats.p95 <= j.budget.p95Ms, `p95 ${j.stats.p95}ms over tail budget`);
+  assert.match(j.fixture, /delivery-fixture/);
 });
