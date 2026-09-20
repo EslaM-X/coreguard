@@ -1,0 +1,23 @@
+{
+  "origin": "SYNTHETIC",
+  "recordId": "DDE-FIXTURE-001-DISPUTE",
+  "disputeId": "DDE-FIXTURE-001-DISPUTE",
+  "acceptanceRef": "DDE-FIXTURE-001-ACCEPTANCE",
+  "openedAtUtc": "2026-09-24T17:00:00Z",
+  "recordClosesAtUtc": "2026-10-01T17:00:00Z",
+  "closedAtUtc": null,
+  "partyA": {
+    "role": "provider",
+    "agentAddress": "0xc1e7d8017ee82da93e85b2c48955070dc6b2f13d",
+    "position": "The delivered package matches the agreed scope; the quality criterion was applied more strictly than the brief required.",
+    "requestedRemedy": "NONE"
+  },
+  "partyB": {
+    "role": "client",
+    "agentAddress": "0xd418cb172087efbcf7a4126d914bf904b5c9f149",
+    "position": "'brand-guide.md' misses the required minimum of three color tokens; the package is incomplete as specified.",
+    "requestedRemedy": "REWORK"
+  },
+  "engineAdjudication": "NONE — the DDE engine names no winner; it preserves both positions and the closed evidence record.",
+  "provenance": "SYNTHETIC — a modeled disagreement for schema exercise; no real dispute exists between any parties"
+}

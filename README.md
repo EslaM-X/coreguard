@@ -235,11 +235,13 @@ benchmarks/  generator + 73-scenario corpus: valid/invalid/mutations/tamper/perf
 test/        canonicalization · policy · tamper suites + adversarial runner + P1 suites
              · firewall/ (engine + ws1) · firewall/attack-lab · sdk (verifyBinding + guard)
 examples/    transfer · swap · multistep · live · vault (Phase-1 reference ladder) (runnable, with READMEs + artifacts)
+             delivery-fixture/ — DDE/1 bilateral dispute fixture (synthetic, replayable: node examples/delivery-fixture/verify-fixture.mjs)
 templates/   integration/ — consumer scaffold for create-coreguard-integration
 scripts/     anchor-local.ps1/.sh — local fork anchor proof ·
              compute-commitment — offline commitment plan ·
              verify-anchor — three-proofs anchor checker
-docs/        deployment · funding · contributing · security
+docs/        deployment · funding · contributing · security · delivery-dispute-boundary.md (DDE/1)
+             DELIVERY-DISPUTE-DEMO.html — live bilingual DDE demo
 docs/adoption/  WS-5 — adoption & institutional proof (demand/evidence layer)
 submission/  Investor / Core Submission Pack (13 items) — run `npm run demo:90s`
 ```

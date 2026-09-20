@@ -1,0 +1,15 @@
+{
+  "name": "@coreguard/delivery",
+  "version": "0.1.0",
+  "description": "Delivery & Dispute Evidence (DDE/1): the execution/acceptance boundary, enforced — execution verification never decides delivery conformity",
+  "type": "module",
+  "main": "./index.js",
+  "files": ["index.js"],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT"
+}

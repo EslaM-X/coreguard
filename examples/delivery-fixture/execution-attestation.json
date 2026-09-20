@@ -1,0 +1,24 @@
+{
+  "origin": "REAL",
+  "recordId": "DDE-FIXTURE-001-EXEC",
+  "executionId": "DDE-FIXTURE-001-EXEC",
+  "network": "core-mainnet",
+  "chainId": "1116",
+  "txHash": "0xe67c61fda81200bf026faee31c23a7b7e7f56ed24f06ffe24f071fa06891a9b8",
+  "receipt": {
+    "status": "0x1 (success)",
+    "blockNumber": "38712625",
+    "from": "0xea41becdeb612d8625bf3060809964f1dab43244",
+    "to": "0x7b4ce161d65e679c30ba738a522a09d63880992c",
+    "gasUsed": "21000",
+    "valueWei": "1000000000000000"
+  },
+  "paymentSettled": true,
+  "verifiedVia": {
+    "rpc": "rpc.coredao.org",
+    "method": "eth_getTransactionReceipt",
+    "checkedAtUtc": "2026-09-19T12:00:00Z"
+  },
+  "reference": "examples/pilot/proof-artifact-1.json — Pilot-1 public proof artifact (VERIFIED)",
+  "provenance": "REAL — public Pilot-1 Core Mainnet transaction; receipt fields re-verified live from the RPC at fixture generation. This anchors the EXECUTION layer only: it proves payment settled, never delivery conformity."
+}

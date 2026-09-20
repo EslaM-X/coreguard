@@ -1,0 +1,45 @@
+{
+  "origin": "SYNTHETIC",
+  "recordId": "DDE-FIXTURE-001-CRITERIA",
+  "criteriaRef": "DDE-FIXTURE-001-CRITERIA",
+  "agreementRef": "DDE-FIXTURE-001-AGREEMENT",
+  "version": "1.0.0",
+  "note": "Machine-inspectable acceptance criteria fixed before delivery. Conformity is judged by the parties against these criteria — never by the DDE engine.",
+  "criteria": [
+    {
+      "id": "C-SCOPE",
+      "statement": "Delivery includes an artifact with id 'logo.svg'.",
+      "check": {
+        "kind": "artifact-exists",
+        "artifactId": "logo.svg"
+      }
+    },
+    {
+      "id": "C-FORMAT",
+      "statement": "Artifact 'logo.svg' is valid SVG markup (content starts with '<svg').",
+      "check": {
+        "kind": "artifact-prefix",
+        "artifactId": "logo.svg",
+        "prefix": "<svg"
+      }
+    },
+    {
+      "id": "C-TIMELINE",
+      "statement": "Delivery was submitted no later than the agreement deadline.",
+      "check": {
+        "kind": "submitted-before-deadline"
+      }
+    },
+    {
+      "id": "C-QUALITY",
+      "statement": "Artifact 'brand-guide.md' defines at least 3 hex color tokens under the '## Color tokens' section.",
+      "check": {
+        "kind": "section-hex-count",
+        "artifactId": "brand-guide.md",
+        "section": "## Color tokens",
+        "min": 3
+      }
+    }
+  ],
+  "provenance": "SYNTHETIC — criteria authored for the fixture scenario"
+}

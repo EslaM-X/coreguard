@@ -1,0 +1,17 @@
+{
+  "origin": "SYNTHETIC",
+  "recordId": "DDE-FIXTURE-001-PARTIES",
+  "client": {
+    "role": "client (buyer of the deliverable)",
+    "principalAddress": "0x716891f369eadbd06bb0a2c2ed091a193e4390e6",
+    "agentAddress": "0xd418cb172087efbcf7a4126d914bf904b5c9f149",
+    "authority": "principal scopes the agent by an off-chain mandate for this agreement only"
+  },
+  "provider": {
+    "role": "provider (produces and delivers the deliverable)",
+    "principalAddress": "0xb240f6879da4c214d534fd18874ee12142b8c274",
+    "agentAddress": "0xc1e7d8017ee82da93e85b2c48955070dc6b2f13d",
+    "authority": "agent signs delivery records within the agreed scope"
+  },
+  "keysNote": "All addresses derive deterministically from counter-based test keys (keccak256(\"CGEP DDE key <i>\")). SYNTHETIC identity — a deterministic test key, not a real-world party."
+}

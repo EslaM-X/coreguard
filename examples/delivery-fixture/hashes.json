@@ -1,0 +1,29 @@
+{
+  "manifest": {
+    "algorithm": "sha256",
+    "generatedBy": "examples/delivery-fixture/make-fixture.mjs",
+    "generatedAtUtc": "2026-09-19T12:00:00Z",
+    "selfExcluded": [
+      "hashes.json"
+    ],
+    "note": "Every record file is pinned by SHA-256 over its exact bytes. hashes.json cannot hash itself — the single declared self-exclusion."
+  },
+  "fixture": {
+    "origin": "SYNTHETIC",
+    "realDisputeExists": false,
+    "lifecycleState": "DISPUTE_OPEN",
+    "ddeVersion": "DDE/1"
+  },
+  "files": {
+    "agreement.json": "0x808e0d85d1f99620b1232876e00653e6c51f613f1abdb7aef2490aaf40e8cded",
+    "acceptance-criteria.json": "0xa6980fdbc23ba463802d3a3c95f56d139a2f0501286c97454b41910ca2af6009",
+    "parties.json": "0x84e9724a43622dce08a3865ec2ab915eae36ec168b57aac9e59adc82388c1350",
+    "authorization.json": "0x7a6f0bd3184aba81327bc4d4452ea4b8735842cd23f06b0599ae67a90248cb62",
+    "execution-attestation.json": "0xb182d0bd8ed00a240f869b013e76b5226db8b1f3f5f880590c0b3c854cd9f628",
+    "delivery-manifest.json": "0xaad39a8d8432d3535c11a74e82403f5c18201b097ccf8a2e3bbcb0ed2e5ce379",
+    "acceptance-record.json": "0x29f34c5b6cd3eaed39766adb2310ef234bcd07b4d3c7927ccf70a6342567238c",
+    "dispute-record.json": "0x1be3c53ad858872ef0cfd1cae0e1ded733902fb521458546d3c4bb447f6c3c60",
+    "consent-and-disclosure.json": "0xe33044435f8324a36584145c7ac5b9dc4227182e0547ed4576a922314a4c6be7",
+    "retention-policy.json": "0xe3b6ccd425a984f14be7329d6ed7d5a53592c1045f1118c07678543e7cdf75ae"
+  }
+}

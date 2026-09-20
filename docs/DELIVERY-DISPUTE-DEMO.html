@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoreGuard DDE — Delivery &amp; Dispute Evidence</title>
+<style>
+  :root{
+    --bg:#0b1420; --panel:#101d2e; --panel2:#0d1826; --line:#22354d;
+    --ink:#e8eef6; --muted:#93a4ba; --green:#34d399; --red:#f87171;
+    --amber:#fbbf24; --blue:#60a5fa; --violet:#a78bfa;
+    --mono:ui-monospace,'Cascadia Code',Consolas,monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{background:var(--bg); color:var(--ink); font:15px/1.6 system-ui,'Segoe UI',sans-serif; padding-bottom:70px}
+  .wrap{max-width:1060px; margin:0 auto; padding:0 20px}
+  a{color:var(--blue)}
+  .ltr{direction:ltr; unicode-bidi:isolate; font-family:var(--mono)}
+  header{padding:34px 0 18px; border-bottom:1px solid var(--line)}
+  h1{font-size:26px; letter-spacing:.2px}
+  .sub{color:var(--muted); margin-top:6px; max-width:760px}
+  nav{position:sticky; top:0; z-index:9; background:rgba(11,20,32,.94); backdrop-filter:blur(6px); border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex; gap:4px; align-items:center; flex-wrap:wrap; padding:8px 20px}
+  nav a{color:var(--muted); text-decoration:none; font-size:13px; padding:5px 10px; border-radius:7px}
+  nav a:hover{color:var(--ink); background:var(--panel)}
+  #langBtn{margin-inline-start:auto; background:var(--panel); border:1px solid var(--line); color:var(--ink); font:600 13px system-ui; padding:5px 14px; border-radius:7px; cursor:pointer}
+  #langBtn:hover{border-color:var(--blue)}
+  section{padding:34px 0 6px}
+  h2{font-size:19px; margin-bottom:14px; padding-inline-start:11px; border-inline-start:3px solid var(--blue)}
+  .grid{display:grid; gap:14px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px}
+  .card h3{font-size:14.5px; margin-bottom:8px}
+  .card .d{color:var(--muted); font-size:13.5px}
+  .tag{display:inline-block; font:700 10.5px var(--mono); letter-spacing:.6px; padding:2px 9px; border-radius:20px; border:1px solid; vertical-align:2px}
+  .t-g{color:var(--green); border-color:color-mix(in srgb,var(--green) 45%,transparent)}
+  .t-r{color:var(--red); border-color:color-mix(in srgb,var(--red) 45%,transparent)}
+  .t-a{color:var(--amber); border-color:color-mix(in srgb,var(--amber) 45%,transparent)}
+  .t-b{color:var(--blue); border-color:color-mix(in srgb,var(--blue) 45%,transparent)}
+  .t-v{color:var(--violet); border-color:color-mix(in srgb,var(--violet) 45%,transparent)}
+  .mono,pre{font-family:var(--mono); font-size:12.5px}
+  pre{background:var(--panel2); border:1px solid var(--line); border-radius:9px; padding:11px 13px; overflow-x:auto; white-space:pre-wrap; word-break:break-all; color:#c9d6e8}
+  table{width:100%; border-collapse:collapse; font-size:13.5px}
+  th{color:var(--muted); font-weight:600; text-align:start; padding:7px 10px; border-bottom:1px solid var(--line); font-size:12.5px}
+  td{padding:8px 10px; border-bottom:1px solid color-mix(in srgb,var(--line) 55%,transparent); vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .v-ok{color:var(--green); font-weight:700}
+  .v-bad{color:var(--red); font-weight:700}
+  /* timeline */
+  .tl{display:flex; gap:0; overflow-x:auto; padding:8px 0 4px}
+  .step{flex:1; min-width:150px; position:relative; padding:14px 14px 10px 22px; border-inline-start:2px solid var(--line)}
+  .step:first-child{border-inline-start:none; padding-inline-start:2px}
+  .step::before{content:""; position:absolute; inset-inline-start:-6px; top:20px; width:10px; height:10px; border-radius:50%; background:var(--blue)}
+  .step.real::before{background:var(--green); box-shadow:0 0 8px color-mix(in srgb,var(--green) 70%,transparent)}
+  .step .n{font:700 11px var(--mono); color:var(--muted); letter-spacing:.8px}
+  .step .t{font-size:13.5px; margin-top:3px; font-weight:600}
+  .step .s{font-size:12px; color:var(--muted)}
+  /* tamper demo */
+  .artpick{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0}
+  .artpick button{background:var(--panel2); border:1px solid var(--line); color:var(--ink); font:12.5px var(--mono); padding:6px 12px; border-radius:7px; cursor:pointer}
+  .artpick button.on{border-color:var(--blue); color:var(--blue)}
+  .hashbox{font-family:var(--mono); font-size:12px; word-break:break-all; background:var(--panel2); border:1px solid var(--line); border-radius:9px; padding:10px 12px; margin-top:10px; direction:ltr; text-align:left}
+  .hashbox b{color:var(--muted); font-weight:600}
+  .verdict{margin-top:12px; font-weight:700; font-size:14px; padding:10px 14px; border-radius:9px; border:1px solid}
+  .verdict.ok{color:var(--green); border-color:color-mix(in srgb,var(--green) 40%,transparent); background:color-mix(in srgb,var(--green) 8%,transparent)}
+  .verdict.bad{color:var(--red); border-color:color-mix(in srgb,var(--red) 40%,transparent); background:color-mix(in srgb,var(--red) 8%,transparent)}
+  .btnrow{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
+  .btnrow button{border:none; border-radius:8px; padding:9px 16px; font:600 13.5px system-ui; cursor:pointer}
+  .b-tamper{background:var(--red); color:#1a0505}
+  .b-restore{background:var(--green); color:#04160d}
+  .muted{color:var(--muted)}
+  /* dispute sides */
+  .sides{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  @media (max-width:680px){.sides{grid-template-columns:1fr}}
+  .side{border-radius:12px; padding:16px 18px; border:1px solid var(--line); background:var(--panel)}
+  .side h4{font-size:14px; margin-bottom:8px}
+  .side .pos{font-size:13.5px; color:#c9d6e8}
+  .side .rem{margin-top:10px; font-size:12.5px; color:var(--muted)}
+  .side .rem b{color:var(--amber)}
+  .vs{display:flex; align-items:center; justify-content:center; margin:2px 0; font:800 13px var(--mono); color:var(--muted); letter-spacing:2px}
+  /* banner */
+  #banner{position:fixed; inset-inline:0; bottom:0; z-index:20; background:linear-gradient(90deg,#132a43,#0f2033); border-top:1px solid var(--blue); padding:11px 20px; text-align:center; font-size:13.5px; font-weight:600}
+  #banner .neq{color:var(--amber); font-family:var(--mono)}
+  footer{padding:26px 0 10px; color:var(--muted); font-size:12.5px}
+  @media print{
+    @page{size:A4 portrait; margin:14mm 12mm}
+    nav,#langBtn,#banner,.btnrow,.artpick button{display:none}
+    html,body{background:#fff; color:#16202f; font-size:11pt}
+    .card,.side,pre,.hashbox{background:#fff; border-color:#b9c4d4; box-shadow:none}
+    .card .d,.muted,.step .s,th,.side .rem{color:#4a586c}
+    h2{border-inline-start-color:#1a4f8a}
+    .v-ok{color:#0d7a4f}.v-bad{color:#b3232a}
+    #banner{position:static; background:#eef4fb; border-color:#1a4f8a; color:#16202f}
+    section{break-inside:avoid-page}
+    .card,.step,pre,.hashbox,tr{break-inside:avoid}
+    a{color:#1553a8; text-decoration:none}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="#lifecycle" data-i18n="nav1">Lifecycle</a>
+    <a href="#anchor" data-i18n="nav2">Execution proof</a>
+    <a href="#delivery" data-i18n="nav3">Delivery &amp; tamper</a>
+    <a href="#criteria" data-i18n="nav4">Acceptance</a>
+    <a href="#dispute" data-i18n="nav5">Dispute</a>
+    <a href="#pc" data-i18n="nav6">Court mapping</a>
+    <button id="langBtn" type="button" aria-label="Switch language">ع</button>
+  </div>
+</nav>
+
+<header class="wrap">
+  <h1>CoreGuard <span style="color:var(--violet)">DDE/1</span> — <span data-i18n="title">Delivery &amp; Dispute Evidence</span></h1>
+  <p class="sub" data-i18n="sub">A complete, replayable bilateral fixture that demonstrates the boundary in code: the on-chain payment is real, the rejection stands on named acceptance criteria, and nothing in the chain of custody lets the engine decide who is right.</p>
+  <p class="sub mono" style="margin-top:8px; font-size:12px" data-i18n="runline">Replay: node examples/delivery-fixture/verify-fixture.mjs → VERIFIED (10 PASS · exit 0)</p>
+</header>
+
+<div class="wrap">
+
+<!-- ───────────────────────────── lifecycle -->
+<section id="lifecycle">
+  <h2 data-i18n="h_life">Evidence lifecycle — each step a signed record</h2>
+  <div class="tl" id="tl"></div>
+  <div class="grid g3" style="margin-top:12px">
+    <div class="card"><h3><span class="tag t-v" data-i18n="tag_syn">SYNTHETIC</span> <span data-i18n="life_c1t">Parties &amp; agreement</span></h3><p class="d" data-i18n="life_c1">Deterministic test identities and a modeled brand-package agreement. Declared loudly — origin: SYNTHETIC in every record.</p></div>
+    <div class="card"><h3><span class="tag t-g" data-i18n="tag_real">REAL</span> <span data-i18n="life_c2t">On-chain payment</span></h3><p class="d" data-i18n="life_c2">The Pilot-1 transaction on Core Mainnet — receipt re-verified live from rpc.coredao.org. The only real-world layer, by design.</p></div>
+    <div class="card"><h3><span class="tag t-b" data-i18n="tag_crypto">REAL CRYPTO</span> <span data-i18n="life_c3t">Signatures</span></h3><p class="d" data-i18n="life_c3">Genuine EIP-712 replays over deterministic keys: cryptographically true, evidence of nothing beyond this fixture.</p></div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── anchor -->
+<section id="anchor">
+  <h2 data-i18n="h_anchor">Execution proof — real, and intentionally insufficient</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h3 data-i18n="anchor_t">Core Mainnet · Pilot-1 anchor</h3>
+      <pre id="anchorPre"></pre>
+      <p class="d" style="margin-top:10px" data-i18n="anchor_d">Receipt re-verified live via eth_getTransactionReceipt. This settles payment — and payment is where its evidentiary reach ends.</p>
+    </div>
+    <div class="card">
+      <h3 data-i18n="anchor_b1t">What this receipt can never prove</h3>
+      <table><tbody>
+        <tr><td data-i18n="b1_r1">Who delivered, and what</td><td><span class="v-bad" data-i18n="no">NO</span></td></tr>
+        <tr><td data-i18n="b1_r2">Whether delivery matched the criteria</td><td><span class="v-bad" data-i18n="no">NO</span></td></tr>
+        <tr><td data-i18n="b1_r3">Which party is right in a dispute</td><td><span class="v-bad" data-i18n="no">NO</span></td></tr>
+        <tr><td data-i18n="b1_r4">That payment settled (status 0x1)</td><td><span class="v-ok" data-i18n="yes">YES</span></td></tr>
+      </tbody></table>
+      <p class="d" style="margin-top:10px" data-i18n="anchor_b1d">Checks B1/B2 make the forbidden inference structurally impossible: basis=[PAYMENT_SETTLED] alone can never yield ACCEPTED.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── delivery + tamper -->
+<section id="delivery">
+  <h2 data-i18n="h_del">Delivery evidence — live hash replay</h2>
+  <p class="d" style="margin-bottom:4px" data-i18n="del_d">Every artifact is pinned by SHA-256 over its exact bytes — the same single hash definition the engine uses. Pick one, watch its digest recompute in your browser, then flip a byte and watch the pin break.</p>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card">
+      <h3 data-i18n="del_t1">Artifacts (delivery-manifest.json)</h3>
+      <div class="artpick" id="artpick"></div>
+      <pre id="artPre"></pre>
+    </div>
+    <div class="card">
+      <h3 data-i18n="del_t2">Tamper simulator — one byte, instant rejection</h3>
+      <div class="hashbox"><b>SHA-256:</b> <span id="artHash"></span></div>
+      <div id="artVerdict" class="verdict ok"></div>
+      <div class="btnrow">
+        <button class="b-tamper" id="bTamper" type="button" data-i18n="b_tamper">⚡ Flip one byte</button>
+        <button class="b-restore" id="bRestore" type="button" data-i18n="b_restore">↺ Restore</button>
+      </div>
+      <p class="d" style="margin-top:10px" data-i18n="del_d2">In the CLI the same flip exits 1 fail-closed — in memory, disk untouched: node examples/delivery-fixture/verify-fixture.mjs --tamper logo.svg</p>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── criteria -->
+<section id="criteria">
+  <h2 data-i18n="h_crit">Acceptance — judged by criteria, not by the chain</h2>
+  <p class="d" data-i18n="crit_d">Four machine-inspectable criteria were fixed before delivery. The client's rejection cites one failing criterion — and nothing else. F2 guarantees every criterion is evaluated and every evaluation cites a real criterion.</p>
+  <div class="card" style="margin-top:12px; overflow-x:auto">
+    <table id="critTable"></table>
+  </div>
+</section>
+
+<!-- ───────────────────────────── dispute -->
+<section id="dispute">
+  <h2 data-i18n="h_disp">The dispute — two positions, no engine verdict</h2>
+  <div class="sides">
+    <div class="side">
+      <h4><span class="tag t-b" data-i18n="side_p">PROVIDER</span> <span class="muted mono" style="font-weight:400" id="paAddr"></span></h4>
+      <p class="pos" id="paPos"></p>
+      <p class="rem"><span data-i18n="remedy">Requested remedy:</span> <b id="paRem"></b></p>
+    </div>
+    <div class="side">
+      <h4><span class="tag t-a" data-i18n="side_c">CLIENT</span> <span class="muted mono" style="font-weight:400" id="pbAddr"></span></h4>
+      <p class="pos" id="pbPos"></p>
+      <p class="rem"><span data-i18n="remedy">Requested remedy:</span> <b id="pbRem"></b></p>
+    </div>
+  </div>
+  <div class="vs" data-i18n="vs">← two parties, one closed record, zero engine adjudication →</div>
+  <p class="d" data-i18n="disp_d">The engine preserves both positions verbatim and constrains remedies to a closed vocabulary. It structurally cannot name a winner — that power belongs to a neutral procedure both parties accept, not to a hash, a receipt, or a signature.</p>
+</section>
+
+<!-- ───────────────────────────── court mapping -->
+<section id="pc">
+  <h2 data-i18n="h_pc">Neutral-procedure mapping — classification, never judgment</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h3 data-i18n="pc_t1">Evidence classes a neutral procedure receives</h3>
+      <table id="pcTable"></table>
+    </div>
+    <div class="card">
+      <h3 data-i18n="pc_t2">What the mapping is — and is not</h3>
+      <p class="d" data-i18n="pc_d1">mapToPeoplesCourt() is a pure projection: it classifies nine evidence classes and reports readiness. No custody transfer, no merit finding, no endorsement — inclusion implies nothing about People's Court / Epistemic Labs.</p>
+      <pre style="margin-top:10px" id="pcPre"></pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p data-i18n="foot1">Fixture: examples/delivery-fixture/ · Engine: packages/delivery (zero dependencies) · Tests: test/delivery/fixture.test.js · Boundary: docs/delivery-dispute-boundary.md</p>
+  <p data-i18n="foot2">Honesty: origin SYNTHETIC · realDisputeExists=false · real transaction anchor · real EIP-712 cryptography over deterministic test keys.</p>
+</footer>
+
+</div>
+
+<div id="banner"><span data-i18n="banner1">Execution verified</span> <span class="neq">≠</span> <span data-i18n="banner2">delivery conformity decided</span></div>
+
+<script>
+/* injected by examples/delivery-fixture/inject-demo-data.mjs — source of truth: examples/delivery-fixture/ */
+window.__DDE_DATA__ = {"agreement":{"origin":"SYNTHETIC","recordId":"DDE-FIXTURE-001-AGREEMENT","agreementId":"DDE-FIXTURE-001-AGREEMENT","version":"1.0.0","title":"Synthetic bilateral delivery agreement — brand package","client":{"role":"client (buyer of the deliverable)","principalAddress":"0x716891f369eadbd06bb0a2c2ed091a193e4390e6","agentAddress":"0xd418cb172087efbcf7a4126d914bf904b5c9f149","authority":"principal scopes the agent by an off-chain mandate for this agreement only"},"provider":{"role":"provider (produces and delivers the deliverable)","principalAddress":"0xb240f6879da4c214d534fd18874ee12142b8c274","agentAddress":"0xc1e7d8017ee82da93e85b2c48955070dc6b2f13d","authority":"agent signs delivery records within the agreed scope"},"scope":"One brand package: logo.svg, brand-guide.md, handoff-notes.txt","compensationWei":"250000000000000000","deadlineUtc":"2026-09-26T10:00:00Z","agreedAtUtc":"2026-09-19T08:00:00Z","provenance":"SYNTHETIC — modeled agreement to exercise the DDE/1 schema; no real parties"},"acceptance-criteria":{"origin":"SYNTHETIC","recordId":"DDE-FIXTURE-001-CRITERIA","criteriaRef":"DDE-FIXTURE-001-CRITERIA","agreementRef":"DDE-FIXTURE-001-AGREEMENT","version":"1.0.0","note":"Machine-inspectable acceptance criteria fixed before delivery. Conformity is judged by the parties against these criteria — never by the DDE engine.","criteria":[{"id":"C-SCOPE","statement":"Delivery includes an artifact with id 'logo.svg'.","check":{"kind":"artifact-exists","artifactId":"logo.svg"}},{"id":"C-FORMAT","statement":"Artifact 'logo.svg' is valid SVG markup (content starts with '<svg').","check":{"kind":"artifact-prefix","artifactId":"logo.svg","prefix":"<svg"}},{"id":"C-TIMELINE","statement":"Delivery was submitted no later than the agreement deadline.","check":{"kind":"submitted-before-deadline"}},{"id":"C-QUALITY","statement":"Artifact 'brand-guide.md' defines at least 3 hex color tokens under the '## Color tokens' section.","check":{"kind":"section-hex-count","artifactId":"brand-guide.md","section":"## Color tokens","min":3}}],"provenance":"SYNTHETIC — criteria authored for the fixture scenario"},"authorization":{"origin":"SYNTHETIC","recordId":"DDE-FIXTURE-001-AUTH","scheme":"EIP-712","subject":"0xd418cb172087efbcf7a4126d914bf904b5c9f149","signer":"0xd418cb172087efbcf7a4126d914bf904b5c9f149","intent":{"agreementId":"DDE-FIXTURE-001-AGREEMENT","clientAgent":"0xd418cb172087efbcf7a4126d914bf904b5c9f149","providerAgent":"0xc1e7d8017ee82da93e85b2c48955070dc6b2f13d","maxValueWei":"250000000000000000","deadlineUtc":"2026-09-26T10:00:00Z"},"intentHash":"0xe6843e56a782ba0ea6c6ddbd4633f31c19e18875cac6a79ebb304f19161c8463","signature":{"r":"1a65656b08add51a253b5e447d2782f3f977da0f7be82c4382dc82f29c666161","s":"607f8f87a369769914b31e49af76d41130689bd136f9452eda0acfc1bca3eabe","v":28,"digest":"0xa9b6effb603e4717c1cbba05eda7b924cc0ebc3535c9cc4bfa8343183d63b7d0"},"domain":{"name":"CoreGuard DDE Delivery Intent","version":"1","chainId":"1116"},"signedAtUtc":"2026-09-19T09:00:00Z","authorityNote":"The client agent signs the delivery intent within the principal's mandate. Signature is cryptographically real (replayable) and evidences only this fixture — the identities behind it are SYNTHETIC identity — a deterministic test key, not a real-world party."},"execution-attestation":{"origin":"REAL","recordId":"DDE-FIXTURE-001-EXEC","executionId":"DDE-FIXTURE-001-EXEC","network":"core-mainnet","chainId":"1116","txHash":"0xe67c61fda81200bf026faee31c23a7b7e7f56ed24f06ffe24f071fa06891a9b8","receipt":{"status":"0x1 (success)","blockNumber":"38712625","from":"0xea41becdeb612d8625bf3060809964f1dab43244","to":"0x7b4ce161d65e679c30ba738a522a09d63880992c","gasUsed":"21000","valueWei":"1000000000000000"},"paymentSettled":true,"verifiedVia":{"rpc":"rpc.coredao.org","method":"eth_getTransactionReceipt","checkedAtUtc":"2026-09-19T12:00:00Z"},"reference":"examples/pilot/proof-artifact-1.json — Pilot-1 public proof artifact (VERIFIED)","provenance":"REAL — public Pilot-1 Core Mainnet transaction; receipt fields re-verified live from the RPC at fixture generation. This anchors the EXECUTION layer only: it proves payment settled, never delivery conformity."},"delivery-manifest":{"origin":"SYNTHETIC","recordId":"DDE-FIXTURE-001-DELIVERY","deliveryId":"DDE-FIXTURE-001-DELIVERY","agreementRef":"DDE-FIXTURE-001-AGREEMENT","executionRef":"DDE-FIXTURE-001-EXEC","submittedAtUtc":"2026-09-24T09:30:00Z","submittedBy":"0xc1e7d8017ee82da93e85b2c48955070dc6b2f13d","artifacts":[{"id":"logo.svg","content":"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"120\" viewBox=\"0 0 120 120\">\n  <title>CoreGuard Shield — synthetic delivery fixture</title>\n  <rect x=\"8\" y=\"8\" width=\"104\" height=\"104\" rx=\"18\" fill=\"#0d1b2a\"/>\n  <path d=\"M60 22 L92 38 V66 C92 86 78 98 60 104 C42 98 28 86 28 66 V38 Z\" fill=\"#1b998b\"/>\n  <circle cx=\"60\" cy=\"62\" r=\"16\" fill=\"#f4f7fa\"/>\n</svg>\n","sha256":"0xc32337044edb72a552977bd1699200dabe2e9fab0523292ccb3678b8e555cb36","bytes":372},{"id":"brand-guide.md","content":"# Brand Guide — synthetic fixture artifact\n\n## Color tokens\n- Primary: #1b998b\n- Surface: #0d1b2a\n\n## Typography\n- Display: system sans-serif, 700\n","sha256":"0xdf5d7e13a448060b370b7663778cea1d4cfb3e7fea294b45163475fc19bb38ad","bytes":149},{"id":"handoff-notes.txt","content":"Handoff notes — synthetic fixture artifact.\nThe logo uses the shield motif agreed in the brief.\nSource files available on request within the retention window.\n","sha256":"0xfd5dffd73a664d4a7f0ab144340299980fa6d8f65626dbdcc477fa708200041f","bytes":161}],"provenance":"SYNTHETIC — artifact contents modeled for the scenario; SHA-256 pins are real over the exact embedded bytes (single hash definition: packages/delivery artifactSha256)"},"acceptance-record":{"origin":"SYNTHETIC","recordId":"DDE-FIXTURE-001-ACCEPTANCE","acceptanceId":"DDE-FIXTURE-001-ACCEPTANCE","criteriaRef":"DDE-FIXTURE-001-CRITERIA","deliveryRef":"DDE-FIXTURE-001-DELIVERY","verdict":"REJECTED","basis":["CRITERIA_EVALUATION"],"derivedFrom":"criteria","evaluations":[{"criterionId":"C-SCOPE","result":"PASS","observed":"artifact 'logo.svg' present in the delivery manifest"},{"criterionId":"C-FORMAT","result":"PASS","observed":"'logo.svg' content begins with '<svg'"},{"criterionId":"C-TIMELINE","result":"PASS","observed":"submitted 2026-09-24T09:30:00Z <= deadline 2026-09-26T10:00:00Z"},{"criterionId":"C-QUALITY","result":"FAIL","observed":"'brand-guide.md' defines 2 hex color tokens under '## Color tokens'; the criterion requires at least 3"}],"signedBy":["0xd418cb172087efbcf7a4126d914bf904b5c9f149"],"recordedAtUtc":"2026-09-24T15:00:00Z","note":"The rejection rests solely on the recorded criterion evaluations. It is a party act under DDE/1 — it is not derived from execution facts, and payment settlement plays no part in it."},"dispute-record":{"origin":"SYNTHETIC","recordId":"DDE-FIXTURE-001-DISPUTE","disputeId":"DDE-FIXTURE-001-DISPUTE","acceptanceRef":"DDE-FIXTURE-001-ACCEPTANCE","openedAtUtc":"2026-09-24T17:00:00Z","recordClosesAtUtc":"2026-10-01T17:00:00Z","closedAtUtc":null,"partyA":{"role":"provider","agentAddress":"0xc1e7d8017ee82da93e85b2c48955070dc6b2f13d","position":"The delivered package matches the agreed scope; the quality criterion was applied more strictly than the brief required.","requestedRemedy":"NONE"},"partyB":{"role":"client","agentAddress":"0xd418cb172087efbcf7a4126d914bf904b5c9f149","position":"'brand-guide.md' misses the required minimum of three color tokens; the package is incomplete as specified.","requestedRemedy":"REWORK"},"engineAdjudication":"NONE — the DDE engine names no winner; it preserves both positions and the closed evidence record.","provenance":"SYNTHETIC — a modeled disagreement for schema exercise; no real dispute exists between any parties"},"consent-and-disclosure":{"origin":"SYNTHETIC","recordId":"DDE-FIXTURE-001-CONSENT","chainId":"1116","fixtureRef":"0xdad8647212995c33ec5c10c262cc5d2149e53b2e0e4c9046469ee724686416fa","disclosure":{"origin":"SYNTHETIC","realDisputeExists":false,"realTransactionAnchor":true,"realSignatures":true,"signatureMeaning":"cryptographically genuine EIP-712 replays over deterministic fixture keys — not evidence that real parties consented to anything","secretsRemoved":true,"personalDataRemoved":true,"peoplesCourtConsent":"none — inclusion of a People's Court mapping implies no endorsement, procedure, or agreement by People's Court / Epistemic Labs"},"redactionGrants":[{"grantor":"0x716891f369eadbd06bb0a2c2ed091a193e4390e6","fixtureRef":"0xdad8647212995c33ec5c10c262cc5d2149e53b2e0e4c9046469ee724686416fa","scope":"Redacted public review of this fixture: all parties are synthetic; the on-chain anchor is a public transaction; no secrets and no personal data are included.","signature":{"r":"e6333dbb0880b91b7373398ad1d0300cc535dda09db2a59277de32248b722f9f","s":"05c537d1fcd0a0eb8401e01c775185fc26046fc784bb07e33aaaf81826aa5b40","v":27,"digest":"0x156eeeb1bf094f01fa681df6189004ba974748e28188ffc856ad23f8e5485df7"}},{"grantor":"0xb240f6879da4c214d534fd18874ee12142b8c274","fixtureRef":"0xdad8647212995c33ec5c10c262cc5d2149e53b2e0e4c9046469ee724686416fa","scope":"Redacted public review of this fixture: all parties are synthetic; the on-chain anchor is a public transaction; no secrets and no personal data are included.","signature":{"r":"7b0526955f3eb9de6d5b49465628467868f39e4f5ef3e31f3aff73237986aa8a","s":"1fdf1ab3786daffea9c43acf3adc04bc822ab5bf72e2ee131b6d217194dc91cd","v":27,"digest":"0x0e53b2d5593c886e086a2883e935c02e82dcb5f1b4d8f87a265122285365953d"}}]},"retention-policy":{"origin":"SYNTHETIC","recordId":"DDE-FIXTURE-001-RETENTION","retentionUtcUntil":"2027-09-19T00:00:00Z","allowPublicArchive":true,"purgeCommitment":"Either grantor may request deletion of the fixture artifacts after the retention window; the on-chain anchor remains public regardless.","contactNote":"Fixture maintained in the coreguard repository under examples/delivery-fixture/."},"_hashes":{"manifest":{"algorithm":"sha256","generatedBy":"examples/delivery-fixture/make-fixture.mjs","generatedAtUtc":"2026-09-19T12:00:00Z","selfExcluded":["hashes.json"],"note":"Every record file is pinned by SHA-256 over its exact bytes. hashes.json cannot hash itself — the single declared self-exclusion."},"fixture":{"origin":"SYNTHETIC","realDisputeExists":false,"lifecycleState":"DISPUTE_OPEN","ddeVersion":"DDE/1"},"files":{"agreement.json":"0x808e0d85d1f99620b1232876e00653e6c51f613f1abdb7aef2490aaf40e8cded","acceptance-criteria.json":"0xa6980fdbc23ba463802d3a3c95f56d139a2f0501286c97454b41910ca2af6009","parties.json":"0x84e9724a43622dce08a3865ec2ab915eae36ec168b57aac9e59adc82388c1350","authorization.json":"0x7a6f0bd3184aba81327bc4d4452ea4b8735842cd23f06b0599ae67a90248cb62","execution-attestation.json":"0xb182d0bd8ed00a240f869b013e76b5226db8b1f3f5f880590c0b3c854cd9f628","delivery-manifest.json":"0xaad39a8d8432d3535c11a74e82403f5c18201b097ccf8a2e3bbcb0ed2e5ce379","acceptance-record.json":"0x29f34c5b6cd3eaed39766adb2310ef234bcd07b4d3c7927ccf70a6342567238c","dispute-record.json":"0x1be3c53ad858872ef0cfd1cae0e1ded733902fb521458546d3c4bb447f6c3c60","consent-and-disclosure.json":"0xe33044435f8324a36584145c7ac5b9dc4227182e0547ed4576a922314a4c6be7","retention-policy.json":"0xe3b6ccd425a984f14be7329d6ed7d5a53592c1045f1118c07678543e7cdf75ae"}}};
+/* ============================================================================
+   i18n architecture (per repo AGENTS.md):
+   - L() is hoisted at the very top and reads the live language at call time.
+   - Language switch = full innerHTML swap per [data-i18n] element (no leftover
+     tails around inline spans), then views re-render from their data.
+   - Dynamic strings resolve through L() at render time; a custom event
+     (cg41:lang) triggers re-render of every view.
+   ========================================================================== */
+window.cgLang = "en";
+function L(pair) { return (window.cgLang === "ar" ? pair.ar : pair.en); }
+
+/* ---------------------------------------------------------- static strings */
+const I18N = {
+  nav1:{en:"Lifecycle",ar:"دورة الأدلة"},
+  nav2:{en:"Execution proof",ar:"إثبات التنفيذ"},
+  nav3:{en:"Delivery & tamper",ar:"التسليم والعبث"},
+  nav4:{en:"Acceptance",ar:"القبول"},
+  nav5:{en:"Dispute",ar:"النزاع"},
+  nav6:{en:"Court mapping",ar:"إسقاط المحكمة"},
+  title:{en:"Delivery & Dispute Evidence",ar:"أدلة التسليم والنزاع"},
+  sub:{en:"A complete, replayable bilateral fixture that demonstrates the boundary in code: the on-chain payment is real, the rejection stands on named acceptance criteria, and nothing in the chain of custody lets the engine decide who is right.",
+       ar:"نموذج ثنائي الأطراف كامل قابل لإعادة الفحص يُظهر الحد بالكود: الدفع على السلسلة حقيقي، والرفض يستند إلى معايير قبول مسماة، ولا شيء في سلسلة العهدة يتيح للمحرك حسم من على حق."},
+  runline:{en:"Replay: node examples/delivery-fixture/verify-fixture.mjs → VERIFIED (10 PASS · exit 0)",
+           ar:"إعادة الفحص: node examples/delivery-fixture/verify-fixture.mjs → VERIFIED‏ (10 PASS · exit 0)"},
+  h_life:{en:"Evidence lifecycle — each step a signed record",ar:"دورة الأدلة — كل خطوة سجل موقّع"},
+  tag_syn:{en:"SYNTHETIC",ar:"SYNTHETIC"},
+  tag_real:{en:"REAL",ar:"حقيقي"},
+  tag_crypto:{en:"REAL CRYPTO",ar:"تشفير حقيقي"},
+  life_c1t:{en:"Parties & agreement",ar:"الطرفان والاتفاق"},
+  life_c1:{en:"Deterministic test identities and a modeled brand-package agreement. Declared loudly — origin: SYNTHETIC in every record.",
+           ar:"هويات اختبارية حتمية واتفاق حزمة هوية مُحاكى. معلن بصوت عالٍ — origin: SYNTHETIC في كل سجل."},
+  life_c2t:{en:"On-chain payment",ar:"الدفع على السلسلة"},
+  life_c2:{en:"The Pilot-1 transaction on Core Mainnet — receipt re-verified live from rpc.coredao.org. The only real-world layer, by design.",
+           ar:"معاملة Pilot-1 على Core Mainnet — الإيصال أُعيد التحقق منه حيًا من rpc.coredao.org. الطبقة الوحيدة من الواقع، عمدًا."},
+  life_c3t:{en:"Signatures",ar:"التوقيعات"},
+  life_c3:{en:"Genuine EIP-712 replays over deterministic keys: cryptographically true, evidence of nothing beyond this fixture.",
+           ar:"استرجاع EIP-712 حقيقي فوق مفاتيح حتمية: صحيح تشفيريًا، ولا يثبت شيئًا وراء هذا النموذج."},
+  h_anchor:{en:"Execution proof — real, and intentionally insufficient",ar:"إثبات التنفيذ — حقيقي، وغير كافٍ عمدًا"},
+  anchor_t:{en:"Core Mainnet · Pilot-1 anchor",ar:"Core Mainnet · مرساة Pilot-1"},
+  anchor_d:{en:"Receipt re-verified live via eth_getTransactionReceipt. This settles payment — and payment is where its evidentiary reach ends.",
+            ar:"الإيصال أُعيد التحقق منه حيًا عبر eth_getTransactionReceipt. هذا يُسوّي الدفع — والدفع هو نهاية مدى إثباته."},
+  anchor_b1t:{en:"What this receipt can never prove",ar:"ما لا يمكن لهذا الإيصال إثباته أبدًا"},
+  b1_r1:{en:"Who delivered, and what",ar:"مَن سلّم وماذا سلّم"},
+  b1_r2:{en:"Whether delivery matched the criteria",ar:"هل طابق التسليم المعايير"},
+  b1_r3:{en:"Which party is right in a dispute",ar:"أي طرف على حق في النزاع"},
+  b1_r4:{en:"That payment settled (status 0x1)",ar:"أن الدفع تم (status 0x1)"},
+  no:{en:"NO",ar:"لا"},
+  yes:{en:"YES",ar:"نعم"},
+  anchor_b1d:{en:"Checks B1/B2 make the forbidden inference structurally impossible: basis=[PAYMENT_SETTLED] alone can never yield ACCEPTED.",
+              ar:"فحصا B1/B2 يجعلان الاستدلال المحظور مستحيلًا بنيويًا: basis=[PAYMENT_SETTLED] وحدها لا تُنتج ACCEPTED أبدًا."},
+  h_del:{en:"Delivery evidence — live hash replay",ar:"أدلة التسليم — إعادة حساب الهاش حيًا"},
+  del_d:{en:"Every artifact is pinned by SHA-256 over its exact bytes — the same single hash definition the engine uses. Pick one, watch its digest recompute in your browser, then flip a byte and watch the pin break.",
+         ar:"كل artifact مثبّت بـSHA-256 على بايتاته الدقيقة — نفس تعريف الهاش الوحيد الذي يستخدمه المحرك. اختر واحدًا وشاهد ملخصه يُحسب في متصفحك، ثم اقلب بايتًا وشاهد الثبوت ينكسر."},
+  del_t1:{en:"Artifacts (delivery-manifest.json)",ar:"الـArtifacts (delivery-manifest.json)"},
+  del_t2:{en:"Tamper simulator — one byte, instant rejection",ar:"محاكي العبث — بايت واحد، رفض فوري"},
+  b_tamper:{en:"⚡ Flip one byte",ar:"⚡ اقلب بايتًا واحدًا"},
+  b_restore:{en:"↺ Restore",ar:"↺ استعادة"},
+  del_d2:{en:"In the CLI the same flip exits 1 fail-closed — in memory, disk untouched: node examples/delivery-fixture/verify-fixture.mjs --tamper logo.svg",
+          ar:"في سطر الأوامر نفس القلب يخرج بـ1 fail-closed — في الذاكرة، القرص لم يُمس: node examples/delivery-fixture/verify-fixture.mjs --tamper logo.svg"},
+  h_crit:{en:"Acceptance — judged by criteria, not by the chain",ar:"القبول — يُحكم بالمعايير لا بالسلسلة"},
+  crit_d:{en:"Four machine-inspectable criteria were fixed before delivery. The client's rejection cites one failing criterion — and nothing else. F2 guarantees every criterion is evaluated and every evaluation cites a real criterion.",
+          ar:"أربعة معايير قابلة للفحص الآلي ثُبّتت قبل التسليم. رفض العميل يستشهد بمعيار واحد مخفق — ولا شيء غيره. F2 يضمن تقييم كل معيار واستشهاد كل تقييم بمعيار قائم."},
+  h_disp:{en:"The dispute — two positions, no engine verdict",ar:"النزاع — موقفان، ولا حكم للمحرك"},
+  side_p:{en:"PROVIDER",ar:"المزوّد"},
+  side_c:{en:"CLIENT",ar:"العميل"},
+  remedy:{en:"Requested remedy:",ar:"العلاج المطلوب:"},
+  vs:{en:"← two parties, one closed record, zero engine adjudication →",ar:"← طرفان، سجل مغلق واحد، صفر تحكيم من المحرك →"},
+  disp_d:{en:"The engine preserves both positions verbatim and constrains remedies to a closed vocabulary. It structurally cannot name a winner — that power belongs to a neutral procedure both parties accept, not to a hash, a receipt, or a signature.",
+          ar:"المحرك يحفظ الموقفين حرفيًا ويقيّد العلاجات بمفردات مغلقة. لا يستطيع بنيويًا تسمية فائز — تلك السلطة لإجراء محايد يقبل الطرفان، لا لهاش أو إيصال أو توقيع."},
+  h_pc:{en:"Neutral-procedure mapping — classification, never judgment",ar:"إسقاط الإجراء المحايد — تصنيف لا حكم"},
+  pc_t1:{en:"Evidence classes a neutral procedure receives",ar:"فئات الأدلة التي يتلقاها الإجراء المحايد"},
+  pc_t2:{en:"What the mapping is — and is not",ar:"ما هو الإسقاط — وما ليس هو"},
+  pc_d1:{en:"mapToPeoplesCourt() is a pure projection: it classifies nine evidence classes and reports readiness. No custody transfer, no merit finding, no endorsement — inclusion implies nothing about People's Court / Epistemic Labs.",
+         ar:"mapToPeoplesCourt()‏ إسقاط نقي: يصنف تسع فئات أدلة ويبلغ الجاهزية. لا نقل عهدة، لا إثبات جدوى، لا تأييد — وجوده لا يعني شيئًا عن People's Court / Epistemic Labs."},
+  foot1:{en:"Fixture: examples/delivery-fixture/ · Engine: packages/delivery (zero dependencies) · Tests: test/delivery/fixture.test.js · Boundary: docs/delivery-dispute-boundary.md",
+         ar:"النموذج: examples/delivery-fixture/ · المحرك: packages/delivery (بلا اعتماديات) · الاختبارات: test/delivery/fixture.test.js · الحد: docs/delivery-dispute-boundary.md"},
+  foot2:{en:"Honesty: origin SYNTHETIC · realDisputeExists=false · real transaction anchor · real EIP-712 cryptography over deterministic test keys.",
+         ar:"الصدق: origin SYNTHETIC · realDisputeExists=false · مرساة معاملة حقيقية · تشفير EIP-712 حقيقي فوق مفاتيح اختبارية حتمية."},
+  banner1:{en:"Execution verified",ar:"التنفيذ مُتحقق"},
+  banner2:{en:"delivery conformity decided",ar:"مطابقة التسليم محسومة"},
+  /* dynamic views */
+  steps:{en:["Agreement + criteria","Authorized intent (EIP-712)","Execution settled (REAL)","Delivery submitted","Acceptance: REJECTED","Dispute: OPEN"],
+         ar:["اتفاق + معايير","نيّة مفوَّضة (EIP-712)","تنفيذ مُسوّى (حقيقي)","تسليم مُقدَّم","قبول: مرفوض","نزاع: مفتوح"]},
+  okVerdict:{en:"✓ PIN MATCH — sha256 recomputed in-browser equals the recorded pin",ar:"✓ الثبوت مطابق — SHA-256 المحسوب في المتصفح يطابق الهاش المسجل"},
+  tamperVerdict:{en:"✗ PIN BROKEN — one byte changed, the recorded sha256 no longer matches (engine: E3 FAIL, exit 1)",ar:"✗ الثبوت انكسر — بايت واحد تغيّر، وSHA-256 المسجل لم يعد يطابق (المحرك: E3 FAIL · exit 1)"},
+  restored:{en:"↺ restored — pin matches again",ar:"↺ استُعيد — الثبوت يطابق مجددًا"},
+};
+
+/* ------------------------------------------------------------------ data */
+let FD = null; // fixture data
+// Primary source: data injected at build time by
+// examples/delivery-fixture/inject-demo-data.mjs (self-contained page — works
+// from file://, the preview server, and GitHub Pages). Fallback: relative
+// fetch for a served checkout where injection was skipped.
+async function loadFixture() {
+  if (window.__DDE_DATA__) return window.__DDE_DATA__;
+  const BASES = ["", "../examples/delivery-fixture/"];
+  async function fetchFirst(file) {
+    let lastErr;
+    for (const base of BASES) {
+      try {
+        const r = await fetch(base + file);
+        if (r.ok) return r.json();
+        lastErr = new Error("HTTP " + r.status + " for " + base + file);
+      } catch (e) { lastErr = e; }
+    }
+    throw lastErr;
+  }
+  const names = ["agreement","acceptance-criteria","authorization","execution-attestation","delivery-manifest","acceptance-record","dispute-record","consent-and-disclosure","retention-policy"];
+  const out = {};
+  for (const n of names) out[n] = await fetchFirst(n + ".json");
+  out._hashes = await fetchFirst("hashes.json");
+  return out;
+}
+
+async function sha256Hex(str) {
+  const buf = new TextEncoder().encode(str);
+  const d = await crypto.subtle.digest("SHA-256", buf);
+  return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+/* ------------------------------------------------------------------ views */
+function renderTimeline() {
+  const el = document.getElementById("tl");
+  const real = [2];
+  el.innerHTML = L(I18N.steps).map((t, i) =>
+    `<div class="step${real.includes(i) ? " real" : ""}"><div class="n">0${i + 1}</div><div class="t">${t}</div></div>`).join("");
+}
+
+function renderAnchor() {
+  const x = FD["execution-attestation"];
+  document.getElementById("anchorPre").textContent =
+    `txHash   : ${x.txHash}\nnetwork  : ${x.network} (chainId ${x.chainId})\nstatus   : ${x.receipt.status}\nblock    : ${x.receipt.blockNumber}\nfrom     : ${x.receipt.from}\nto       : ${x.receipt.to}\ngasUsed  : ${x.receipt.gasUsed}\nverified : ${x.verifiedVia.rpc} @ ${x.verifiedVia.checkedAtUtc}`;
+}
+
+/* ------------------------- tamper demo state ------------------------- */
+let curArt = 0;
+let tampered = false;
+let pristine = "";
+
+function renderArtPick() {
+  const arts = FD["delivery-manifest"].artifacts;
+  const pick = document.getElementById("artpick");
+  pick.innerHTML = arts.map((a, i) => `<button type="button" class="${i === curArt ? "on" : ""}" data-i="${i}">${a.id}</button>`).join("");
+  pick.querySelectorAll("button").forEach(b => b.onclick = () => {
+    curArt = +b.dataset.i; tampered = false; pristine = "";
+    renderArtPick(); renderArt();
+  });
+}
+
+async function renderArt() {
+  const art = FD["delivery-manifest"].artifacts[curArt];
+  const content = tampered && pristine ? flipLast(pristine) : art.content;
+  if (!pristine) pristine = art.content;
+  const h = await sha256Hex(content);
+  const shown = tampered ? h : art.sha256.replace(/^0x/, "");
+  document.getElementById("artPre").textContent =
+    `id      : ${art.id}\nbytes   : ${new Blob([content]).size}${tampered ? " (tampered)" : ""}\nsha256  : 0x${shown}`;
+  const hb = document.getElementById("artHash");
+  hb.textContent = "0x" + h;
+  hb.style.color = tampered ? "var(--red)" : "var(--green)";
+  const v = document.getElementById("artVerdict");
+  if (tampered) { v.className = "verdict bad"; v.textContent = L(I18N.tamperVerdict); }
+  else if (pristine !== art.content) { v.className = "verdict ok"; v.textContent = L(I18N.restored); }
+  else { v.className = "verdict ok"; v.textContent = L(I18N.okVerdict); }
+}
+
+function flipLast(s) {
+  return s.slice(0, -1) + String.fromCharCode(s.charCodeAt(s.length - 1) ^ 0x01);
+}
+
+function renderCriteria() {
+  const crit = FD["acceptance-criteria"].criteria;
+  const rec = FD["acceptance-record"];
+  const evals = Object.fromEntries(rec.evaluations.map(e => [e.criterionId, e]));
+  const rows = crit.map(c => {
+    const e = evals[c.id] || {};
+    const ok = e.result === "PASS";
+    return `<tr><td class="mono">${c.id}</td><td>${escapeHtml(c.statement)}</td>` +
+      `<td><span class="${ok ? "v-ok" : "v-bad"}">${ok ? "PASS" : "FAIL"}</span><br><span class="muted" style="font-size:12px">${escapeHtml(e.observed || "")}</span></td></tr>`;
+  }).join("");
+  document.getElementById("critTable").innerHTML =
+    `<thead><tr><th data-i18n="th_id">ID</th><th data-i18n="th_crit">Criterion</th><th data-i18n="th_verdict">Verdict — party record, not engine</th></tr></thead><tbody>${rows}</tbody>`;
+}
+
+function renderDispute() {
+  const d = FD["dispute-record"];
+  document.getElementById("paAddr").textContent = d.partyA.agentAddress;
+  document.getElementById("pbAddr").textContent = d.partyB.agentAddress;
+  document.getElementById("paPos").textContent = d.partyA.position;
+  document.getElementById("pbPos").textContent = d.partyB.position;
+  document.getElementById("paRem").textContent = d.partyA.requestedRemedy;
+  document.getElementById("pbRem").textContent = d.partyB.requestedRemedy;
+}
+
+function renderPC() {
+  const rows = [
+    ["AGREEMENT", FD.agreement.agreementId],
+    ["ACCEPTANCE_CRITERIA", `${FD["acceptance-criteria"].criteria.length} criteria`],
+    ["AUTHORIZATION", FD.authorization.intentHash],
+    ["EXECUTION", FD["execution-attestation"].txHash],
+    ["DELIVERY", `${FD["delivery-manifest"].artifacts.length} artifacts · sha256-pinned`],
+    ["ACCEPTANCE_RECORD", FD["acceptance-record"].verdict],
+    ["DISPUTE_RECORD", FD["dispute-record"].disputeId],
+    ["CONSENT", `${FD["consent-and-disclosure"].redactionGrants.length} grants · both parties`],
+    ["RETENTION", FD["retention-policy"].retentionUtcUntil],
+  ];
+  document.getElementById("pcTable").innerHTML =
+    `<thead><tr><th>Class</th><th>Ref</th></tr></thead><tbody>` +
+    rows.map(r => `<tr><td class="mono" style="white-space:nowrap">${r[0]}</td><td class="mono" style="word-break:break-all;font-size:11.5px">${r[1]}</td></tr>`).join("") +
+    `</tbody>`;
+  document.getElementById("pcPre").textContent =
+    `readiness: READY_FOR_CLAIM_MAPPING\n- evidence classes complete\n- conformity question framed, NOT decided\n- no custody transfer · no merit finding · no endorsement`;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+}
+
+/* ------------------------------------------------------- static text swap */
+function applyStatic() {
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    const pair = I18N[key];
+    if (pair) el.textContent = L(pair);
+  });
+  document.documentElement.lang = window.cgLang;
+  document.documentElement.dir = window.cgLang === "ar" ? "rtl" : "ltr";
+  document.getElementById("langBtn").textContent = window.cgLang === "ar" ? "EN" : "ع";
+}
+
+/* ------------------------------------------------------------------ boot */
+function renderAll() {
+  renderTimeline();
+  renderAnchor();
+  renderArtPick(); renderArt();
+  renderCriteria();
+  renderDispute();
+  renderPC();
+}
+
+(async function boot() {
+  FD = await loadFixture();
+  applyStatic();
+  renderAll();
+
+  document.getElementById("bTamper").onclick = () => { tampered = true; renderArt(); };
+  document.getElementById("bRestore").onclick = () => { tampered = false; renderArt(); };
+
+  document.getElementById("langBtn").onclick = () => {
+    window.cgLang = window.cgLang === "en" ? "ar" : "en";
+    applyStatic();
+    renderAll(); // full re-render through L() — the language event pattern
+    document.dispatchEvent(new CustomEvent("cg41:lang", { detail: { lang: window.cgLang } }));
+  };
+})();
+</script>
+</body>
+</html>

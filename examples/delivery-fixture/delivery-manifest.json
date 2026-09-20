@@ -1,0 +1,30 @@
+{
+  "origin": "SYNTHETIC",
+  "recordId": "DDE-FIXTURE-001-DELIVERY",
+  "deliveryId": "DDE-FIXTURE-001-DELIVERY",
+  "agreementRef": "DDE-FIXTURE-001-AGREEMENT",
+  "executionRef": "DDE-FIXTURE-001-EXEC",
+  "submittedAtUtc": "2026-09-24T09:30:00Z",
+  "submittedBy": "0xc1e7d8017ee82da93e85b2c48955070dc6b2f13d",
+  "artifacts": [
+    {
+      "id": "logo.svg",
+      "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"120\" viewBox=\"0 0 120 120\">\n  <title>CoreGuard Shield — synthetic delivery fixture</title>\n  <rect x=\"8\" y=\"8\" width=\"104\" height=\"104\" rx=\"18\" fill=\"#0d1b2a\"/>\n  <path d=\"M60 22 L92 38 V66 C92 86 78 98 60 104 C42 98 28 86 28 66 V38 Z\" fill=\"#1b998b\"/>\n  <circle cx=\"60\" cy=\"62\" r=\"16\" fill=\"#f4f7fa\"/>\n</svg>\n",
+      "sha256": "0xc32337044edb72a552977bd1699200dabe2e9fab0523292ccb3678b8e555cb36",
+      "bytes": 372
+    },
+    {
+      "id": "brand-guide.md",
+      "content": "# Brand Guide — synthetic fixture artifact\n\n## Color tokens\n- Primary: #1b998b\n- Surface: #0d1b2a\n\n## Typography\n- Display: system sans-serif, 700\n",
+      "sha256": "0xdf5d7e13a448060b370b7663778cea1d4cfb3e7fea294b45163475fc19bb38ad",
+      "bytes": 149
+    },
+    {
+      "id": "handoff-notes.txt",
+      "content": "Handoff notes — synthetic fixture artifact.\nThe logo uses the shield motif agreed in the brief.\nSource files available on request within the retention window.\n",
+      "sha256": "0xfd5dffd73a664d4a7f0ab144340299980fa6d8f65626dbdcc477fa708200041f",
+      "bytes": 161
+    }
+  ],
+  "provenance": "SYNTHETIC — artifact contents modeled for the scenario; SHA-256 pins are real over the exact embedded bytes (single hash definition: packages/delivery artifactSha256)"
+}

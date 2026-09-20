@@ -1,0 +1,40 @@
+{
+  "origin": "SYNTHETIC",
+  "recordId": "DDE-FIXTURE-001-CONSENT",
+  "chainId": "1116",
+  "fixtureRef": "0xdad8647212995c33ec5c10c262cc5d2149e53b2e0e4c9046469ee724686416fa",
+  "disclosure": {
+    "origin": "SYNTHETIC",
+    "realDisputeExists": false,
+    "realTransactionAnchor": true,
+    "realSignatures": true,
+    "signatureMeaning": "cryptographically genuine EIP-712 replays over deterministic fixture keys — not evidence that real parties consented to anything",
+    "secretsRemoved": true,
+    "personalDataRemoved": true,
+    "peoplesCourtConsent": "none — inclusion of a People's Court mapping implies no endorsement, procedure, or agreement by People's Court / Epistemic Labs"
+  },
+  "redactionGrants": [
+    {
+      "grantor": "0x716891f369eadbd06bb0a2c2ed091a193e4390e6",
+      "fixtureRef": "0xdad8647212995c33ec5c10c262cc5d2149e53b2e0e4c9046469ee724686416fa",
+      "scope": "Redacted public review of this fixture: all parties are synthetic; the on-chain anchor is a public transaction; no secrets and no personal data are included.",
+      "signature": {
+        "r": "e6333dbb0880b91b7373398ad1d0300cc535dda09db2a59277de32248b722f9f",
+        "s": "05c537d1fcd0a0eb8401e01c775185fc26046fc784bb07e33aaaf81826aa5b40",
+        "v": 27,
+        "digest": "0x156eeeb1bf094f01fa681df6189004ba974748e28188ffc856ad23f8e5485df7"
+      }
+    },
+    {
+      "grantor": "0xb240f6879da4c214d534fd18874ee12142b8c274",
+      "fixtureRef": "0xdad8647212995c33ec5c10c262cc5d2149e53b2e0e4c9046469ee724686416fa",
+      "scope": "Redacted public review of this fixture: all parties are synthetic; the on-chain anchor is a public transaction; no secrets and no personal data are included.",
+      "signature": {
+        "r": "7b0526955f3eb9de6d5b49465628467868f39e4f5ef3e31f3aff73237986aa8a",
+        "s": "1fdf1ab3786daffea9c43acf3adc04bc822ab5bf72e2ee131b6d217194dc91cd",
+        "v": 27,
+        "digest": "0x0e53b2d5593c886e086a2883e935c02e82dcb5f1b4d8f87a265122285365953d"
+      }
+    }
+  ]
+}

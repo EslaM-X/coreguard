@@ -1,0 +1,39 @@
+{
+  "origin": "SYNTHETIC",
+  "recordId": "DDE-FIXTURE-001-ACCEPTANCE",
+  "acceptanceId": "DDE-FIXTURE-001-ACCEPTANCE",
+  "criteriaRef": "DDE-FIXTURE-001-CRITERIA",
+  "deliveryRef": "DDE-FIXTURE-001-DELIVERY",
+  "verdict": "REJECTED",
+  "basis": [
+    "CRITERIA_EVALUATION"
+  ],
+  "derivedFrom": "criteria",
+  "evaluations": [
+    {
+      "criterionId": "C-SCOPE",
+      "result": "PASS",
+      "observed": "artifact 'logo.svg' present in the delivery manifest"
+    },
+    {
+      "criterionId": "C-FORMAT",
+      "result": "PASS",
+      "observed": "'logo.svg' content begins with '<svg'"
+    },
+    {
+      "criterionId": "C-TIMELINE",
+      "result": "PASS",
+      "observed": "submitted 2026-09-24T09:30:00Z <= deadline 2026-09-26T10:00:00Z"
+    },
+    {
+      "criterionId": "C-QUALITY",
+      "result": "FAIL",
+      "observed": "'brand-guide.md' defines 2 hex color tokens under '## Color tokens'; the criterion requires at least 3"
+    }
+  ],
+  "signedBy": [
+    "0xd418cb172087efbcf7a4126d914bf904b5c9f149"
+  ],
+  "recordedAtUtc": "2026-09-24T15:00:00Z",
+  "note": "The rejection rests solely on the recorded criterion evaluations. It is a party act under DDE/1 — it is not derived from execution facts, and payment settlement plays no part in it."
+}

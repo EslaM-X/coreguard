@@ -1,0 +1,28 @@
+{
+  "origin": "SYNTHETIC",
+  "recordId": "DDE-FIXTURE-001-AUTH",
+  "scheme": "EIP-712",
+  "subject": "0xd418cb172087efbcf7a4126d914bf904b5c9f149",
+  "signer": "0xd418cb172087efbcf7a4126d914bf904b5c9f149",
+  "intent": {
+    "agreementId": "DDE-FIXTURE-001-AGREEMENT",
+    "clientAgent": "0xd418cb172087efbcf7a4126d914bf904b5c9f149",
+    "providerAgent": "0xc1e7d8017ee82da93e85b2c48955070dc6b2f13d",
+    "maxValueWei": "250000000000000000",
+    "deadlineUtc": "2026-09-26T10:00:00Z"
+  },
+  "intentHash": "0xe6843e56a782ba0ea6c6ddbd4633f31c19e18875cac6a79ebb304f19161c8463",
+  "signature": {
+    "r": "1a65656b08add51a253b5e447d2782f3f977da0f7be82c4382dc82f29c666161",
+    "s": "607f8f87a369769914b31e49af76d41130689bd136f9452eda0acfc1bca3eabe",
+    "v": 28,
+    "digest": "0xa9b6effb603e4717c1cbba05eda7b924cc0ebc3535c9cc4bfa8343183d63b7d0"
+  },
+  "domain": {
+    "name": "CoreGuard DDE Delivery Intent",
+    "version": "1",
+    "chainId": "1116"
+  },
+  "signedAtUtc": "2026-09-19T09:00:00Z",
+  "authorityNote": "The client agent signs the delivery intent within the principal's mandate. Signature is cryptographically real (replayable) and evidences only this fixture — the identities behind it are SYNTHETIC identity — a deterministic test key, not a real-world party."
+}

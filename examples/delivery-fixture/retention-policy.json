@@ -1,0 +1,8 @@
+{
+  "origin": "SYNTHETIC",
+  "recordId": "DDE-FIXTURE-001-RETENTION",
+  "retentionUtcUntil": "2027-09-19T00:00:00Z",
+  "allowPublicArchive": true,
+  "purgeCommitment": "Either grantor may request deletion of the fixture artifacts after the retention window; the on-chain anchor remains public regardless.",
+  "contactNote": "Fixture maintained in the coreguard repository under examples/delivery-fixture/."
+}
