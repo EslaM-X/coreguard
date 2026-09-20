@@ -36,6 +36,10 @@ evaluable commercial value proposition for Core, protocols, and institutions.
 3. `economics.md` — value pipeline, who-pays per use case, price-sandbox
    approach, and dated alignment with Core programs (Core Connect, Core Commit,
    Builders' Incentive).
+4. `coreguard-core-value.md` — **CORE usage / scarcity / partnership map** (2026-09-20):
+   how the on-chain commission + CORE-denominated plans produce CORE demand,
+   paired with Core's dated 2026 roadmap (buybacks, SatPay/AMP/LST, Aethir
+   agents). Strategy, not claims.
 
 ## Ownership
 

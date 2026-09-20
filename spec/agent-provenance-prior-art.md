@@ -160,3 +160,40 @@ execution-specific binding   -> CoreGuard AgentProof
 ---
 
 *End of G-1 Prior-Art Gate.*
+
+---
+
+## G-1 Addendum — 2026 post-gate wave (2026-09-20 scan)
+
+> The G-1 gate ran 2026-09-13. Between then and 2026-09-20 the agent-trust
+> category shipped several products/protocols that sit *closer* to the
+> CoreGuard layer than ERC-8004/8126. Recorded here so the prior-art picture
+> (and any future patent filing) is complete and dated. **G-1's restrictions
+> are unchanged: no novelty claim ships before counsel + deeper review.**
+> Full matrix + overtake plan: `docs/competitive-intelligence-overtake-2026-09-20.md`.
+
+### Newly recorded prior art (dated, sourced)
+
+| Item | What it is | Date / source | Relation to CoreGuard |
+|---|---|---|---|
+| **x401 (Proof)** | HTTP challenge for cryptographic proof of **who authorized an action at what scope** (scoped VC + zk; Circle/OpenAI/Google/Okta named) | 2026-06-25, dreaming.press/posts/x401-protocol-agent-authorization.html | **closest conceptual neighbor**: "provenance of authority" ≠ our onchain execution provenance, but same *spirit* — treat as mandatory prior-art in any claim review |
+| **World ID + AgentKit** | Anthropic-era human-anchoring: Orbit-verified humans back agents, x402 micropayments | 2026-03-17, zestlab.io + blocmates (Apr 2026) | Human↔agent binding via **biometrics**; CoreGuard is **declared + key-bound, no biometrics** |
+| **Self Protocol** | zk human↔agent binding on ERC-8004 (proof-of-humanity, sybil resistance) | 2026-04 (blocmates) | Onchain agent identity + human binding layer |
+| **Kite AI** | L1 for agents: Agent Passport, delegation, spend guardrails | 2026-04 (blocmates) | Agent identity + delegation rails |
+| **t54** | Trust/safety for agent payments: x402-secure, risk scoring, prompt-injection fraud | 2026-04 (blocmates) | Risk-scoring for agent payments (not execution provenance) |
+| **Arkose Agent Trust Manager** | Behavioral agent classification + enforcement (agentic browser detection) | 2026-06-16, arkoselabs.com | **Behavioral** bot-vs-human; CoreGuard explicitly forbids behavioral inference |
+| **IETF web-bot-auth WG** | Standard client identity for the open web (RFC 9421-based) | 2026 interim (datatracker.ietf.org) | Bot identification at HTTP layer (identity, not execution) |
+
+### Updated positioning consequence
+
+| Layer | Question | Now also served by |
+|---|---|---|
+| Human-backs-agent | "Is this agent backed by a verified human?" | World ID+AgentKit, Self Protocol |
+| Authorization-at-request | "Who authorized THIS action, at what scope?" | x401 |
+| Behavioral agent detection | "Is this traffic an agent?" | Arkose, web-bot-auth |
+| **Execution provenance + authority, verified on-chain** | **"Who declared responsibility for THIS on-chain execution, under which authority, re-verifiable?"** | **CoreGuard (unchanged, still ours)** |
+
+**G-1 Addendum decision: PASS as a boundary update.** No claim change. The new
+items make the *evidence-anchored, onchain, post-execution* layer even more
+clearly distinct — and any patent disclosure **must** list x401 and
+World/AgentKit/Self as material prior art (see `submission/15-egypt-patent-file.md`).

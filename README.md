@@ -129,7 +129,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 841 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites
+npm test              # 851 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites
 npm run corpus        # deterministic 73-scenario adversarial corpus
 npm run benchmark     # 73/73 pass
 # Authoritative numbers live in docs/STATUS.md (one source of truth).
@@ -310,6 +310,19 @@ answers *who* as a **declared, signer-bound** fact (never a behavioral guess).
 > It is not an agent-identity registry, not a trust-score system, not an
 > "AI detector". See `spec/agent-provenance-prior-art.md` (Gate G-1).
 
+### The moment around us (dated, sourced)
+
+2026 made agent trust a crowded field — but from *other* layers: **x401**
+(Proof, 2026-06-25) authorizes actions at request time (who authorized + scope);
+**World ID + Coinbase AgentKit** (2026-03) anchors agents to biometric-verified
+humans with x402 payments; **Self Protocol** (2026-04) binds human↔agent in zk
+on ERC-8004; **Arkose Agent Trust Manager** (2026-06-16) classifies agent
+traffic behaviorally. **Post-execution on-chain provenance — "did the
+transaction match the declared authority, re-derivable by anyone" — is the
+layer none of them ship.** That is the CoreGuard layer. The dated matrix and
+the overtake roadmap live in
+[docs/competitive-intelligence-overtake-2026-09-20.md](docs/competitive-intelligence-overtake-2026-09-20.md).
+
 ## Built for Core
 
 CoreGuard is built for Core's stack — the native programmable layer for
@@ -323,7 +336,9 @@ Aligned Core programs are tracked as **public, dated, planning-only facts**
 (never eligibility claims): Core Connect Global Buildathon (AI + Web3 infra
 categories), Core Commit Program (business-model / PMF criteria), and Core
 Ignition Builders' Incentive. Details + the criteria pre-mapping live in
-[docs/adoption/](docs/adoption/).
+[docs/adoption/](docs/adoption/), and the honest "how CoreGuard drives CORE
+usage/scarcity + where it sits in Core's 2026 roadmap" mapping is in
+[docs/adoption/coreguard-core-value.md](docs/adoption/coreguard-core-value.md).
 
 ## Plans and pricing (hypothesis — gate-locked)
 

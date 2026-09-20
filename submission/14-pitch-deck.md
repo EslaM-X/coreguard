@@ -33,11 +33,35 @@ attribution is assumed, and a failure closes doors on trust, not on hardware.
 |---|---|
 | **Live on Core Mainnet** | V2 contract `0x037dF08F2d43c5D03759279Fe35664f6AFf9EA6E`, anchor tx `0x5b9e7d68…3e478d2` block `38764446`, verdict **VERIFIED ANCHOR INTEGRITY**, cross-RPC (coredao + ankr) |
 | **Identity anchor live** | Gate 4.1 `commitIntent` `0x68d9fb…`, block `38827925`, status `0x1`, independent round 66/66 PASS |
-| **Whole-suite green** | `npm test` **832/832**, forge **34/34**, adversarial corpus **73/73**, watchdog 38/38 |
+| **Whole-suite green** | `npm test` **851/851** (incl. CI guards 10/10), forge **34/34**, adversarial corpus **73/73**, watchdog 38/38 |
 | **Deterministic (clean clone)** | 749/749 ×2 from pristine `core.autocrlf=false` clone at `0788cfb`; RC manifest 582/582 == git blobs |
 | **No secrets** | Full git history: **942 blobs, 0 embedded secrets** (`scripts/audit-secrets.mjs`) |
 | **Release** | `production-2026-09-19` (owner-declared, non-prerelease) |
 | **CI** | `dde.yml` live surveillance badge (runs from workflow file state) |
+
+## Market moment (dated, sourced — who else moved)
+
+The agent-trust problem stopped being hypothetical in 2026 — but everyone
+entered from a *different* layer, which is what makes the CoreGuard layer
+distinct rather than crowded:
+
+- **Authorization-at-request**: **x401** (Proof, 2026-06-25) lets an HTTP
+  counterpart verify *who authorized an action and at what scope* — request time,
+  credential-based. (dreaming.press/posts/x401-protocol-agent-authorization.html)
+- **Human-anchoring**: **World ID + Coinbase AgentKit** (2026-03) binds agents
+  to Orbit-verified humans (biometric) with x402 micropayments; **Self Protocol**
+  (2026-04) binds human↔agent in zk on ERC-8004. (zestlab.io, blocmates)
+- **Behavioral classification**: **Arkose Agent Trust Manager** (2026-06-16)
+  classifies agent-ish traffic on Arkose's agentic browser. (arkoselabs.com)
+- **Core side**: Core continues to push BTCfi as "the home of AI agents"
+  (Core + **Aethir**, $100M ecosystem fund, 2025-02; GPU via Core Commit) and
+  its 2026 roadmap monetizes fee-generating modules via **$CORE buybacks**
+  (2026-05-04, bsc.news). (planning facts, re-verify before filing)
+
+**The open layer nobody shipped:** *post-execution on-chain provenance* — did
+the on-chain transaction actually match the declared authority, re-derivable by
+any third party. That is exactly CoreGuard. Full matrix + overtake roadmap:
+`docs/competitive-intelligence-overtake-2026-09-20.md`.
 
 ## Market logic (hypothesis, honestly labeled)
 
