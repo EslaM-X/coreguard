@@ -312,6 +312,15 @@ test("CLI: clean verification exits 0 and prints the boundary", () => {
   assert.match(r.stdout, /does not decide delivery conformity/);
 });
 
+// ------------------------------------- adversarial runner
+
+test("adversarial runner: every F/E/B check catches its own mutation", () => {
+  const r = spawnSync(process.execPath, [join(FIXTURE_DIR, "adversarial-runner.mjs")], { cwd: REPO, encoding: "utf8" });
+  assert.equal(r.status, 0, `runner must exit 0 — gate holes:\n${r.stdout}`);
+  assert.match(r.stdout, /ALL MUTATIONS CAUGHT/);
+  assert.match(r.stdout, /survived: 0/);
+});
+
 test("CLI: --tamper flips a byte in memory and exits 1 fail-closed", () => {
   const r = spawnSync(process.execPath, [join(FIXTURE_DIR, "verify-fixture.mjs"), "--tamper", "logo.svg"], { cwd: REPO, encoding: "utf8" });
   assert.equal(r.status, 1);

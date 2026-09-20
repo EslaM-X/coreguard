@@ -34,6 +34,17 @@ Exit `0` + `VERIFIED (10 PASS)` when every record is byte-exact vs
 flips one artifact byte in memory and exits `1` — watch the boundary
 enforce itself. `--json` for machines.
 
+### Prove the gate bites — one command
+
+```bash
+node examples/delivery-fixture/adversarial-runner.mjs
+```
+
+Applies exactly one named mutation per fail-closed check (F0–F3, E3–E5,
+B1–B3) against a clean control, and demands each be caught by its own
+check. Exit `0` = all 10 mutations caught; any survivor or wrong-check
+catch exits `1` and names the hole. `--json` for machines.
+
 Regenerate (deterministic, byte-identical):
 
 ```bash
