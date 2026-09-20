@@ -6,6 +6,11 @@ review (People's Court / Epistemic Labs track): it demonstrates that
 CoreGuard can preserve authorization and execution proofs as evidence
 **without letting them silently decide the delivery-conformity question**.
 
+> **DDE-BOUNDARY (binding on every quoting of engine output):**
+> *"Execution verification does not decide delivery conformity.
+> Acceptance or rejection of the delivered work is a separate determination
+> recorded by the parties, not derived from on-chain facts."*
+
 ## Read this first — honesty model
 
 | Layer | Origin | Meaning |
