@@ -321,6 +321,14 @@ test("adversarial runner: every F/E/B check catches its own mutation", () => {
   assert.match(r.stdout, /survived: 0/);
 });
 
+test("adversarial runner: compound batteries — stacked mutations never blind each other", () => {
+  const r = spawnSync(process.execPath, [join(FIXTURE_DIR, "adversarial-runner.mjs")], { cwd: REPO, encoding: "utf8" });
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /compound : 5 batteries · caught: 5 · survived: 0/);
+  // the kitchen-sink battery stacks five mutations across three layers
+  assert.match(r.stdout, /\[F0 \+ F1 \+ E3 \+ E4 \+ B2\]/);
+});
+
 test("CLI: --tamper flips a byte in memory and exits 1 fail-closed", () => {
   const r = spawnSync(process.execPath, [join(FIXTURE_DIR, "verify-fixture.mjs"), "--tamper", "logo.svg"], { cwd: REPO, encoding: "utf8" });
   assert.equal(r.status, 1);

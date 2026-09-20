@@ -138,6 +138,44 @@ const MUTATIONS = [
   },
 ];
 
+// ------------------------------------------------------ compound attacks
+
+/**
+ * Compound attacks — a hostile author does not send one defect at a time.
+ * Each battery stacks several mutations from different layers and demands
+ * that every stacked mutation still be caught by its own check. A compound
+ * battery "survives" if ANY member's check stayed PASS — i.e. a stacked
+ * defect hid another's firing. The point: coverage is per-check AND
+ * per-combination; one blinding another is a gate hole.
+ */
+const COMPOUND_BATTERIES = [
+  {
+    id: "X1",
+    label: "financially-framed attack: payment-as-basis + flipped artifact byte",
+    members: ["B1", "E3"],
+  },
+  {
+    id: "X2",
+    label: "paper-trail attack: skipped criterion + lifecycle lie",
+    members: ["F2", "F3"],
+  },
+  {
+    id: "X3",
+    label: "identity attack: broken authorization chain + swapped consent grantor",
+    members: ["E4", "E5"],
+  },
+  {
+    id: "X4",
+    label: "verdict forgery: ACCEPTED on payment grounds + zero evaluations + off-vocabulary remedy",
+    members: ["B1", "B2", "B3"],
+  },
+  {
+    id: "X5",
+    label: "kitchen sink: record deletion + forged grounds + tampered bytes + broken chain + forged verdict",
+    members: ["F0", "F1", "E3", "E4", "B2"],
+  },
+];
+
 // ------------------------------------------------------------------- attack
 
 const line = "─".repeat(76);
@@ -171,12 +209,40 @@ for (const m of MUTATIONS) {
 }
 
 const survived = results.filter((r) => r.verdict === "SURVIVED");
+
+// ------------------------------------------- compound attacks (stacked)
+
+const compoundResults = [];
+for (const battery of COMPOUND_BATTERIES) {
+  const fixture = honestFixture();
+  for (const id of battery.members) {
+    MUTATIONS.find((m) => m.id === id).mutate(fixture);
+  }
+  const state = await runGate(fixture);
+  const caught = Object.entries(state).filter(([, r]) => r === "FAIL").map(([id]) => id);
+  const misses = battery.members.filter((id) => state[id] !== "FAIL");
+  compoundResults.push({
+    id: battery.id,
+    battery: battery.label,
+    members: battery.members,
+    caught,
+    missedByOwnCheck: misses,
+    verdict: misses.length === 0 ? "CAUGHT" : "SURVIVED",
+  });
+}
+const compoundSurvived = compoundResults.filter((r) => r.verdict === "SURVIVED");
+
 const summary = {
   control: controlClean ? "CLEAN (all 10 checks PASS on the honest fixture)" : "BASELINE DIRTY — runner results meaningless until fixed",
   mutations: results.length,
   caught: results.length - survived.length,
   survived: survived.length,
+  compoundBatteries: compoundResults.length,
+  compoundCaught: compoundResults.length - compoundSurvived.length,
+  compoundSurvived: compoundSurvived.length,
 };
+
+const allClear = controlClean && survived.length === 0 && compoundSurvived.length === 0;
 
 if (jsonMode) {
   console.log(JSON.stringify({
@@ -185,12 +251,13 @@ if (jsonMode) {
     boundary: BOUNDARY_BANNER.statement,
     controlClean,
     results,
+    compoundResults,
     summary,
-    verdict: controlClean && survived.length === 0
-      ? "ALL MUTATIONS CAUGHT — the gate bites where it claims to"
+    verdict: allClear
+      ? "ALL MUTATIONS CAUGHT (single + compound) — the gate bites where it claims to"
       : "GATE HOLE — see results",
   }, null, 2));
-  process.exit(controlClean && survived.length === 0 ? 0 : 1);
+  process.exit(allClear ? 0 : 1);
 }
 
 console.log(line);
@@ -206,9 +273,18 @@ for (const r of results) {
     (r.verdict === "SURVIVED" ? "  ← SURVIVED: the gate has a hole" : ""));
 }
 console.log(line);
+console.log("compound attacks — stacked mutations from different layers at once:");
+for (const r of compoundResults) {
+  const mark = r.verdict === "CAUGHT" ? "✓" : "✗";
+  console.log(`  ${mark} ${pad(r.id, 4)} [${r.members.join(" + ")}] ${r.battery}`);
+  console.log(`      → caught by [${r.caught.join(", ") || "NOTHING"}]` +
+    (r.verdict === "SURVIVED" ? `  ← SURVIVED: ${r.missedByOwnCheck.join(", ")} stayed PASS` : ""));
+}
+console.log(line);
 console.log(`mutations: ${summary.mutations} · caught: ${summary.caught} · survived: ${summary.survived}`);
-console.log(survived.length === 0 && controlClean
-  ? "verdict : ALL MUTATIONS CAUGHT — each by its own check; the boundary enforces itself"
+console.log(`compound : ${summary.compoundBatteries} batteries · caught: ${summary.compoundCaught} · survived: ${summary.compoundSurvived}`);
+console.log(allClear
+  ? "verdict : ALL MUTATIONS CAUGHT (single + compound) — the boundary enforces itself"
   : "verdict : GATE HOLE — fix the listed checks before citing DDE output");
 console.log(`boundary: ${BOUNDARY_BANNER.statement}`);
-process.exit(controlClean && survived.length === 0 ? 0 : 1);
+process.exit(allClear ? 0 : 1);
