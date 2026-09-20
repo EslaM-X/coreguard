@@ -26,6 +26,10 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Guard - workflow YAML (zero-jobs trap)
+        run: node scripts/check-workflows.mjs
+      - name: Guard - lockfile/workspace sync (before npm ci)
+        run: node scripts/check-lock-sync.mjs
       - run: npm ci
       - name: Deterministic regeneration produces byte-identical records
         run: |

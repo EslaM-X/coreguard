@@ -9,6 +9,8 @@ Project: EslaM-X/coreguard (CoreGuard Gate 4.1 Assurance) — lessons from live 
 - **`git show HEAD:file` ≠ disk for uncommitted work**: when verifying hash freezes, always check the **committed tree** (via `git show`), not the working disk — uncommitted edits silently make a "clean clone" verification fail (cost a full session).
 - **No BOM in generated JSON**: encoding hygiene test rejects BOM in all files except `.ps1` and `scripts/verify-live.json`. Writing UTF-8 with BOM via PS (`-Encoding UTF8`) fails the test; use Node or `-Encoding UTF8NoBOM`.
 - **`node --test` accepts globs/dirs**: `node --test test/encoding/` may match nothing silently. Point at the test file itself or use `npm test`.
+- **Adding a `packages/*` workspace requires a lockfile regen**: declare a new package and `npm ci` fails every job (Demos/Engine/DDE) with "Missing: @coreguard/x from lock file". Red runs 35478251772 (delivery) + 35490813895/823 (pricing) were this. Guard: `scripts/check-lock-sync.mjs` (runs in CI **before** `npm ci` and in `npm test` via `test/ci/`); fix = `npm install` at root + commit `package-lock.json`.
+- **Multi-line plain `run:` scalars build ZERO jobs**: a `run:` value that is a plain (unquoted, non-block) scalar continuing on the next indented line makes the whole workflow unparseable — GitHub marks the run `failure` with no jobs/logs. Red run 35480761761 (commit 6c4ca1d) died this way. Always use `run: |`. Guard: `scripts/check-workflows.mjs` (CI + `test/ci/`).
 
 ## Hidden Relationships & Chain-of-Integrity
 
