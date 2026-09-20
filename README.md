@@ -228,8 +228,9 @@ npm run anchor:verify                         # → scripts/verify-live.regenera
 ```
 spec/        CGEP/1 (draft) · master spec · canonical encoding · receipt · levels ·
              threat model · privacy model · competitive kill matrix · killer memos
-packages/    canonical · intent · policy · trace · evidence · firewall · verifier · evm · sdk · cli   (ESM)
+packages/    canonical · intent · policy · trace · evidence · firewall · verifier · evm · sdk · cli · delivery   (ESM)
              — sdk/guard.js = guard.authorize/verify/anchor Phase-1 surface
+             — delivery = DDE/1 execution/acceptance boundary (engine + HTTP endpoint, zero-dep)
 contracts/   EvidenceRegistry.sol — commitment registry (deployable, `--legacy`)
 benchmarks/  generator + 73-scenario corpus: valid/invalid/mutations/tamper/performance
 test/        canonicalization · policy · tamper suites + adversarial runner + P1 suites
