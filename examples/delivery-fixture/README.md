@@ -45,6 +45,22 @@ B1–B3) against a clean control, and demands each be caught by its own
 check. Exit `0` = all 10 mutations caught; any survivor or wrong-check
 catch exits `1` and names the hole. `--json` for machines.
 
+### Compound attacks — a hostile author does not send one defect at a time
+
+The runner also stacks several mutations **from different layers at once**
+(five named batteries, X1–X5) and demands every stacked mutation still be
+caught **by its own check**. A battery "survives" if any member's check
+stayed PASS — i.e. one stacked defect blinded another's firing. That is a
+class of gate hole single-mutation coverage cannot see by construction.
+
+| Battery | Attack story | Members |
+|---|---|---|
+| X1 | financially-framed: payment as acceptance ground + flipped artifact byte | B1 + E3 |
+| X2 | paper-trail: skipped criterion + lifecycle lie | F2 + F3 |
+| X3 | identity: broken authorization chain + swapped consent grantor | E4 + E5 |
+| X4 | verdict forgery: ACCEPTED on payment grounds + zero evaluations + off-vocabulary remedy | B1 + B2 + B3 |
+| X5 | kitchen sink: record deletion + forged grounds + tampered bytes + broken chain + forged verdict | F0 + F1 + E3 + E4 + B2 |
+
 Fuzz mode — seed-deterministic random stacks (size 1–10, PRNG-ordered) of
 the ten mutations, one centering report per round; same seed replays
 byte-identical rounds:
@@ -52,6 +68,20 @@ byte-identical rounds:
 ```bash
 node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 [--seed 424242]
 ```
+
+### Reviewer commands — what each one proves
+
+| Command | Proves | Expected verdict (exit 0) |
+|---|---|---|
+| `verify-fixture.mjs` | records are byte-exact vs pins + full gate holds | `VERIFIED (10 PASS)` — decision: `CONFORMITY_UNDECIDED_BY_ENGINE` |
+| `verify-fixture.mjs --tamper logo.svg` | one flipped byte fails closed | exit `1` with the E3 mismatch named (expected!) |
+| `adversarial-runner.mjs` | every check catches its own single mutation | `mutations: 10 · caught: 10 · survived: 0` |
+| `adversarial-runner.mjs` (same run) | stacked defects never blind each other | `compound : 5 batteries · caught: 5 · survived: 0` |
+| `adversarial-runner.mjs --fuzz 50` | random seed-deterministic stacks hold too | `fuzz     : seed 424242 · 50 stacks · survived: 0` |
+| `make-fixture.mjs` | the evidence factory is deterministic | `git diff` empty — byte-identical regeneration |
+
+CI runs every one of these on each push — the table is not a promise, it is
+a standing watch.
 
 Regenerate (deterministic, byte-identical):
 
@@ -133,8 +163,9 @@ verifies precisely because it respects the boundary.
 
 Boundary document: [`docs/delivery-dispute-boundary.md`](../../docs/delivery-dispute-boundary.md)
 Engine: [`packages/delivery/index.js`](../../packages/delivery/index.js)
-Tests: `test/delivery/fixture.test.js` (33 tests — happy path, one mutation per
-F/E/B check, determinism, and the compound attack batteries)
+Tests: `test/delivery/fixture.test.js` (35 tests — happy path, one mutation per
+F/E/B check, the compound attack batteries, fuzz-mode determinism, and the
+runner usage contract)
 
 This fixture is the **synthetic schema exercise**. For a real paid transaction
 with two consenting parties, use the
