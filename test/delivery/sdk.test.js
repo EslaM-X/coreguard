@@ -17,6 +17,7 @@ import { verifyFixture, releaseWhen, loadFixtureFromDir } from "../../packages/d
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const FIXTURE_DIR = join(REPO, "examples", "delivery-fixture");
 const DEMO = join(REPO, "examples", "agent-platform-integration", "run-integration-demo.mjs");
+const WIRE_DEMO = join(REPO, "examples", "agent-platform-integration", "run-http-payout-gate.mjs");
 
 test("verifyFixture via fixtureDir: VERIFIED report stamped with the boundary", async () => {
   const report = await verifyFixture({ fixtureDir: FIXTURE_DIR });
@@ -81,4 +82,33 @@ test("demo: 4 HOLDs then 1 RELEASE — the boundary arc end-to-end", () => {
   assert.equal(holds, 4);
   assert.equal(releases, 1);
   assert.match(r.stdout, /NEITHER decides conformity/);
+});
+
+test("wire demo: payout gated over the DDE HTTP endpoint — 4 holds, 1 release", () => {
+  const r = spawnSync(process.execPath, [WIRE_DEMO], { encoding: "utf8" });
+  assert.equal(r.status, 0, `wire demo contract failed:\n${r.stdout}\n${r.stderr}`);
+  assert.equal(r.stderr, "", "no libuv teardown noise may corrupt the verdict");
+  assert.equal((r.stdout.match(/🔒/g) || []).length, 4);
+  assert.equal((r.stdout.match(/✓/g) || []).length, 1);
+  // The scenario rejection is named: failing criterion by id, observed vs required.
+  assert.match(r.stdout, /C-QUALITY/);
+  assert.match(r.stdout, /2 color tokens/);
+  // Tamper is caught over the wire: 422 + the E3 mismatch with the artifact name.
+  assert.match(r.stdout, /422 \(REJECTED\)/);
+  assert.match(r.stdout, /E3 FAIL — handoff-notes\.txt: recorded/);
+  // The boundary rides the wire report verbatim.
+  assert.match(r.stdout, /CONFORMITY_UNDECIDED_BY_ENGINE/);
+  assert.match(r.stdout, /NEITHER decides conformity/);
+});
+
+test("wire demo --json: machine contract — statuses and gate arc", () => {
+  const r = spawnSync(process.execPath, [WIRE_DEMO, "--json"], { encoding: "utf8" });
+  assert.equal(r.status, 0);
+  const j = JSON.parse(r.stdout);
+  assert.equal(j.acts.length, 5);
+  assert.deepEqual(j.acts.map((a) => a.httpStatus), [200, 200, 422, 200, 200]);
+  assert.deepEqual(j.acts.map((a) => a.wireStatus),
+    ["VERIFIED", "VERIFIED", "REJECTED", "VERIFIED", "VERIFIED"]);
+  assert.equal(j.acts.filter((a) => a.escrowState === "HELD").length, 4);
+  assert.ok(j.acts[4].escrowState.startsWith("RELEASED"));
 });

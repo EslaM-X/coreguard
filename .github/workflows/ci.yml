@@ -117,6 +117,8 @@ jobs:
         run: node examples/delivery-fixture/adversarial-runner.mjs
       - name: Agent-platform payout gate — 4 holds, 1 release (boundary arc)
         run: node examples/agent-platform-integration/run-integration-demo.mjs
+      - name: Wire payout gate — scenario rejection over the DDE HTTP endpoint
+        run: node examples/agent-platform-integration/run-http-payout-gate.mjs
       - name: DDE HTTP endpoint — live smoke over loopback
         run: |
           node --input-type=module -e "

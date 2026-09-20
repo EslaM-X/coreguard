@@ -237,6 +237,7 @@ test/        canonicalization · policy · tamper suites + adversarial runner + 
              · firewall/ (engine + ws1) · firewall/attack-lab · sdk (verifyBinding + guard)
 examples/    transfer · swap · multistep · live · vault (Phase-1 reference ladder) (runnable, with READMEs + artifacts)
              delivery-fixture/ — DDE/1 bilateral dispute fixture (synthetic, replayable: node examples/delivery-fixture/verify-fixture.mjs)
+             agent-platform-integration/ — payout gated on DDE: SDK arc + wire-level gate with a criteria-based scenario rejection (runnable)
 templates/   integration/ — consumer scaffold for create-coreguard-integration
 scripts/     anchor-local.ps1/.sh — local fork anchor proof ·
              compute-commitment — offline commitment plan ·
