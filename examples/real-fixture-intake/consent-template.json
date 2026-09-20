@@ -1,0 +1,47 @@
+{
+  "_readme": "Template for BOTH parties' consent in a real bilateral dispute fixture. Sections A and B are the legally meaningful records; section C shows the exact wire format the DDE engine verifies (E5 CONSENT_BINDING). Fill every field, sign the digests off-platform with each party's own key, and never paste private keys anywhere. Nothing in this template is legal advice — parties should have their own counsel review the underlying agreement and the scope of disclosure.",
+  "templateId": "DDE-REAL-INTAKE-CONSENT-v1",
+  "chainId": "1116",
+  "A_redactionGrants": [
+    {
+      "_who": "PARTY A — fill for the first party (e.g. the client/principal)",
+      "partyRole": "",
+      "grantorAddress": "0x… (party A's own wallet address; E5 replays the signature to this exact address)",
+      "fixtureRef": "0x… (32-byte hex — computed in step 2 of the procedure; both parties MUST sign the same value)",
+      "scope": "Redacted public review of this fixture: agreed scope: [what reviewers may see, e.g. the ten DDE records and their hashes]; excluded: [anything withheld]; duration: [e.g. until 2027-01-01 UTC]; revocation: [how either party withdraws consent].",
+      "signature": { "r": "", "s": "", "v": 0, "digest": "0x… (EIP-712 digest of grantor/fixtureRef/scope below domain 'CoreGuard DDE Redaction Grant' v1 chainId 1116 — sign off-platform, or via tools/e2e-sign)" }
+    },
+    {
+      "_who": "PARTY B — same fields, party B's own key and address",
+      "partyRole": "",
+      "grantorAddress": "0x…",
+      "fixtureRef": "0x… (identical to party A's — one fixture, one reference)",
+      "scope": "…",
+      "signature": { "r": "", "s": "", "v": 0, "digest": "0x…" }
+    }
+  ],
+  "B_disclosureConsent": {
+    "publicRepository": { "permitted": false, "conditions": "" },
+    "sharedWithCounterparty": { "permitted": false, "conditions": "" },
+    "sharedWithNamedReviewer": { "permitted": false, "reviewerName": "", "conditions": "" },
+    "confidentialityDurationUtc": "",
+    "eachPartyMayPublishOwnPosition": false,
+    "attribution": "How each party wishes to be named, or 'anonymous party A/B'"
+  },
+  "C_recordClosureConsent": {
+    "recordClosesAtUtc": "",
+    "closureEffect": "After closure no party may edit their submitted records; further submissions require a new fixture.",
+    "disputeResolvedBy": "",
+    "remedyAgreed": "NONE | REWORK | PARTIAL_REFUND | FULL_REFUND | CREDIT — the closed remedy vocabulary; anything outside it is rejected by the engine (B3)",
+    "bothPartiesSignClosure": false
+  },
+  "D_declarations": {
+    "secretsRemoved": false,
+    "personalDataRemoved": false,
+    "realDisputeExists": true,
+    "realTransactionAnchor": true,
+    "realSignatures": true,
+    "noCoercion": "Both parties confirm consent was given freely.",
+    "perjuryAwareness": "Both parties confirm the statements above are accurate to the best of their knowledge."
+  }
+}

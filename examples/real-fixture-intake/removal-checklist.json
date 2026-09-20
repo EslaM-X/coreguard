@@ -1,0 +1,30 @@
+{
+  "_readme": "Pre-publication removal checklist for a REAL bilateral dispute fixture. Every item is a hard gate: if any box cannot be checked TRUE with evidence, the fixture is NOT publishable. Run examples/real-fixture-intake/prelude.mjs for the machine-checkable subset; items marked (HUMAN) require a written answer from the intake operator and cannot be decided by a script.",
+  "templateId": "DDE-REAL-INTAKE-REMOVAL-v1",
+  "caseRef": "",
+  "completedBy": "",
+  "completedAtUtc": "",
+  "machineChecks": {
+    "txHashPresentButNoPrivateKeys": false,
+    "noMnemonicOrSeedPhrases": false,
+    "noApiTokensOrBearerStrings": false,
+    "noJwtStrings": false,
+    "noEmailAddressesInRecords": false,
+    "noPhoneNumbersInRecords": false,
+    "signaturesAreSignaturesOnly": "EIP-712 r/s/v/digest fields are expected and allowed; any other 32-byte hex blob in a non-signature field must be justified in notes"
+  },
+  "humanChecks": {
+    "partiesPseudonymizedAddresses": "HUMAN — replace party names, emails, legal entity names with the wallet addresses the parties consent to publish; keep role labels (client/provider) only",
+    "offChainArtifactsRedacted": "HUMAN — delivered artifacts often embed names/logos/paths/user data; redact content, then re-pin SHA-256 in delivery-manifest.json",
+    "amountsDisclosureDecision": "HUMAN — decide and record: keep exact wei, or round to magnitude (e.g. '≈0.25 ETH'); amounts are often commercially sensitive",
+    "urlsAndEndpoints": "HUMAN — internal hostnames, signed URLs, IPFS gateway tokens must be stripped",
+    "timestampsConsidered": "HUMAN — timestamps alone rarely identify parties, but confirm with the parties before publishing exact values",
+    "thirdPartyData": "HUMAN — artifacts or records referencing OTHER people/companies (not the two parties) must be removed or generalized"
+  },
+  "signOff": {
+    "operatorName": "",
+    "operatorRole": "intake operator — not a party to the dispute",
+    "bothPartiesReviewedRedaction": false,
+    "reviewedAtUtc": ""
+  }
+}
