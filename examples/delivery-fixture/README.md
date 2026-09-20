@@ -51,6 +51,46 @@ Regenerate (deterministic, byte-identical):
 node examples/delivery-fixture/make-fixture.mjs
 ```
 
+## Verify over HTTP — the platform integration path
+
+Platforms integrate without pulling the engine in-process: start the endpoint
+(node stdlib only), assemble the records at their engine keys, and POST.
+
+```bash
+# 1 — start (loopback by default; a public bind is a deliberate act)
+node -e "import('./packages/delivery/http.js').then(m => m.startDeliveryEndpoint({ port: 8787 }))"
+
+# 2 — assemble the ten records into one fixture document (no jq needed)
+node -e "
+import { loadFixtureFromDir } from './packages/delivery/sdk.js';
+process.stdout.write(JSON.stringify(loadFixtureFromDir('./examples/delivery-fixture').fixture));
+" > fixture.json
+
+# 3 — verify over the wire (or /peoples-court for the evidence-class projection)
+curl -sS -X POST http://127.0.0.1:8787/verify \
+  -H "content-type: application/json" --data-binary @fixture.json
+```
+
+Every response — including errors and `/health` — carries
+`x-dde-version: DDE/1` and `x-dde-boundary: DDE-BOUNDARY`, and the boundary
+banner in the body.
+
+| Code | When | Wire `decision` |
+|---|---|---|
+| `200` | full gate holds | `EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE` |
+| `422` | fixture fails any F/E/B check (also: empty object) | `FIXTURE_REJECTED` |
+| `400` | body is not valid JSON | rejected submission (named error) |
+| `413` | body exceeds 1 MiB (rejected pre-parse) | rejected submission (named error) |
+| `404` | unknown path or wrong method | usage hint |
+
+Wire-specific honesty rules: consent replay (E5) reports `NOT_RUN` unless the
+caller injects an EVM adapter (zero outbound calls, never fabricated over the
+wire), and `/peoples-court` marks `hashesManifest: NOT_EVALUATED_OVER_HTTP` —
+record pins are enforced by the file-based verifier, so a wire report is never
+mistakable for pin verification. A worked consumer — a platform holding a
+payout on wire reports, including a criteria-based scenario rejection — lives
+in `examples/agent-platform-integration/run-http-payout-gate.mjs`.
+
 ## The records
 
 | File | Purpose |
@@ -77,4 +117,5 @@ verifies precisely because it respects the boundary.
 
 Boundary document: [`docs/delivery-dispute-boundary.md`](../../docs/delivery-dispute-boundary.md)
 Engine: [`packages/delivery/index.js`](../../packages/delivery/index.js)
-Tests: `test/delivery/fixture.test.js` (31 tests)
+Tests: `test/delivery/fixture.test.js` (33 tests — happy path, one mutation per
+F/E/B check, determinism, and the compound attack batteries)

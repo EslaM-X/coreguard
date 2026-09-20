@@ -1,7 +1,7 @@
 # Delivery & Dispute Evidence — Integration Boundary (DDE/1)
 
 **Status:** draft for counterparty review · **Version:** DDE/1 · **Date:** 2026-09-19
-**Engine:** `packages/delivery/index.js` (zero dependencies) · **Fixture:** `examples/delivery-fixture/` · **Verify:** `node examples/delivery-fixture/verify-fixture.mjs`
+**Engine:** `packages/delivery/index.js` (zero dependencies) · **Fixture:** `examples/delivery-fixture/` · **Verify:** `node examples/delivery-fixture/verify-fixture.mjs` · **HTTP:** `packages/delivery/http.js` (§6)
 
 > **The boundary in one sentence.** Execution verification does not decide
 > delivery conformity. Acceptance or rejection of the delivered work is a
@@ -87,7 +87,71 @@ closed, hash-pinned, dual-signed record — so the procedure can frame the
 conformity question without payment settlement or a valid signature
 silently deciding it.
 
-## 6. What this design deliberately does not do
+## 6. The HTTP verification endpoint
+
+`packages/delivery/http.js` exposes the same fail-closed gate over HTTP so
+external platforms (agent platforms, escrow providers, People's Court intake
+tooling) can verify a bilateral fixture without installing anything beyond
+Node's standard library. The engine is not re-implemented for the wire — the
+endpoint calls `verifyDeliveryFixture` directly, so wire semantics are
+byte-for-byte the CLI's semantics.
+
+```bash
+# start (loopback by default — a public bind is a deliberate act, not an accident)
+node -e "import('./packages/delivery/http.js').then(m => m.startDeliveryEndpoint({ port: 8787 }))"
+
+# assemble a fixture (records at their engine keys; Node ships everywhere, no jq needed)
+node -e "
+import { loadFixtureFromDir } from './packages/delivery/sdk.js';
+process.stdout.write(JSON.stringify(loadFixtureFromDir('./examples/delivery-fixture').fixture));
+" > fixture.json
+
+# verify over the wire
+curl -sS -X POST http://127.0.0.1:8787/verify \
+  -H "content-type: application/json" --data-binary @fixture.json
+
+# same, plus the neutral evidence-class projection
+curl -sS -X POST http://127.0.0.1:8787/peoples-court \
+  -H "content-type: application/json" --data-binary @fixture.json
+
+# liveness (carries the boundary banner too — even a probe quotes the boundary)
+curl -sS http://127.0.0.1:8787/health
+```
+
+**Status codes (complete, fail-closed):**
+
+| Code | When | Body (`status` / `decision`) |
+|---|---|---|
+| `200` | full gate holds | `VERIFIED` / `EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE` |
+| `422` | fixture fails any check (F0–F3, E3–E5, B1–B3) — a rejected submission, not a server error | `REJECTED` / `FIXTURE_REJECTED` + per-check `FAIL` detail |
+| `400` | body is not valid JSON — malformed input is rejected, never a 5xx | `REJECTED` + named error |
+| `413` | body exceeds 1 MiB — rejected before parsing | `REJECTED` + named error |
+| `404` | unknown path or wrong method (e.g. `GET /verify`) | `REJECTED` + usage hint |
+
+Every response — including `404` and `/health` — carries the headers
+`x-dde-version: DDE/1` and `x-dde-boundary: DDE-BOUNDARY`, and the banner in
+the body. `decision` vocabulary never extends beyond
+`EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE` and
+`FIXTURE_REJECTED`: no network path can decide conformity, adjudicate, or
+authorize.
+
+Two wire-specific honesty rules:
+
+- **Consent replay (E5) reports `NOT_RUN` unless the caller injects an EVM
+  adapter.** The endpoint makes zero outbound network calls; absent evidence
+  is never upgraded over the wire.
+- **`POST /peoples-court` marks `hashesManifest: NOT_EVALUATED_OVER_HTTP`.**
+  Record pins are enforced by the file-based verifier against `hashes.json`;
+  the endpoint verifies the records *as submitted*. The mark exists so no one
+  can misread a wire report as pin verification.
+
+Reference consumer: `examples/agent-platform-integration/run-http-payout-gate.mjs`
+holds a payout on wire reports — including a scenario rejection resting solely
+on a failing acceptance criterion (`C-QUALITY`), which returns `200 VERIFIED`
+while the platform's own gate stays closed. Evidence is admissible; conformity
+is decided by the parties, never by this endpoint.
+
+## 7. What this design deliberately does not do
 
 - It does not judge who is right. Both positions survive verbatim.
 - It does not let payment settle = acceptance, structurally.
