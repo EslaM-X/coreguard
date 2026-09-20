@@ -22,14 +22,16 @@ jobs:
       # path proves detection fires. Together: the delivery/dispute boundary
       # is under continuous evidence surveillance, not a one-time capture.
       - uses: actions/checkout@v7
+      # Lockfile guard BEFORE setup-node (class-H): setup-node's `cache: npm`
+      # fails opaque when package-lock.json is absent (red run 34440426922).
+      - name: Guard - lockfile present + workspace sync (before setup-node)
+        run: node scripts/check-lock-sync.mjs
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
       - name: Guard - workflow YAML (zero-jobs trap)
         run: node scripts/check-workflows.mjs
-      - name: Guard - lockfile/workspace sync (before npm ci)
-        run: node scripts/check-lock-sync.mjs
       - run: npm ci
       - name: Deterministic regeneration produces byte-identical records
         run: |

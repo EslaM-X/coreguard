@@ -60,7 +60,21 @@ export function diffWorkspaces(pkgs, lock) {
 
 export function checkLockSync(root = ROOT) {
   const pkgs = workspaceNames(root);
-  const lock = JSON.parse(readFileSync(join(root, "package-lock.json"), "utf8"));
+  const lockPath = join(root, "package-lock.json");
+  if (!existsSync(lockPath)) {
+    // Class H guard: a missing lockfile would otherwise fail inside
+    // actions/setup-node's `cache: npm` with the opaque "Dependencies lock file
+    // is not found" error (red run 34440426922, commit 41ed0b4). Name it here.
+    return {
+      ok: false,
+      count: pkgs.length,
+      reason: "no package-lock.json in repo root — commit one before CI can npm ci",
+      missing: pkgs.length
+        ? pkgs.map(({ name, dir }) => ({ name, dir, linked: false, placed: false }))
+        : [{ name: "(lockfile)", dir: "package-lock.json", linked: false, placed: false }],
+    };
+  }
+  const lock = JSON.parse(readFileSync(lockPath, "utf8"));
   const missing = diffWorkspaces(pkgs, lock);
   return { ok: missing.length === 0, count: pkgs.length, missing };
 }
@@ -74,6 +88,7 @@ if (invokedPath && resolve(fileURLToPath(import.meta.url)).toLowerCase() === inv
   }
   console.error(`lock-sync FAILED: ${res.missing.length}/${res.count} workspace(s) missing from package-lock.json:`);
   for (const m of res.missing) console.error(`  - ${m.name}  (${m.dir})`);
+  if (res.reason) console.error(`Reason: ${res.reason}`);
   console.error("Fix: run `npm install` at the repo root, then commit package-lock.json.");
   process.exit(1);
 }
