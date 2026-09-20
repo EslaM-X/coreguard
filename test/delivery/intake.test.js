@@ -15,7 +15,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync, rmSync, cpSync, mkdirSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync, rmSync, cpSync, mkdirSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -25,6 +25,7 @@ import { fileURLToPath } from "node:url";
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const FIXTURE_DIR = join(REPO, "examples", "delivery-fixture");
 const PRELUDE = join(REPO, "examples", "real-fixture-intake", "prelude.mjs");
+const CONVERT = join(REPO, "examples", "real-fixture-intake", "convert.mjs");
 const RECORDS = [
   "agreement.json", "acceptance-criteria.json", "parties.json", "authorization.json",
   "execution-attestation.json", "delivery-manifest.json", "acceptance-record.json",
@@ -154,6 +155,53 @@ test("usage error: missing directory is exit 2, not a gate verdict", () => {
   const r = spawnSync(process.execPath, [PRELUDE], { cwd: REPO, encoding: "utf8" });
   assert.equal(r.status, 2);
   assert.match(r.stderr, /usage:/);
+});
+
+test("convert: green candidate → ten records + pins + engine VERIFIED; red candidate refused", async () => {
+  const dir = makeCandidate(mkdtempSync(join(tmpdir(), "dde-conv-ok-")));
+  const out = join(tmpdir(), "dde-conv-out-" + Date.now() + "-" + Math.random().toString(36).slice(2));
+  try {
+    const conv = spawnSync(process.execPath, [CONVERT, dir, out], { cwd: REPO, encoding: "utf8" });
+    assert.equal(conv.status, 0, `conversion failed:\n${conv.stdout}\n${conv.stderr}`);
+    // All ten records + hashes.json written, pins describe the disk.
+    for (const name of RECORDS) assert.ok(existsSync(join(out, name)), `${name} missing from output`);
+    const manifest = JSON.parse(readFileSync(join(out, "hashes.json"), "utf8"));
+    assert.equal(manifest.fixture.origin, "REAL");
+    assert.equal(manifest.fixture.realDisputeExists, true);
+    assert.equal(manifest.manifest.generatedBy, "examples/real-fixture-intake/convert.mjs");
+    for (const name of RECORDS) {
+      const actual = "0x" + createHash("sha256").update(readFileSync(join(out, name))).digest("hex");
+      assert.equal(manifest.files[name], actual, `pin mismatch for ${name}`);
+    }
+    // The engine gate — the exact check a reviewer re-runs — must hold.
+    const { verifyFixture } = await import("../../packages/delivery/sdk.js");
+    const report = await verifyFixture({ fixtureDir: out });
+    assert.equal(report.status, "VERIFIED");
+    assert.equal(report.hashesManifest, "PRESENT");
+    assert.equal(report.decision, "EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+    rmSync(out, { recursive: true, force: true });
+  }
+});
+
+test("convert: usage errors are exit 2 — out-dir never overwritten", () => {
+  const conv = spawnSync(process.execPath, [CONVERT], { cwd: REPO, encoding: "utf8" });
+  assert.equal(conv.status, 2);
+  assert.match(conv.stderr, /usage:/);
+});
+
+test("convert: refuses a candidate that fails the gate — nothing converts without green", () => {
+  const empty = mkdtempSync(join(tmpdir(), "dde-conv-red-"));
+  const out = join(tmpdir(), "dde-conv-out-red-" + Date.now());
+  try {
+    const conv = spawnSync(process.execPath, [CONVERT, empty, out], { cwd: REPO, encoding: "utf8" });
+    assert.equal(conv.status, 1);
+    assert.match((conv.stdout ?? "") + (conv.stderr ?? ""), /GATE RED/);
+    assert.ok(!existsSync(out), "no output directory may appear for a red candidate");
+  } finally {
+    rmSync(empty, { recursive: true, force: true });
+  }
 });
 
 test("signed disclosure scope is enforced: missing/false crossChecks keep the gate red", () => {
