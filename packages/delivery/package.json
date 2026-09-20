@@ -4,8 +4,14 @@
   "description": "Delivery & Dispute Evidence (DDE/1): the execution/acceptance boundary, enforced — execution verification never decides delivery conformity",
   "type": "module",
   "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./sdk": "./sdk.js",
+    "./http": "./http.js"
+  },
   "files": [
     "index.js",
+    "sdk.js",
     "http.js"
   ],
   "engines": {
