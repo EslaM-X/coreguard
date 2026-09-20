@@ -324,6 +324,8 @@ test/        canonicalization · policy · tamper suites + adversarial runner + 
 examples/    transfer · swap · multistep · live · vault (Phase-1 reference ladder) (runnable, with READMEs + artifacts)
              delivery-fixture/ — DDE/1 bilateral dispute fixture (synthetic, replayable: node examples/delivery-fixture/verify-fixture.mjs)
              agent-platform-integration/ — payout gated on DDE: SDK arc + wire-level gate with a criteria-based scenario rejection (runnable)
+             real-fixture-intake/ — real-case intake: consent + signed disclosure scope → removal gate → convert.mjs → review-ready REAL fixture
+             — external integration path (three tiers): delivery-fixture = schema proof · agent-platform-integration = embed the gate · real-fixture-intake = go real
 templates/   integration/ — consumer scaffold for create-coreguard-integration
 scripts/     anchor-local.ps1/.sh — local fork anchor proof ·
              compute-commitment — offline commitment plan ·
