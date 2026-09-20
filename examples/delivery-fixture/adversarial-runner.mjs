@@ -10,9 +10,14 @@
  *
  *   node examples/delivery-fixture/adversarial-runner.mjs
  *   node examples/delivery-fixture/adversarial-runner.mjs --json
+ *   node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 [--seed 424242]
+ *     fuzz mode: seed-deterministic random stacks of the ten mutations —
+ *     each round stacks a random-size subset (applied in PRNG order) and
+ *     demands every member's own check still fire. Same seed ⇒ same rounds.
  *
  * Exit contract: 0 = every mutation caught by its own check · 1 = a mutation
- * survived or was caught by the wrong check (the gate has a hole — stop).
+ * survived or was caught by the wrong check (the gate has a hole — stop) ·
+ * 2 = usage error.
  *
  * This script never writes, never authorizes, never broadcasts.
  */
@@ -27,6 +32,39 @@ import {
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const jsonMode = process.argv.includes("--json");
+
+// ---------------------------------------------------------------- fuzz mode options
+
+const FUZZ_DEFAULT_SEED = 424242;
+const FUZZ_DEFAULT_ROUNDS = 50;
+
+function parseFuzzOptions(argv) {
+  const fuzzIdx = argv.indexOf("--fuzz");
+  const seedIdx = argv.indexOf("--seed");
+  if (seedIdx !== -1 && fuzzIdx === -1) return { error: "--seed is only meaningful together with --fuzz" };
+  if (fuzzIdx === -1) return { rounds: undefined, seed: undefined };
+  const rawRounds = fuzzIdx + 1 < argv.length && !argv[fuzzIdx + 1].startsWith("--") ? argv[fuzzIdx + 1] : String(FUZZ_DEFAULT_ROUNDS);
+  const rounds = Math.floor(Number(rawRounds));
+  if (!Number.isFinite(rounds) || rounds < 1) return { error: "--fuzz needs a positive number of rounds (e.g. --fuzz 50)" };
+  const rawSeed = seedIdx !== -1 && seedIdx + 1 < argv.length && !argv[seedIdx + 1].startsWith("--") ? argv[seedIdx + 1] : undefined;
+  let seed = FUZZ_DEFAULT_SEED;
+  if (rawSeed !== undefined) {
+    seed = Math.floor(Number(rawSeed));
+    if (!Number.isFinite(seed)) return { error: "--seed needs an integer (e.g. --seed 424242)" };
+  }
+  return { rounds, seed };
+}
+
+/** mulberry32 — the same deterministic PRNG pattern as scripts/benchmark-10k.mjs:
+ *  tiny, fast, and reproducible from a single integer seed. */
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
 // ------------------------------------------------------------ honest fixture
 
@@ -232,6 +270,49 @@ for (const battery of COMPOUND_BATTERIES) {
 }
 const compoundSurvived = compoundResults.filter((r) => r.verdict === "SURVIVED");
 
+// ------------------------------------------ fuzz mode (seed-deterministic stacks)
+
+// Random-size, random-order stacks of the ten mutations — a fuzzer that hits
+// combinations the hand-written batteries never thought of. Determinism:
+// mulberry32 over the seed means the same seed replays the exact same rounds
+// (CI-comparable, bug-reproducible). A round SURVIVES if any member's own
+// check stayed PASS — the same blinding standard as the compound batteries.
+let fuzzReport = undefined;
+{
+  const fuzzOpts = parseFuzzOptions(process.argv.slice(2));
+  if (fuzzOpts.error) {
+    console.error(`usage: ${fuzzOpts.error}`);
+    process.exit(2);
+  }
+  if (fuzzOpts.rounds !== undefined) {
+    const rand = mulberry32(fuzzOpts.seed);
+    const rounds = [];
+    for (let i = 0; i < fuzzOpts.rounds; i++) {
+      const pool = [...MUTATIONS];
+      const size = 1 + Math.floor(rand() * pool.length); // 1..10 mutations stacked
+      const members = [];
+      for (let k = 0; k < size; k++) {
+        members.push(pool.splice(Math.floor(rand() * pool.length), 1)[0].id);
+      }
+      const fixture = honestFixture();
+      for (const id of members) MUTATIONS.find((m) => m.id === id).mutate(fixture);
+      const state = await runGate(fixture);
+      const caught = Object.entries(state).filter(([, r]) => r === "FAIL").map(([id]) => id);
+      const misses = members.filter((id) => state[id] !== "FAIL");
+      rounds.push({
+        round: i + 1,
+        stack: members,
+        caught,
+        missedByOwnCheck: misses,
+        verdict: misses.length === 0 ? "CAUGHT" : "SURVIVED",
+      });
+    }
+    const fuzzSurvived = rounds.filter((r) => r.verdict === "SURVIVED");
+    fuzzReport = { seed: fuzzOpts.seed, rounds: rounds.length, survived: fuzzSurvived.length, results: rounds };
+  }
+}
+const fuzzAllClear = fuzzReport ? fuzzReport.survived === 0 : true;
+
 const summary = {
   control: controlClean ? "CLEAN (all 10 checks PASS on the honest fixture)" : "BASELINE DIRTY — runner results meaningless until fixed",
   mutations: results.length,
@@ -240,9 +321,10 @@ const summary = {
   compoundBatteries: compoundResults.length,
   compoundCaught: compoundResults.length - compoundSurvived.length,
   compoundSurvived: compoundSurvived.length,
+  ...(fuzzReport ? { fuzzSeed: fuzzReport.seed, fuzzRounds: fuzzReport.rounds, fuzzSurvived: fuzzReport.survived } : {}),
 };
 
-const allClear = controlClean && survived.length === 0 && compoundSurvived.length === 0;
+const allClear = controlClean && survived.length === 0 && compoundSurvived.length === 0 && fuzzAllClear;
 
 if (jsonMode) {
   console.log(JSON.stringify({
@@ -252,9 +334,12 @@ if (jsonMode) {
     controlClean,
     results,
     compoundResults,
+    ...(fuzzReport ? { fuzzResults: fuzzReport.results } : {}),
     summary,
     verdict: allClear
-      ? "ALL MUTATIONS CAUGHT (single + compound) — the gate bites where it claims to"
+      ? (fuzzReport
+          ? "ALL MUTATIONS CAUGHT (single + compound + fuzz) — the gate bites where it claims to"
+          : "ALL MUTATIONS CAUGHT (single + compound) — the gate bites where it claims to")
       : "GATE HOLE — see results",
   }, null, 2));
   process.exit(allClear ? 0 : 1);
@@ -280,11 +365,23 @@ for (const r of compoundResults) {
   console.log(`      → caught by [${r.caught.join(", ") || "NOTHING"}]` +
     (r.verdict === "SURVIVED" ? `  ← SURVIVED: ${r.missedByOwnCheck.join(", ")} stayed PASS` : ""));
 }
+if (fuzzReport) {
+  console.log(`fuzz — seed ${fuzzReport.seed}: ${fuzzReport.rounds} random stacks (deterministic replay: same seed ⇒ same rounds):`);
+  for (const r of fuzzReport.results) {
+    const mark = r.verdict === "CAUGHT" ? "✓" : "✗";
+    console.log(`  ${mark} round ${pad(String(r.round), 3)} [${r.stack.join(" + ")}]`);
+    console.log(`      → caught by [${r.caught.join(", ") || "NOTHING"}]` +
+      (r.verdict === "SURVIVED" ? `  ← SURVIVED: ${r.missedByOwnCheck.join(", ")} stayed PASS` : ""));
+  }
+}
 console.log(line);
 console.log(`mutations: ${summary.mutations} · caught: ${summary.caught} · survived: ${summary.survived}`);
 console.log(`compound : ${summary.compoundBatteries} batteries · caught: ${summary.compoundCaught} · survived: ${summary.compoundSurvived}`);
+if (fuzzReport) console.log(`fuzz     : seed ${summary.fuzzSeed} · ${summary.fuzzRounds} stacks · survived: ${summary.fuzzSurvived}`);
 console.log(allClear
-  ? "verdict : ALL MUTATIONS CAUGHT (single + compound) — the boundary enforces itself"
+  ? (fuzzReport
+      ? "verdict : ALL MUTATIONS CAUGHT (single + compound + fuzz) — the boundary enforces itself"
+      : "verdict : ALL MUTATIONS CAUGHT (single + compound) — the boundary enforces itself")
   : "verdict : GATE HOLE — fix the listed checks before citing DDE output");
 console.log(`boundary: ${BOUNDARY_BANNER.statement}`);
 process.exit(allClear ? 0 : 1);

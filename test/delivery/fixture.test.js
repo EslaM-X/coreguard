@@ -329,6 +329,38 @@ test("adversarial runner: compound batteries — stacked mutations never blind e
   assert.match(r.stdout, /\[F0 \+ F1 \+ E3 \+ E4 \+ B2\]/);
 });
 
+test("adversarial runner fuzz mode: seed-deterministic stacks, all caught", () => {
+  const RUNNER = join(FIXTURE_DIR, "adversarial-runner.mjs");
+  const run = (args) => spawnSync(process.execPath, [RUNNER, ...args], { cwd: REPO, encoding: "utf8" });
+  // 30 random stacks on a fixed seed: every member's own check must still fire.
+  const r = run(["--fuzz", "30", "--seed", "424242"]);
+  assert.equal(r.status, 0, `fuzz found a hole:\n${r.stdout}\n${r.stderr}`);
+  assert.match(r.stdout, /fuzz     : seed 424242 · 30 stacks · survived: 0/);
+  assert.match(r.stdout, /ALL MUTATIONS CAUGHT \(single \+ compound \+ fuzz\)/);
+  // Determinism: same seed replays identical stacks; a different seed does not.
+  const stacksOf = (out) => out.split("\n").filter((l) => l.includes(" round ")).join("\n");
+  assert.equal(stacksOf(r.stdout), stacksOf(run(["--fuzz", "30", "--seed", "424242"]).stdout));
+  assert.notEqual(stacksOf(r.stdout), stacksOf(run(["--fuzz", "30", "--seed", "777"]).stdout));
+  // Machine report carries per-round centering with seed + survived count.
+  const j = JSON.parse(run(["--fuzz", "10", "--json"]).stdout);
+  assert.equal(j.summary.fuzzSeed, 424242);
+  assert.equal(j.summary.fuzzRounds, 10);
+  assert.equal(j.summary.fuzzSurvived, 0);
+  assert.equal(j.fuzzResults.length, 10);
+  for (const round of j.fuzzResults) {
+    assert.ok(round.stack.length >= 1 && round.stack.length <= 10);
+    assert.deepEqual(round.missedByOwnCheck, []);
+  }
+});
+
+test("adversarial runner fuzz mode: usage errors are exit 2", () => {
+  const RUNNER = join(FIXTURE_DIR, "adversarial-runner.mjs");
+  const bad = spawnSync(process.execPath, [RUNNER, "--seed", "9"], { cwd: REPO, encoding: "utf8" });
+  assert.equal(bad.status, 2); // --seed without --fuzz
+  const bad2 = spawnSync(process.execPath, [RUNNER, "--fuzz", "0"], { cwd: REPO, encoding: "utf8" });
+  assert.equal(bad2.status, 2); // non-positive rounds
+});
+
 test("CLI: --tamper flips a byte in memory and exits 1 fail-closed", () => {
   const r = spawnSync(process.execPath, [join(FIXTURE_DIR, "verify-fixture.mjs"), "--tamper", "logo.svg"], { cwd: REPO, encoding: "utf8" });
   assert.equal(r.status, 1);

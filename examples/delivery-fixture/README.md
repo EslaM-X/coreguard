@@ -45,6 +45,14 @@ B1–B3) against a clean control, and demands each be caught by its own
 check. Exit `0` = all 10 mutations caught; any survivor or wrong-check
 catch exits `1` and names the hole. `--json` for machines.
 
+Fuzz mode — seed-deterministic random stacks (size 1–10, PRNG-ordered) of
+the ten mutations, one centering report per round; same seed replays
+byte-identical rounds:
+
+```bash
+node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 [--seed 424242]
+```
+
 Regenerate (deterministic, byte-identical):
 
 ```bash
