@@ -172,7 +172,9 @@ Any external platform (agent marketplace, escrow provider, settlement rails)
 integrates in three lines: POST the fixture to `/verify` before releasing a
 payout, and hold the release until the counterparty's criteria-based acceptance
 record arrives. The snippet below is the canonical gate — the same shape the
-reference consumer runs as a live five-scenario demo:
+reference consumer runs as a live nine-scenario wire demo (mutual acceptance, a
+later dispute that freezes the payout, a closure claim rejected as unproven,
+and release only once the closed record is established by `closedAtUtc`):
 
 ```js
 // your platform, before releasing any payout:
@@ -229,7 +231,10 @@ attached.
 Reference consumer: `examples/agent-platform-integration/run-http-payout-gate.mjs`
 holds a payout on wire reports — including a scenario rejection resting solely
 on a failing acceptance criterion (`C-QUALITY`), which returns `200 VERIFIED`
-while the platform's own gate stays closed. Evidence is admissible; conformity
+while the platform's own gate stays closed. Post-acceptance, a later dispute
+freezes the escrow (`DISPUTE_OPEN`), a declared closure without evidence is
+refused (`422` — closure is established by `closedAtUtc`, never declared), and
+only a procedure-closed record releases funds. Evidence is admissible; conformity
 is decided by the parties, never by this endpoint.
 
 ## 7. What this design deliberately does not do

@@ -257,12 +257,15 @@ table and wire honesty rules: [docs/delivery-dispute-boundary.md](docs/delivery-
 
 ```bash
 node examples/agent-platform-integration/run-integration-demo.mjs  # SDK arc — 4 holds, 1 release (exit contract)
-node examples/agent-platform-integration/run-http-payout-gate.mjs  # wire-level — incl. a criteria-based scenario rejection
+node examples/agent-platform-integration/run-http-payout-gate.mjs  # wire-level — 9 scenarios incl. mutual acceptance, a later dispute freezing the payout, and a procedure-closed record
 npm run benchmark:dde                                              # verify perf: median < 50ms budget (measured ~0.7ms)
 ```
 
-Both demos exit `0` only on the exact arc: HOLD ×4 → RELEASE ×1 — any drift
-from the boundary fails them, and CI runs both on every push. Fixture and
+Both demos exit `0` only on the exact arc: HOLD ×4 → RELEASE ×1 (SDK) and the
+nine-wire arc — escrow stays HELD through acceptance disputes, an unproven
+closure claim (422), and only RELEASES once `closedAtUtc` establishes the
+record is closed — any drift from the boundary fails them, and CI runs both on
+every push. Fixture and
 records: [examples/delivery-fixture/](examples/delivery-fixture/) · live
 bilingual demo: [DELIVERY-DISPUTE-DEMO.html](https://eslam-x.github.io/coreguard/DELIVERY-DISPUTE-DEMO.html).
 
