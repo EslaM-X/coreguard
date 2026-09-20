@@ -12,6 +12,7 @@
 **It produces independently verifiable evidence of whether execution conformed to what was authorized.**
 
 [![CI](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml)
+[![DDE Evidence Cycle](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org)
 [![Solidity](https://img.shields.io/badge/solidity-0.8.24-363636.svg?logo=solidity&logoColor=white)](https://github.com/foundry-rs/foundry)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)

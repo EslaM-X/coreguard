@@ -1,0 +1,74 @@
+name: DDE Evidence Cycle
+
+# The delivery/dispute boundary has its own badge-visible workflow: the DDE
+# badge on the README is this file's status, so evidence surveillance is a
+# first-class signal for any visitor — not a job hidden inside general CI.
+# Steps are byte-identical to the former `dde` job in ci.yml, plus the fuzz
+# mode now documented in the reviewer commands table.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  dde:
+    name: DDE evidence cycle (deterministic · replayed · adversarial)
+    runs-on: ubuntu-latest
+    steps:
+      # Deterministic regeneration + byte-diff proves the evidence factory is
+      # reproducible; the replay re-derives the fail-closed gate; the tamper
+      # path proves detection fires. Together: the delivery/dispute boundary
+      # is under continuous evidence surveillance, not a one-time capture.
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Deterministic regeneration produces byte-identical records
+        run: |
+          node examples/delivery-fixture/make-fixture.mjs > /dev/null
+          if [ -n "$(git diff --stat -- examples/delivery-fixture)" ]; then
+            echo "::error::regenerated fixture differs from the committed bytes — the evidence factory is not deterministic"
+            git diff -- examples/delivery-fixture | head -40
+            exit 1
+          fi
+          echo "fixture regeneration: byte-identical ✓"
+      - name: One-command replay of the full fail-closed gate
+        run: node examples/delivery-fixture/verify-fixture.mjs
+      - name: Tamper path — one flipped byte must fail closed
+        run: |
+          node examples/delivery-fixture/verify-fixture.mjs --tamper logo.svg > /dev/null 2>&1 && {
+            echo "::error::tampered fixture verified — detection did not fire"
+            exit 1
+          }
+          echo "tamper detection: exit 1 on one flipped byte ✓"
+      - name: Adversarial runner — every F/E/B check catches its own mutation
+        run: node examples/delivery-fixture/adversarial-runner.mjs
+      - name: Compound batteries — stacked mutations must never blind each other
+        run: node examples/delivery-fixture/adversarial-runner.mjs
+      - name: Fuzz mode — seed-deterministic random stacks must all be caught
+        run: node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 --seed 424242
+      - name: Agent-platform payout gate — 4 holds, 1 release (boundary arc)
+        run: node examples/agent-platform-integration/run-integration-demo.mjs
+      - name: Wire payout gate — scenario rejection over the DDE HTTP endpoint
+        run: node examples/agent-platform-integration/run-http-payout-gate.mjs
+      - name: DDE SDK perf — verify budget must hold (median < 50ms)
+        run: node scripts/benchmark-dde.mjs
+      - name: DDE HTTP endpoint — live smoke over loopback
+        run: |
+          node --input-type=module -e "
+          import { startDeliveryEndpoint } from './packages/delivery/http.js';
+          const server = await startDeliveryEndpoint({ port: 0 });
+          const { port } = server.address();
+          const h = await fetch('http://127.0.0.1:' + port + '/health');
+          const body = await h.json();
+          if (h.status !== 200 || body.status !== 'OK' || !body.boundary.includes('does not decide delivery conformity')) {
+            console.error('health check failed — ' + h.status + ' ' + JSON.stringify(body).slice(0, 200));
+            process.exit(1);
+          }
+          await server.close();
+          console.log('HTTP endpoint: 200 OK with boundary banner ✓');
+          "
