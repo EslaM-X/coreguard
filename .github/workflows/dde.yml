@@ -78,6 +78,10 @@ jobs:
         run: |
           node scripts/benchmark-trend.mjs --file /tmp/bench-sdk.json
           node scripts/benchmark-trend.mjs --file /tmp/bench-wire.json
+          # Live perf badges: regenerate from the just-appended history so the
+          # repo page always shows the last CI-measured medians. Part of the
+          # same bot commit — badge and trend point can never diverge.
+          node scripts/benchmark-trend.mjs --badges
           # Commit the appended history so the next push baselines on real CI
           # numbers. Two cases `git diff --stat` alone misses: the file is
           # still UNTRACKED (first-ever recording) and appended-but-unstaged
@@ -89,12 +93,14 @@ jobs:
               NEEDS_COMMIT=1
             elif ! git diff --quiet HEAD -- benchmarks/perf-history.jsonl; then
               NEEDS_COMMIT=1
+            elif ! git diff --quiet HEAD -- docs/badges; then
+              NEEDS_COMMIT=1
             fi
           fi
           if [ "$NEEDS_COMMIT" = "1" ]; then
             git config user.name "coreguard-trend-bot"
             git config user.email "noreply@coreguard.local"
-            git add benchmarks/perf-history.jsonl
+            git add benchmarks/perf-history.jsonl docs/badges
             git commit -m "chore(perf): record benchmark medians [skip ci]"
             git push
           fi

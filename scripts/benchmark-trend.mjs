@@ -9,6 +9,14 @@
  *
  *   node scripts/benchmark-trend.mjs --file <report.json>   # append + gate
  *   node scripts/benchmark-trend.mjs --status               # gate only, no append
+ *   node scripts/benchmark-trend.mjs --badges               # regenerate docs/badges/*.svg
+ *
+ * Badge mode (used by the trend-recording CI step): reads the LATEST entry
+ * of each tracked series and writes deterministic flat-style SVG badges to
+ * docs/badges/ so the repo page always shows the last CI-measured median.
+ * Fail-closed: a series with no history, or whose latest entry is not a
+ * PASS record, aborts badge generation entirely — a stale or lying badge
+ * is worse than none.
  *
  * Report contract (the --json output of both benchmark runners):
  *   { benchmark: string, stats: { median: number, ... }, gate: "PASS"|"FAIL", ... }
@@ -33,10 +41,22 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const REPO = join(dirname(fileURLToPath(import.meta.url)), "..");
+// The repo root is normally the script's own checkout; tests point it at a
+// sandbox via PERF_TREND_REPO so gate/badge behavior can be exercised
+// without touching the live history.
+const REPO = process.env.PERF_TREND_REPO ?? join(dirname(fileURLToPath(import.meta.url)), "..");
 const HISTORY = join(REPO, "benchmarks", "perf-history.jsonl");
+const BADGES_DIR = join(REPO, "docs", "badges");
 const BASELINE_WINDOW = 5;
 const DRIFT_FACTOR = 2;
+
+// The README badge set: file → series → display label → the same median
+// budget the runner enforces (engine 50ms, wire 150ms, SDK 50ms).
+const BADGE_SERIES = [
+  { file: "perf-engine.svg", series: "dde-http-wire-perf:engine", label: "perf·engine", budget: 50 },
+  { file: "perf-wire.svg", series: "dde-http-wire-perf:wire", label: "perf·wire", budget: 150 },
+  { file: "perf-sdk.svg", series: "dde-sdk-verify-perf", label: "perf·sdk", budget: 50 },
+];
 
 function parseHistory() {
   if (!existsSync(HISTORY)) return { entries: [], torn: 0 };
@@ -61,9 +81,74 @@ function medianOf(values) {
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
+function badgeColor(median, budget) {
+  if (median <= budget) return "#4c1"; // within budget
+  if (median <= budget * DRIFT_FACTOR) return "#dfb317"; // noisy, inside the 2x regression bar
+  return "#e05d44"; // beyond the regression bar
+}
+
+function badgeSvg(label, value, color) {
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const left = esc(label);
+  const right = esc(value);
+  const lw = 6.5 * label.length + 12;
+  const vw = 6.5 * value.length + 12;
+  const w = lw + vw;
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="20" role="img" aria-label="${left}: ${right}">` +
+    `<linearGradient id="g" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>` +
+    `<clipPath id="r"><rect width="${w}" height="20" rx="3" fill="#fff"/></clipPath>` +
+    `<g clip-path="url(#r)"><rect width="${w}" height="20" fill="#555"/>` +
+    `<rect x="${lw}" width="${vw}" height="20" fill="${color}"/>` +
+    `<rect width="${w}" height="20" fill="url(#g)"/></g>` +
+    `<g text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11" fill="#fff">` +
+    `<text x="${lw / 2}" y="14">${left}</text><text x="${lw + vw / 2}" y="14">${right}</text></g></svg>\n`
+  );
+}
+
+// Regenerate all badges from the latest recorded medians — atomically:
+// every configured series must resolve to a PASS entry or NOTHING is
+// written (a half-updated badge row would contradict itself).
+function writePerfBadges() {
+  const { entries } = parseHistory();
+  const svgs = [];
+  const errors = [];
+  for (const b of BADGE_SERIES) {
+    const series = entries.filter((e) => e.benchmark === b.series);
+    const latest = series[series.length - 1];
+    if (!latest) {
+      errors.push(`no history entries for ${b.series} — refusing to emit a stale badge`);
+      continue;
+    }
+    if (latest.gate !== "PASS") {
+      errors.push(`latest ${b.series} entry has gate ${latest.gate} — a failing run never becomes a badge`);
+      continue;
+    }
+    const median = latest.stats.median;
+    const value = `${Number(median.toFixed(3))}ms`;
+    svgs.push({ file: b.file, svg: badgeSvg(b.label, value, badgeColor(median, b.budget)) });
+  }
+  if (errors.length > 0) {
+    for (const e of errors) console.error(`benchmark-trend: ${e}`);
+    process.exit(1);
+  }
+  mkdirSync(BADGES_DIR, { recursive: true });
+  for (const s of svgs) writeFileSync(join(BADGES_DIR, s.file), s.svg);
+  console.log(JSON.stringify({ badges: svgs.map((s) => `docs/badges/${s.file}`), source: "benchmarks/perf-history.jsonl" }, null, 2));
+}
+
 const fileArg = process.argv.indexOf("--file");
 const statusOnly = process.argv.includes("--status");
 const dryRun = process.argv.includes("--dry-run"); // gate, report, write nothing (PR runs)
+const badgesOnly = process.argv.includes("--badges");
+if (badgesOnly) {
+  if (fileArg > -1 || statusOnly || dryRun) {
+    console.error("benchmark-trend: --badges takes no other flags");
+    process.exit(2);
+  }
+  writePerfBadges();
+  process.exit(0);
+}
 if (fileArg === -1 && !statusOnly) {
   console.error("benchmark-trend: pass --file <benchmark-report.json> (append+gate) or --status (gate only)");
   process.exit(2);

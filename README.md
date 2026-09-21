@@ -13,6 +13,9 @@
 
 [![CI](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml)
 [![DDE Evidence Cycle](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml)
+[![DDE perf · engine](docs/badges/perf-engine.svg)](benchmarks/perf-history.jsonl)
+[![DDE perf · wire](docs/badges/perf-wire.svg)](benchmarks/perf-history.jsonl)
+[![DDE perf · sdk](docs/badges/perf-sdk.svg)](benchmarks/perf-history.jsonl)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org)
 [![Solidity](https://img.shields.io/badge/solidity-0.8.24-363636.svg?logo=solidity&logoColor=white)](https://github.com/foundry-rs/foundry)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
