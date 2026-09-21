@@ -89,6 +89,7 @@ Performance budgets are on the same watch (own CI steps, fail-closed gates):
 |---|---|---|
 | `node scripts/benchmark-dde.mjs` | in-process engine verify stays inside its 50 ms median budget | `engine … gate: PASS` |
 | `node scripts/benchmark-dde-http.mjs` | the full loopback `/verify` round trip stays inside its own 150 ms median budget, with the live engine-vs-wire overhead split — every run must return `200 VERIFIED`, never a rejected short-circuit | `wire … gate: PASS` |
+| `node scripts/benchmark-trend.mjs --status` | medians trend inside their history: each push appends to `benchmarks/perf-history.jsonl` (engine + wire + SDK series, runner-tagged) and any median drifting beyond 2x its trailing five-run baseline fails the push — CI runners get one noisy pass, never two | `gate: PASS` · history grows per push |
 
 Regenerate (deterministic, byte-identical):
 
