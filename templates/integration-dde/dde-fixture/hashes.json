@@ -1,0 +1,28 @@
+{
+  "manifest": {
+    "algorithm": "sha256",
+    "generatedBy": "coreguard templates/integration-dde/dde-fixture (static template fixture)",
+    "selfExcluded": [
+      "hashes.json"
+    ],
+    "note": "Every record file is pinned by SHA-256 over its exact bytes. hashes.json cannot hash itself — the single declared self-exclusion."
+  },
+  "fixture": {
+    "origin": "SYNTHETIC",
+    "realDisputeExists": false,
+    "lifecycleState": "DISPUTE_OPEN",
+    "ddeVersion": "DDE/1"
+  },
+  "files": {
+    "agreement.json": "0x02ee7aed7a3b80a665b7cf24d1f6539176ccd117c93c90591f3994a5ea4c81ef",
+    "acceptance-criteria.json": "0x7059c89138b6662c43c07588b19f5af8b1385b177758f4339d361ebc49bd371d",
+    "parties.json": "0xe774b03c30d7a6ef6268f90c80e978857a508710bb81bd3a2b2928290ba3c221",
+    "authorization.json": "0xfd367fdab19b3b1adaa28cd4d4e04adeab955ab71a88d1ab5624d7d01a8308ca",
+    "execution-attestation.json": "0xc032b84b57effae802a4cf4b12f07f4e4650474172b96050aeae547bc19c524a",
+    "delivery-manifest.json": "0x4f02ac9f9208f30f6d83c89dfaf86f39344f59143fbb30eebbfcb0fb0f9bd89d",
+    "acceptance-record.json": "0x524c94987bc3003eaef412f0e81dbb1ba9d85b146a492c0081a2d28bd21bea6d",
+    "dispute-record.json": "0xe8b8a375016d34d860194304ddf4afba6afe9b68c7f435646105b82aba8773ea",
+    "consent-and-disclosure.json": "0x892ca9aeb0e6282d42b7749005a63479d70e296d094b2150d60ec22e746f62d9",
+    "retention-policy.json": "0x3f64e712da06b05c453feafe15ebd91c0824c808192c4dfcb9579afe8412348b"
+  }
+}

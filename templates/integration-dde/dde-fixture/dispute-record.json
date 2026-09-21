@@ -1,0 +1,23 @@
+{
+  "origin": "SYNTHETIC",
+  "recordId": "DDE-SCAFFOLD-DISPUTE",
+  "disputeId": "DDE-SCAFFOLD-DISPUTE",
+  "acceptanceRef": "DDE-SCAFFOLD-ACCEPTANCE",
+  "openedAtUtc": "2026-09-24T17:00:00Z",
+  "recordClosesAtUtc": "2026-10-01T17:00:00Z",
+  "closedAtUtc": null,
+  "partyA": {
+    "role": "provider",
+    "agentAddress": "0x0000000000000000000000000000000000c1d003",
+    "position": "The delivered artifact matches the agreed scaffold scope; the quality criterion as authored rejects a valid scaffold delivery.",
+    "requestedRemedy": "NONE"
+  },
+  "partyB": {
+    "role": "client",
+    "agentAddress": "0x0000000000000000000000000000000000c1d002",
+    "position": "The artifact states schema-exercise status; the criterion as authored is not satisfied — replace with a real deliverable and real criteria.",
+    "requestedRemedy": "REWORK"
+  },
+  "engineAdjudication": "NONE — the DDE engine names no winner; it preserves both positions and the closed evidence record.",
+  "provenance": "SYNTHETIC — a modeled disagreement for scaffold exercise; no real dispute exists between any parties."
+}

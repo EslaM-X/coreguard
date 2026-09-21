@@ -1,0 +1,16 @@
+{
+  "name": "{{NAME}}",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "CoreGuard DDE/1 payment-gate scaffold — evidence-verified release, party-accepted delivery",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "verify:dde": "node verify-dde.mjs",
+    "gate": "node payout-gate.mjs",
+    "test": "node --test"
+  },
+  "license": "MIT"
+}

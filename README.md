@@ -214,6 +214,30 @@ The only thing that opens the gate is a party acceptance record resting on
 criterion evaluations. Signatures, receipts and settlement are admissible
 evidence — never a verdict.
 
+### One-command scaffold for new projects
+
+```bash
+node scripts/create-integration.mjs my-escrow-dapp --dde   # from this repo
+```
+
+Generates a working DDE/1 payment-gate scaffold under `./my-escrow-dapp/`:
+ten pinned evidence records (`dde-fixture/` + `hashes.json`), a standalone
+boundary engine (`engine-dde.mjs`, zero dependencies, CI-checked against the
+in-repo engine on the shipped fixture), a one-command verifier, the release
+loop with both scenarios, and 5 contract tests — runnable immediately:
+
+```bash
+cd my-escrow-dapp
+node verify-dde.mjs     # → VERIFIED · EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE
+node payout-gate.mjs    # → HOLD (party REJECTED) — then swap in your ACCEPTED record to release
+node --test             # 5/5 green
+```
+
+The shipped fixture is honestly labeled (`SYNTHETIC`, `realDisputeExists:
+false`) and its execution record is an `OWNER-DECLARED` placeholder —
+`paymentSettled: false`, a zero txHash, provably settling nothing — so nothing
+in the scaffold can be mistaken for a verified execution claim.
+
 ### Two-line SDK integration
 
 ```js

@@ -1,0 +1,18 @@
+{
+  "origin": "SYNTHETIC",
+  "recordId": "DDE-SCAFFOLD-DELIVERY",
+  "deliveryId": "DDE-SCAFFOLD-DELIVERY",
+  "agreementRef": "DDE-SCAFFOLD-AGREEMENT",
+  "executionRef": "DDE-SCAFFOLD-EXEC",
+  "submittedAtUtc": "2026-09-24T09:30:00Z",
+  "submittedBy": "0x0000000000000000000000000000000000c1d003",
+  "artifacts": [
+    {
+      "id": "scaffold-delivery.md",
+      "content": "# CoreGuard DDE scaffold — delivery artifact\n\n## Status\n\nDelivered for schema exercise. Replace this artifact with your real deliverable.\n\n## Contents\n\n- This file is the single scaffold artifact of the DDE template fixture.\n- Its SHA-256 pin below is REAL over these exact bytes.\n- The DDE engine re-hashes this content on every verification (check E3).\n",
+      "sha256": "0x3c9c19d5fd68e2e44c8b45876a91f4190940836e55faa062108d0f053c57f433",
+      "bytes": 357
+    }
+  ],
+  "provenance": "SYNTHETIC — artifact content modeled for the scaffold scenario; SHA-256 pins are real over the exact embedded bytes (single hash definition: packages/delivery artifactSha256)."
+}
