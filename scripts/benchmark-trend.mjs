@@ -12,6 +12,9 @@
  *
  * Report contract (the --json output of both benchmark runners):
  *   { benchmark: string, stats: { median: number, ... }, gate: "PASS"|"FAIL", ... }
+ *   benchmark-dde-http.mjs uses per-layer stat blocks instead of a single
+ *   `stats` (engine = the shared 50ms-budget series, wire = the wire series);
+ *   both are tracked as separate series under the same report file.
  *
  * Gates (fail-closed, exit 1):
  *   - the report's own gate must be PASS (never record a failing run as a
@@ -66,63 +69,90 @@ if (fileArg === -1 && !statusOnly) {
   process.exit(2);
 }
 
-let report = null;
+let reports = []; // one or two series points extracted from the report file
 if (fileArg > -1) {
   const path = process.argv[fileArg + 1];
-  report = JSON.parse(readFileSync(path, "utf8"));
-  if (!report?.benchmark || !report?.stats || typeof report.stats.median !== "number") {
-    console.error("benchmark-trend: report is missing benchmark/stats.median — not a benchmark --json output");
+  const raw = JSON.parse(readFileSync(path, "utf8"));
+  if (!raw?.benchmark || !raw?.gate) {
+    console.error("benchmark-trend: report is missing benchmark/gate — not a benchmark --json output");
+    process.exit(2);
+  }
+  // Single-series shape (benchmark-dde.mjs): { stats: { median } }.
+  if (raw.stats && typeof raw.stats.median === "number") {
+    reports.push({ benchmark: raw.benchmark, gate: raw.gate, stats: raw.stats });
+  }
+  // Dual-series shape (benchmark-dde-http.mjs): { engine: {...}, wire: {...} } —
+  // each block becomes its own trend series (engine <name>, wire <name>).
+  for (const layer of ["engine", "wire"]) {
+    const block = raw[layer];
+    if (block && typeof block.median === "number") {
+      reports.push({
+        benchmark: `${raw.benchmark}:${layer}`,
+        gate: raw.gate,
+        stats: block,
+      });
+    }
+  }
+  if (reports.length === 0) {
+    console.error("benchmark-trend: no series with a numeric median found in the report");
     process.exit(2);
   }
 }
 
 const { entries, torn } = parseHistory();
-
-// baseline: trailing BASELINE_WINDOW entries of the same series
-const series = entries.filter((e) => e.benchmark === report?.benchmark);
-const baseline = series.slice(-BASELINE_WINDOW);
 const failures = [];
 
-if (report && baseline.length >= BASELINE_WINDOW) {
-  const baseMedian = medianOf(baseline.map((e) => e.stats.median));
-  const ratio = report.stats.median / baseMedian;
-  if (ratio > DRIFT_FACTOR) {
-    failures.push(
-      `median ${report.stats.median}ms is ${ratio.toFixed(2)}x the ${BASELINE_WINDOW}-run baseline ` +
-      `(${baseMedian}ms) — drift beyond the ${DRIFT_FACTOR}x regression bar for ${report.benchmark}`
-    );
-  }
-}
-
-if (report && report.gate !== "PASS") {
-  failures.push(`report gate is ${report.gate} — a failing run is never recorded as a trend point`);
-}
-
-const record = report && failures.length === 0
-  ? {
-      benchmark: report.benchmark,
-      utc: new Date().toISOString(),
-      // runner identity: machine noise is real; the 2x bar absorbs it, the
-      // field makes it visible when comparing CI vs local entries
-      runner: process.env.RUNNER_OS ?? process.platform,
-      stats: report.stats,
-      gate: report.gate,
+// baseline: trailing BASELINE_WINDOW entries of the same series
+const seriesEntries = {};
+const records = [];
+for (const rep of reports) {
+  const series = entries.filter((e) => e.benchmark === rep.benchmark);
+  seriesEntries[rep.benchmark] = series.length;
+  const baseline = series.slice(-BASELINE_WINDOW);
+  if (baseline.length >= BASELINE_WINDOW) {
+    const baseMedian = medianOf(baseline.map((e) => e.stats.median));
+    const ratio = rep.stats.median / baseMedian;
+    if (ratio > DRIFT_FACTOR) {
+      failures.push(
+        `median ${rep.stats.median}ms is ${ratio.toFixed(2)}x the ${BASELINE_WINDOW}-run baseline ` +
+        `(${baseMedian}ms) — drift beyond the ${DRIFT_FACTOR}x regression bar for ${rep.benchmark}`
+      );
     }
-  : null;
+  }
+  if (rep.gate !== "PASS") {
+    failures.push(`report gate is ${rep.gate} — a failing run is never recorded as a trend point`);
+    continue;
+  }
+  records.push({
+    benchmark: rep.benchmark,
+    utc: new Date().toISOString(),
+    // runner identity: machine noise is real; the 2x bar absorbs it, the
+    // field makes it visible when comparing CI vs local entries
+    runner: process.env.RUNNER_OS ?? process.platform,
+    stats: rep.stats,
+    gate: rep.gate,
+  });
+}
 
-if (!statusOnly && !dryRun && record) {
+const blocked = failures.length > 0; // any gate failure → record NOTHING
+const record = (!statusOnly && !dryRun && !blocked) ? records : [];
+
+if (!statusOnly && !dryRun && record.length) {
   mkdirSync(dirname(HISTORY), { recursive: true });
-  writeFileSync(HISTORY, JSON.stringify(record) + "\n", { flag: "a" });
+  writeFileSync(HISTORY, record.map((r) => JSON.stringify(r)).join("\n") + "\n", { flag: "a" });
 }
 
 const status = {
   trend: "benchmark-trend",
   file: "benchmarks/perf-history.jsonl",
-  totalEntries: entries.length + (record ? 1 : 0),
-  seriesEntries: report ? series.length + (record ? 1 : 0) : undefined,
+  totalEntries: entries.length + record.length,
+  series: reports.map((r) => ({
+    benchmark: r.benchmark,
+    historyEntries: seriesEntries[r.benchmark] ?? undefined,
+    median: r.stats.median,
+  })),
   tornLines: torn,
-  baselineWindow: baseline.length,
-  recorded: !!record && !dryRun,
+  recorded: record.length,
   dryRun,
   gate: failures.length === 0 ? "PASS" : "FAIL",
   failures,
