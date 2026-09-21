@@ -53,6 +53,7 @@ const DOC_FILES = [
   "docs/delivery-dispute-boundary.md",
   "examples/delivery-fixture/README.md",
   "README.md",
+  "INTEGRATION.md",
 ];
 
 const EXPECTED_DECISION = "EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE";

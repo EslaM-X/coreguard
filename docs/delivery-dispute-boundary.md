@@ -122,6 +122,10 @@ Prefer to *see* the wire contract before running anything? The published
 [DDE-API-REFERENCE page](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html)
 embeds the real DDE/1 handler and captures every status code below live in your
 browser tab — plus an external-probe box you can point at any running endpoint.
+For a shareable one-page summary of this whole section (drop-in link for
+discussions and social posts), see
+[INTEGRATION.md](https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md)
+— its runnable fences execute in CI against the live endpoint.
 
 **Status codes (complete, fail-closed):**
 
