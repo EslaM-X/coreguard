@@ -246,6 +246,63 @@ test("endpoint: allowed POSTs carry x-ratelimit-* headers", async () => {
   });
 });
 
+test("contract: a forged X-Forwarded-For cannot mint identity — the limiter keys on the real peer", async () => {
+  // The attack: a budget-spent caller spoofs a fresh identity header and
+  // keeps verifying. The contract under test: every spoofed spelling is
+  // ignored (the limiter never reads forwarding headers), so the REAL peer
+  // keeps getting 429 regardless of what the header claims. Each request
+  // below carries a DIFFERENT forged address — if any of them were trusted,
+  // its request would pass as a brand-new bucket and the chain would break.
+  const spoofs = [
+    "8.8.8.8",                                  // plain IPv4
+    "8.8.8.8, 10.0.0.1",                        // proxy chain (first is "client")
+    "2001:db8::1",                              // IPv6
+    "::ffff:8.8.8.8",                           // IPv4-mapped IPv6
+    "127.0.0.1",                                // audacious: claims to BE loopback
+    "",                                          // empty value
+  ];
+  await withServer(
+    async ({ post }) => {
+      assert.equal((await post("/verify", loadFixture())).code, 200, "budget is spent on the honest first call");
+      for (const xff of spoofs) {
+        const r = await post("/verify", loadFixture(), { "content-type": "application/json", "x-forwarded-for": xff });
+        assert.equal(r.code, 429, `forged XFF "${xff}" must NOT reset the real peer's budget`);
+        assert.equal(r.body.status, "REJECTED");
+        assert.match(r.body.error, /rate limit exceeded/, "rejection is the limiter's, keyed on the true socket address");
+      }
+      // The mirror attack: a FORWARDED address that is NOT the peer must not
+      // be mistaken for the peer's own identity either — the header simply
+      // plays no part. Same real peer, same verdict.
+      const other = await post("/verify", loadFixture(), { "content-type": "application/json", "x-real-ip": "9.9.9.9" });
+      assert.equal(other.code, 429, "any identity-bearing header is inert; only the socket peer counts");
+    },
+    { rateLimit: { windowMs: 60_000, max: 1 } }
+  );
+});
+
+test("contract: allowlist ignores X-Forwarded-For too — a spoofed listed address grants nothing", async () => {
+  // A stranger peer forges "X-Forwarded-For: 10.9.9.9" (an allowlisted
+  // address). The gate must still refuse: allowlist decisions come from the
+  // socket peer alone. (The test client IS loopback — on the default list —
+  // so this exercises the gate directly with a stranger peer, exactly the
+  // field the handler reads, mirroring the rate-limit contract above.)
+  const { createDeliveryRequestHandler } = await import("../../packages/delivery/http.js");
+  const handler = createDeliveryRequestHandler({ allowAddresses: ["10.9.9.9"] });
+  const enc = new TextEncoder();
+  const req = {
+    method: "POST", url: "/verify",
+    headers: { "content-type": "application/json", "x-forwarded-for": "10.9.9.9" },
+    socket: { remoteAddress: "203.0.113.7" },   // real peer: a stranger
+    async *[Symbol.asyncIterator]() { yield enc.encode("{}"); },
+  };
+  let code = 0, raw = "";
+  await handler(req, { writeHead(c) { code = c; return this; }, setHeader() {}, end(b) { raw = b ?? ""; } });
+  assert.equal(code, 403, "a spoofed allowlisted identity must not open the gate for a stranger peer");
+  const body = JSON.parse(raw);
+  assert.equal(body.status, "REJECTED");
+  assert.match(body.error, /allowlist/);
+});
+
 test("endpoint: declared content-length over the cap is refused before reading the body", async () => {
   await withServer(async ({ base }) => {
     const bloated = JSON.stringify({ padding: "x".repeat(MAX_BODY_BYTES + 1) });
