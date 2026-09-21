@@ -14,13 +14,20 @@ import { fileURLToPath, pathToFileURL } from "node:url";
  * against the documented endpoint: the documented server-start one-liner is
  * run as a real child process, the documented fixture-assembly one-liner runs
  * in a temp cwd, and every documented curl runs as its own command whose
- * stdout is parsed and asserted against the wire contract. Three and only
- * three harness transforms are applied (they are plumbing, not doc edits, and
- * each is asserted to have been needed):
+ * stdout is parsed and asserted against the wire contract. Four and only four
+ * harness transforms are applied (they are plumbing, not doc edits, and each
+ * is asserted to have been needed):
  *   1. port       :8787          → an ephemeral port
  *   2. import     './packages/…' → absolute file:// URL (bash cwd is a tmp dir)
  *   3. tmp cwd                   → the docs assume a repo-root cwd; relative
  *                                  record paths are rewritten to absolute
+ *   4. node --input-type=module  → the assembly one-liner relies on the
+ *                                  repo's package.json `type: module`, which
+ *                                  only applies from the repo cwd; from the
+ *                                  tmp cwd `node -e` falls back to CJS and
+ *                                  the import statement is a SyntaxError on
+ *                                  strict-default platforms (Linux CI). The
+ *                                  flag pins the semantics the docs rely on.
  *
  * ARCHITECTURE NOTE (a real deadlock this file once had): spawnSync blocks
  * the event loop, so the endpoint must NOT live in the test process — the
@@ -289,7 +296,12 @@ test("doc curl examples execute against a live documented endpoint and match the
         }
 
         // Setup pass: everything except the curls (comments, assembly).
-        const setup = cmdList.filter((c) => !c.startsWith("curl")).join("\n");
+        // Transform 4 pins ESM eval for the assembly (see header): from the
+        // tmp cwd, `node -e` has no package.json `type: module` in scope.
+        const setupCmds = cmdList
+          .filter((c) => !c.startsWith("curl"))
+          .map((c) => (c.includes("loadFixtureFromDir") ? c.replace(/^node /, "node --input-type=module ") : c));
+        const setup = setupCmds.join("\n");
         if (setup.trim()) {
           const r = spawnSync(BASH, ["-c", setup], { cwd: tmp, ...SPAWN_OPTS });
           assert.equal(r.status, 0, `${rel}: documented assembly must run: ${r.stderr}`);
