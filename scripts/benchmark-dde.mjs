@@ -7,6 +7,11 @@
  * integrating platforms — payment gating runs on the hot path, so evidence
  * verification can never be the slow part.
  *
+ * The WIRE cost (full loopback HTTP round trip) is measured separately by
+ * scripts/benchmark-dde-http.mjs under its own 150 ms median budget —
+ * engine cost and transport cost are distinct promises, neither hides in
+ * the other's number.
+ *
  *   node scripts/benchmark-dde.mjs          # human report, exit 0/1
  *   node scripts/benchmark-dde.mjs --json   # machine report
  *

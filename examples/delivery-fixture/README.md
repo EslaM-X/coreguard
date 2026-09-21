@@ -83,6 +83,13 @@ node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 [--seed 424242]
 CI runs every one of these on each push — the table is not a promise, it is
 a standing watch.
 
+Performance budgets are on the same watch (own CI steps, fail-closed gates):
+
+| Command | Proves | Expected verdict (exit 0) |
+|---|---|---|
+| `node scripts/benchmark-dde.mjs` | in-process engine verify stays inside its 50 ms median budget | `engine … gate: PASS` |
+| `node scripts/benchmark-dde-http.mjs` | the full loopback `/verify` round trip stays inside its own 150 ms median budget, with the live engine-vs-wire overhead split — every run must return `200 VERIFIED`, never a rejected short-circuit | `wire … gate: PASS` |
+
 Regenerate (deterministic, byte-identical):
 
 ```bash

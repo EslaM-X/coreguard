@@ -12,6 +12,7 @@
     "benchmark": "node test/adversarial/benchmark-runner.js",
     "benchmark:10k": "node scripts/benchmark-10k.mjs",
     "benchmark:dde": "node scripts/benchmark-dde.mjs",
+    "benchmark:dde-http": "node scripts/benchmark-dde-http.mjs",
     "mutation": "node scripts/mutation-lab.mjs",
     "corpus": "node benchmarks/generate-corpus.js",
     "analyze": "node packages/cli/src/index.js analyze",
