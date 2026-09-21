@@ -78,11 +78,24 @@ jobs:
         run: |
           node scripts/benchmark-trend.mjs --file /tmp/bench-sdk.json
           node scripts/benchmark-trend.mjs --file /tmp/bench-wire.json
-          if [ -n "$(git diff --stat -- benchmarks/perf-history.jsonl)" ]; then
+          # Commit the appended history so the next push baselines on real CI
+          # numbers. Two cases `git diff --stat` alone misses: the file is
+          # still UNTRACKED (first-ever recording) and appended-but-unstaged
+          # lines — handle both explicitly. The bot commit carries [skip ci]
+          # so recording does not re-trigger this workflow (no CI loop).
+          NEEDS_COMMIT=0
+          if [ -f benchmarks/perf-history.jsonl ]; then
+            if ! git ls-files --error-unmatch benchmarks/perf-history.jsonl > /dev/null 2>&1; then
+              NEEDS_COMMIT=1
+            elif ! git diff --quiet HEAD -- benchmarks/perf-history.jsonl; then
+              NEEDS_COMMIT=1
+            fi
+          fi
+          if [ "$NEEDS_COMMIT" = "1" ]; then
             git config user.name "coreguard-trend-bot"
             git config user.email "noreply@coreguard.local"
             git add benchmarks/perf-history.jsonl
-            git commit -m "chore(perf): record benchmark medians for this push"
+            git commit -m "chore(perf): record benchmark medians [skip ci]"
             git push
           fi
       - name: Performance trend — PR gate (no recording)
