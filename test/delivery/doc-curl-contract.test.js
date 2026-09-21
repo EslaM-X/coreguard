@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import http from "node:http";
-import { mkdtempSync, rmSync, readFileSync, existsSync } from "node:fs";
+import { mkdtempSync, rmSync, readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -19,8 +19,16 @@ import { fileURLToPath, pathToFileURL } from "node:url";
  * is asserted to have been needed):
  *   1. port       :8787          → an ephemeral port
  *   2. import     './packages/…' → absolute file:// URL (bash cwd is a tmp dir)
- *   3. tmp cwd                   → the docs assume a repo-root cwd; relative
- *                                  record paths are rewritten to absolute
+ *   3. tmp cwd                   → the docs assume a repo-root cwd; the
+ *                                  fixture records are STAGED into the tmp
+ *                                  dir first and the relative record path
+ *                                  points at the staged copy — the live
+ *                                  examples/ dir is never read at runtime,
+ *                                  because the determinism contract test
+ *                                  regenerates the fixture in place
+ *                                  concurrently (node --test parallelism)
+ *                                  and a mid-rewrite read can catch an
+ *                                  empty file (JSON.parse("") crash)
  *   4. node --input-type=module  → the assembly one-liner relies on the
  *                                  repo's package.json `type: module`, which
  *                                  only applies from the repo cwd; from the
@@ -145,8 +153,31 @@ test("doc curl examples execute against a live documented endpoint and match the
 
   try {
     const importBase = pathToFileURL(REPO).href;
-    const absBase = REPO.replaceAll("\\", "/");
     let sawDocumentedStart = false;
+
+    // Stage the fixture records into the tmp dir. The live examples/ dir is
+    // concurrently regenerated in place by the determinism contract test
+    // (node --test parallelism), so reading it at runtime can catch a file
+    // mid-rewrite (empty → JSON.parse crash). Each staged record is parsed
+    // before it is accepted; a torn read just retries (bytes are fixed).
+    const stagedFixtureDir = join(tmp, "staged-fixture");
+    mkdirSync(stagedFixtureDir, { recursive: true });
+    const RECORDS = [
+      "agreement.json", "acceptance-criteria.json", "parties.json",
+      "authorization.json", "execution-attestation.json", "delivery-manifest.json",
+      "acceptance-record.json", "dispute-record.json", "consent-and-disclosure.json",
+      "retention-policy.json", "hashes.json",
+    ];
+    for (const name of RECORDS) {
+      const src = join(REPO, "examples", "delivery-fixture", name);
+      let text = null;
+      for (let i = 0; i < 5 && text === null; i++) {
+        const candidate = readFileSync(src, "utf8");
+        try { JSON.parse(candidate); text = candidate; } catch { await new Promise((r) => setTimeout(r, 50)); }
+      }
+      assert.ok(text !== null, `staging: ${name} could not be read intact (concurrent regeneration?)`);
+      writeFileSync(join(stagedFixtureDir, name), text);
+    }
 
     for (const rel of DOC_FILES) {
       const md = readFileSync(join(REPO, rel), "utf8").replaceAll("\r\n", "\n");
@@ -167,12 +198,12 @@ test("doc curl examples execute against a live documented endpoint and match the
         }
 
         // Harness transforms: any relative repo import ('./packages/…') →
-        // absolute file:// URL, relative record paths → absolute, then the
-        // documented port → one ephemeral port shared by the run.
+        // absolute file:// URL, the record path → the staged copy in tmp,
+        // then the documented port → one ephemeral port shared by the run.
         let runnable = commands
           .map((c) => c
             .replaceAll("'./packages/", `'${importBase}/packages/`)
-            .replaceAll("'./examples/delivery-fixture'", `'${absBase}/examples/delivery-fixture'`))
+            .replaceAll("'./examples/delivery-fixture'", `'${stagedFixtureDir.replaceAll("\\", "/")}'`))
           .join("\n");
         if (port === null) {
           assert.ok(
