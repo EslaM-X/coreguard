@@ -267,7 +267,9 @@ closure claim (422), and only RELEASES once `closedAtUtc` establishes the
 record is closed — any drift from the boundary fails them, and CI runs both on
 every push. Fixture and
 records: [examples/delivery-fixture/](examples/delivery-fixture/) · live
-bilingual demo: [DELIVERY-DISPUTE-DEMO.html](https://eslam-x.github.io/coreguard/DELIVERY-DISPUTE-DEMO.html).
+bilingual demo: [DELIVERY-DISPUTE-DEMO.html](https://eslam-x.github.io/coreguard/DELIVERY-DISPUTE-DEMO.html) ·
+HTTP endpoint reference with an **in-page live engine**: [DDE-API-REFERENCE.html](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html)
+(all six wire codes captured from the real DDE/1 handler running in the browser tab).
 
 Got a **real** paid transaction with two consenting parties? The
 [real-fixture intake kit](examples/real-fixture-intake/) converts it into a
@@ -395,6 +397,7 @@ scripts/     anchor-local.ps1/.sh — local fork anchor proof ·
              verify-anchor — three-proofs anchor checker
 docs/        deployment · funding · contributing · security · delivery-dispute-boundary.md (DDE/1) · pricing.md
              DELIVERY-DISPUTE-DEMO.html — live bilingual DDE demo
+             DDE-API-REFERENCE.html — live HTTP endpoint reference (engine runs in-page)
              coreguard-dapp-core.html — Core-branded DApp surface (identity · plans · treasury · on-Core)
 docs/adoption/  WS-5 — adoption & institutional proof (demand/evidence layer)
 submission/  Investor / Core Submission Pack (15 items) — run `npm run demo:90s`

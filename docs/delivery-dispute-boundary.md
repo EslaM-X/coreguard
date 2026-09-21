@@ -118,6 +118,11 @@ curl -sS -X POST http://127.0.0.1:8787/peoples-court \
 curl -sS http://127.0.0.1:8787/health
 ```
 
+Prefer to *see* the wire contract before running anything? The published
+[DDE-API-REFERENCE page](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html)
+embeds the real DDE/1 handler and captures every status code below live in your
+browser tab — plus an external-probe box you can point at any running endpoint.
+
 **Status codes (complete, fail-closed):**
 
 | Code | When | Body (`status` / `decision`) |
