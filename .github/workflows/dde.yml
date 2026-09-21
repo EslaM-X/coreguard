@@ -12,6 +12,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: write # trend tracking only: append perf-history.jsonl + push it (see the trend step)
+
 jobs:
   dde:
     name: DDE evidence cycle (deterministic · replayed · adversarial)
@@ -62,9 +65,32 @@ jobs:
       - name: Wire payout gate — scenario rejection over the DDE HTTP endpoint
         run: node examples/agent-platform-integration/run-http-payout-gate.mjs
       - name: DDE SDK perf — verify budget must hold (median < 50ms)
-        run: node scripts/benchmark-dde.mjs
+        run: node scripts/benchmark-dde.mjs --json > /tmp/bench-sdk.json
       - name: DDE wire perf — full loopback /verify round trip (median < 150ms, engine split)
-        run: node scripts/benchmark-dde-http.mjs
+        run: node scripts/benchmark-dde-http.mjs --json > /tmp/bench-wire.json
+      # Performance trend tracking: append this push's medians to the history
+      # file and gate against the trailing 5-run baseline (drift beyond 2x =
+      # red). The file is committed back so the next push baselines against
+      # real CI numbers — history is evidence, append-only. PR runs gate but
+      # do NOT record (only main pushes write history).
+      - name: Performance trend — gate medians against the trailing baseline
+        if: github.event_name == 'push'
+        run: |
+          node scripts/benchmark-trend.mjs --file /tmp/bench-sdk.json
+          node scripts/benchmark-trend.mjs --file /tmp/bench-wire.json
+          if [ -n "$(git diff --stat -- benchmarks/perf-history.jsonl)" ]; then
+            git config user.name "coreguard-trend-bot"
+            git config user.email "noreply@coreguard.local"
+            git add benchmarks/perf-history.jsonl
+            git commit -m "chore(perf): record benchmark medians for this push"
+            git push
+          fi
+      - name: Performance trend — PR gate (no recording)
+        if: github.event_name == 'pull_request'
+        run: |
+          node scripts/benchmark-trend.mjs --status
+          node scripts/benchmark-trend.mjs --file /tmp/bench-sdk.json --dry-run
+          node scripts/benchmark-trend.mjs --file /tmp/bench-wire.json --dry-run
       - name: DDE HTTP endpoint — live smoke over loopback
         run: |
           node --input-type=module -e "
