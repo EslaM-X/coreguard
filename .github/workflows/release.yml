@@ -1,0 +1,41 @@
+name: npm release (gated)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type RELEASE to confirm publishing all 13 @coreguard packages'
+        required: true
+        default: ''
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm-release
+    permissions:
+      contents: read
+      id-token: write   # npm provenance — the published artifacts link back to this repo/workflow
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Confirm input + credential
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "RELEASE" ]; then
+            echo "refusing to run: type RELEASE in the confirm input to publish"; exit 1
+          fi
+          if [ -z "${NPM_TOKEN:-}" ]; then
+            echo "refusing to run: NPM_TOKEN secret is not configured"; exit 1
+          fi
+
+      - name: Install (workspace)
+        run: npm ci --ignore-scripts
+
+      - name: Gate — release-please (publish-check + plan + publish)
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: node scripts/release-please.mjs

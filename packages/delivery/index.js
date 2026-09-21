@@ -34,7 +34,7 @@
  * NOT_RUN — never a fabricated result.
  */
 
-import { domainHash } from "../canonical/index.js";
+import { domainHash } from "@coreguard/canonical";
 
 export const DDE_VERSION = "DDE/1";
 

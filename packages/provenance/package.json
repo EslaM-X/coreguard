@@ -29,7 +29,8 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@coreguard/canonical": "^0.1.0"
+    "@coreguard/canonical": "^0.1.0",
+    "@coreguard/evm": "^0.1.0"
   },
   "optionalDependencies": {
     "@coreguard/evm": "^0.1.0"

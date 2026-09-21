@@ -20,5 +20,8 @@
   "publishConfig": {
     "access": "public"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@coreguard/canonical": "^0.1.0"
+  }
 }

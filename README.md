@@ -261,6 +261,28 @@ else releasePayout();
 (Inside this repo, import from `packages/delivery/sdk.js` — the package
 specifier above is the installed surface with the same exports.)
 
+### npm publishing (13-package closure, gated)
+
+`@coreguard/sdk` resolves the full guard closure (canonical, crypto, policy,
+trace, evidence, replay, evm, provenance, intent, verifier, firewall) and
+`@coreguard/delivery` adds the DDE/1 layer — 13 packages total, all held to
+the same publish bar:
+
+```bash
+npm run publish:check   # tarball contents, escaped imports, dependency truth,
+                        # and INSTALL PARITY: every package is packed, installed
+                        # from its tarball with its real deps, and its public
+                        # specifiers are import-probed — in CI on every push
+npm run release:dry     # the release plan: token gate + 13-package dependency-ordered publish list
+```
+
+Actual publishing is a manual, double-gated workflow
+(`Actions → npm release (gated)`, type `RELEASE`, environment `npm-release`):
+it runs `scripts/release-please.mjs`, which refuses without `NPM_TOKEN`, runs
+the full publish gate, then publishes with `--provenance --access public` in
+dependency order — fail-fast, nothing half-published. Every push CI-rechecks
+the gate, so the registry-bound surface can never silently rot.
+
 ### Or verify over HTTP
 
 ```bash
