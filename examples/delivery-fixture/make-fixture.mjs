@@ -31,6 +31,10 @@ import { artifactSha256 } from "../../packages/delivery/index.js";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const CHAIN_ID = "1116";
 
+// Output directory: the fixture dir itself by default; `--out <dir>` writes
+// elsewhere (used by the determinism test so the live fixture directory is
+// never mutated while parallel test files may be reading it).
+
 // Fixed timestamps — determinism over currency. This fixture documents a
 // modeled timeline, not wall-clock reality.
 const T = Object.freeze({
@@ -414,11 +418,13 @@ for (const [name, rec] of Object.entries(records)) {
   records[name] = { json, bytes: buf.length };
 }
 
-mkdirSync(HERE, { recursive: true });
+const outArg = process.argv.indexOf("--out");
+const OUT = outArg > -1 ? process.argv[outArg + 1] : HERE;
+mkdirSync(OUT, { recursive: true });
 for (const [name, { json }] of Object.entries(records)) {
-  writeFileSync(join(HERE, name), json, "utf8");
+  writeFileSync(join(OUT, name), json, "utf8");
 }
-writeFileSync(join(HERE, "hashes.json"), JSON.stringify(manifest, null, 2) + "\n", "utf8");
+writeFileSync(join(OUT, "hashes.json"), JSON.stringify(manifest, null, 2) + "\n", "utf8");
 
 console.log(`fixture written: ${Object.keys(records).length + 1} files (10 records + hashes.json)`);
 console.log(`  parties: client=${CLIENT_AGENT.address} provider=${PROVIDER_AGENT.address}`);

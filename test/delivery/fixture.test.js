@@ -16,8 +16,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 import {
@@ -321,10 +322,19 @@ test("PC mapping: an incomplete fixture names its gaps instead of mapping", () =
 // ------------------------------------- generator determinism + CLI
 
 test("generator: two runs produce byte-identical fixture files", () => {
-  const before = readFileSync(join(FIXTURE_DIR, "agreement.json"));
-  spawnSync(process.execPath, [join(FIXTURE_DIR, "make-fixture.mjs")], { cwd: REPO });
-  const after = readFileSync(join(FIXTURE_DIR, "agreement.json"));
-  assert.ok(before.equals(after), "regeneration must be byte-identical");
+  // Regenerate into a scratch directory — never into the live fixture dir.
+  // Parallel test files (doc-curl harness, page guard) read those records;
+  // writing them in place raced them on CI (torn read → JSON.parse("")).
+  const scratch = mkdtempSync(join(tmpdir(), "dde-det-"));
+  try {
+    const before = readFileSync(join(FIXTURE_DIR, "agreement.json"));
+    const r = spawnSync(process.execPath, [join(FIXTURE_DIR, "make-fixture.mjs"), "--out", scratch], { cwd: REPO });
+    assert.equal(r.status, 0, `regeneration must succeed:\n${r.stderr}`);
+    const after = readFileSync(join(scratch, "agreement.json"));
+    assert.ok(before.equals(after), "regeneration must be byte-identical");
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
 });
 
 test("CLI: clean verification exits 0 and prints the boundary", () => {
