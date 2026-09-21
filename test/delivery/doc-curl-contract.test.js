@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
+import http from "node:http";
 import { mkdtempSync, rmSync, readFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
@@ -196,32 +197,74 @@ test("doc curl examples execute against a live documented endpoint and match the
         // never inside the blocking setup, and the harness asserts it starts.
         const startCmd = cmdList.find((c) => c.includes("startDeliveryEndpoint") && isCommand(c));
         if (startCmd && startedServers.length === 0) {
-          const child = spawn(BASH, ["-c", startCmd], {
+          // Template = the documented start line with its original
+          // `port: 8787` AND the import transform applied (the raw command
+          // would resolve './packages/…' against the tmp cwd and die).
+          // Every attempt derives its own child from it, so a retry can move
+          // the listen port (a no-op replaceAll on a ported string would not).
+          const startTemplate = commands
+            .find((c) => c.includes("startDeliveryEndpoint") && isCommand(c))
+            ?.replaceAll("'./packages/", `'${importBase}/packages/`);
+          // Port-race hardening: node --test runs files in parallel, and a
+          // sibling test could grab the released ephemeral port between our
+          // probe bind and the child's listen. On EADDRINUSE the child dies
+          // immediately, so we detect a fast exit, kill the (already-dead)
+          // attempt, free the name, and retry on a FRESH port — the fence is
+          // re-ported wholesale. Retries are bounded; exhaustion fails loudly.
+          const startChild = (p) => spawn(BASH, ["-c", startTemplate.replaceAll("port: 8787", `port: ${p}`)], {
             cwd: tmp,
             shell: false,
             stdio: ["ignore", "pipe", "pipe"],
             detached: process.platform !== "win32",
           });
-          startedServers.push(child);
-          let childErr = "", childOut = "";
-          child.stderr.on("data", (d) => (childErr += d));
-          child.stdout.on("data", (d) => (childOut += d));
-          // Readiness: async polling keeps the event loop alive (spawnSync
-          // here would deadlock — the server is a separate process, but the
-          // poll must still be async to not freeze the loop mid-connect).
-          const health = `http://127.0.0.1:${port}/health`;
-          let up = false;
-          for (let i = 0; i < 100 && !up; i++) {
-            await new Promise((r) => setTimeout(r, 100));
-            try {
-              const res = await fetch(health);
-              if (res.ok) up = true;
-            } catch { /* not up yet */ }
+          const probeHealth = (p) => {
+            return new Promise((resolve) => {
+              const req = http.get({ host: "127.0.0.1", port: p, path: "/health", timeout: 2000 }, (res) => {
+                res.resume();
+                resolve(res.statusCode === 200);
+              });
+              req.on("timeout", () => { req.destroy(); resolve(false); });
+              req.on("error", () => resolve(false));
+            });
+          };
+          let child = null, childErr = "", childOut = "", up = false;
+          for (let attempt = 0; attempt < 5 && !up; attempt++) {
+            if (child) killTree(child);
+            if (attempt > 0) {
+              // Fresh ephemeral port for this attempt; re-port the whole fence
+              // (URLs + the start one-liner) so setup/curls stay consistent.
+              const net = await import("node:net");
+              port = await new Promise((resolve, reject) => {
+                const srv = net.default.createServer();
+                srv.once("error", reject);
+                srv.listen(0, "127.0.0.1", () => {
+                  const p = srv.address().port;
+                  srv.close(() => resolve(p));
+                });
+              });
+              cmdList = cmdList.map((c) => c
+                .replaceAll(/127\.0\.0\.1:\d+/g, `127.0.0.1:${port}`));
+            }
+            childErr = ""; childOut = "";
+            child = startChild(port);
+            startedServers.push(child);
+            child.stderr.on("data", (d) => (childErr += d));
+            child.stdout.on("data", (d) => (childOut += d));
+            // Readiness: async polling keeps the event loop alive (spawnSync
+            // here would deadlock — the server is a separate process, but the
+            // poll must still be async to not freeze the loop mid-connect).
+            const deadline = Date.now() + 10_000;
+            while (Date.now() < deadline && !up) {
+              await new Promise((r) => setTimeout(r, 100));
+              if (child.exitCode !== null || child.signalCode) break; // died — retry
+              up = await probeHealth(port);
+            }
           }
           assert.ok(
             up,
             `documented server-start one-liner must produce a live /health\n`
               + `  startCmd: ${startCmd}\n`
+              + `  lastPort: ${port}\n`
               + `  childExit: ${child.exitCode} childSignal: ${child.signalCode}\n`
               + `  childStderr: ${childErr.slice(0, 400)}\n`
               + `  childStdout: ${childOut.slice(0, 200)}`,
