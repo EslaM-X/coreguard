@@ -351,3 +351,49 @@ side guard assumes the door is the proxy.
 - It does not decide remedies; it constrains them to a closed vocabulary.
 - It does not replace escrow, arbitration, or law — it makes the record
   they would consume verifiable and complete.
+
+## 8. Using the one-page integration summary as a ready reply
+
+[INTEGRATION.md](https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md)
+(repo root) is the public-facing compression of this document: the boundary
+quote, the ten checks, the runnable fixture, the endpoint, the release law,
+and the People's Court projection — one page, absolute links. Its runnable
+fences are members of the doc-curl contract, so the page cannot drift from
+the wire: CI executes every command in it on every push.
+
+**How to use it in discussions (elizaOS) and on X:**
+
+1. **Lead with the link and the boundary sentence** — the quote *is* the
+   argument; everything else on the page is its proof.
+2. **Offer the three-command reproduction** (clone → verify → tamper) to any
+   technical reviewer: it runs with Node alone, no install, and ends in
+   `VERIFIED` then a fail-closed exit 1.
+3. **For platform integrators**, point at the one-command scaffold
+   (`create:integration --dde`) and the two-line SDK gate — not at this
+   document; they want the surface, not the theory.
+4. **For a real bilateral failure**, the only correct intake is the neutral
+   procedure's own intake (peoplescourt.ai/request-demo). CoreGuard preserves
+   the record; it does not run the procedure and must never be presented as
+   doing so.
+5. **Copy-paste the short version** at the page's end rather than writing a
+   new summary — it is already claim-checked and encoded so nothing breaks
+   on paste.
+
+**Claim discipline when replying** (each has bitten public projects before):
+never present the synthetic fixture as a real dispute (`realDisputeExists:
+false` is structural); never describe the `OWNER-DECLARED` execution
+placeholder as verified; never state or imply endorsement by People's Court /
+Epistemic Labs; and quote the success shape exactly —
+`VERIFIED · EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE` —
+not a paraphrase of it.
+
+Ready-to-paste reply:
+
+```text
+CoreGuard DDE: execution proof never decides delivery conformity. Ten
+fail-closed checks; a flipped artifact byte fails closed; payout opens only
+on a signed party acceptance over explicit criteria — never on a receipt.
+One-page integration (every command CI-executed):
+https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md
+Live engine, in-page: https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html
+```

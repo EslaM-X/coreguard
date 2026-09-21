@@ -74,8 +74,13 @@ console.log(`injected ${NAMES.length + 1} records into docs/DELIVERY-DISPUTE-DEM
 // The re-export `export { … } from "./uint.js"` is REPLACED, not kept: the
 // uint source is inlined below, so a dangling `from "./uint-inlined.js"`
 // reference would explode at module link time in the browser.
-const canonicalSrc = readFileSync(join(REPO, "packages/canonical/index.js"), "utf8");
-const uintSrc = readFileSync(join(REPO, "packages/canonical/uint.js"), "utf8");
+// readSrc normalizes CRLF → LF: on Windows checkouts git may materialize
+// sources with CRLF, and the injected payload embeds source text verbatim —
+// without this, a Windows rebuild differs byte-wise from the CI (LF) build
+// and the page's determinism contract test fails on Windows only.
+const readSrc = (p) => readFileSync(join(REPO, p), "utf8").replace(/\r\n/g, "\n");
+const canonicalSrc = readSrc("packages/canonical/index.js");
+const uintSrc = readSrc("packages/canonical/uint.js");
 const canonicalMerged =
   canonicalSrc.replace(/export\s*\{[^}]*\}\s*from\s*"\.\/uint\.js";?/, "/* uint.js re-export resolved by the injected inline bundle below */")
   + "\n/* ---- merged from packages/canonical/uint.js (injected bundle) ---- */\n"
@@ -255,9 +260,9 @@ const apiPayload = {
   claims,
   sources: {
     "packages/canonical/index.js": canonicalBundled,
-    "packages/delivery/index.js": readFileSync(join(REPO, "packages/delivery/index.js"), "utf8"),
-    "packages/delivery/sdk.js": readFileSync(join(REPO, "packages/delivery/sdk.js"), "utf8"),
-    "packages/delivery/http.js": readFileSync(join(REPO, "packages/delivery/http.js"), "utf8"),
+    "packages/delivery/index.js": readSrc("packages/delivery/index.js"),
+    "packages/delivery/sdk.js": readSrc("packages/delivery/sdk.js"),
+    "packages/delivery/http.js": readSrc("packages/delivery/http.js"),
     "__shim__/crypto.mjs": CRYPTO_SHIM,
     "__shim__/http.mjs": HTTP_SHIM,
   },
