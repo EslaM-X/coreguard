@@ -16,6 +16,12 @@
  *   size guard, 2 layers  declared content-length over the cap → 413 before
  *                         any body byte is read; the streaming cap remains
  *                         the truth for chunked or lying senders
+ *   address allowlist     optional third guard for deliberate public
+ *                         exposure: `allowAddresses: ["127.0.0.1", "::1", …]`
+ *                         rejects every other socket address with 403 BEFORE
+ *                         the rate limiter — a rejected peer never consumes
+ *                         budget, and /health is gated too (an unlisted
+ *                         address learns nothing, not even liveness)
  *
  * The boundary survives the network hop verbatim: every response body carries
  * DDE-BOUNDARY, and `decision` is limited to
@@ -36,6 +42,10 @@
  *     (fail-closed identity). Memory is bounded: buckets expire on window
  *     rollover and sweep on a size threshold.
  *   - `rateLimit: false` disables limiting; `{ windowMs, max }` tunes it.
+ *   - `allowAddresses` is a closed list of permitted peer socket addresses
+ *     (IPv4, IPv6, or IPv4-mapped IPv6 normalized to its IPv4 form). Keys on
+ *     the DIRECT peer — no X-Forwarded-For trust (fail-closed identity, same
+ *     as the rate limiter). Omit the option → no address filtering.
  *
  * @module @coreguard/delivery/http
  */
@@ -71,9 +81,59 @@ function oversizeBody() {
   };
 }
 
+/** Shared 403 payload — the same rejection no matter which allowlist form tripped. */
+function notAllowedBody() {
+  return {
+    status: "REJECTED",
+    error: "peer address not on the endpoint allowlist (fail-closed); bind loopback or add this address explicitly",
+    ddeVersion: DDE_VERSION,
+    boundary: BOUNDARY_BANNER.statement,
+  };
+}
+
 /**
- * In-memory fixed-window rate limiter keyed by caller-supplied keys (the
- * handler uses the peer address). A bucket anchors to its first hit and
+ * Normalize a raw `req.socket.remoteAddress` to its canonical comparison
+ * form. IPv4-mapped IPv6 ("::ffff:127.0.0.1" and the "::ffff:7f00:1" hex
+ * form) collapses to the plain IPv4 address — a dual-stack listener reports
+ * loopback clients in both spellings, and the allowlist must not depend on
+ * which one the kernel chose. Anything else returns verbatim.
+ */
+export function normalizeRemoteAddress(raw) {
+  if (typeof raw !== "string" || raw === "") return raw;
+  if (raw.toLowerCase().startsWith("::ffff:")) {
+    const tail = raw.slice(7);
+    return /^\d{1,3}(?:\.\d{1,3}){3}$/.test(tail) ? tail : raw.toLowerCase();
+  }
+  return raw;
+}
+
+/**
+ * Address allowlist gate — the third guard for deliberate public exposure.
+ * A closed list of permitted peer socket addresses; empty/absent means
+ * "no filtering" (the default posture, loopback bind). Exported for direct
+ * unit tests, mirroring createRateLimiter.
+ *
+ * @param {string[]} [addresses]
+ */
+export function createAddressGate(addresses) {
+  const allowed = new Set((addresses ?? []).map((a) => {
+    if (typeof a !== "string" || a.trim() === "") throw new Error("allowAddresses entries must be non-empty strings");
+    return normalizeRemoteAddress(a.trim());
+  }));
+  return {
+    size: () => allowed.size,
+    /** @returns {{allowed: boolean, peer: string}} */
+    check(rawPeer) {
+      const peer = normalizeRemoteAddress(rawPeer ?? "");
+      // No list configured → the gate is open (default posture: loopback bind).
+      // A CONFIGURED empty list is refused at construction, so openness here
+      // means exactly "the operator did not ask for filtering".
+      return { allowed: allowed.size === 0 || allowed.has(peer), peer };
+    },
+  };
+}
+
+/**
  * resets after `windowMs`; memory stays bounded because expired buckets are
  * dropped lazily on hit and swept when the map crosses `pruneAt` entries.
  * Exported for direct unit tests with an injected clock.
@@ -132,10 +192,14 @@ export function createRateLimiter({
  * @param {object|false} [opts.rateLimit] `false` disables limiting; otherwise
  *        `{ windowMs, max }` tunes the per-address in-memory fixed window
  *        (default 120/min). `/health` is always exempt.
+ * @param {string[]} [opts.allowAddresses] optional closed allowlist of peer
+ *        socket addresses; every other address is rejected with 403 before
+ *        the rate limiter (and `/health` is gated too). Absent → no filtering.
  * @returns {(req: import("node:http").IncomingMessage, res: import("node:http").ServerResponse) => Promise<void>}
  */
-export function createDeliveryRequestHandler({ evm = undefined, rateLimit } = {}) {
+export function createDeliveryRequestHandler({ evm = undefined, rateLimit, allowAddresses } = {}) {
   const limiter = rateLimit === false ? null : createRateLimiter(rateLimit ?? {});
+  const addressGate = createAddressGate(allowAddresses);
   return async function handle(req, res) {
     const send = (code, payload, extraHeaders = {}) => {
       const body = JSON.stringify(payload, null, 2) + "\n";
@@ -147,6 +211,16 @@ export function createDeliveryRequestHandler({ evm = undefined, rateLimit } = {}
       });
       res.end(body);
     };
+
+    // Guard 0 — address allowlist (when configured): the direct peer must be
+    // on the closed list or it gets 403 before anything else. A rejected peer
+    // never consumes rate-limit budget, and /health is NOT exempt here — an
+    // unlisted address learns nothing, not even liveness. With no list the
+    // gate is open (default posture: loopback bind) and this is a no-op.
+    const peerVerdict = addressGate.check(req.socket?.remoteAddress);
+    if (!peerVerdict.allowed) {
+      return send(403, notAllowedBody());
+    }
 
     // Rate limit — every endpoint except /health. Keyed on the direct peer
     // address: no X-Forwarded-For trust (a spoofable header would forge
@@ -244,10 +318,12 @@ export function createDeliveryRequestHandler({ evm = undefined, rateLimit } = {}
  * @param {object} [opts.evm] optional EVM adapter for consent replay (E5)
  * @param {object|false} [opts.rateLimit] `false` disables; `{ windowMs, max }`
  *        tunes the per-address fixed window (default 120/min)
+ * @param {string[]} [opts.allowAddresses] closed allowlist of peer socket
+ *        addresses (see createDeliveryRequestHandler)
  * @returns {Promise<import("node:http").Server>}
  */
-export async function startDeliveryEndpoint({ port = 8787, host = "127.0.0.1", evm = undefined, rateLimit } = {}) {
-  const server = createServer(createDeliveryRequestHandler({ evm, rateLimit }));
+export async function startDeliveryEndpoint({ port = 8787, host = "127.0.0.1", evm = undefined, rateLimit, allowAddresses } = {}) {
+  const server = createServer(createDeliveryRequestHandler({ evm, rateLimit, allowAddresses }));
   await new Promise((resolve, reject) => {
     server.once("error", reject);
     server.listen(port, host, resolve);

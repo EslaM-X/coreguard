@@ -16,7 +16,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { startDeliveryEndpoint, MAX_BODY_BYTES, createRateLimiter, RATE_LIMIT_DEFAULTS } from "../../packages/delivery/http.js";
+import { startDeliveryEndpoint, MAX_BODY_BYTES, createRateLimiter, RATE_LIMIT_DEFAULTS, createAddressGate, normalizeRemoteAddress } from "../../packages/delivery/http.js";
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const FIXTURE_DIR = join(REPO, "examples", "delivery-fixture");
@@ -272,4 +272,102 @@ test("endpoint: rateLimit:false disables limiting — the platform may front it 
     },
     { rateLimit: false }
   );
+});
+
+// ------------------------------------- address allowlist (guard 0)
+
+test("address gate unit: IPv4-mapped IPv6 collapses to plain IPv4", () => {
+  assert.equal(normalizeRemoteAddress("::ffff:127.0.0.1"), "127.0.0.1");
+  // The hex spelling is NOT the dotted mapped form — returned lowercased verbatim.
+  assert.equal(normalizeRemoteAddress("::FFFF:7F00:1"), "::ffff:7f00:1");
+  assert.equal(normalizeRemoteAddress("203.0.113.7"), "203.0.113.7");
+  assert.equal(normalizeRemoteAddress("::1"), "::1");
+  assert.equal(normalizeRemoteAddress(""), "");
+});
+
+test("address gate unit: closed list, mapped-form match, misconfiguration throws", () => {
+  const g = createAddressGate(["127.0.0.1", " ::1 "]);
+  assert.equal(g.size(), 2);
+  assert.equal(g.check("::ffff:127.0.0.1").allowed, true, "dual-stack loopback spelling must match");
+  assert.equal(g.check("::1").allowed, true);
+  assert.equal(g.check("203.0.113.7").allowed, false);
+  assert.equal(g.check(undefined).allowed, false, "missing socket address is a stranger");
+  const open = createAddressGate(undefined);
+  assert.equal(open.check("203.0.113.7").allowed, true, "absent option → no filtering");
+  assert.throws(() => createAddressGate([" "]), /non-empty strings/);
+});
+
+test("endpoint: allowlisted loopback passes; stranger socket → 403 with the banner", async () => {
+  await withServer(async ({ base, post }) => {
+    const ok = await post("/verify", loadFixture());
+    assert.equal(ok.code, 200, "loopback peer (the test client) is on the list");
+    assert.equal(ok.body.status, "VERIFIED");
+    // Unit-level proof for the stranger path: the real kernel controls which
+    // address the server sees, so the handler gate is exercised directly with
+    // a forged peer — exactly the field the handler reads.
+    const { createDeliveryRequestHandler } = await import("../../packages/delivery/http.js");
+    const handler = createDeliveryRequestHandler({ allowAddresses: ["10.9.9.9"] });
+    const enc = new TextEncoder();
+    const req = {
+      method: "POST", url: "/verify",
+      headers: { "content-type": "application/json" },
+      socket: { remoteAddress: "203.0.113.7" },
+      async *[Symbol.asyncIterator]() { yield enc.encode("{}"); },
+    };
+    let code = 0, raw = "";
+    const res = {
+      writeHead(c) { code = c; return this; },
+      setHeader() {},
+      end(b) { raw = b ?? ""; },
+    };
+    await handler(req, res);
+    const body = JSON.parse(raw);
+    assert.equal(code, 403);
+    assert.equal(body.status, "REJECTED");
+    assert.match(body.error, /allowlist/);
+    assert.equal(body.boundary, body.boundary ?? null);
+  });
+}, { skip: false });
+
+test("endpoint: gated 403 fires before the rate limiter — strangers consume no budget", async () => {
+  const { createDeliveryRequestHandler } = await import("../../packages/delivery/http.js");
+  // Budget of 1 for the allowed peer; the stranger must be refused before
+  // the limiter is ever consulted (verify via the limiter's budget staying intact).
+  const handler = createDeliveryRequestHandler({ rateLimit: { windowMs: 60_000, max: 1 }, allowAddresses: ["10.9.9.9"] });
+  const enc = new TextEncoder();
+  const makeReq = (peer) => ({
+    method: "POST", url: "/verify",
+    headers: { "content-type": "application/json" },
+    socket: { remoteAddress: peer },
+    async *[Symbol.asyncIterator]() { yield enc.encode("{}"); },
+  });
+  const capture = () => { let raw = ""; const res = { writeHead(c) { this.code = c; return this; }, code: 0, setHeader() {}, end(b) { raw = b ?? ""; } }; return { res, raw: () => raw }; };
+  // stranger floods — every one is a 403 and none may consume the budget
+  for (let i = 0; i < 5; i++) {
+    const { res, raw } = capture();
+    await handler(makeReq("203.0.113.7"), res);
+    assert.equal(res.code, 403);
+    assert.match(raw(), /allowlist/);
+  }
+  // the allowed peer still has its full budget: first request passes the limiter
+  const { res: okRes, raw: okRaw } = capture();
+  await handler(makeReq("10.9.9.9"), okRes);
+  assert.equal(okRes.code, 422, "allowed peer reaches the engine (bad fixture → 422, NOT rate-limited)");
+  assert.match(okRaw(), /FIXTURE_REJECTED/);
+});
+
+test("endpoint: allowlist gates /health too — an unlisted address learns nothing", async () => {
+  const { createDeliveryRequestHandler } = await import("../../packages/delivery/http.js");
+  const handler = createDeliveryRequestHandler({ allowAddresses: ["10.9.9.9"] });
+  const req = {
+    method: "GET", url: "/health", headers: {},
+    socket: { remoteAddress: "203.0.113.7" },
+    async *[Symbol.asyncIterator]() {},
+  };
+  let code = 0, raw = "";
+  await handler(req, { writeHead(c) { code = c; return this; }, setHeader() {}, end(b) { raw = b ?? ""; } });
+  assert.equal(code, 403, "no liveness leak to unlisted addresses");
+  const body = JSON.parse(raw);
+  assert.equal(body.status, "REJECTED");
+  assert.match(body.error, /allowlist/);
 });

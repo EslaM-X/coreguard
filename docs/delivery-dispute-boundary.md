@@ -132,6 +132,7 @@ browser tab — plus an external-probe box you can point at any running endpoint
 | `400` | body is not valid JSON — malformed input is rejected, never a 5xx | `REJECTED` + named error |
 | `413` | body exceeds 1 MiB — rejected before parsing (declared `content-length` gate, and a streaming cap for chunked or lying senders) | `REJECTED` + named error |
 | `429` | per-address in-memory rate limit exceeded (fixed window, default 120/min; `retry-after` header) | `REJECTED` + named error |
+| `403` | peer socket address not on the `allowAddresses` list (guard only fires when the operator configures the list; `/health` gated too) | `REJECTED` + named error |
 | `404` | unknown path or wrong method (e.g. `GET /verify`) | `REJECTED` + usage hint |
 
 Every response — including `404` and `/health` — carries the headers
@@ -157,7 +158,7 @@ bilateral consent template with a named disclosure scope (both parties sign
 one `fixtureRef`; the gate enforces the scope's redaction cross-checks), the
 removal checklist, and the conversion + submission procedure.
 
-Hardening for a deliberate public bind (both fail-closed, both tested):
+Hardening for a deliberate public bind (three fail-closed guards, all tested):
 
 - **Rate limiting** — in-memory fixed window per direct peer address
   (default 120/min via `rateLimit: { windowMs, max }`; `false` disables it
@@ -167,6 +168,15 @@ Hardening for a deliberate public bind (both fail-closed, both tested):
   carry `x-ratelimit-limit/remaining/reset`; the 429 carries `retry-after`.
   Memory is bounded: expired buckets drop on window rollover and the map
   sweeps past a size threshold.
+- **Address allowlist** — for a deliberate public bind, pass
+  `allowAddresses: ["127.0.0.1", "::1", …]` (to either start function): any
+  other peer socket address is refused with **403 before the rate limiter** —
+  a rejected peer never consumes budget — and `/health` is gated too, so an
+  unlisted address learns nothing, not even liveness. IPv4-mapped IPv6
+  collapses to plain IPv4 (`::ffff:127.0.0.1` ≡ `127.0.0.1`), so a dual-stack
+  loopback matches either spelling. Keys on the direct peer only — put your
+  proxy's address on the list, never trust forwarded headers. Omit the option
+  → no filtering (default loopback-bind posture).
 - **Two-layer size gate** — a declared `content-length` over the cap is
   refused before any body byte is read; the 1 MiB streaming cap remains the
   truth for absent or lying declarations.
