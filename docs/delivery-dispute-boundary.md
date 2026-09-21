@@ -252,6 +252,93 @@ refused (`422` — closure is established by `closedAtUtc`, never declared), and
 only a procedure-closed record releases funds. Evidence is admissible; conformity
 is decided by the parties, never by this endpoint.
 
+### Running behind a reverse proxy — production posture
+
+All three guards key on the **direct peer** — the socket address that connected
+to the Node process. Behind nginx/Caddy/Traefik/a cloud LB that peer is always
+the proxy, so the guards' meaning changes. The posture below keeps every
+fail-closed property intact; skip it and you get the two classic mistakes:
+one shared rate bucket for all your visitors (one heavy client locks everyone
+out), or an allowlist that either passes everything or nothing. The nginx
+directives shown are verified against the official `ngx_http_limit_req_module`
+and core-module documentation (zone/burst/nodelay syntax, `client_max_body_size`
+default of 1m); adapt names to your proxy if it is not nginx.
+
+**The five rules:**
+
+1. **Client-differentiated limits live at the proxy, not the app.** The app
+   cannot do them honestly — it must not read `X-Forwarded-For` (contract-tested:
+   forged headers cannot mint identity, for the limiter and the allowlist
+   alike). The proxy applies its own per-client rate limiting keyed on what
+   *it* believes the client is:
+
+   ```nginx
+   # rate-limit real clients at the edge (the app cannot — it keys on the
+   # socket peer, which is this proxy)
+   limit_req_zone $binary_remote_addr zone=dde:10m rate=10r/s;
+   server {
+     listen 443 ssl;
+     location / {
+       limit_req zone=dde burst=20 nodelay;
+       client_max_body_size 1m;              # keep the edge cap ≤ the app's 1 MiB
+       proxy_pass http://127.0.0.1:8787;
+       proxy_set_header Host $host;
+       # X-Forwarded-For may be set for downstream LOGGING — the app ignores it
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+     }
+   }
+   ```
+
+2. **Bind the app to loopback only.** The default `host: "127.0.0.1"` stays —
+   never `0.0.0.0` "behind a proxy": that recreates a public bind whose guards
+   key on the wrong peer. The app is reachable only through the proxy.
+
+3. **Allowlist = pin the proxy's source address(es).** With the proxy on the
+   same host, `allowAddresses: ["127.0.0.1"]` means the app accepts traffic
+   from the proxy alone — a briefly misexposed port is still gated. On a
+   private network, list the proxy hosts' addresses. (They all share one
+   verdict: the proxy is the front door by design.)
+
+4. **The in-process rate limiter becomes a backstop, not the primary limiter.**
+   Size it above the proxy's per-client ceiling (e.g. `rateLimit: {
+   windowMs: 60_000, max: 600 }` for a 10 r/s edge limit) so it only fires on
+   aggregate floods or a misconfigured proxy. Do **not** disable it
+   (`rateLimit: false`) unless something in front always limits — the
+   in-process budget is the last line of defense.
+
+5. **Keep the body caps aligned.** `client_max_body_size` (or your proxy's
+   equivalent) ≤ the app's 1 MiB cap, so oversized bodies die at the edge and
+   the app's two-layer gate remains the truth for anything that slips through.
+
+**Production settings at a glance:**
+
+| Setting | Direct bind (default) | Behind a reverse proxy |
+|---|---|---|
+| `host` | `127.0.0.1` | `127.0.0.1` (proxy on same host) or a private interface — never `0.0.0.0` |
+| `rateLimit` | `120/min` per real client | backstop per proxy, sized **above** the proxy's per-client ceiling (e.g. 600/min); primary limiting at the edge |
+| `allowAddresses` | omit — the loopback bind *is* the guard | pin the proxy's source address(es) — containment for a misexposed port |
+| body cap | 1 MiB (two layers) | 1 MiB, with the edge cap ≤ 1 MiB so oversize dies at the proxy |
+| TLS | out of scope (loopback) | terminated at the proxy; the app speaks plain HTTP over loopback/private net |
+
+**Backups and recovery.** The endpoint is stateless by design: no database, no
+persisted fixtures, rate-limit state is per-process memory. There is nothing
+to back up at the app layer. Back up instead: (1) the **reverse-proxy config**
+— it carries the real client-identity and edge-limit policy, which is the part
+that cannot be reconstructed from this repo; (2) any fixtures *you* submitted
+are yours — the endpoint keeps nothing. A process restart resets rate budgets
+(fail-safe: it briefly trusts more); behind the recommended proxy backstop
+that window is bounded and invisible. Proxy upstream health checks should
+target `/health` — it is exempt from the rate limiter and returns the boundary
+banner; remember the exemption is per-endpoint: `/health` free does not mean
+`/verify` free.
+
+**Never do (ops edition):** bind `0.0.0.0` and rely on the app guards as if
+the peer were the client · make the app read forwarded headers to "fix"
+per-client limiting (the contract forbids it — the fix is at the proxy) ·
+publish the app's port alongside the proxy's · point untrusted third parties
+at the app behind the proxy: the proxy **is** the front door, and every app
+side guard assumes the door is the proxy.
+
 ## 7. What this design deliberately does not do
 
 - It does not judge who is right. Both positions survive verbatim.
