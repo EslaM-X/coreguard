@@ -238,7 +238,7 @@ if (zipMode) {
 }
 console.log(line);
 console.log("Ready for submission. Re-verify any time (same engine, any directory):");
-console.log("  node -e \"import('packages/delivery/sdk.js').then(m => m.verifyFixture({ fixtureDir: process.argv[1] })).then(r => { console.log(r.status, r.decision); process.exit(r.status === 'VERIFIED' ? 0 : 1); })\" -- <fixture-dir>");
+console.log("  node -e \"import('./packages/delivery/sdk.js').then(m => m.verifyFixture({ fixtureDir: process.argv[1] })).then(r => { console.log(r.status, r.decision); process.exit(r.status === 'VERIFIED' ? 0 : 1); })\" -- <fixture-dir>");
 console.log("boundary: Execution verification does not decide delivery conformity.");
 process.exit(0);
 

@@ -153,7 +153,7 @@ archive is hand-built with Node's stdlib only (no zip dependency):
 Independent re-verification of the output (same gate a reviewer runs):
 
 ```bash
-node -e "import('packages/delivery/sdk.js').then(m => m.verifyFixture({ fixtureDir: '<out-dir>' })).then(r => console.log(r.status, r.decision))"
+node -e "import('./packages/delivery/sdk.js').then(m => m.verifyFixture({ fixtureDir: '<out-dir>' })).then(r => console.log(r.status, r.decision))"
 ```
 
 The converter's success report already quotes the decision with every
@@ -175,6 +175,22 @@ intent → transaction → attestation, delivery references and hashes, the
 acceptance/rejection record, both positions and requested remedies, and
 the retention limits. That list is People's Court's own checklist,
 verbatim in substance.
+
+## Reviewer commands — what each one proves
+
+| Command | Proves | Expected verdict (exit 0) |
+|---|---|---|
+| `make-intake-candidate.mjs <candidate-dir>` | the modeled REAL candidate: ten records + signed disclosure scope + pins — the same builder CI's surveillance run and the contract tests use | `next    : node examples/real-fixture-intake/prelude.mjs <candidate-dir>` |
+| `prelude.mjs <candidate-dir>` | the fail-closed machine gate: secret scan, origin truth, both-party consent replay, pin integrity | `GATE GREEN — proceed to fixture conversion` |
+| `convert-to-fixture.mjs <candidate-dir> <out-dir>` | green gate → ten records + `hashes.json` from the written bytes → engine gate on the result | `decision  : EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE` |
+| `convert-to-fixture.mjs <candidate-dir> --out-zip <archive.zip>` | same flow as one attachment-ready archive — fixed-timestamp bytes, two runs are `cmp`-equal | `archive   : sha256 0x… — paste THIS hash into the submission note (the manifest cannot self-hash)` |
+| `verifyFixture({ fixtureDir: '<out-dir>' })` | independent re-verification with the same engine a reviewer runs (the step-5 one-liner) | `VERIFIED EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE` |
+| `convert-to-fixture.mjs <red candidate> <out-dir>` | a candidate that failed the gate refuses to convert — nothing is written | `convert: GATE RED — nothing converts without a green gate (gate exit 1)` — exit `1`, no output dir (expected!) |
+
+Every row here also runs against the live tools in
+`test/delivery/reviewer-table.test.js` on every push — the same contract that
+pins the synthetic fixture's reviewer table. The table is the expectation;
+the tools are the truth.
 
 ## What CoreGuard claims — and what it never claims
 
