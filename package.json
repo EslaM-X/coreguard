@@ -14,6 +14,7 @@
     "benchmark:dde": "node scripts/benchmark-dde.mjs",
     "benchmark:dde-http": "node scripts/benchmark-dde-http.mjs",
     "publish:check": "node scripts/publish-check.mjs",
+    "prepush": "node scripts/pre-push-check.mjs",
     "release:dry": "node scripts/release-please.mjs --dry-run",
     "mutation": "node scripts/mutation-lab.mjs",
     "corpus": "node benchmarks/generate-corpus.js",
