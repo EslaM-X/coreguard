@@ -70,3 +70,6 @@
 {"benchmark":"dde-sdk-verify-perf","utc":"2026-09-22T23:03:12.274Z","runner":"Linux","stats":{"min":0.258,"median":0.29,"p95":0.499,"max":0.614,"mean":0.31},"gate":"PASS"}
 {"benchmark":"dde-http-wire-perf:engine","utc":"2026-09-22T23:03:12.305Z","runner":"Linux","stats":{"min":0.162,"median":0.21,"p95":0.354,"max":1.226,"mean":0.237},"gate":"PASS"}
 {"benchmark":"dde-http-wire-perf:wire","utc":"2026-09-22T23:03:12.305Z","runner":"Linux","stats":{"min":1.312,"median":1.479,"p95":3.351,"max":5.657,"mean":1.766},"gate":"PASS"}
+{"benchmark":"dde-sdk-verify-perf","utc":"2026-09-22T23:25:24.454Z","runner":"Linux","stats":{"min":0.258,"median":0.293,"p95":0.493,"max":0.614,"mean":0.313},"gate":"PASS"}
+{"benchmark":"dde-http-wire-perf:engine","utc":"2026-09-22T23:25:24.485Z","runner":"Linux","stats":{"min":0.172,"median":0.209,"p95":0.36,"max":1.881,"mean":0.245},"gate":"PASS"}
+{"benchmark":"dde-http-wire-perf:wire","utc":"2026-09-22T23:25:24.485Z","runner":"Linux","stats":{"min":1.316,"median":1.583,"p95":2.326,"max":4.12,"mean":1.709},"gate":"PASS"}
