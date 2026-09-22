@@ -470,9 +470,16 @@ if (jsonMode) {
             : "ALL MUTATIONS CAUGHT (single + compound) — the gate bites where it claims to")
       : "GATE HOLE — see results",
   }, null, 2));
-  process.exit(allClear ? 0 : 1);
+  // Exit naturally (process.exitCode, NOT process.exit): after a big report,
+  // piped stdout is still draining asynchronously — process.exit() would
+  // truncate the report tail on Linux. Set the code and let the loop drain.
+  process.exitCode = allClear ? 0 : 1;
 }
 
+// The text report lives in a labeled block: --json mode set its exit code
+// above and breaks straight past it (top-level ESM cannot `return`).
+textReport: {
+  if (jsonMode) break textReport;
 console.log(line);
 console.log("CoreGuard DDE — Adversarial Runner (one mutation per fail-closed check)");
 console.log(line);
@@ -536,4 +543,9 @@ if (perf.overBudget.length) {
   console.log(`perf verdict: ${perf.overBudget.length} cycle(s) over the ${perf.budgetMs}ms per-cycle budget — engine slowdown under combinational load (correctness verdict above is unaffected)`);
 }
 console.log(`boundary: ${BOUNDARY_BANNER.statement}`);
-process.exit(allClear ? 0 : 1);
+// Natural exit — same stdout-drain rule as the JSON branch above. The perf
+// budget line and the verdict itself live at the tail of a piped report;
+// process.exit() here silently truncates them on Linux (caught live by the
+// reviewer-table contract test on CI).
+process.exitCode = allClear ? 0 : 1;
+}
