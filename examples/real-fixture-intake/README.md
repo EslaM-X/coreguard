@@ -47,6 +47,7 @@ anchors to a real Core Mainnet transaction.
 | [`prelude.mjs`](./prelude.mjs) | The machine-checkable gate: secret scan, origin truth, both-party consent replay, pin integrity — fail-closed, `NOT_CHECKED` never faked |
 | [`convert-to-fixture.mjs`](./convert-to-fixture.mjs) | Candidate → DDE fixture in one command: green gate mandatory → ten records + pin manifest → engine-verified. Directory or `--out-zip` attachment archive. Exit `0` ready · `1` gate red/rejected · `2` usage |
 | [`make-intake-candidate.mjs`](./make-intake-candidate.mjs) | Build the modeled REAL candidate (ten records + pins) used by CI's surveillance run and the contract tests — one source of truth for the candidate shape |
+| [`REVIEW-GUIDE.md`](../../REVIEW-GUIDE.md) (repo root) | The reviewer's one-page path through a converted fixture: pins → engine gate → tamper probe → conformity records → intake projection, in under 10 minutes |
 
 ## The procedure — five steps, no shortcuts
 

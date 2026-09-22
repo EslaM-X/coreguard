@@ -100,6 +100,7 @@ Epistemic Labs.
 
 ## Links
 
+- Review a converted fixture in <10 minutes: <https://github.com/EslaM-X/coreguard/blob/main/REVIEW-GUIDE.md>
 - Live API reference (the engine runs in the page): <https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html>
 - Live bilateral-dispute demo: <https://eslam-x.github.io/coreguard/DELIVERY-DISPUTE-DEMO.html>
 - Boundary document: <https://github.com/EslaM-X/coreguard/blob/main/docs/delivery-dispute-boundary.md>
@@ -110,5 +111,5 @@ Epistemic Labs.
 ## Share-ready short version
 
 ```text
-CoreGuard DDE: execution proof never decides delivery conformity. 10 fail-closed checks; a flipped artifact byte fails closed; payout opens only on a signed party acceptance over explicit criteria — never on a receipt. One-page integration: https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md
+CoreGuard DDE: execution proof never decides delivery conformity. 10 fail-closed checks; a flipped artifact byte fails closed; payout opens only on a signed party acceptance over explicit criteria — never on a receipt. One-page integration: https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md — reviewer path through a fixture: https://github.com/EslaM-X/coreguard/blob/main/REVIEW-GUIDE.md
 ```

@@ -335,7 +335,10 @@ producing a byte-deterministic, audit-manifested archive ready to attach
 to a GitHub discussion comment. The whole path is CI-exercised on every
 push (candidate build → gate → both conversion modes → unzip → engine on
 the extraction → red-path refusal), so the route a real case will travel
-is watched continuously, not trusted from unit tests alone.
+is watched continuously, not trusted from unit tests alone. Reviewers
+get a one-page path through any converted fixture:
+[REVIEW-GUIDE.md](REVIEW-GUIDE.md) — pin integrity, engine gate, tamper
+probe, conformity records, and the intake projection in under 10 minutes.
 
 ## AgentProof — actor provenance
 
