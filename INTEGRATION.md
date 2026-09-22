@@ -1,5 +1,7 @@
 # CoreGuard DDE — Integration (one page)
 
+[![Docs Wire Contract](https://github.com/EslaM-X/coreguard/actions/workflows/docs-contract.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/docs-contract.yml) · **every command on this page is executed against a live endpoint on every push**
+
 > **Execution verification does not decide delivery conformity.**
 > Acceptance or rejection of the delivered work is a separate determination
 > recorded by the parties, not derived from on-chain facts.

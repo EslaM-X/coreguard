@@ -1,0 +1,35 @@
+name: Docs Wire Contract
+
+# The INTEGRATION.md badge is this file's status, so a visitor landing on the
+# one-page integration sees — before reading a single command — that every
+# bash fence on the page is executed against a live documented endpoint on
+# every push. This workflow runs the doc-curl contract EXCLUSIVELY (the same
+# test also runs inside the main CI matrix), keeping the badge's meaning
+# precise: green here == the page's runnable claims match the wire.
+# Same guard class as dde.yml: lockfile check BEFORE setup-node (cache: npm
+# fails opaque when package-lock.json is absent), then the YAML zero-jobs
+# guard, then the contract.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  docs-contract:
+    name: INTEGRATION.md fences vs live endpoint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Guard - lockfile present + workspace sync (before setup-node)
+        run: node scripts/check-lock-sync.mjs
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Guard - workflow YAML (zero-jobs trap)
+        run: node scripts/check-workflows.mjs
+      - run: npm ci
+      - name: Execute every documented bash fence (doc-curl contract)
+        run: node --test test/delivery/doc-curl-contract.test.js

@@ -80,8 +80,12 @@ node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 [--seed 424242]
 | `adversarial-runner.mjs --fuzz 50` | random seed-deterministic stacks hold too | `fuzz     : seed 424242 · 50 stacks · survived: 0` |
 | `make-fixture.mjs` | the evidence factory is deterministic | `git diff` empty — byte-identical regeneration |
 
+| `node --test test/delivery/doc-curl-contract.test.js` | the docs cannot drift from the wire: every documented bash fence (incl. every `INTEGRATION.md` one) is executed against a live documented endpoint — a rewritten response shape or renamed decision string goes red by name | 1 pass · fences match the wire |
+
 CI runs every one of these on each push — the table is not a promise, it is
-a standing watch.
+a standing watch. The one-page integration summary has its own badge-visible
+workflow for exactly this contract (`.github/workflows/docs-contract.yml`),
+so a visitor sees the page is wire-tested before reading a single command.
 
 Performance budgets are on the same watch (own CI steps, fail-closed gates):
 
