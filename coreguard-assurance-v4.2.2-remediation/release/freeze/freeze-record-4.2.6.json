@@ -170,16 +170,16 @@
         "sha256": "0xe5fb2990f5055476fc9b2a4abd64491ae28cfd732a54b3e0002b65f321932c90",
         "bytes": 19874
       },
-      {
-        "file": "../docs/GOVERNANCE-DASHBOARD.html",
-        "sha256": "0x9db115d610b04dd7190c8b81c73c11dc20f1dd106653704744c5168ab4ecc828",
-        "bytes": 70787
-      },
-      {
-        "file": "../docs/coreguard-gate41-visual.html",
-        "sha256": "0xdb756715318004100d88aaaafa867a48e947b28a0fca430d37596a63123aa49c",
-        "bytes": 145569
-      },
+    {
+      "file": "../docs/GOVERNANCE-DASHBOARD.html",
+      "sha256": "0x02335b3f1e3fbd4750186614d32581c15a2a4ad27062c7323bf4f38f2ea00e95",
+      "bytes": 76465
+    },
+    {
+      "file": "../docs/coreguard-gate41-visual.html",
+      "sha256": "0xdb756715318004100d88aaaafa867a48e947b28a0fca430d37596a63123aa49c",
+      "bytes": 145569
+    },
       {
         "file": "../docs/coreguard-gate41-visual-en.html",
         "sha256": "0x12b826918898dd693cc07f4420ab6f2ad146c45bab89c0565bf608e4db7686ee",
@@ -295,8 +295,8 @@
     },
     {
       "file": "../docs/GOVERNANCE-DASHBOARD.html",
-      "commit": "3bbdd983cadcd3bb4b19005252a0c07ef1d4f3a3",
-      "reason": "interactive governance board published to docs/ for the GitHub audience; pinned from its publication commit"
+      "commit": "fee0431",
+      "reason": "bilingual payout-gate section added to the live board (EN defaults, AR via the documented i18n prelude); re-pinned per integrity rule"
     },
     {
       "file": "README.md",
