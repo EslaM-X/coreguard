@@ -5,14 +5,19 @@ name: DDE Evidence Cycle
 # first-class signal for any visitor — not a job hidden inside general CI.
 # Steps are byte-identical to the former `dde` job in ci.yml, plus the fuzz
 # modes now documented in the reviewer commands table (a fixed 50-round seed
-# as the regression gate, and a commit-seeded 25-round explorer that sees a
-# new deterministic combination on every push while remaining replayable).
+# as the regression gate, a commit-seeded 25-round explorer that sees a new
+# deterministic combination on every push while remaining replayable, and a
+# weekly multi-seed sweep that runs several seeds in one labeled report).
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    # Weekly multi-seed sweep (Saturday 03:07 UTC): wider discovery over a
+    # fixed seed list, independent of any push.
+    - cron: "7 3 * * 6"
 
 permissions:
   contents: write # trend tracking only: append perf-history.jsonl + push it (see the trend step)
@@ -73,6 +78,12 @@ jobs:
           SEED=$((0x${SHA:0:8} % 2147483647))
           echo "commit $SHA → fuzz seed $SEED"
           node examples/delivery-fixture/adversarial-runner.mjs --fuzz 25 --seed "$SEED"
+      # Multi-seed sweep: several seeds in ONE report, every seed labeled with
+      # its run number — wider discovery in a single command. Weekly (plus
+      # every push, at a smaller round count, so the mode itself stays under
+      # continuous watch and cannot rot between scheduled sweeps).
+      - name: Fuzz mode — multi-seed sweep (one report, per-seed labeled runs)
+        run: node examples/delivery-fixture/adversarial-runner.mjs --fuzz 10 --seeds 424242,777,9001,31337
       - name: Agent-platform payout gate — 4 holds, 1 release (boundary arc)
         run: node examples/agent-platform-integration/run-integration-demo.mjs
       - name: Wire payout gate — scenario rejection over the DDE HTTP endpoint

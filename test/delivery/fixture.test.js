@@ -393,6 +393,61 @@ test("adversarial runner fuzz mode: usage errors are exit 2", () => {
   assert.equal(bad2.status, 2); // non-positive rounds
 });
 
+test("adversarial runner multi-seed fuzz: one report, every seed labeled with its run number", () => {
+  const RUNNER = join(FIXTURE_DIR, "adversarial-runner.mjs");
+  const run = (args) => spawnSync(process.execPath, [RUNNER, ...args], { cwd: REPO, encoding: "utf8" });
+  const r = run(["--fuzz", "8", "--seeds", "424242,777,9001"]);
+  assert.equal(r.status, 0, `multi-seed fuzz found a hole:\n${r.stdout}\n${r.stderr}`);
+  // Per-run headers carry the run number i/N next to the seed.
+  assert.match(r.stdout, /run 1\/3 — seed 424242: 8 stacks · survived 0/);
+  assert.match(r.stdout, /run 2\/3 — seed 777: 8 stacks · survived 0/);
+  assert.match(r.stdout, /run 3\/3 — seed 9001: 8 stacks · survived 0/);
+  assert.match(r.stdout, /fuzz x3   : 8 stacks\/seed over seeds \[424242, 777, 9001\] · survived total: 0/);
+  assert.match(r.stdout, /ALL MUTATIONS CAUGHT \(single \+ compound \+ fuzz x3 seeds\)/);
+  // Determinism: same seeds replay identical run content (whole report).
+  const runsOf = (out) => out.split("\n").filter((l) => /run \d+\/\d+ — seed| round /.test(l)).join("\n");
+  assert.equal(runsOf(r.stdout), runsOf(run(["--fuzz", "8", "--seeds", "424242,777,9001"]).stdout));
+  // A different seed list changes at least one run's content.
+  assert.notEqual(runsOf(r.stdout), runsOf(run(["--fuzz", "8", "--seeds", "424242,777,9002"]).stdout));
+  // Each seed's rounds are independent: the shared generator drives both paths,
+  // so the multi-seed run for seed 424242 must equal the single-seed run's rounds.
+  const single = run(["--fuzz", "8", "--seed", "424242"]);
+  const roundsOfSeed = (out) => out.split("\n").filter((l) => l.includes(" round ")).join("\n");
+  const multiBlock = r.stdout.split("run 1/3 — seed 424242")[1].split("run 2/3")[0];
+  // The multi-seed block indents rounds one level deeper (nested under the
+  // run header) — normalize indentation before comparing round content.
+  const norm = (s) => s.split("\n").map((l) => l.replace(/^\s+/, "")).join("\n");
+  assert.equal(norm(roundsOfSeed(multiBlock)), norm(roundsOfSeed(single.stdout)));
+  // Machine report: per-run summary + full per-run results.
+  const j = JSON.parse(run(["--fuzz", "5", "--seeds", "424242,777", "--json"]).stdout);
+  assert.deepEqual(j.summary.multiSeed, [424242, 777]);
+  assert.deepEqual(
+    j.summary.multiSeedRuns,
+    [{ runNumber: 1, seed: 424242, rounds: 5, survived: 0 }, { runNumber: 2, seed: 777, rounds: 5, survived: 0 }],
+  );
+  assert.equal(j.summary.multiSeedTotalSurvived, 0);
+  assert.deepEqual(j.multiSeedResults.map((m) => [m.runNumber, m.seed, m.results.length]), [[1, 424242, 5], [2, 777, 5]]);
+  for (const runRes of j.multiSeedResults) {
+    for (const round of runRes.results) assert.deepEqual(round.missedByOwnCheck, []);
+  }
+});
+
+test("adversarial runner multi-seed fuzz: usage errors are exit 2 with named reasons", () => {
+  const RUNNER = join(FIXTURE_DIR, "adversarial-runner.mjs");
+  // --seed and --seeds are mutually exclusive (single run vs multi-seed report).
+  const both = spawnSync(process.execPath, [RUNNER, "--fuzz", "5", "--seed", "424242", "--seeds", "424242"], { cwd: REPO, encoding: "utf8" });
+  assert.equal(both.status, 2);
+  assert.match(both.stderr, /mutually exclusive/);
+  // Non-integer seeds are refused by name.
+  const badSeed = spawnSync(process.execPath, [RUNNER, "--seeds", "424242,abc"], { cwd: REPO, encoding: "utf8" });
+  assert.equal(badSeed.status, 2);
+  assert.match(badSeed.stderr, /comma-separated list of integers/);
+  // Empty list is refused.
+  const empty = spawnSync(process.execPath, [RUNNER, "--seeds", ""], { cwd: REPO, encoding: "utf8" });
+  assert.equal(empty.status, 2);
+  assert.match(empty.stderr, /comma-separated list of integers/);
+});
+
 test("CLI: --tamper flips a byte in memory and exits 1 fail-closed", () => {
   const r = spawnSync(process.execPath, [join(FIXTURE_DIR, "verify-fixture.mjs"), "--tamper", "logo.svg"], { cwd: REPO, encoding: "utf8" });
   assert.equal(r.status, 1);
