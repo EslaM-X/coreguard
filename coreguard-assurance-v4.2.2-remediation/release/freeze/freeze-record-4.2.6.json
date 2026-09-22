@@ -295,8 +295,8 @@
     },
     {
       "file": "../docs/GOVERNANCE-DASHBOARD.html",
-      "commit": "fee0431",
-      "reason": "bilingual payout-gate section added to the live board (EN defaults, AR via the documented i18n prelude); re-pinned per integrity rule"
+      "commit": "4e6c7f8",
+      "reason": "bilingual payout-gate section added to the live board (EN defaults, AR via the documented i18n prelude); re-pinned per integrity rule — re-pin re-pointed to 4e6c7f8 after a rebase rewrote the original publication commit"
     },
     {
       "file": "README.md",

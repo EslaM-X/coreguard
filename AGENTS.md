@@ -17,7 +17,7 @@ Project: EslaM-X/coreguard (CoreGuard Gate 4.1 Assurance) — lessons from live 
 
 ## Hidden Relationships & Chain-of-Integrity
 
-- **Freeze-record hash → any file edit invalidates it**: editing a file in `release/freeze/` scope (including README, H1-H8.md) invalidates its SHA-256 in `freeze-record-4.2.6.json`. Rule: after any content edit, re-pin the hash inside the freeze record (keep `frozenAtUtc` unchanged), then re-verify 49/49 from disk.
+- **Freeze-record hash → any file edit invalidates it**: editing a file in `release/freeze/` scope (including README, H1-H8.md) invalidates its SHA-256 in `freeze-record-4.2.6.json`. Rule: after any content edit, re-pin the hash inside the freeze record (keep `frozenAtUtc` unchanged), then re-verify 49/49 from disk. Re-pin `commit` refs must point at a commit **on main's history** (after any rebase, re-point the ref before pushing — a ref to a rewritten commit hashes fine locally but is `COMMIT-MISSING` on CI).
 - **Deleting docs still pinned in older freeze records breaks historical verification**: `freeze-record-4.2.5.json` pins hashes of `v4.2.5-closure/engine-semantics-contract.md` and `external-evidence-model.md`. If those files are ever deleted, 4.2.5 becomes unverifiable for those entries. Any deletion must be documented in the superseding record (currently a known gap).
 - **`reviews-extra/` is external evidence (Option B model)**: the assurance cycle intentionally fails (`BLOCKED exit 1`, `INV-001 fail-closed`) on a clean clone because `reviews-extra/` (in `D:\KOSSASHI\CORE DAO\reviews-extra\`) is deliberately outside the repo. Do not "fix" the BLOCKED; it's documented fail-closed behavior. A clean clone still can run SelfTest/NegativeSuite — only the standard run needs external evidence.
 - **SelfTest vs standard-run scope**: SelfTest (21 checks) and NegativeSuite (16 scenarios) are environment-independent and always runnable from repo alone; the "standard run" (`-OutDir release`) rewrites frozen outputs (`selftest.tap`, `negative-tests.json`, `verification-report.json`) — don't run it casually over frozen artifacts; verify determinism by re-running into a separate OutDir and diffing.
@@ -49,7 +49,7 @@ Project: EslaM-X/coreguard (CoreGuard Gate 4.1 Assurance) — lessons from live 
 ## Files That Change Together
 
 - `H1-H8.md` expected numbers ↔ engine version ↔ `npm test` test counts ↔ validator check count (currently 2.1.2 ↔ 16 ↔ 757 ↔ 649).
-- `freeze-record-4.2.6.json` ↔ any file it pins ↔ `.gitattributes` tree list ↔ README pin-count claim (now 47 = 28+19 after the dashboard joined; README.md's own pin is inside the record it links from).
+- `freeze-record-4.2.6.json` ↔ any file it pins ↔ `.gitattributes` tree list ↔ README pin-count claim (now 47 = 28+19 after the dashboard joined; README.md's own pin is inside the record it links from). The dashboard's `#payout` section is bilingual per the AGENTS.md i18n pattern: its `test/p2/governance-dashboard-i18n.test.js` contract keeps the EN markup defaults and the AR dictionary structurally paired — edit one side only and the pairing check fails by name.
 - Bilingual dashboard pair ↔ AGENTS.md i18n pattern above ↔ the EN mirror (`coreguard-gate41-visual-en.html`) — regenerate the dictionary by structural pairing after ANY structural edit to either file; hand-edits to one side silently break the 637/637 node pairing.
 - `verification/cg-assurance-verify.ps1` self-test count (21) ↔ `selftest.tap` frozen bytes ↔ README/STATUS claims (21/21).
 
