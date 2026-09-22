@@ -18,6 +18,12 @@
  *     multi-seed fuzz: every seed runs the full round set in the SAME report,
  *     each labeled with its run number (run i/N · seed s). Wider discovery in
  *     one command; same seeds ⇒ same runs; exit 1 if ANY run has a survivor.
+ *   [--budget-ms 250]
+ *     per-cycle time budget over ALL gate cycles (control, mutations,
+ *     compound batteries, every fuzz round). A cycle over budget prints a
+ *     PERF WARNING and the summary counts it — engine slowdown under
+ *     combinational load becomes visible. Warnings never flip the
+ *     correctness verdict.
  *
  * Exit contract: 0 = every mutation caught by its own check · 1 = a mutation
  * survived or was caught by the wrong check (the gate has a hole — stop) ·
@@ -27,6 +33,7 @@
  */
 
 import { readFileSync } from "node:fs";
+import { performance } from "node:perf_hooks";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -35,7 +42,31 @@ import {
 } from "../../packages/delivery/index.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const jsonMode = process.argv.includes("--json");
+const argvRaw = process.argv.slice(2);
+const jsonMode = argvRaw.includes("--json");
+
+// ------------------------------------------------------ per-cycle perf budget
+
+// Every gate invocation (control, mutations, compound batteries, fuzz rounds)
+// is timed. A cycle over budget prints a PERF WARNING — the runner's way of
+// saying the engine got slower under combinational load. Default 250ms is
+// ~50x the measured local median (~5ms/cycle): immune to CI noise, catches
+// order-of-magnitude regressions. Warnings never change the exit code —
+// correctness and performance are reported separately, on purpose.
+const BUDGET_DEFAULT_MS = 250;
+let perfBudgetMs = BUDGET_DEFAULT_MS;
+{
+  const budgetIdx = argvRaw.indexOf("--budget-ms");
+  if (budgetIdx !== -1) {
+    const raw = argvRaw[budgetIdx + 1];
+    const v = raw === undefined || raw.startsWith("--") ? NaN : Number(raw);
+    if (!Number.isFinite(v) || v <= 0) {
+      console.error("usage: --budget-ms needs a positive number of milliseconds (e.g. --budget-ms 250)");
+      process.exit(2);
+    }
+    perfBudgetMs = v;
+  }
+}
 
 // ---------------------------------------------------------------- fuzz mode options
 
@@ -98,7 +129,7 @@ function mulberry32(a) {
 /** The shared round generator — one seed, N stacked-mutation rounds. Both
  *  fuzz paths (single-seed report, multi-seed report) drive THIS function,
  *  so a run is byte-identical no matter which report carries it. */
-async function fuzzRoundsFor(seed, rounds) {
+async function fuzzRoundsFor(seed, rounds, contextFn = (i) => `fuzz seed ${seed} round ${i + 1}`) {
   const rand = mulberry32(seed);
   const out = [];
   for (let i = 0; i < rounds; i++) {
@@ -110,7 +141,7 @@ async function fuzzRoundsFor(seed, rounds) {
     }
     const fixture = honestFixture();
     for (const id of members) MUTATIONS.find((m) => m.id === id).mutate(fixture);
-    const state = await runGate(fixture);
+    const state = await runGate(fixture, contextFn(i));
     const caught = Object.entries(state).filter(([, r]) => r === "FAIL").map(([id]) => id);
     const misses = members.filter((id) => state[id] !== "FAIL");
     out.push({
@@ -276,8 +307,24 @@ const COMPOUND_BATTERIES = [
 
 const line = "─".repeat(76);
 
-async function runGate(fixture) {
+// Per-cycle timing: every gate invocation is measured against the budget.
+// A cycle over budget emits a PERF WARNING (once per cycle, with the caller
+// supplied context naming WHERE it happened) and is counted in the summary.
+// Warnings never change the verdict — a slow gate is still an enforcing gate;
+// the report separates correctness from performance on purpose.
+const perf = { budgetMs: perfBudgetMs, overBudget: [], count: 0, totalMs: 0, maxMs: 0 };
+
+async function runGate(fixture, context = "gate cycle") {
+  const t0 = performance.now();
   const rep = await verifyDeliveryFixture(fixture, evm);
+  const ms = performance.now() - t0;
+  perf.count += 1;
+  perf.totalMs += ms;
+  if (ms > perf.maxMs) perf.maxMs = ms;
+  if (ms > perf.budgetMs) {
+    perf.overBudget.push({ context, ms: Math.round(ms * 10) / 10 });
+    console.error(`PERF WARNING: ${context} took ${ms.toFixed(1)}ms — over the ${perf.budgetMs}ms per-cycle budget (engine slowdown under combinational load?)`);
+  }
   return Object.fromEntries(rep.checks.map((c) => [c.id, c.result]));
 }
 
@@ -285,13 +332,13 @@ const results = [];
 
 // Control: the honest fixture must stay clean — a runner whose baseline
 // already fails proves nothing.
-const control = await runGate(honestFixture());
+const control = await runGate(honestFixture(), "control (honest fixture)");
 const controlClean = Object.values(control).every((r) => r === "PASS");
 
 for (const m of MUTATIONS) {
   const fixture = honestFixture();
   m.mutate(fixture);
-  const state = await runGate(fixture);
+  const state = await runGate(fixture, `mutation ${m.id}`);
   const caught = Object.entries(state).filter(([, r]) => r === "FAIL").map(([id]) => id);
   const precise = m.hits.every((h) => state[h] === "FAIL");
   results.push({
@@ -314,7 +361,7 @@ for (const battery of COMPOUND_BATTERIES) {
   for (const id of battery.members) {
     MUTATIONS.find((m) => m.id === id).mutate(fixture);
   }
-  const state = await runGate(fixture);
+  const state = await runGate(fixture, `compound battery ${battery.id}`);
   const caught = Object.entries(state).filter(([, r]) => r === "FAIL").map(([id]) => id);
   const misses = battery.members.filter((id) => state[id] !== "FAIL");
   compoundResults.push({
@@ -346,7 +393,7 @@ let multiSeedReport = undefined;
   if (fuzzOpts.mode === "multi") {
     const runs = [];
     for (let i = 0; i < fuzzOpts.seeds.length; i++) {
-      const results = await fuzzRoundsFor(fuzzOpts.seeds[i], fuzzOpts.rounds);
+      const results = await fuzzRoundsFor(fuzzOpts.seeds[i], fuzzOpts.rounds, (i) => `fuzz seed ${fuzzOpts.seeds[i]} run ${i + 1}/${fuzzOpts.seeds.length} round ${i + 1}`);
       const survived = results.filter((r) => r.verdict === "SURVIVED");
       runs.push({
         runNumber: i + 1,
@@ -390,6 +437,14 @@ const summary = {
         multiSeedTotalSurvived: multiSeedReport.totalSurvived,
       }
     : {}),
+  perf: {
+    budgetMs: perf.budgetMs,
+    cycles: perf.count,
+    totalMs: Math.round(perf.totalMs),
+    maxCycleMs: Math.round(perf.maxMs * 10) / 10,
+    overBudget: perf.overBudget.length,
+    ...(perf.overBudget.length ? { overBudgetCycles: perf.overBudget } : {}),
+  },
 };
 
 const allClear = controlClean && survived.length === 0 && compoundSurvived.length === 0 && fuzzAllClear;
@@ -466,6 +521,10 @@ if (fuzzReport) console.log(`fuzz     : seed ${summary.fuzzSeed} · ${summary.fu
 if (multiSeedReport) {
   console.log(`fuzz x${multiSeedReport.seeds.length}   : ${multiSeedReport.roundsPerSeed} stacks/seed over seeds [${multiSeedReport.seeds.join(", ")}] · survived total: ${multiSeedReport.totalSurvived}`);
 }
+console.log(`perf     : ${perf.count} gate cycles · budget ${perf.budgetMs}ms/cycle · max ${perf.maxMs.toFixed(1)}ms · total ${Math.round(perf.totalMs)}ms · over budget: ${perf.overBudget.length}`);
+if (perf.overBudget.length) {
+  for (const o of perf.overBudget) console.log(`  ⚠ ${o.context}: ${o.ms}ms (budget ${perf.budgetMs}ms)`);
+}
 console.log(allClear
   ? (multiSeedReport
       ? `verdict : ALL MUTATIONS CAUGHT (single + compound + fuzz x${multiSeedReport.seeds.length} seeds) — the boundary enforces itself`
@@ -473,5 +532,8 @@ console.log(allClear
         ? "verdict : ALL MUTATIONS CAUGHT (single + compound + fuzz) — the boundary enforces itself"
         : "verdict : ALL MUTATIONS CAUGHT (single + compound) — the boundary enforces itself")
   : "verdict : GATE HOLE — fix the listed checks before citing DDE output");
+if (perf.overBudget.length) {
+  console.log(`perf verdict: ${perf.overBudget.length} cycle(s) over the ${perf.budgetMs}ms per-cycle budget — engine slowdown under combinational load (correctness verdict above is unaffected)`);
+}
 console.log(`boundary: ${BOUNDARY_BANNER.statement}`);
 process.exit(allClear ? 0 : 1);

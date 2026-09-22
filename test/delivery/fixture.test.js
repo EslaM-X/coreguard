@@ -448,6 +448,48 @@ test("adversarial runner multi-seed fuzz: usage errors are exit 2 with named rea
   assert.match(empty.stderr, /comma-separated list of integers/);
 });
 
+test("adversarial runner perf timing: every gate cycle measured, summary carries the perf block", () => {
+  const RUNNER = join(FIXTURE_DIR, "adversarial-runner.mjs");
+  const run = (args) => spawnSync(process.execPath, [RUNNER, ...args], { cwd: REPO, encoding: "utf8" });
+  // Normal budget: zero over-budget cycles, perf line present.
+  const r = run(["--fuzz", "5", "--seed", "424242"]);
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /perf     : \d+ gate cycles · budget 250ms\/cycle · max [\d.]+ms · total \d+ms · over budget: 0/);
+  const j = JSON.parse(run(["--fuzz", "5", "--seed", "424242", "--json"]).stdout);
+  assert.equal(j.summary.perf.budgetMs, 250);
+  assert.ok(j.summary.perf.cycles >= 16, "control + 10 mutations + 5 batteries + 5 fuzz rounds >= 16 cycles");
+  assert.equal(j.summary.perf.overBudget, 0);
+  assert.ok(j.summary.perf.maxCycleMs < 250, "no cycle may exceed the default budget on healthy CI hardware");
+  // The default budget must be generous vs the measured per-cycle cost —
+  // a budget that fires on healthy hardware is a broken budget.
+  assert.ok(j.summary.perf.totalMs < j.summary.perf.cycles * 250);
+});
+
+test("adversarial runner perf timing: --budget-ms 1 fires warnings but NEVER flips the correctness verdict", () => {
+  const RUNNER = join(FIXTURE_DIR, "adversarial-runner.mjs");
+  const r = spawnSync(process.execPath, [RUNNER, "--fuzz", "5", "--seed", "424242", "--budget-ms", "1"], { cwd: REPO, encoding: "utf8" });
+  // Correctness verdict unchanged — a slow gate is still an enforcing gate.
+  assert.equal(r.status, 0, "perf warnings must not change the exit code");
+  assert.match(r.stdout, /ALL MUTATIONS CAUGHT \(single \+ compound \+ fuzz\)/);
+  assert.match(r.stdout, /over budget: [1-9]/);
+  assert.match(r.stdout, /perf verdict: \d+ cycle\(s\) over the 1ms per-cycle budget/);
+  // Warnings go to stderr with the named context (where it happened).
+  assert.ok((r.stderr.match(/PERF WARNING/g) || []).length >= 16, "every gate cycle over budget warns");
+  assert.match(r.stderr, /PERF WARNING: control \(honest fixture\) took/);
+  assert.match(r.stderr, /PERF WARNING: mutation F0 took/);
+  // The JSON summary counts them.
+  const j = JSON.parse(spawnSync(process.execPath, [RUNNER, "--fuzz", "5", "--seed", "424242", "--budget-ms", "1", "--json"], { cwd: REPO, encoding: "utf8" }).stdout);
+  assert.equal(j.summary.perf.overBudget, j.summary.perf.cycles);
+  assert.ok(Array.isArray(j.summary.perf.overBudgetCycles) && j.summary.perf.overBudgetCycles.length === j.summary.perf.cycles);
+  assert.match(j.summary.perf.overBudgetCycles[0].context, /control/);
+  // Bad budget values are usage errors (exit 2).
+  for (const bad of ["0", "-5", "abc"]) {
+    const e = spawnSync(process.execPath, [RUNNER, "--budget-ms", bad], { cwd: REPO, encoding: "utf8" });
+    assert.equal(e.status, 2, `--budget-ms ${bad} must be a usage error`);
+    assert.match(e.stderr, /positive number of milliseconds/);
+  }
+});
+
 test("CLI: --tamper flips a byte in memory and exits 1 fail-closed", () => {
   const r = spawnSync(process.execPath, [join(FIXTURE_DIR, "verify-fixture.mjs"), "--tamper", "logo.svg"], { cwd: REPO, encoding: "utf8" });
   assert.equal(r.status, 1);

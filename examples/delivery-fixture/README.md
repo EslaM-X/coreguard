@@ -68,7 +68,16 @@ byte-identical rounds:
 ```bash
 node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 [--seed 424242]
 node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 --seeds 424242,777,9001
+node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 --budget-ms 250
 ```
+
+Every gate cycle (control, mutations, compound batteries, fuzz rounds) is
+timed against a per-cycle budget — default 250 ms, ~50× the measured
+median. A cycle over budget prints a `PERF WARNING` naming where it
+happened and is counted in the summary (`perf` block, both text and
+`--json`) — engine slowdown under combinational load becomes visible.
+Warnings never flip the correctness verdict: a slow gate is still an
+enforcing gate.
 
 Multi-seed mode — every seed runs the full round set in **one report**, each
 labeled with its run number (`run i/N — seed s`), same seeds replay byte-identical
@@ -85,6 +94,7 @@ runs, and the exit is 1 if ANY run has a survivor.
 | `adversarial-runner.mjs --fuzz 50` | random seed-deterministic stacks hold too | `fuzz     : seed 424242 · 50 stacks · survived: 0` |
 | `adversarial-runner.mjs --fuzz 25 --seed <commit-derived>` | CI explores a new deterministic combination on every push (seed = first 8 hex of the pushed commit, modulo 2³¹−1 — replayable by re-running with the seed the log prints) | `fuzz     : seed <N> · 25 stacks · survived: 0` |
 | `adversarial-runner.mjs --fuzz 50 --seeds <s1,s2,…>` | wider discovery in one command: every seed gets a full labeled run (`run i/N — seed s`), replayable per seed, exit 1 if any run has a survivor | `fuzz xN   : 50 stacks/seed over seeds […] · survived total: 0` |
+| `adversarial-runner.mjs --fuzz 50 --budget-ms 250` | per-cycle time budget: engine slowdown under combinational load surfaces as named `PERF WARNING`s and a summary count — without ever touching the correctness verdict | `perf     : 70 gate cycles · budget 250ms/cycle · max <budget ms · over budget: 0` |
 | `make-fixture.mjs` | the evidence factory is deterministic | `git diff` empty — byte-identical regeneration |
 
 | `node --test test/delivery/doc-curl-contract.test.js` | the docs cannot drift from the wire: every documented bash fence (incl. every `INTEGRATION.md` one) is executed against a live documented endpoint — a rewritten response shape or renamed decision string goes red by name | 1 pass · fences match the wire |
