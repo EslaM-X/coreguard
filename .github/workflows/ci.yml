@@ -93,3 +93,6 @@ jobs:
       - name: Offline verifier sanity (no RPC)
         run: node packages/cli/src/index.js verify --receipt examples/transfer/receipt-valid.json --intent examples/transfer/intent.json --policy examples/transfer/policy.json --trace examples/transfer/trace.json  # The DDE evidence cycle moved to its own badge-visible workflow:
   # .github/workflows/dde.yml (same steps verbatim + the fuzz mode).
+  # Workflow files themselves are gated by test/ci/workflow-yaml-contract.test.js
+  # (real-YAML parse + Actions schema walk): an unparseable or schema-deviant
+  # file fails the push locally before GitHub ever builds the run.

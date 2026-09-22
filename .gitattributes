@@ -28,3 +28,7 @@ docs/GOVERNANCE-DASHBOARD.html -text
 # pinned-hash verification. Policy: docs/eol-policy.md
 docs/coreguard-gate41-visual.html -text
 docs/coreguard-gate41-visual-en.html -text
+
+# Contract test files must hash identically on any machine that verifies
+# them (the workflow YAML contract is itself a gate): pin bytes, no rewrite.
+test/ci/workflow-yaml-contract.test.js -text
