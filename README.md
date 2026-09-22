@@ -329,7 +329,9 @@ redacted review-ready fixture: bilateral consent with a named disclosure
 scope, a removal checklist, a fail-closed pre-publication gate, and
 `convert-to-fixture.mjs` — one command from a gate-green candidate to the
 ten records with re-pinned hashes and an engine-verified verdict
-(exit 0 ready · 1 gate red/rejected · 2 usage).
+(exit 0 ready · 1 gate red/rejected · 2 usage) — with a `--out-zip` mode
+producing a byte-deterministic, audit-manifested archive ready to attach
+to a GitHub discussion comment.
 
 ## AgentProof — actor provenance
 

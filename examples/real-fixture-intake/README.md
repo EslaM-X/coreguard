@@ -40,7 +40,7 @@ anchors to a real Core Mainnet transaction.
 | [`consent-template.json`](./consent-template.json) | Both parties' consent: EIP-712 redaction grants (E5 wire format), disclosure scope, record-closure agreement, declarations |
 | [`removal-checklist.json`](./removal-checklist.json) | Pre-publication secret/personal-data removal — machine gates + (HUMAN) judgment items with operator sign-off |
 | [`prelude.mjs`](./prelude.mjs) | The machine-checkable gate: secret scan, origin truth, both-party consent replay, pin integrity — fail-closed, `NOT_CHECKED` never faked |
-| [`convert-to-fixture.mjs`](./convert-to-fixture.mjs) | Candidate → DDE fixture in one command: green gate mandatory → ten records + pin manifest → engine-verified. Exit `0` ready · `1` gate red/rejected · `2` usage |
+| [`convert-to-fixture.mjs`](./convert-to-fixture.mjs) | Candidate → DDE fixture in one command: green gate mandatory → ten records + pin manifest → engine-verified. Directory or `--out-zip` attachment archive. Exit `0` ready · `1` gate red/rejected · `2` usage |
 
 ## The procedure — five steps, no shortcuts
 
@@ -115,6 +115,33 @@ node examples/real-fixture-intake/convert-to-fixture.mjs <candidate-dir> <out-di
 # exit 1 = gate red, or the engine rejected the converted fixture
 # exit 2 = usage error (missing args, candidate missing, out-dir exists)
 ```
+
+#### Attachment mode — `--out-zip`
+
+For submission as a **GitHub discussion/comment attachment**, the second
+form produces a single archive instead of a directory:
+
+```bash
+node examples/real-fixture-intake/convert-to-fixture.mjs <candidate-dir> --out-zip <archive.zip>
+```
+
+Same gate and engine flow as directory mode — the engine judges the
+packaged bytes via a temp directory *before* the archive is written. The
+archive is hand-built with Node's stdlib only (no zip dependency):
+
+- **STORE-only, deterministic bytes** — fixed member timestamps plus
+  provenance fields derived from the candidate's pinned bytes (no
+  wall-clock, no machine-local paths). Two runs over identical candidate
+  bytes produce **byte-identical archives**, so the archive's own SHA-256
+  (printed by the converter) is quotable in the submission note. A manifest
+  inside an archive cannot hash that archive — the hash belongs in the note.
+- **`AUDIT-MANIFEST.txt` inside** — member `crc32` + `sha256` for all ten
+  records and `hashes.json`, the gate/engine verdict, and the reviewer
+  steps. It quotes the binding boundary verbatim.
+- **Reviewer path (no trust in the container)**: unzip → re-hash each
+  member against `hashes.json` → re-run the engine on the extraction →
+  quote outputs only with the boundary line. Any flipped byte inside a
+  member diverges from the manifest's `crc32`/`sha256` pins.
 
 Independent re-verification of the output (same gate a reviewer runs):
 
