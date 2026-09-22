@@ -191,6 +191,39 @@ test("convert-to-fixture: green candidate → ten records + pins + engine VERIFI
   }
 });
 
+test("stale GREEN (AGENTS.md C12): a candidate mutated after a green verdict is re-judged on current bytes", () => {
+  // The C12 trap: a session-persisted candidate earns GREEN in step N, then
+  // its consent scope mutates before step N+1. A consumer trusting the
+  // remembered verdict would package records the gate never saw. The gate
+  // must re-derive the verdict from the CURRENT tree — pins kept consistent
+  // here so the ONLY failing signal is the mutated scope itself.
+  const dir = makeCandidate(mkdtempSync(join(tmpdir(), "dde-stale-")));
+  const out = join(tmpdir(), "dde-stale-out-" + Date.now());
+  try {
+    const green = runPrelude(dir);
+    assert.equal(green.status, 0, "precondition: candidate is green before mutation");
+
+    // Mutate the signed scope, then re-pin so pin integrity is NOT the trigger.
+    const manifest = JSON.parse(readFileSync(join(dir, "hashes.json"), "utf8"));
+    const c = JSON.parse(readFileSync(join(dir, "consent-and-disclosure.json"), "utf8"));
+    c.disclosureScope.crossChecks.secretsRemovedConfirmed = false;
+    const txt = JSON.stringify(c, null, 2) + "\n";
+    writeFileSync(join(dir, "consent-and-disclosure.json"), txt);
+    manifest.files["consent-and-disclosure.json"] = sha256(Buffer.from(txt, "utf8"));
+    writeFileSync(join(dir, "hashes.json"), JSON.stringify(manifest, null, 2) + "\n");
+
+    // The consumer runs convert with the old GREEN "in hand" — the gate
+    // re-run inside must reject the current tree, and nothing may be written.
+    const conv = spawnSync(process.execPath, [CONVERT, dir, out], { cwd: REPO, encoding: "utf8" });
+    assert.equal(conv.status, 1, `expected RED on the mutated tree:\n${conv.stdout}\n${conv.stderr}`);
+    assert.match((conv.stdout ?? "") + (conv.stderr ?? ""), /GATE RED/);
+    assert.ok(!existsSync(out), "no output may appear from a stale-GREEN candidate");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+    rmSync(out, { recursive: true, force: true });
+  }
+});
+
 test("convert-to-fixture: usage errors are exit 2 — out-dir never overwritten", () => {
   const conv = spawnSync(process.execPath, [CONVERT], { cwd: REPO, encoding: "utf8" });
   assert.equal(conv.status, 2);
