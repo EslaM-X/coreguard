@@ -303,6 +303,7 @@
     <a href="#cycle">Cycles</a>
     <a href="#packet">C8 Packet</a>
     <a href="#gov">Governors</a>
+    <a href="#payout">Payout Gate</a>
     <a href="#path">Path to GO</a>
     <a href="#open">Open Items</a>
     <span class="lang" role="group" aria-label="Export">
@@ -716,7 +717,33 @@
     <a href="https://github.com/EslaM-X/coreguard/blob/main/coreguard-assurance-v4.2.2-remediation/GOVERNANCE-RECORDS.md" target="_blank" rel="noopener">governance records</a> ·
     <a href="https://github.com/EslaM-X/coreguard/commit/fa15eb26ebf4e1acde660b8a14ead534f3a40506" target="_blank" rel="noopener"><span class="ltr">fa15eb2</span></a> ·
     <a href="https://github.com/EslaM-X/coreguard/actions" target="_blank" rel="noopener">CI — latest run 35402919848 (5/5 ✓)</a> ·
-    <span class="ltr">validate-freeze: PASS 46/46 anchored @ c34cae8684c1</span>
+    <span class="ltr">validate-freeze: PASS 49/49 anchored @ 71cde7f5</span>
+  </div>
+</section>
+
+<!-- ===================== PAYOUT GATE (bilingual EN/AR) ===================== -->
+<section id="payout" aria-labelledby="h-payout">
+  <h2 id="h-payout">Payment gating — the DDE payout gate (bilingual)</h2>
+  <p class="muted" data-i18n="pg_intro">The DDE/1 layer adds a payment gate on top of verified execution: a platform holds a payout until <b>two independent conditions</b> hold — the evidence record is <b class="s-green">admissible</b> (DDE/1, ten fail-closed checks) <b>and</b> a <b>signed acceptance record</b> rests on criterion evaluations. A settled transaction satisfies <b>neither half alone</b>.</p>
+
+  <div class="grid">
+    <article class="card">
+      <h3><span data-i18n="pg_gate_t">The gate law</span> · <span class="ltr">payout-gate.mjs</span></h3>
+      <p class="d" data-i18n="pg_gate_d">Two conditions, both required: <b>engine VERIFIED</b> (admissible evidence) + <b>party ACCEPTED</b> (signed acceptance citing criteria). One-sided payment facts — even a settled on-chain transaction — hold the funds and name their reasons.</p>
+      <div class="evi"><span data-i18n="pg_ev">Run</span>: <span class="ltr">node payout-gate.mjs</span> → <span class="ltr">HOLD ×2 (named reasons)</span></div>
+    </article>
+
+    <article class="card">
+      <h3><span data-i18n="pg_checks_t">Ten fail-closed checks</span> · <span class="ltr">DDE/1</span></h3>
+      <p class="d" data-i18n="pg_checks_d">F0–F3 (records, separation, criteria closure, lifecycle) · E3–E5 (integrity replay, authorization binding, consent) · B1–B3 (no payment inference, execution never decides conformity, no engine adjudication). Every report quotes the boundary verbatim.</p>
+      <div class="evi"><span data-i18n="pg_ev2">Replay</span>: <span class="ltr">node examples/delivery-fixture/verify-fixture.mjs</span> → <span class="ltr">VERIFIED (10 PASS)</span></div>
+    </article>
+
+    <article class="card">
+      <h3><span data-i18n="pg_rel_t">The success shape, honest</span></h3>
+      <p class="d" data-i18n="pg_rel_d">VERIFIED + <span class="ltr">EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE</span>: the evidence is admissible and <b>the engine has not judged the delivery</b>. Conformity is decided by the parties, in a separate acceptance or dispute record — never silently from chain facts.</p>
+      <div class="evi"><span data-i18n="pg_ev3">One page</span>: <a href="https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md" target="_blank" rel="noopener"><span class="ltr">INTEGRATION.md</span></a> — <span data-i18n="pg_ev3b">every command on it executes in CI</span></div>
+    </article>
   </div>
 </section>
 
@@ -812,6 +839,37 @@
 </div>
 
 <script>
+/* =====================================================================
+   I18N PRELUDE — per AGENTS.md "Bilingual dashboard i18n architecture":
+   hoisted global L() reading window.cgLang at call time; full innerHTML
+   swap per [data-i18n]; re-render via the cg41:lang CustomEvent. Keys
+   live in the PAYOUT_GATE_I18N map below (added with the #payout
+   section); default stays EN — Arabic is opt-in, so nothing else on
+   this governance board changes behavior.
+   ===================================================================== */
+window.cgLang = window.cgLang || "en";
+var PAYOUT_GATE_I18N = {
+  pg_intro: "تضيف طبقة DDE/1 بوابة دفع فوق إثبات التنفيذ: تحتجز المنصة الدفع حتى يقف <b>شرطان مستقلان</b> — سجل الأدلة <b class=\"s-green\">مقبول</b> (DDE/1، عشرة فحوص fail-closed) <b>و</b><b>سجل قبول موقّع</b> يستند إلى تقييمات المعايير. معاملة مُسوّاة لا تكفي <b>وحدها لأي نصف من الشرطين</b>.",
+  pg_gate_t: "قانون البوابة",
+  pg_gate_d: "شرطان كلاهما لازم: <b>المحرك VERIFIED</b> (أدلة مقبولة) + <b>قبول الطرف ACCEPTED</b> (قبول موقّع يستشهد بالمعايير). حقائق دفع من طرف واحد — ولو معاملة مُسوّاة على السلسلة — تُبقي الأموال محتجزة وتسمي أسبابها.",
+  pg_ev: "تشغيل",
+  pg_checks_t: "عشرة فحوص fail-closed",
+  pg_checks_d: "F0–F3 (السجلات، الفصل، إغلاق المعايير، دورة الحياة) · E3–E5 (إعادة السلامة، ربط التفويض، الموافقة) · B1–B3 (لا استنتاج من الدفع، التنفيذ لا يحسم المطابقة أبدًا، لا تحكيم للمحرك). كل تقرير يقتبس الحد حرفيًا.",
+  pg_ev2: "إعادة الفحص",
+  pg_rel_t: "شكل النجاح، بصدق",
+  pg_rel_d: "VERIFIED + <span class=\"ltr\">EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE</span>: الأدلة مقبولة و<b>لم يحكم المحرك على التسليم</b>. المطابقة يقررها الطرفان في سجل قبول أو نزاع منفصل — لا صمتًا من حقائق السلسلة.",
+  pg_ev3: "صفحة واحدة",
+  pg_ev3b: "كل أمر فيها يُنفَّذ في CI"
+};
+function L(key, fallback) { var e = PAYOUT_GATE_I18N[key]; if (!e) return fallback != null ? fallback : key; return e; }
+function pgApplyLang() {
+  document.querySelectorAll("[data-i18n]").forEach(function (el) { var k = el.getAttribute("data-i18n"); if (PAYOUT_GATE_I18N[k]) el.innerHTML = L(k); });
+  document.documentElement.setAttribute("lang", window.cgLang);
+  document.documentElement.setAttribute("dir", window.cgLang === "ar" ? "rtl" : "ltr");
+}
+document.addEventListener("cg41:lang", pgApplyLang);
+pgApplyLang();
+
 /* =====================================================================
    TAMPER DEMO — three concerns, one owner each:
 
