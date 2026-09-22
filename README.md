@@ -326,8 +326,10 @@ one-page shareable integration summary (drop-in for discussions and social posts
 Got a **real** paid transaction with two consenting parties? The
 [real-fixture intake kit](examples/real-fixture-intake/) converts it into a
 redacted review-ready fixture: bilateral consent with a named disclosure
-scope, a removal checklist, a fail-closed pre-publication gate, and the
-submission procedure.
+scope, a removal checklist, a fail-closed pre-publication gate, and
+`convert-to-fixture.mjs` — one command from a gate-green candidate to the
+ten records with re-pinned hashes and an engine-verified verdict
+(exit 0 ready · 1 gate red/rejected · 2 usage).
 
 ## AgentProof — actor provenance
 
@@ -441,7 +443,7 @@ test/        canonicalization · policy · tamper suites + adversarial runner + 
 examples/    transfer · swap · multistep · live · vault (Phase-1 reference ladder) (runnable, with READMEs + artifacts)
              delivery-fixture/ — DDE/1 bilateral dispute fixture (synthetic, replayable: node examples/delivery-fixture/verify-fixture.mjs)
              agent-platform-integration/ — payout gated on DDE: SDK arc + wire-level gate with a criteria-based scenario rejection (runnable)
-             real-fixture-intake/ — real-case intake: consent + signed disclosure scope → removal gate → convert.mjs → review-ready REAL fixture
+             real-fixture-intake/ — real-case intake: consent + signed disclosure scope → removal gate → convert-to-fixture.mjs → review-ready REAL fixture
              — external integration path (three tiers): delivery-fixture = schema proof · agent-platform-integration = embed the gate · real-fixture-intake = go real
 templates/   integration/ — consumer scaffold for create-coreguard-integration
 scripts/     anchor-local.ps1/.sh — local fork anchor proof ·

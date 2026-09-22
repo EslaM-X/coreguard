@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * convert.mjs — candidate → DDE fixture, one command.
+ * convert-to-fixture.mjs — candidate → DDE fixture, one command.
  *
  * Takes an intake candidate that has passed the pre-publication gate
  * (examples/real-fixture-intake/prelude.mjs → GATE GREEN, exit 0) and
  * generates the ten DDE records plus the pin manifest, ready for
  * `verify-fixture.mjs` and submission:
  *
- *   node examples/real-fixture-intake/convert.mjs <candidate-dir> <out-dir>
+ *   node examples/real-fixture-intake/convert-to-fixture.mjs <candidate-dir> <out-dir>
  *     → exit 0 = out-dir ready (records + hashes.json, engine-verified)
  *       exit 1 = gate RED or a record failed the engine gate after conversion
  *       exit 2 = usage error (missing args, candidate missing, out-dir exists)
@@ -47,7 +47,7 @@ const RECORDS = [
 
 const argv = process.argv.slice(2);
 const usage = (msg) => {
-  console.error(`usage: convert.mjs <candidate-dir> <out-dir>\n  ${msg}\n  candidate must have passed the gate: node examples/real-fixture-intake/prelude.mjs <candidate-dir>`);
+  console.error(`usage: convert-to-fixture.mjs <candidate-dir> <out-dir>\n  ${msg}\n  candidate must have passed the gate: node examples/real-fixture-intake/prelude.mjs <candidate-dir>`);
   process.exit(2);
 };
 if (argv.length !== 2) usage("exactly two arguments required: <candidate-dir> <out-dir>");
@@ -119,7 +119,7 @@ const fixtureMeta = {
 const manifest = {
   manifest: {
     algorithm: "sha256",
-    generatedBy: "examples/real-fixture-intake/convert.mjs",
+    generatedBy: "examples/real-fixture-intake/convert-to-fixture.mjs",
     generatedAtUtc: new Date().toISOString(),
     selfExcluded: ["hashes.json"],
     sourceCandidate: candidateDir,
@@ -154,7 +154,7 @@ const sdkReport = await verifyFixture({ fixtureDir: outDir });
 const ok = sdkReport.status === "VERIFIED";
 
 if (!ok) {
-  console.error(`convert: engine gate REJECTED the converted fixture — ${sdkReport.status}`);
+  console.error(`convert-to-fixture: engine gate REJECTED the converted fixture — ${sdkReport.status}`);
   for (const c of sdkReport.checks ?? []) if (c.result === "FAIL") console.error(`  check ${c.id} FAIL — ${(c.mismatches ?? []).join(" · ") || c.name}`);
   process.exit(1);
 }
@@ -163,16 +163,20 @@ if (!ok) {
 
 const line = "─".repeat(72);
 console.log(line);
-console.log("convert: candidate → DDE fixture (gate green → records + pins → engine-verified)");
+console.log("convert-to-fixture: candidate → DDE fixture (gate green → records + pins → engine-verified)");
 console.log(line);
 console.log(`  candidate : ${candidateDir}`);
 console.log(`  output    : ${outDir}`);
 console.log(`  records   : ${RECORDS.length} + hashes.json (pins re-read and matched against disk)`);
 console.log(`  origin    : ${fixtureMeta.origin} · realDisputeExists: ${fixtureMeta.realDisputeExists} · lifecycle: ${fixtureMeta.lifecycleState}`);
 console.log(`  engine    : ${sdkReport.status} (${sdkReport.summary?.pass ?? "?"}/${sdkReport.summary?.total ?? "?"} PASS)`);
+for (const c of sdkReport.checks ?? []) {
+  const mark = c.result === "PASS" ? "✔" : c.result === "FAIL" ? "✗" : "·";
+  console.log(`    ${mark} ${c.id ?? "?"} ${c.result} — ${c.name ?? ""}${c.result === "NOT_RUN" ? ` (${(c.mismatches ?? [])[0] ?? "no EVM adapter"})` : ""}`);
+}
 console.log(`  decision  : ${sdkReport.decision}`);
 console.log(line);
-console.log("Ready for submission. Re-verify any time:");
-console.log(`  node examples/delivery-fixture/verify-fixture.mjs (against this directory)`);
+console.log("Ready for submission. Re-verify any time (same engine, any directory):");
+console.log("  node -e \"import('packages/delivery/sdk.js').then(m => m.verifyFixture({ fixtureDir: process.argv[1] })).then(r => { console.log(r.status, r.decision); process.exit(r.status === 'VERIFIED' ? 0 : 1); })\" -- <out-dir>");
 console.log("boundary: Execution verification does not decide delivery conformity.");
 process.exit(0);

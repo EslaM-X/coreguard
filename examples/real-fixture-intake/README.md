@@ -39,7 +39,7 @@ anchors to a real Core Mainnet transaction.
 | [`consent-template.json`](./consent-template.json) | Both parties' consent: EIP-712 redaction grants (E5 wire format), disclosure scope, record-closure agreement, declarations |
 | [`removal-checklist.json`](./removal-checklist.json) | Pre-publication secret/personal-data removal — machine gates + (HUMAN) judgment items with operator sign-off |
 | [`prelude.mjs`](./prelude.mjs) | The machine-checkable gate: secret scan, origin truth, both-party consent replay, pin integrity — fail-closed, `NOT_CHECKED` never faked |
-| [`convert.mjs`](./convert.mjs) | Candidate → DDE fixture in one command: green gate mandatory → ten records + pin manifest → engine-verified. Exit `0` ready · `1` gate red/rejected · `2` usage |
+| [`convert-to-fixture.mjs`](./convert-to-fixture.mjs) | Candidate → DDE fixture in one command: green gate mandatory → ten records + pin manifest → engine-verified. Exit `0` ready · `1` gate red/rejected · `2` usage |
 
 ## The procedure — five steps, no shortcuts
 
@@ -101,7 +101,7 @@ reported `NOT_CHECKED` — never silently passed.
 
 ### 5. Convert + submit
 
-With the gate green, conversion is **one command** — `convert.mjs` runs the
+With the gate green, conversion is **one command** — `convert-to-fixture.mjs` runs the
 gate again itself (nothing converts without GATE GREEN), packages the ten
 records faithfully (JSON, 2-space, LF — no field rewriting: the candidate is
 the truth), generates `hashes.json` from the written bytes with a re-read
@@ -109,7 +109,7 @@ proof, and runs the engine gate on the result. It never overwrites an
 existing output directory and never modifies the candidate:
 
 ```bash
-node examples/real-fixture-intake/convert.mjs <candidate-dir> <out-dir>
+node examples/real-fixture-intake/convert-to-fixture.mjs <candidate-dir> <out-dir>
 # exit 0 = out-dir ready: ten records + hashes.json, engine VERIFIED
 # exit 1 = gate red, or the engine rejected the converted fixture
 # exit 2 = usage error (missing args, candidate missing, out-dir exists)
@@ -120,6 +120,11 @@ Independent re-verification of the output (same gate a reviewer runs):
 ```bash
 node -e "import('packages/delivery/sdk.js').then(m => m.verifyFixture({ fixtureDir: '<out-dir>' })).then(r => console.log(r.status, r.decision))"
 ```
+
+The converter's success report already quotes the decision with every
+engine check verdict (E5 `NOT_RUN` is honest, never faked) and the
+binding boundary verbatim — *"Execution verification does not decide
+delivery conformity."*
 
 Submission paths, in order of preference:
 

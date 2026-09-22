@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const FIXTURE_DIR = join(REPO, "examples", "delivery-fixture");
 const PRELUDE = join(REPO, "examples", "real-fixture-intake", "prelude.mjs");
-const CONVERT = join(REPO, "examples", "real-fixture-intake", "convert.mjs");
+const CONVERT = join(REPO, "examples", "real-fixture-intake", "convert-to-fixture.mjs");
 const RECORDS = [
   "agreement.json", "acceptance-criteria.json", "parties.json", "authorization.json",
   "execution-attestation.json", "delivery-manifest.json", "acceptance-record.json",
@@ -157,7 +157,7 @@ test("usage error: missing directory is exit 2, not a gate verdict", () => {
   assert.match(r.stderr, /usage:/);
 });
 
-test("convert: green candidate → ten records + pins + engine VERIFIED; red candidate refused", async () => {
+test("convert-to-fixture: green candidate → ten records + pins + engine VERIFIED; red candidate refused", async () => {
   const dir = makeCandidate(mkdtempSync(join(tmpdir(), "dde-conv-ok-")));
   const out = join(tmpdir(), "dde-conv-out-" + Date.now() + "-" + Math.random().toString(36).slice(2));
   try {
@@ -168,7 +168,7 @@ test("convert: green candidate → ten records + pins + engine VERIFIED; red can
     const manifest = JSON.parse(readFileSync(join(out, "hashes.json"), "utf8"));
     assert.equal(manifest.fixture.origin, "REAL");
     assert.equal(manifest.fixture.realDisputeExists, true);
-    assert.equal(manifest.manifest.generatedBy, "examples/real-fixture-intake/convert.mjs");
+    assert.equal(manifest.manifest.generatedBy, "examples/real-fixture-intake/convert-to-fixture.mjs");
     for (const name of RECORDS) {
       const actual = "0x" + createHash("sha256").update(readFileSync(join(out, name))).digest("hex");
       assert.equal(manifest.files[name], actual, `pin mismatch for ${name}`);
@@ -179,19 +179,25 @@ test("convert: green candidate → ten records + pins + engine VERIFIED; red can
     assert.equal(report.status, "VERIFIED");
     assert.equal(report.hashesManifest, "PRESENT");
     assert.equal(report.decision, "EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE");
+    // The success report must quote the binding boundary verbatim and name
+    // every engine check with its verdict (E5 NOT_RUN is honest, never faked).
+    const outTxt = conv.stdout + (conv.stderr ?? "");
+    assert.match(outTxt, /Execution verification does not decide delivery conformity/);
+    assert.match(outTxt, /E5 NOT_RUN — CONSENT_BINDING/);
+    assert.match(outTxt, /F0 PASS — REQUIRED_RECORDS/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
     rmSync(out, { recursive: true, force: true });
   }
 });
 
-test("convert: usage errors are exit 2 — out-dir never overwritten", () => {
+test("convert-to-fixture: usage errors are exit 2 — out-dir never overwritten", () => {
   const conv = spawnSync(process.execPath, [CONVERT], { cwd: REPO, encoding: "utf8" });
   assert.equal(conv.status, 2);
   assert.match(conv.stderr, /usage:/);
 });
 
-test("convert: refuses a candidate that fails the gate — nothing converts without green", () => {
+test("convert-to-fixture: refuses a candidate that fails the gate — nothing converts without green", () => {
   const empty = mkdtempSync(join(tmpdir(), "dde-conv-red-"));
   const out = join(tmpdir(), "dde-conv-out-red-" + Date.now());
   try {
