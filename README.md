@@ -28,6 +28,16 @@
 
 ---
 
+## Start here
+
+| You are… | Your path | Time |
+|---|---|---|
+| **A reviewer** examining a converted fixture (or its ZIP attachment) — People's Court / Epistemic Labs, auditor, third party | [REVIEW-GUIDE.md](REVIEW-GUIDE.md) — pin integrity → engine gate → tamper probe → conformity records → intake projection | <10 min |
+| **A platform integrating** — payout gating, agent marketplace, escrow, settlement | [INTEGRATION.md](INTEGRATION.md) — the boundary, the wire API, the release law; every curl executed in CI | ~5 min |
+| **A party with a real case** — one real paid transaction, both sides reachable and willing | [real-fixture intake kit](examples/real-fixture-intake/) — signed disclosure scope → fail-closed gate → one-command conversion | 1 session |
+
+---
+
 ## The problem
 
 Programmable money moved to Bitcoin. Core gives BTC a native programmable layer, and
