@@ -36,6 +36,7 @@ anchors to a real Core Mainnet transaction.
 
 | File | Purpose |
 |---|---|
+| [`OUTREACH.md`](./OUTREACH.md) | The ready-to-send first-parties message: the letter, the counterparty forward block, the verified link table, and the do-not-say list |
 | [`consent-template.json`](./consent-template.json) | Both parties' consent: EIP-712 redaction grants (E5 wire format), disclosure scope, record-closure agreement, declarations |
 | [`removal-checklist.json`](./removal-checklist.json) | Pre-publication secret/personal-data removal — machine gates + (HUMAN) judgment items with operator sign-off |
 | [`prelude.mjs`](./prelude.mjs) | The machine-checkable gate: secret scan, origin truth, both-party consent replay, pin integrity — fail-closed, `NOT_CHECKED` never faked |
