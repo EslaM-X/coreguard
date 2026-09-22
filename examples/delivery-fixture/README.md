@@ -78,6 +78,7 @@ node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 [--seed 424242]
 | `adversarial-runner.mjs` | every check catches its own single mutation | `mutations: 10 · caught: 10 · survived: 0` |
 | `adversarial-runner.mjs` (same run) | stacked defects never blind each other | `compound : 5 batteries · caught: 5 · survived: 0` |
 | `adversarial-runner.mjs --fuzz 50` | random seed-deterministic stacks hold too | `fuzz     : seed 424242 · 50 stacks · survived: 0` |
+| `adversarial-runner.mjs --fuzz 25 --seed <commit-derived>` | CI explores a new deterministic combination on every push (seed = first 8 hex of the pushed commit, modulo 2³¹−1 — replayable by re-running with the seed the log prints) | `fuzz     : seed <N> · 25 stacks · survived: 0` |
 | `make-fixture.mjs` | the evidence factory is deterministic | `git diff` empty — byte-identical regeneration |
 
 | `node --test test/delivery/doc-curl-contract.test.js` | the docs cannot drift from the wire: every documented bash fence (incl. every `INTEGRATION.md` one) is executed against a live documented endpoint — a rewritten response shape or renamed decision string goes red by name | 1 pass · fences match the wire |
