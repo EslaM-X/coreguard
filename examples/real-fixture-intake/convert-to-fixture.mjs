@@ -324,7 +324,11 @@ function buildZip(recordBuffers, manifestBytes) {
     cd.writeUInt32LE(e.size, 20);
     cd.writeUInt32LE(e.size, 24);
     cd.writeUInt16LE(e.nameBytes.length, 28);
-    // 30..42 stay zero (extra, comment, disk, attrs)
+    // 30..37 stay zero (extra, comment, disk, internal attrs); 38..41 carry
+    // unix mode 0644 (rw-r--r--) — made-by is unix (0x031e), and with zero
+    // external attributes Info-ZIP extracts mode-0000 files on Linux (EACCES
+    // for every reader). Windows masks this; CI caught it.
+    cd.writeUInt32LE((0o100644 << 16) >>> 0, 38);
     cd.writeUInt32LE(e.offset, 42);
     chunks.push(cd, e.nameBytes);
     offset += 46 + e.nameBytes.length;
