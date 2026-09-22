@@ -1,5 +1,10 @@
 # Real-Fixture Intake Kit — from a real bilateral dispute to a DDE fixture
 
+[![Intake Pipeline](https://github.com/EslaM-X/coreguard/actions/workflows/intake.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/intake.yml)
+*every command on this page is executed by CI on every push — candidate
+build → gate → both conversion modes → unzip → engine on the extraction →
+red-path refusal (`workflows/intake.yml`)*
+
 People's Court's own words set the bar — *"not a synthetic demo"* — and ask
 for the disclosure scope both parties authorized. This kit turns a real paid
 transaction with two reachable, consenting parties into a redacted DDE
@@ -41,6 +46,7 @@ anchors to a real Core Mainnet transaction.
 | [`removal-checklist.json`](./removal-checklist.json) | Pre-publication secret/personal-data removal — machine gates + (HUMAN) judgment items with operator sign-off |
 | [`prelude.mjs`](./prelude.mjs) | The machine-checkable gate: secret scan, origin truth, both-party consent replay, pin integrity — fail-closed, `NOT_CHECKED` never faked |
 | [`convert-to-fixture.mjs`](./convert-to-fixture.mjs) | Candidate → DDE fixture in one command: green gate mandatory → ten records + pin manifest → engine-verified. Directory or `--out-zip` attachment archive. Exit `0` ready · `1` gate red/rejected · `2` usage |
+| [`make-intake-candidate.mjs`](./make-intake-candidate.mjs) | Build the modeled REAL candidate (ten records + pins) used by CI's surveillance run and the contract tests — one source of truth for the candidate shape |
 
 ## The procedure — five steps, no shortcuts
 

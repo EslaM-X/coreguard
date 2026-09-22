@@ -1,0 +1,88 @@
+name: Intake Pipeline
+
+# The real-fixture intake kit has its own badge-visible workflow: the intake
+# badge on the README is this file's status, so the path a REAL case will
+# travel is under continuous surveillance — exercised by CI exactly as an
+# operator would run it, not trusted from unit tests alone.
+#
+# The full pipeline, on the real entry points, per push:
+#   build the modeled candidate  (make-intake-candidate.mjs — the SAME module
+#                                the contract tests delegate to, so CI and
+#                                the tests judge byte-identical shapes)
+#   gate it                      (prelude.mjs — GATE GREEN or the run dies)
+#   convert, both modes          (directory + --out-zip; zip mode proven
+#                                deterministic byte-for-byte with cmp)
+#   walk the reviewer path       (unzip → re-hash members vs hashes.json →
+#                                engine VERIFIED on the extraction)
+#   red candidate writes nothing (gate red → convert exit 1 → no output dir)
+#
+# Same guard class as the other badge workflows: lockfile check BEFORE
+# setup-node (cache: npm fails opaque when package-lock.json is absent),
+# then the YAML zero-jobs guard, then the pipeline.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  intake:
+    name: intake pipeline (build → gate → convert → verify)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Guard - lockfile present + workspace sync (before setup-node)
+        run: node scripts/check-lock-sync.mjs
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Guard - workflow YAML (zero-jobs trap)
+        run: node scripts/check-workflows.mjs
+      - run: npm ci
+      - name: Build the modeled REAL candidate
+        run: node examples/real-fixture-intake/make-intake-candidate.mjs "$RUNNER_TEMP/candidate"
+      - name: Gate the candidate (GATE GREEN mandatory)
+        run: node examples/real-fixture-intake/prelude.mjs "$RUNNER_TEMP/candidate"
+      - name: Convert — directory mode (records + pins, engine VERIFIED)
+        run: node examples/real-fixture-intake/convert-to-fixture.mjs "$RUNNER_TEMP/candidate" "$RUNNER_TEMP/fixture-dir"
+      - name: Convert — zip mode twice (determinism under cmp)
+        run: |
+          node examples/real-fixture-intake/convert-to-fixture.mjs "$RUNNER_TEMP/candidate" --out-zip "$RUNNER_TEMP/a.zip"
+          node examples/real-fixture-intake/convert-to-fixture.mjs "$RUNNER_TEMP/candidate" --out-zip "$RUNNER_TEMP/b.zip"
+          cmp "$RUNNER_TEMP/a.zip" "$RUNNER_TEMP/b.zip"
+          echo "zip determinism: byte-identical archives ✓"
+      - name: Reviewer path — unzip, re-hash members, engine on the extraction
+        run: |
+          unzip -q "$RUNNER_TEMP/a.zip" -d "$RUNNER_TEMP/extraction"
+          node --input-type=module -e "
+          import { verifyFixture } from './packages/delivery/sdk.js';
+          import { readFileSync } from 'node:fs';
+          const dir = process.argv[1];
+          const report = await verifyFixture({ fixtureDir: dir });
+          console.log('extraction engine:', report.status, '|', report.decision);
+          if (report.status !== 'VERIFIED') { process.exit(1); }
+          const audit = readFileSync(dir + '/AUDIT-MANIFEST.txt', 'utf8');
+          if (!audit.includes('does not decide delivery conformity')) {
+            console.error('audit manifest lost the boundary quote');
+            process.exit(1);
+          }
+          " "$RUNNER_TEMP/extraction"
+      - name: Red candidate — gate refuses, nothing converts
+        run: |
+          mkdir "$RUNNER_TEMP/empty-candidate"
+          node examples/real-fixture-intake/convert-to-fixture.mjs "$RUNNER_TEMP/empty-candidate" "$RUNNER_TEMP/never" > "$RUNNER_TEMP/red.log" 2>&1 && {
+            echo "::error::a red candidate converted — the gate did not fire"
+            exit 1
+          }
+          [ -e "$RUNNER_TEMP/never" ] && {
+            echo "::error::a red candidate produced an output directory"
+            exit 1
+          }
+          grep -q "GATE RED" "$RUNNER_TEMP/red.log" || {
+            echo "::error::red-path report did not name the gate verdict"
+            cat "$RUNNER_TEMP/red.log"
+            exit 1
+          }
+          echo "red path: gate refuses, no output dir, verdict named ✓"

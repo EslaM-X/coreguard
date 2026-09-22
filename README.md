@@ -13,6 +13,7 @@
 
 [![CI](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml)
 [![DDE Evidence Cycle](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml)
+[![Intake Pipeline](https://github.com/EslaM-X/coreguard/actions/workflows/intake.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/intake.yml)
 [![DDE perf · engine](docs/badges/perf-engine.svg)](benchmarks/perf-history.jsonl)
 [![DDE perf · wire](docs/badges/perf-wire.svg)](benchmarks/perf-history.jsonl)
 [![DDE perf · sdk](docs/badges/perf-sdk.svg)](benchmarks/perf-history.jsonl)
@@ -331,7 +332,10 @@ scope, a removal checklist, a fail-closed pre-publication gate, and
 ten records with re-pinned hashes and an engine-verified verdict
 (exit 0 ready · 1 gate red/rejected · 2 usage) — with a `--out-zip` mode
 producing a byte-deterministic, audit-manifested archive ready to attach
-to a GitHub discussion comment.
+to a GitHub discussion comment. The whole path is CI-exercised on every
+push (candidate build → gate → both conversion modes → unzip → engine on
+the extraction → red-path refusal), so the route a real case will travel
+is watched continuously, not trusted from unit tests alone.
 
 ## AgentProof — actor provenance
 

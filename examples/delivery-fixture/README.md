@@ -81,6 +81,7 @@ node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 [--seed 424242]
 | `make-fixture.mjs` | the evidence factory is deterministic | `git diff` empty — byte-identical regeneration |
 
 | `node --test test/delivery/doc-curl-contract.test.js` | the docs cannot drift from the wire: every documented bash fence (incl. every `INTEGRATION.md` one) is executed against a live documented endpoint — a rewritten response shape or renamed decision string goes red by name | 1 pass · fences match the wire |
+| `make-intake-candidate.mjs → prelude.mjs → convert-to-fixture.mjs` (directory + `--out-zip`) → unzip → engine on the extraction → red-path refusal | the real-fixture intake pipeline a REAL case will travel is CI-exercised end to end on every push (own badge-visible workflow: `.github/workflows/intake.yml`) | green build: GATE GREEN → VERIFIED (9/10) → byte-identical zips → red path refused |
 
 CI runs every one of these on each push — the table is not a promise, it is
 a standing watch. The one-page integration summary has its own badge-visible
