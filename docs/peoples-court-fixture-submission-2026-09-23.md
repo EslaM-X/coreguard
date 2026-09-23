@@ -49,12 +49,15 @@ Would you consider this labeled synthetic fixture useful as a technical
 mapping test? If so, would you prefer the public thread or the request-demo
 path for review?
 
-Repository commit: e05f29c
+Repository commit: ea59a88
 ```
 
-This is the post. Nothing longer goes to the thread. The appendices below are
-the material that accompanies the same package through request-demo / manual
-scoping, or is pointed to when a reviewer asks for the machine-readable side.
+This is the post. The referenced commit is the stable commit the fixture and
+its verifier state were reproduced from (the same state holds at later commits
+— the fixture tree is unchanged). Nothing longer goes to the thread. The
+appendices below are the material that accompanies the same package through
+request-demo / manual scoping, or is pointed to when a reviewer asks for the
+machine-readable side.
 
 ---
 
@@ -88,7 +91,7 @@ to `peoplescourt.ai/request-demo` directly, never through a synthetic fixture.
 
 ## 2. Current verifier state (appendix)
 
-Reproduced this record's date from the committed tree:
+Reproduced at HEAD `ea59a88`, 2026-09-23, from the committed tree:
 
 ```json
 {
@@ -111,16 +114,18 @@ statement about People's Court / Epistemic Labs' view of it.
 
 ## 3. Repro commands (appendix; Node only, no install)
 
+All numbers below pinned from a real run at HEAD `ea59a88`, 2026-09-23.
+
 ```bash
-# 1 — the gate holds, 10/10
+# 1 — the gate holds: VERIFIED (10 PASS), decision as in §2
 node examples/delivery-fixture/verify-fixture.mjs --json
 
 # 2 — one flipped artifact byte fails closed (exit 1, E3 names both hashes)
 node examples/delivery-fixture/verify-fixture.mjs --tamper logo.svg
 
 # 3 — every check catches its own mutation; stacked defects never blind each other
-node examples/delivery-fixture/adversarial-runner.mjs           # 13·13·0 · compound 5·5·0
-node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 # seed-deterministic stacks
+node examples/delivery-fixture/adversarial-runner.mjs           # 13 mutations · 13 caught · 0 survived · compound 5 batteries · 5 caught · 0 survived
+node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 --seed 424242  # 50 seed-deterministic stacks · 0 survived
 
 # 4 — the same gate over HTTP, plus the neutral evidence-class projection
 node -e "import('./packages/delivery/http.js').then(m => m.startDeliveryEndpoint({ port: 8787 }))"
