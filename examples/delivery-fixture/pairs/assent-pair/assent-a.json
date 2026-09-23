@@ -1,0 +1,105 @@
+{
+  "packageVersion": "assent-pair-v1.0.0",
+  "fixtureId": "ASSENT-PAIR-A",
+  "scenario": "ASSENT_PRESENT",
+  "synthetic": true,
+  "origin": "SYNTHETIC",
+  "execution": {
+    "origin": "REAL",
+    "recordId": "ASSENT-PAIR-EXEC",
+    "executionId": "ASSENT-PAIR-EXEC",
+    "network": "core-mainnet",
+    "chainId": "1116",
+    "txHash": "0xe67c61fda81200bf026faee31c23a7b7e7f56ed24f06ffe24f071fa06891a9b8",
+    "receipt": {
+      "status": "0x1 (success)",
+      "blockNumber": "38712625",
+      "from": "0xea41becdeb612d8625bf3060809964f1dab43244",
+      "to": "0x7b4ce161d65e679c30ba738a522a09d63880992c",
+      "gasUsed": "21000",
+      "valueWei": "1000000000000000"
+    },
+    "executionCoupon": {
+      "role": "independent public execution anchor only — a REAL settled transfer; NOT settlement of the modeled agreement",
+      "valueWei": "1000000000000000"
+    },
+    "compensationSettlement": {
+      "status": "NOT_SETTLED",
+      "agreementCompensationWei": "250000000000000000",
+      "settledByExecutionCoupon": false,
+      "note": "The execution coupon (0.001 CORE) does not settle the modeled compensation (0.25 CORE). No record claims the modeled obligation is paid."
+    },
+    "verifiedVia": {
+      "rpc": "rpc.coredao.org",
+      "method": "eth_getTransactionReceipt",
+      "checkedAtUtc": "2026-09-19T12:00:00Z"
+    },
+    "reference": "examples/pilot/proof-artifact-1.json — Pilot-1 public proof artifact (VERIFIED)",
+    "provenance": "REAL — public Pilot-1 Core Mainnet transaction, used identically in A and B. Anchors the EXECUTION layer only; never delivery conformity."
+  },
+  "delivery": {
+    "origin": "SYNTHETIC",
+    "recordId": "ASSENT-PAIR-DELIVERY",
+    "deliveryId": "ASSENT-PAIR-DELIVERY",
+    "agreementRef": "DDE-FIXTURE-001-AGREEMENT@1.0.0",
+    "executionRef": "ASSENT-PAIR-EXEC",
+    "submittedAtUtc": "2026-09-24T09:30:00Z",
+    "submittedBy": "0xc1e7d8017ee82da93e85b2c48955070dc6b2f13d",
+    "artifacts": [
+      {
+        "id": "logo.svg",
+        "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"120\" viewBox=\"0 0 120 120\">\n  <title>CoreGuard Shield — synthetic delivery fixture</title>\n  <rect x=\"8\" y=\"8\" width=\"104\" height=\"104\" rx=\"18\" fill=\"#0d1b2a\"/>\n  <path d=\"M60 22 L92 38 V66 C92 86 78 98 60 104 C42 98 28 86 28 66 V38 Z\" fill=\"#1b998b\"/>\n  <circle cx=\"60\" cy=\"62\" r=\"16\" fill=\"#f4f7fa\"/>\n</svg>\n",
+        "sha256": "0xc32337044edb72a552977bd1699200dabe2e9fab0523292ccb3678b8e555cb36",
+        "bytes": 372
+      },
+      {
+        "id": "brand-guide.md",
+        "content": "# Brand Guide — synthetic fixture artifact\n\n## Color tokens\n- Primary: #1b998b\n- Surface: #0d1b2a\n\n## Typography\n- Display: system sans-serif, 700\n",
+        "sha256": "0xdf5d7e13a448060b370b7663778cea1d4cfb3e7fea294b45163475fc19bb38ad",
+        "bytes": 149
+      },
+      {
+        "id": "handoff-notes.txt",
+        "content": "Handoff notes — synthetic fixture artifact.\nThe logo uses the shield motif agreed in the brief.\nSource files available on request within the retention window.\n",
+        "sha256": "0xfd5dffd73a664d4a7f0ab144340299980fa6d8f65626dbdcc477fa708200041f",
+        "bytes": 161
+      }
+    ],
+    "provenance": "SYNTHETIC — artifact contents modeled; SHA-256 pins real over the exact embedded bytes; identical in A and B by construction."
+  },
+  "consent": {
+    "alternativeId": "A",
+    "scopeRef": "ASSENT-DEED-2026-09-23/O1",
+    "agreementVersion": "DDE-FIXTURE-001-AGREEMENT@1.0.0",
+    "modeledAssent": true,
+    "parties": {
+      "principalA": {
+        "role": "client",
+        "principalAddress": "0x716891f369eadbd06bb0a2c2ed091a193e4390e6",
+        "assent": "ASSENTED",
+        "scope": "OBLIGATION-1 — this pinned agreement",
+        "withinStatedAuthority": true
+      },
+      "principalB": {
+        "role": "provider",
+        "principalAddress": "0xb240f6879da4c214d534fd18874ee12142b8c274",
+        "assent": "ASSENTED",
+        "scope": "OBLIGATION-1 — this pinned agreement",
+        "withinStatedAuthority": true
+      }
+    },
+    "attestation": {
+      "permitted": [
+        "CLIENT_PRINCIPAL",
+        "PROVIDER_PRINCIPAL"
+      ],
+      "note": "Modeled assent is declared fixture data — not a cryptographic/portable signature and not evidence of real-world authority or consent."
+    }
+  },
+  "unknowns": [
+    "realWorldAuthority",
+    "modeledCompensationSettlement",
+    "meritsOutcome"
+  ],
+  "boundary": "Execution facts can be verified; consent/origination is modeled and separate. A does not establish real-world authority, payment of the modeled compensation, or a merits outcome."
+}

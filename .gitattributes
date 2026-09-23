@@ -33,6 +33,10 @@ docs/coreguard-gate41-visual-en.html -text
 # them (the workflow YAML contract is itself a gate): pin bytes, no rewrite.
 test/ci/workflow-yaml-contract.test.js -text
 
+# Byte-exact preservation for the A/B assent pair (pair-hashes pins SHA-256
+# per emitted file): CRLF rewriting would break fresh-clone re-hash parity.
+examples/delivery-fixture/pairs/** -text
+
 # Byte-exact preservation for the committed git hooks (.githooks/pre-push):
 # with core.autocrlf=true the working copy would turn LF into CRLF and the
 # bundled POSIX shell would choke on the \r ("command not found") — meaning

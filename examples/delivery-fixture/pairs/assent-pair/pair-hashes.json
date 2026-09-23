@@ -1,0 +1,24 @@
+{
+  "manifest": {
+    "algorithm": "sha256",
+    "packageVersion": "assent-pair-v1.0.0",
+    "generatedBy": "examples/delivery-fixture/pairs/assent-pair/make-assent-pair.mjs",
+    "generatedAtUtc": "2026-09-23T12:00:00Z",
+    "selfExcluded": [
+      "pair-hashes.json"
+    ],
+    "note": "A/B assent pair — identical execution + delivery receipts; modeled consent differs. Every emitted file pinned by SHA-256 over its exact bytes."
+  },
+  "pairs": {
+    "A": "ASSENT_PRESENT",
+    "B": "ASSENT_MISSING",
+    "executionIdentical": true,
+    "deliveryIdentical": true,
+    "consentDiffersBy": "consent.parties.principalB.assent (+ its scope/authority markers and unknownFields)"
+  },
+  "files": {
+    "assent-a.json": "0x40ce4105cec4056f44ec684114a44bb136ce17294d4dd263845c2d86ab2a190c",
+    "assent-b.json": "0x8ed32ad4a2f194b1ceb5603604baca0204bd24b632cb208f4e10920556ecf1bc",
+    "expected-field-map.json": "0x6533b7db3e6abc3c79a0abe9a31fbfae86cbaf9285b09e551b459b3f9e24de04"
+  }
+}
