@@ -8,6 +8,9 @@ name: DDE Evidence Cycle
 # as the regression gate, a commit-seeded 25-round explorer that sees a new
 # deterministic combination on every push while remaining replayable, and a
 # weekly multi-seed sweep that runs several seeds in one labeled report).
+# The mutation set covers the F3 closure chain (closedAtUtc series, 13
+# single mutations) — kept 1:1 with the reviewer-commands table by the
+# reviewer-table contract.
 
 on:
   push:
@@ -105,6 +108,8 @@ jobs:
       # do NOT record (only main pushes write history).
       - name: Performance trend — gate medians against the trailing baseline
         if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           node scripts/benchmark-trend.mjs --file /tmp/bench-sdk.json
           node scripts/benchmark-trend.mjs --file /tmp/bench-wire.json
@@ -128,11 +133,23 @@ jobs:
             fi
           fi
           if [ "$NEEDS_COMMIT" = "1" ]; then
-            git config user.name "coreguard-trend-bot"
-            git config user.email "noreply@coreguard.local"
-            git add benchmarks/perf-history.jsonl docs/badges
-            git commit -m "chore(perf): record benchmark medians [skip ci]"
-            git push
+            # Pages-build race guard (pages-settle.mjs): the median commit
+            # lands seconds after the content push; pushing while GitHub is
+            # still building the content commit's Pages build cancels it
+            # ("Page build failed" on the content SHA). Settle first; if the
+            # build cannot settle in time, defer the median (the next push
+            # appends this point too — history is append-only evidence, and a
+            # deferred point joins the next commit harmlessly).
+            if node scripts/pages-settle.mjs; then
+              git config user.name "coreguard-trend-bot"
+              git config user.email "noreply@coreguard.local"
+              git add benchmarks/perf-history.jsonl docs/badges
+              git commit -m "chore(perf): record benchmark medians [skip ci]"
+              git push
+            else
+              echo "::warning::Pages build still in flight — deferring the median commit (self-heals on the next push)"
+              git reset --hard HEAD
+            fi
           fi
       - name: Performance trend — PR gate (no recording)
         if: github.event_name == 'pull_request'

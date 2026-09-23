@@ -4,7 +4,8 @@
  * The zip mode is exercised through the converter's real entry point with a
  * real candidate (the shared modeled-REAL builder). What is pinned here:
  *
- *   green candidate   → exit 0, valid ZIP (system unzip agrees), engine
+ *   green candidate   → exit 0, valid ZIP (pure-JS structural + CRC verifier
+ *                       agrees — no system binary), engine
  *                       VERIFIED on the extraction, AUDIT-MANIFEST.txt present
  *                       with honest provenance (no wall-clock, no machine
  *                       paths) and the verbatim boundary
@@ -21,9 +22,10 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { spawnSync, execFileSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync, rmSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { inflateRawSync } from "node:zlib";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,6 +40,72 @@ function runConvert(candidate, zip) {
   return spawnSync(process.execPath, [CONVERT, candidate, "--out-zip", zip], { cwd: REPO, encoding: "utf8" });
 }
 
+// CRC-32 (same polynomial the writer + audit manifest use). One table, shared
+// by the structural verifier and the tamper test below.
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+
+function crc32Of(buf) {
+  let crc = 0xffffffff;
+  for (let i = 0; i < buf.length; i++) crc = CRC_TABLE[(crc ^ buf[i]) & 0xff] ^ (crc >>> 8);
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+/**
+ * verifyZip — pure-JS structural+content verifier (no system `unzip`, so the
+ * suite runs identically on Windows and Linux). Parses the central directory
+ * (EOCD), walks the local-header chain, and for EVERY member checks:
+ *   - signature/header-field sanity (nameLen, sizes, layout)
+ *   - the local walk lands EXACTLY at the central-directory offset
+ *   - the local-entry count equals the central-directory count
+ *   - STORE (0) bytes match the recorded sizes; DEFLATE (8) inflates raw
+ *   - recomputed CRC-32 equals the stored CRC-32
+ * Returns the members keyed by name so the reviewer path can extract them.
+ */
+function verifyZip(bytes) {
+  // EOCD: magic + comment length live in the last 64KiB + 22 bytes.
+  const tailStart = Math.max(0, bytes.length - 65557);
+  let eocd = -1;
+  for (let i = bytes.length - 22; i >= tailStart; i--) {
+    if (bytes.readUInt32LE(i) === 0x06054b50) { eocd = i; break; }
+  }
+  assert.notEqual(eocd, -1, "EOCD record not found — not a zip container");
+  const cdEntries = bytes.readUInt16LE(eocd + 10);
+  const cdSize = bytes.readUInt32LE(eocd + 12);
+  const cdOffset = bytes.readUInt32LE(eocd + 16);
+  assert.equal(cdSize + cdOffset, eocd, "central directory must end exactly at the EOCD");
+
+  const members = [];
+  let pos = 0;
+  for (let i = 0; i < cdEntries; i++) {
+    assert.equal(bytes.readUInt32LE(pos), 0x04034b50, `local header ${i} missing signature at ${pos}`);
+    const method = bytes.readUInt16LE(pos + 8);
+    const crc = bytes.readUInt32LE(pos + 14);
+    const compSize = bytes.readUInt32LE(pos + 18);
+    const uncompSize = bytes.readUInt32LE(pos + 22);
+    const nameLen = bytes.readUInt16LE(pos + 26);
+    const extraLen = bytes.readUInt16LE(pos + 28);
+    const name = bytes.subarray(pos + 30, pos + 30 + nameLen).toString("utf8");
+    const start = pos + 30 + nameLen + extraLen;
+    const compressed = bytes.subarray(start, start + compSize);
+    const data = method === 0 ? compressed : method === 8 ? inflateRawSync(compressed) : assert.fail(`unsupported method ${method} for ${name}`);
+    assert.equal(data.length, uncompSize, `uncompressed size mismatch for ${name}`);
+    assert.equal(crc32Of(data), crc, `CRC-32 mismatch for ${name}`);
+    members.push({ name, data });
+    pos = start + compSize;
+  }
+  assert.equal(pos, cdOffset, "local-header walk must land exactly on the central directory");
+  assert.equal(members.length, cdEntries);
+  return members;
+}
+
 test("green candidate → attachment-ready zip: unzip-valid, engine VERIFIED on extraction, honest audit manifest", () => {
   const dir = makeCandidate();
   const zip = outZip("ok");
@@ -50,14 +118,22 @@ test("green candidate → attachment-ready zip: unzip-valid, engine VERIFIED on 
     assert.match(r.stdout, /Execution verification does not decide delivery conformity/);
     assert.match(r.stdout, /paste THIS hash into the submission note/);
 
-    // The system unzip is the independent structural judge — if the hand-
-    // written container were malformed, this is where it dies.
-    execFileSync("unzip", ["-t", zip], { stdio: "pipe" });
+    // The pure-JS structural verifier is the independent judge — if the hand-
+    // written container were malformed, this is where it dies. It re-derives
+    // CRC-32 per member (no trust in the container), so it is a stronger
+    // judge than `unzip -t` and runs without any system binary.
+    const members = verifyZip(readFileSync(zip));
+    const memberNames = new Set(members.map((m) => m.name));
+    for (const name of [...RECORDS, "hashes.json", "AUDIT-MANIFEST.txt"]) {
+      assert.ok(memberNames.has(name), `expected member missing: ${name}`);
+    }
 
     // Reviewer path, executed literally: extract → engine → manifest checks.
     const ex = mkdtempSync(join(tmpdir(), "dde-zip-extract-"));
     try {
-      execFileSync("unzip", ["-q", zip, "-d", ex], { stdio: "pipe" });
+      for (const m of members) {
+        writeFileSync(join(ex, m.name), m.data);
+      }
       const manifest = JSON.parse(readFileSync(join(ex, "hashes.json"), "utf8"));
       assert.equal(manifest.fixture.origin, "REAL");
       for (const name of RECORDS) {
@@ -182,24 +258,13 @@ test("tamper discovery: a flipped byte inside a member is caught by the audit ma
     const needle = Buffer.from("agreement.json", "utf8");
 
     // Recompute CRC-32 over the stored payload (same algorithm the writer used).
-    const crcOf = (buf) => {
-      let c;
-      const table = (() => {
-        const t = new Uint32Array(256);
-        for (let n = 0; n < 256; n++) { c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; }
-        return t;
-      })();
-      let crc = 0xffffffff;
-      for (let i = 0; i < buf.length; i++) crc = table[(crc ^ buf[i]) & 0xff] ^ (crc >>> 8);
-      return (crc ^ 0xffffffff) >>> 0;
-    };
     const payload = raw.subarray(dataStart, dataStart + size);
-    assert.equal(crcOf(payload), crcPinned, "precondition: pinned CRC-32 matches stored payload");
+    assert.equal(crc32Of(payload), crcPinned, "precondition: pinned CRC-32 matches stored payload");
 
     // Flip ONE byte in the payload (in memory only — the archive on disk stays valid).
     const flipped = Buffer.from(payload);
     flipped[0] ^= 0x01;
-    assert.notEqual(crcOf(flipped), crcPinned, "single-byte flip must change CRC-32 — tamper is discoverable");
+    assert.notEqual(crc32Of(flipped), crcPinned, "single-byte flip must change CRC-32 — tamper is discoverable");
   } finally {
     rmSync(dirname(zip), { recursive: true, force: true });
     rmSync(dir, { recursive: true, force: true });
