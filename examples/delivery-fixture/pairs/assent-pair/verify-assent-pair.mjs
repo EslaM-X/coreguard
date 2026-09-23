@@ -72,9 +72,37 @@ add("V8", "unknowns explicit in both cases (authority · compensation · merits 
 
 // ------------------------------------------------------------- synthetic / settle
 add("V9", "both cases declared synthetic (overall package is synthetic; execution layer is a REAL public anchor)", A.synthetic === true && B.synthetic === true, [`A=${A.synthetic} · B=${B.synthetic}`]);
-const settleA = A.execution?.compensationSettlement?.status;
-const settleB = B.execution?.compensationSettlement?.status;
-add("V10", "compensation NOT_SETTLED in both cases", settleA === "NOT_SETTLED" && settleB === "NOT_SETTLED", [`A=${settleA} · B=${settleB}`]);
+const settleA = A.execution?.compensationSettlement;
+const settleB = B.execution?.compensationSettlement;
+const settleSplitOk =
+  settleA?.evidenceStatus === "NOT_EVIDENCED_AS_SETTLED" &&
+  settleB?.evidenceStatus === "NOT_EVIDENCED_AS_SETTLED" &&
+  settleA?.actualStatus === "UNKNOWN" &&
+  settleB?.actualStatus === "UNKNOWN" &&
+  settleA?.settledByExecutionCoupon === false &&
+  settleB?.settledByExecutionCoupon === false &&
+  !("status" in (settleA ?? {})) &&
+  !("status" in (settleB ?? {}));
+add(
+  "V10",
+  "settlement separates evidence status from actual status: NOT_EVIDENCED_AS_SETTLED + actualStatus UNKNOWN in both; no boolean NOT_SETTLED 'verified nonpayment' claim",
+  settleSplitOk,
+  [`A=ev:${settleA?.evidenceStatus} act:${settleA?.actualStatus} · B=ev:${settleB?.evidenceStatus} act:${settleB?.actualStatus}`]
+);
+
+const agrA = A.consent?.modeledAssent;
+const agrB = B.consent?.modeledAssent;
+const agrOk =
+  typeof agrA === "string" && typeof agrB === "string" &&
+  agrA === "FULL" && agrB === "PARTIAL" && agrB !== "FULL" &&
+  !("modeledAssentStatus" in (B.consent ?? {})) &&
+  B.consent?.parties?.principalB?.assent === "UNKNOWN";
+add(
+  "V11",
+  "aggregate modeledAssent is a derived tri-state (never a boolean): A=FULL / B=PARTIAL; B's party-B UNKNOWN stays at party level",
+  agrOk,
+  [`A=${agrA} · B=${agrB} · partyB.assent(B)=${B.consent?.parties?.principalB?.assent}`]
+);
 
 const passed = checks.filter((c) => c.result === "PASS").length;
 const failed = checks.filter((c) => c.result === "FAIL");

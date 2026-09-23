@@ -14,11 +14,11 @@
     "B": "ASSENT_MISSING",
     "executionIdentical": true,
     "deliveryIdentical": true,
-    "consentDiffersBy": "consent.parties.principalB.assent (+ its scope/authority markers and unknownFields)"
+    "consentDiffersBy": "consent.parties.principalB.assent (+ scope/authority markers + unknownFields + aggregate modeledAssent A=FULL / B=PARTIAL)"
   },
   "files": {
-    "assent-a.json": "0x40ce4105cec4056f44ec684114a44bb136ce17294d4dd263845c2d86ab2a190c",
-    "assent-b.json": "0x8ed32ad4a2f194b1ceb5603604baca0204bd24b632cb208f4e10920556ecf1bc",
-    "expected-field-map.json": "0x6533b7db3e6abc3c79a0abe9a31fbfae86cbaf9285b09e551b459b3f9e24de04"
+    "assent-a.json": "0x06cc54d9b6e842cf2165600bcf0659341cd8bcb87b18e1ae136fa3924dcb6860",
+    "assent-b.json": "0xe3f3da5466e21ff38d9593d52825cd41ccc886817aba9f889b807d9d717fc4e6",
+    "expected-field-map.json": "0xf2e7e0c5734e9ca04d3ab4c68cb3fcdce4b1f1a6ec2e5debfaf111f8e40782c2"
   }
 }

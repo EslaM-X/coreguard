@@ -67,10 +67,11 @@ const execution = {
     valueWei: "1000000000000000",
   },
   compensationSettlement: {
-    status: "NOT_SETTLED",
+    evidenceStatus: "NOT_EVIDENCED_AS_SETTLED",
+    actualStatus: "UNKNOWN",
     agreementCompensationWei: "250000000000000000",
     settledByExecutionCoupon: false,
-    note: "The execution coupon (0.001 CORE) does not settle the modeled compensation (0.25 CORE). No record claims the modeled obligation is paid.",
+    note: "The execution coupon (0.001 CORE) does not settle the modeled compensation (0.25 CORE). Absence of settlement evidence supports 'not evidenced as settled', never a verified nonpayment finding; actual settlement remains UNKNOWN in this record.",
   },
   verifiedVia: {
     rpc: "rpc.coredao.org",
@@ -122,11 +123,16 @@ const consentAttest = {
   note: "Modeled assent is declared fixture data — not a cryptographic/portable signature and not evidence of real-world authority or consent.",
 };
 
+const modeledAssentNote =
+  "Derived tri-state aggregate over per-party modeled assent; the party-level fields are authoritative. State space: FULL (all modeled principals assented) | PARTIAL (at least one assented, at least one other status) | MISSING (none assented) | UNKNOWN (no per-party assent data). An aggregate must never be read as establishing bilateral assent.";
+
 const consentA = {
   alternativeId: "A",
   scopeRef: "ASSENT-DEED-2026-09-23/O1",
   agreementVersion: "DDE-FIXTURE-001-AGREEMENT@1.0.0",
-  modeledAssent: true,
+  modeledAssent: "FULL",
+  modeledAssentDerivedFrom: ["parties.principalA.assent", "parties.principalB.assent"],
+  modeledAssentNote,
   parties: {
     principalA: { role: "client", principalAddress: CLIENT_PRINCIPAL, assent: "ASSENTED", scope: "OBLIGATION-1 — this pinned agreement", withinStatedAuthority: true },
     principalB: { role: "provider", principalAddress: PROVIDER_PRINCIPAL, assent: "ASSENTED", scope: "OBLIGATION-1 — this pinned agreement", withinStatedAuthority: true },
@@ -138,15 +144,16 @@ const consentB = {
   alternativeId: "B",
   scopeRef: "ASSENT-DEED-2026-09-23/O1",
   agreementVersion: "DDE-FIXTURE-001-AGREEMENT@1.0.0",
-  modeledAssent: true,
-  modeledAssentStatus: "LACKS_PARTY_B_ASSENT",
+  modeledAssent: "PARTIAL",
+  modeledAssentDerivedFrom: ["parties.principalA.assent", "parties.principalB.assent"],
+  modeledAssentNote,
   parties: {
     principalA: { role: "client", principalAddress: CLIENT_PRINCIPAL, assent: "ASSENTED", scope: "OBLIGATION-1 — this pinned agreement", withinStatedAuthority: true },
     principalB: { role: "provider", principalAddress: PROVIDER_PRINCIPAL, assent: "UNKNOWN", scope: "UNKNOWN — prior modeled assent scoped to ACTION-9 (another action); no modeled assent covers this obligation", withinStatedAuthority: "UNKNOWN" },
   },
   unknownFields: ["principalBAssentForThisObligation"],
   attestation: consentAttest,
-  note: "B lacks modeled assent for this obligation. The missing assent is recorded UNKNOWN and is never filled in from the execution receipt or the delivery manifest.",
+  note: "B lacks modeled assent for this obligation. modeledAssent 'PARTIAL' derives from principalA ASSENTED + principalB UNKNOWN — it must not be read as bilateral assent; B's UNKNOWN stays UNKNOWN in parties.principalB.assent and is never filled in from the execution receipt or the delivery manifest.",
 };
 
 // ------------------------------------------------------------------- cases
@@ -191,15 +198,17 @@ const expectedFieldMap = [
   { field: "execution.receipt.gasUsed", A: "21000", B: "21000", source: "RPC eth_getTransactionReceipt", permittedAttester: "INDEPENDENT — public chain", unknown: false },
   { field: "execution.receipt.valueWei", A: "1000000000000000", B: "1000000000000000", source: "RPC eth_getTransactionByHash", permittedAttester: "INDEPENDENT — public chain", unknown: false, note: "execution coupon only" },
   { field: "execution.executionCoupon.role", A: "independent anchor only", B: "independent anchor only", source: "fixture declaration", permittedAttester: "OWNER (label)", unknown: false },
-  { field: "execution.compensationSettlement.status", A: "NOT_SETTLED", B: "NOT_SETTLED", source: "fixture declaration (explicit false)", permittedAttester: "NONE — cannot be attested from a receipt", unknown: false },
+  { field: "execution.compensationSettlement.evidenceStatus", A: "NOT_EVIDENCED_AS_SETTLED", B: "NOT_EVIDENCED_AS_SETTLED", source: "absence of settlement evidence — 'not evidenced as settled', never a verified nonpayment finding", permittedAttester: "NONE — absence cannot be attested from a receipt", unknown: false },
+  { field: "execution.compensationSettlement.actualStatus", A: "UNKNOWN", B: "UNKNOWN", source: "actual settlement is not knowable from this fixture", permittedAttester: "NONE", unknown: true },
   { field: "delivery.artifacts[0..2].sha256", A: SAME_EXEC, B: SAME_EXEC, source: "exact embedded bytes (engine artifactSha256)", permittedAttester: "PROVIDER (submission) — engine re-hashes", unknown: false },
   { field: "delivery.submittedBy", A: PROVIDER_AGENT, B: PROVIDER_AGENT, source: "fixture record", permittedAttester: "PROVIDER (submission)", unknown: false },
+  { field: "consent.modeledAssent", A: "FULL", B: "PARTIAL", source: "derived tri-state aggregate over per-party modeled assent (party-level fields authoritative)", permittedAttester: "NONE — derived label, never attested; never a read for bilateral assent", unknown: false, note: "B's principalB UNKNOWN stays UNKNOWN in consent.parties.principalB.assent" },
   { field: "consent.parties.principalA.assent", A: "ASSENTED", B: "ASSENTED", source: "modeled synthetic", permittedAttester: "CLIENT_PRINCIPAL", unknown: false },
   { field: "consent.parties.principalB.assent", A: "ASSENTED", B: "UNKNOWN", source: "A modeled; B absent / scoped to another action", permittedAttester: "PROVIDER_PRINCIPAL", unknown: true, note: "B: preserved as unknown, not filled from the receipt" },
   { field: "consent.parties.principalB.withinStatedAuthority", A: "true", B: "UNKNOWN", source: "A modeled; B absent", permittedAttester: "PROVIDER_PRINCIPAL", unknown: true },
   { field: "unknowns.principalBAssentForThisObligation", A: "n/a", B: "preserved UNKNOWN", source: "B consent.unknownFields", permittedAttester: "NONE", unknown: true },
   { field: "unknowns.realWorldAuthority", A: "UNKNOWN", B: "UNKNOWN", source: "neither case models it", permittedAttester: "NONE", unknown: true },
-  { field: "unknowns.modeledCompensationSettlement", A: "NOT_SETTLED — not paid", B: "NOT_SETTLED — not paid", source: "fixture declaration; receipt cannot attest it", permittedAttester: "NONE", unknown: true },
+  { field: "unknowns.modeledCompensationSettlement", A: "UNKNOWN — not evidenced as settled", B: "UNKNOWN — not evidenced as settled", source: "evidenceStatus NOT_EVIDENCED_AS_SETTLED; actualStatus UNKNOWN", permittedAttester: "NONE", unknown: true },
   { field: "unknowns.meritsOutcome", A: "UNKNOWN", B: "UNKNOWN", source: "no adjudication modeled", permittedAttester: "NONE", unknown: true },
 ];
 
@@ -219,7 +228,7 @@ const manifest = {
     B: "ASSENT_MISSING",
     executionIdentical: true,
     deliveryIdentical: true,
-    consentDiffersBy: "consent.parties.principalB.assent (+ its scope/authority markers and unknownFields)",
+    consentDiffersBy: "consent.parties.principalB.assent (+ scope/authority markers + unknownFields + aggregate modeledAssent A=FULL / B=PARTIAL)",
   },
   files: {},
 };
@@ -246,4 +255,5 @@ writeFileSync(join(OUT, "pair-hashes.json"), JSON.stringify(manifest, null, 2) +
 console.log(`assent pair written: ${Object.keys(records).length + 1} files (A, B, expected-field-map + pair-hashes.json)`);
 console.log(`  A = ASSENT_PRESENT  · B = ASSENT_MISSING  · package ${PV}`);
 console.log(`  execution + delivery: identical by construction (single shared objects)`);
-console.log(`  consent diff: consent.parties.principalB.assent  (A=ASSENTED / B=UNKNOWN + scope + authority)`);
+console.log(`  consent diff: consent.parties.principalB.assent (A=ASSENTED / B=UNKNOWN + scope + authority) · aggregate modeledAssent A=FULL / B=PARTIAL`);
+console.log(`  settlement  : evidenceStatus NOT_EVIDENCED_AS_SETTLED · actualStatus UNKNOWN (in both)`);

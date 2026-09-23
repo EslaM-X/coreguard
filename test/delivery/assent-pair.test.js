@@ -55,7 +55,7 @@ test("verifier exits 0 on the clean committed pair", () => {
   const r = verifyIn(PAIR);
   assert.equal(r.status, 0, `${r.stdout}\n${r.stderr}`);
   assert.match(r.stdout, /ASSENT_PAIR OK/);
-  assert.match(r.stdout, /10\/10/);
+  assert.match(r.stdout, /11\/11/);
 });
 
 test("execution + delivery identical; consent differs exactly as modeled", () => {
@@ -68,6 +68,33 @@ test("execution + delivery identical; consent differs exactly as modeled", () =>
   assert.equal(A.consent.parties.principalB.assent, "ASSENTED");
   assert.equal(B.consent.parties.principalB.assent, "UNKNOWN");
   assert.ok(B.consent.unknownFields.includes("principalBAssentForThisObligation"));
-  assert.equal(A.execution.compensationSettlement.status, "NOT_SETTLED");
-  assert.equal(B.execution.compensationSettlement.status, "NOT_SETTLED");
+  assert.equal(A.execution.compensationSettlement.evidenceStatus, "NOT_EVIDENCED_AS_SETTLED");
+  assert.equal(B.execution.compensationSettlement.evidenceStatus, "NOT_EVIDENCED_AS_SETTLED");
+  assert.equal(A.execution.compensationSettlement.actualStatus, "UNKNOWN");
+  assert.equal(B.execution.compensationSettlement.actualStatus, "UNKNOWN");
+});
+
+test("regression: aggregate modeledAssent is a derived tri-state, never a boolean or a bilateral-assent read", () => {
+  const A = JSON.parse(readFileSync(join(PAIR, "assent-a.json"), "utf8"));
+  const B = JSON.parse(readFileSync(join(PAIR, "assent-b.json"), "utf8"));
+  assert.equal(typeof A.consent.modeledAssent, "string");
+  assert.equal(typeof B.consent.modeledAssent, "string");
+  assert.equal(A.consent.modeledAssent, "FULL");
+  assert.equal(B.consent.modeledAssent, "PARTIAL");
+  assert.notEqual(B.consent.modeledAssent, "FULL");
+  assert.equal(B.consent.modeledAssentStatus, undefined);
+  assert.equal(B.consent.parties.principalB.assent, "UNKNOWN");
+  assert.ok(Array.isArray(B.consent.modeledAssentDerivedFrom));
+});
+
+test("regression: settlement separates evidence status from actual status", () => {
+  const A = JSON.parse(readFileSync(join(PAIR, "assent-a.json"), "utf8"));
+  const B = JSON.parse(readFileSync(join(PAIR, "assent-b.json"), "utf8"));
+  for (const X of [A, B]) {
+    const s = X.execution.compensationSettlement;
+    assert.equal("status" in s, false, `boolean status key must not exist (${X.fixtureId})`);
+    assert.equal(s.evidenceStatus, "NOT_EVIDENCED_AS_SETTLED");
+    assert.equal(s.actualStatus, "UNKNOWN");
+    assert.equal(s.settledByExecutionCoupon, false);
+  }
 });

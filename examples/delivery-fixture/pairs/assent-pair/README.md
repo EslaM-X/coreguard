@@ -12,6 +12,8 @@ of the evidence labels.
 | delivery manifest (synthetic artifacts) | identical | identical |
 | party-A modeled assent | `ASSENTED` | `ASSENTED` |
 | party-B modeled assent | `ASSENTED` | `UNKNOWN` — absent / scoped to ACTION-9, never filled from the receipt |
+| aggregate `modeledAssent` | `FULL` (derived tri-state) | `PARTIAL` (derived tri-state) — never a boolean; never read as bilateral assent |
+| settlement | `evidenceStatus = NOT_EVIDENCED_AS_SETTLED` · `actualStatus = UNKNOWN` | identical |
 | unknowns | explicit | explicit, plus `principalBAssentForThisObligation` |
 
 ## Files
@@ -36,7 +38,12 @@ node verify-assent-pair.mjs             # run from a pair directory
 Execution facts are attesting-worthy and label identically in A and B.
 Modeled consent is separate: in **B** the missing party-B assent exists as an
 explicit `UNKNOWN` and must never be derived from the execution receipt or the
-delivery manifest. Version and hashes are pinned; field-level attestation
+delivery manifest. The aggregate `consent.modeledAssent` is a derived
+tri-state label (`FULL`/`PARTIAL`), never a boolean, and never a read for
+bilateral assent — the party-level fields stay authoritative. Settlement is
+recorded as `evidenceStatus = NOT_EVIDENCED_AS_SETTLED` with
+`actualStatus = UNKNOWN`, keeping the evidence status separate from any actual
+settlement finding. Version and hashes are pinned; field-level attestation
 permissions are listed in `expected-field-map.json`.
 
 ## Boundaries
@@ -47,7 +54,9 @@ permissions are listed in `expected-field-map.json`.
 - No EIP-712 signatures exist in this pair. Modeled assent is declared fixture
   data, not a cryptographic/portable signature.
 - Neither case establishes real-world party authority, payment of the modeled
-  compensation (0.25 CORE; `compensationSettlement.status = NOT_SETTLED` in
-  both), or a merits outcome.
+  compensation (0.25 CORE; `compensationSettlement.evidenceStatus =
+  NOT_EVIDENCED_AS_SETTLED` · `actualStatus = UNKNOWN` in both), or a merits
+  outcome. Absence of settlement evidence is recorded as not-evidenced, never
+  as a verified nonpayment finding.
 - The offered critique is bounded and read-only — not an integration, pilot,
   ongoing review, or adjudication.

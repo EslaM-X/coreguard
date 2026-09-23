@@ -198,10 +198,11 @@ const execution = {
     valueWei: "1000000000000000",
   },
   compensationSettlement: {
-    status: "NOT_SETTLED",
+    evidenceStatus: "NOT_EVIDENCED_AS_SETTLED",
+    actualStatus: "UNKNOWN",
     agreementCompensationWei: agreement.compensationWei,
     settledByExecutionCoupon: false,
-    note: "The execution coupon (0.001 CORE) does not settle the modeled compensation (0.25 CORE). No record claims the modeled obligation is paid.",
+    note: "The execution coupon (0.001 CORE) does not settle the modeled compensation (0.25 CORE). Absence of settlement evidence supports 'not evidenced as settled', never a verified nonpayment finding; actual settlement remains UNKNOWN in this record.",
   },
   verifiedVia: {
     rpc: "rpc.coredao.org",
@@ -210,7 +211,7 @@ const execution = {
   },
   reference: "examples/pilot/proof-artifact-1.json — Pilot-1 public proof artifact (VERIFIED)",
   provenance:
-    "REAL — public Pilot-1 Core Mainnet transaction; receipt fields re-verified live from the RPC at fixture generation. This anchors the EXECUTION layer only: the execution coupon transfer is settled on-chain; the modeled agreement compensation is NOT settled by it (compensationSettlement.status = NOT_SETTLED); never delivery conformity.",
+    "REAL — public Pilot-1 Core Mainnet transaction; receipt fields re-verified live from the RPC at fixture generation. This anchors the EXECUTION layer only: the execution coupon transfer is settled on-chain; the modeled agreement compensation is NOT evidenced as settled by it (compensationSettlement.evidenceStatus = NOT_EVIDENCED_AS_SETTLED); actualStatus = UNKNOWN; never delivery conformity.",
 };
 
 // --------------------------------------------------------- delivery manifest
