@@ -116,9 +116,15 @@
   <h1>CoreGuard <span style="color:var(--violet)">DDE/1</span> — <span data-i18n="title">Delivery &amp; Dispute Evidence</span></h1>
   <p class="sub" data-i18n="sub">A complete, replayable bilateral fixture that demonstrates the boundary in code: the on-chain payment is real, the rejection stands on named acceptance criteria, and nothing in the chain of custody lets the engine decide who is right.</p>
   <p class="sub mono" style="margin-top:8px; font-size:12px" data-i18n="runline">Replay: node examples/delivery-fixture/verify-fixture.mjs → VERIFIED (10 PASS · exit 0)</p>
-  <p class="sub mono" id="cicBadge" style="margin-top:6px; font-size:12px; display:none">
-    <a id="cicLink" href="https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml" target="_blank" rel="noopener" style="text-decoration:none">
+  <p class="sub mono" id="liveBadges" style="margin-top:6px; font-size:12px; display:none">
+    <a id="cicLink" href="https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml" target="_blank" rel="noopener" style="text-decoration:none; margin-right:16px">
       <span id="cicDot" style="display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; vertical-align:middle; background:var(--amber)"></span><span data-i18n="cic_checking">DDE evidence surveillance: checking live workflow status…</span>
+    </a>
+    <a id="pagesLink" href="https://github.com/EslaM-X/coreguard/deployments/pages" target="_blank" rel="noopener" style="text-decoration:none; margin-right:16px">
+      <span id="pagesDot" style="display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; vertical-align:middle; background:var(--amber)"></span><span data-i18n="pages_checking">Publication: checking live pages build status…</span>
+    </a>
+    <a id="perfLink" href="https://github.com/EslaM-X/coreguard/blob/main/benchmarks/perf-history.jsonl" target="_blank" rel="noopener" style="text-decoration:none">
+      <span id="perfDot" style="display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; vertical-align:middle; background:var(--amber)"></span><span data-i18n="perf_checking">Performance budgets: checking live medians…</span>
     </a>
   </p>
 </header>
@@ -264,6 +270,12 @@ const I18N = {
   cic_checking:{en:"DDE evidence surveillance: checking live workflow status…",ar:"مراقبة أدلة DDE: جارٍ فحص حالة الـworkflow الحية…"},
   cic_passing:{en:"DDE evidence under continuous surveillance — live cycle PASSING",ar:"أدلة DDE تحت مراقبة مستمرة — الدورة الحية خضراء"},
   cic_failing:{en:"DDE evidence surveillance: live cycle FAILING — do not cite engine output",ar:"مراقبة أدلة DDE: الدورة الحية حمراء — لا تُقتبس مخرجات المحرك"},
+  pages_checking:{en:"Publication: checking live pages build status…",ar:"النشر: جارٍ فحص حالة بناء الصفحات الحية…"},
+  pages_passing:{en:"Publication under continuous watch — last pages build PASSED",ar:"النشر تحت مراقبة مستمرة — آخر بناء صفحات أخضر"},
+  pages_failing:{en:"Publication: last pages build FAILED — this demo may be stale",ar:"النشر: آخر بناء صفحات فاشل — قد يكون هذا العرض قديمًا"},
+  perf_checking:{en:"Performance budgets: checking live medians…",ar:"ميزانيات الأداء: جارٍ جلب آخر المتوسطات الحية…"},
+  perf_ok:{en:"Performance budgets honored — live medians within budget",ar:"ميزانيات الأداء محترمة — المتوسطات الحية داخل الحدود"},
+  perf_over:{en:"Performance budget exceeded — a live median is outside its budget",ar:"تجاوز ميزانية أداء — أحد المتوسطات الحية خارج حدّها"},
   h_life:{en:"Evidence lifecycle — each step a signed record",ar:"دورة الأدلة — كل خطوة سجل موقّع"},
   tag_syn:{en:"SYNTHETIC",ar:"SYNTHETIC"},
   tag_real:{en:"REAL",ar:"حقيقي"},
@@ -496,26 +508,62 @@ function renderAll() {
     document.dispatchEvent(new CustomEvent("cg41:lang", { detail: { lang: window.cgLang } }));
   };
 
-  // Live DDE evidence-surveillance badge: real GitHub API status of the
-  // dedicated dde.yml workflow (same data the README badge renders). The
-  // page stays self-contained if the API is unreachable — the checking line
+  // Live status badges: real GitHub API state for (1) the dde.yml evidence
+  // cycle, (2) the pages build that serves this very page, and (3) the perf
+  // medians the README's perf badges carry. (1)+(2) read the ONE anonymous
+  // global runs list; (3) reads this page's sibling badge SVGs. The page
+  // stays self-contained if any source is unreachable — the checking line
   // simply remains, never a fabricated status.
+  //
+  // Honesty note: a workflow's `state` is only its ENABLEMENT ("active"),
+  // never the last result — the previous cic badge conflated the two. The
+  // badges here read each latest run's `conclusion` instead.
+  const setBadge = (prefix, key, ok) => {
+    const dot = document.getElementById(prefix + "Dot");
+    const label = document.querySelector("#" + prefix + "Link [data-i18n]");
+    if (!dot || !label) return;
+    dot.style.background = ok ? "var(--green)" : "var(--red)";
+    dot.style.boxShadow = ok ? "0 0 8px var(--green)" : "none";
+    label.setAttribute("data-i18n", key);
+    label.textContent = L(I18N[key]);
+  };
   try {
-    const r = await fetch("https://api.github.com/repos/EslaM-X/coreguard/actions/workflows/dde.yml", { headers: { accept: "application/vnd.github+json" } });
+    const r = await fetch("https://api.github.com/repos/EslaM-X/coreguard/actions/runs?per_page=100", { headers: { accept: "application/vnd.github+json" } });
     if (!r.ok) throw new Error("http " + r.status);
-    const wf = await r.json();
-    const state = (wf.state || "").toLowerCase();
-    const dot = document.getElementById("cicDot");
-    const label = document.querySelector("#cicBadge [data-i18n]");
-    const key = state === "active" ? "cic_passing" : (state === "disabled_manually" || state === "disabled_inactivity" ? "cic_failing" : null);
-    if (key) {
-      dot.style.background = state === "active" ? "var(--green)" : "var(--red)";
-      dot.style.boxShadow = state === "active" ? "0 0 8px var(--green)" : "none";
-      label.setAttribute("data-i18n", key);
-      label.textContent = L(I18N[key]);
+    const runs = (await r.json()).workflow_runs || [];
+    // "cancelled" means a newer push superseded that run — not a failure.
+    const latest = (name) => runs.find((run) => run.name === name && run.conclusion !== "cancelled");
+    const dde = latest("DDE Evidence Cycle");
+    if (dde) setBadge("cic", dde.conclusion === "success" ? "cic_passing" : "cic_failing", dde.conclusion === "success");
+    // The dynamic pages workflow is GitHub-owned; its RUN name (with spaces)
+    // is what the runs list carries — the file slug never appears there.
+    const pages = latest("pages build and deployment");
+    if (pages) setBadge("pages", pages.conclusion === "success" ? "pages_passing" : "pages_failing", pages.conclusion === "success");
+  } catch { /* offline or rate-limited: the checking lines stay, honest by default */ }
+  // Perf medians live in the aria-labels of the same static SVGs the README
+  // renders, served next to this page — same numbers, no API budget. Budgets
+  // are the CI gates' own: engine/sdk median ≤ 50ms, wire ≤ 150ms
+  // (scripts/benchmark-dde*.mjs).
+  try {
+    const labels = [];
+    for (const name of ["perf-engine", "perf-wire", "perf-sdk"]) {
+      const rr = await fetch("badges/" + name + ".svg");
+      if (!rr.ok) throw new Error("http " + rr.status);
+      const m = (await rr.text()).match(/aria-label="([^"]+)"/);
+      labels.push(m ? m[1] : name);
     }
-    document.getElementById("cicBadge").style.display = "block";
-  } catch { /* offline or rate-limited: the checking line stays, honest by default */ }
+    const budget = (label) => (label.startsWith("perf·wire") ? 150 : 50);
+    const medians = labels.map((label) => ({ label, ms: parseFloat((label.match(/[\d.]+ms/) || ["NaN"])[0]) }));
+    const ok = medians.length >= 3 && medians.every((m) => Number.isFinite(m.ms) && m.ms < budget(m.label));
+    const dot = document.getElementById("perfDot");
+    const label = document.querySelector("#perfLink [data-i18n]");
+    const key = ok ? "perf_ok" : "perf_over";
+    dot.style.background = ok ? "var(--green)" : "var(--red)";
+    dot.style.boxShadow = ok ? "0 0 8px var(--green)" : "none";
+    label.setAttribute("data-i18n", key);
+    label.textContent = L(I18N[key]) + " — " + labels.join(" · ");
+  } catch { /* badges unreadable (e.g. file://): the checking line stays */ }
+  document.getElementById("liveBadges").style.display = "block";
 })();
 </script>
 </body>
