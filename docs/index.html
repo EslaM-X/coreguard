@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoreGuard — طبقة إثبات المحيط لتداولات الوكلاء على Core DAO</title>
+<style>
+  :root { --cg: #1a7a3c; --gold: #b8860b; --ink: #1c1c1c; --muted: #5a5a5a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", "Noto Sans", system-ui, sans-serif; color: var(--ink); background: #fbfaf6; line-height: 1.6; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 2.4rem 1.2rem 4rem; }
+  header { border-bottom: 3px solid var(--cg); padding-bottom: 1.2rem; margin-bottom: 1.4rem; }
+  h1 { margin: 0 0 .2rem; font-size: 1.6rem; }
+  h1 span { color: var(--cg); }
+  .sub { color: var(--muted); font-size: .98rem; }
+  .en { direction: ltr; text-align: left; margin-top: .5rem; font-size: .92rem; color: var(--muted); }
+  h2 { font-size: 1.1rem; margin: 1.6rem 0 .6rem; color: var(--cg); }
+  ul { margin: 0; padding-inline-start: 1.2rem; }
+  li { margin: .3rem 0; }
+  a { color: var(--cg); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .8rem; }
+  .card { border: 1px solid #e0dccf; border-radius: 8px; padding: .8rem 1rem; background: #fff; }
+  .card b { display: block; margin-bottom: .2rem; }
+  .card small { color: var(--muted); }
+  footer { margin-top: 2.4rem; padding-top: 1rem; border-top: 1px solid #e0dccf; color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>CoreGuard <span>— Core DAO</span></h1>
+  <div class="sub">طبقة إثبات منفذة على السلسلة: الإذن المسبق → المستخدم المسترجع → مطابقة السياسة → شهادة التنفيذ (L1-تحققت). كود مفتوح، حقائق قبل السرد، وأي «ناجح» قابل لإعادة الإنتاج من الشجرة الملتزمة.</div>
+  <div class="en">On-chain execution-provenance evidence layer for agent transactions on Core DAO. Open source. Evidence over narrative — every PASS is reproducible from the committed tree.</div>
+</header>
+
+<h2>الواجهات الحية / Live surfaces</h2>
+<div class="grid">
+  <div class="card"><b><a href="DDE-API-REFERENCE.html">DDE-API-REFERENCE</a></b><small>مرجع نقطة النهاية HTTP وصفحة المحرك الحي داخل الصفحة — كل أمر من INTEGRATION.md ينفَّذ في CI.</small></div>
+  <div class="card"><b><a href="DELIVERY-DISPUTE-DEMO.html">DELIVERY-DISPUTE-DEMO</a></b><small>معرض الأحداث التسعة الموثق في الصفحة: القبول المتبادل، تجميد النزاع، تحرير السجل بعد الختام.</small></div>
+  <div class="card"><b><a href="GOVERNANCE-DASHBOARD.html">GOVERNANCE-DASHBOARD</a></b><small>لوحة الحوكمة ثنائية اللغة مع قسم الدفع-بوابة (افتراضيات EN عبر مذكرة i18n).</small></div>
+  <div class="card"><b><a href="coreguard-gate41-visual.html">Gate 4.1 Visual</a> · <a href="coreguard-gate41-visual-en.html">EN</a></b><small>مرساة الهوية on-chain (commitIntent) عبر سلسلة إثبات التدقيق 4.1.</small></div>
+  <div class="card"><b><a href="coreguard-dapp-core.html">DApp surface</a></b><small>هوية DApp الأولية: ذهب Core + أخضر CoreGuard.</small></div>
+</div>
+
+<h2>لتبدأ / Start here</h2>
+<ul>
+  <li><a href="https://github.com/EslaM-X/coreguard#readme">README</a> — لمحة، شارات، جدول التوجيه للزوار، والتسعير مقفل.</li>
+  <li><a href="https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md">INTEGRATION.md</a> — النسخة أحادية الصفحة الجاهزة للمشاركة؛ كل أمر فيها ينفَّذ في CI.</li>
+  <li><a href="https://github.com/EslaM-X/coreguard/blob/main/REVIEW-GUIDE.md">REVIEW-GUIDE.md</a> — مراجعة أصل محوّل في أقل من 10 دقائق.</li>
+  <li><a href="https://github.com/EslaM-X/coreguard/tree/main/examples/real-fixture-intake">real-fixture intake kit</a> — نطاق إفصاح موقّع + بوابة إغلاق + تحويل بكلمة واحدة لملف قابل للمراجعة الخارجية.</li>
+</ul>
+
+<h2>التوثيق المهم / Governance &amp; truth</h2>
+<ul>
+  <li><a href="STATUS.md">docs/STATUS.md</a> — مصدر الحقيقة الواحد؛ كل رقم مقيس، لا تخمين.</li>
+  <li><a href="elizaos-thread-replies-record-2026-09-23.md">سجلّ ردود النقاش العلني مع People's Court / Epistemic Labs</a> — حقائق فقط، لا ادعاءات إضافية.</li>
+  <li><a href="https://github.com/EslaM-X/coreguard/blob/main/AGENTS.md">AGENTS.md</a> — دروس الجلسات والتزامات الحوكمة الملزمة.</li>
+</ul>
+
+<footer>
+  مستودع:<a href="https://github.com/EslaM-X/coreguard">EslaM-X/coreguard</a> · السلسلة: Core Mainnet (chainId 1116) · المرساة على السلسلة معتمدة من RPC مستقلين.
+  <br><span class="en">Every claim on this page is traceable from the repository tree.</span>
+</footer>
+</div>
+</body>
+</html>
