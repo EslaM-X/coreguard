@@ -201,9 +201,25 @@ Facts-only reading and record note: the counterparty confirms the raised
 evidence-labeling issue is resolved and thanks the owner for making the
 boundary explicit; it explicitly does NOT endorse results (no independent
 chain verification, no verifier run). The package remains a synthetic mapping
-exercise. This closes the mapping branch on the owner's side: **no further
-thread message was sent and none is planned**; holds unchanged (no
-pilot/partnership/funding). The owner replied by record, not by new message.
+exercise. This closes the mapping branch on the owner's side.
+
+### Owner-directed follow-up 2026-09-23 16:35:17Z UTC (research invitation)
+
+At the owner's explicit direction, a narrowly scoped research-invitation
+message was **POSTED** (comment `DC_kwDOMT5cIs4BG1ow`, 2026-09-23 16:35:17Z),
+superseding the earlier record line about "no further thread message planned".
+It: (1) thanks the counterparty and credits their feedback for the
+execution-evidence vs consent/obligation/acceptance/adjudication separation;
+(2) frames the fixture as a small reproducible starting point, explicitly NOT
+a completed dispute-resolution case; (3) invites, **if relevant to their
+ongoing research**, a narrowly scoped public exchange on four optional tracks
+(shared execution-vs-consent vocabulary; minimal evidence-package requirements
+synthetic→real; failure modes where automated verification could be
+misread as substantive judgment; a small cross-reviewer test set); (4)
+explicitly assumes **no endorsement or formal participation** and invites
+critical review; (5) asks the counterparty to pick a specific boundary, use
+case, or failure mode to test next. No funding, partnership, sponsorship,
+pilot, or introduction request was made in any word.
 - Thread state (2026-09-23, re-checked): **mapping result received; one schema
   correction mailed with the new stable anchor; awaiting any follow-up.**
   No funding, partnership, sponsorship, or introduction request was made.
