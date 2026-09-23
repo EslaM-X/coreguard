@@ -174,7 +174,13 @@ own classification was the generous "former" (independent anchor).
   `EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE` ·
   adversarial 13/13 / 5/5 / fuzz 50 seed 424242 → 0 · B1
   PAYMENT_INFERENCE_FORBIDDEN PASS · `npm test` (see STATUS). Thread reply
-  with the corrected anchor: see record commit for the posted comment id.
+  posted 2026-09-23 15:44:22Z UTC (comment `DC_kwDOMT5cIs4BG1et`) with the
+  corrected anchor (`commit ef6a0b8`) and the live RPC re-verification of the
+  anchored transfer (rpc.coredao.org: eth_getTransactionReceipt → status 0x1,
+  block 38712625, gasUsed 21000; eth_getTransactionByHash → value
+  1000000000000000 wei = 0.001 CORE). The reply confirms: receipt is an
+  execution coupon only, not settlement of the modeled compensation; signatures
+  are fixture mechanics; the rejection is a party record, not adjudication.
 - Thread state (2026-09-23, re-checked): **mapping result received; one schema
   correction mailed with the new stable anchor; awaiting any follow-up.**
   No funding, partnership, sponsorship, or introduction request was made.

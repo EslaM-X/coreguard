@@ -75,7 +75,7 @@ machine-measured, not estimated. Last verified: **2026-09-23**.
 | Core Ventures (B) | NOT ACTIVATED |
 | ElizaOS contact #21788 + email | **SENT** (email unacknowledged; no reply claimed) |
 | #21788 public replies (People's Court / Epistemic Labs) | **RECEIVED** 2026-09-16 & 2026-09-19, official (disclosed) account — facts-only record: `docs/elizaos-thread-replies-record-2026-09-23.md` |
-| #21788 fixture mapping (result + correction, owner's words) | **RESULT RECEIVED** 2026-09-23 (`#discussioncomment-18568567`): schema mapping supported; one clarification — anchored transfer (0.001 CORE) is an execution coupon, NOT settlement of the modeled compensation. **CORRECTION SHIPPED** same day (fixture `paymentSettled` removed → `compensationSettlement.status = NOT_SETTLED`; new stable anchor). No funding/partnership asks sent |
+| #21788 fixture mapping (result + correction, owner's words) | **RESULT RECEIVED** 2026-09-23 (`#discussioncomment-18568567`): schema mapping supported; one clarification — anchored transfer (0.001 CORE) is an execution coupon, NOT settlement of the modeled compensation. **CORRECTION SHIPPED** same day (`ef6a0b8`: `paymentSettled` removed → `compensationSettlement.status = NOT_SETTLED`) and **POSTED** 15:44:22Z UTC (`DC_kwDOMT5cIs4BG1et`) with live RPC re-verification of the anchor. No funding/partnership asks sent |
 
 ## Gates (locked, non-negotiable)
 
