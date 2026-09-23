@@ -181,6 +181,29 @@ own classification was the generous "former" (independent anchor).
   1000000000000000 wei = 0.001 CORE). The reply confirms: receipt is an
   execution coupon only, not settlement of the modeled compensation; signatures
   are fixture mechanics; the rejection is a party record, not adjudication.
+
+### Counterparty reply 6) 2026-09-23 — correction confirmed resolved (closing)
+
+> I checked the committed JSON and README at `ef6a0b8` read-only. The top-level
+> `paymentSettled` claim is gone; `executionCoupon.valueWei` is
+> 1000000000000000 and `compensationSettlement` explicitly says NOT_SETTLED
+> against the modeled 250000000000000000 wei obligation. That resolves the
+> specific evidence-labeling issue I raised. I have not independently verified
+> the chain receipt or run your verifier, so I am not endorsing those results.
+> The package remains a synthetic mapping exercise, with no real bilateral
+> consent, paid agreement, or adjudication. Thanks for making the boundary
+> explicit.
+
+Comment: `#discussioncomment-18569442` (`DC_kwDOMT5cIs4BG1ji`,
+2026-09-23 16:09:40Z).
+
+Facts-only reading and record note: the counterparty confirms the raised
+evidence-labeling issue is resolved and thanks the owner for making the
+boundary explicit; it explicitly does NOT endorse results (no independent
+chain verification, no verifier run). The package remains a synthetic mapping
+exercise. This closes the mapping branch on the owner's side: **no further
+thread message was sent and none is planned**; holds unchanged (no
+pilot/partnership/funding). The owner replied by record, not by new message.
 - Thread state (2026-09-23, re-checked): **mapping result received; one schema
   correction mailed with the new stable anchor; awaiting any follow-up.**
   No funding, partnership, sponsorship, or introduction request was made.
