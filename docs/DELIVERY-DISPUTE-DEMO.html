@@ -78,6 +78,18 @@
   .side .pos{font-size:13.5px; color:#c9d6e8}
   .side .rem{margin-top:10px; font-size:12.5px; color:var(--muted)}
   .side .rem b{color:var(--amber)}
+  .acts{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+  @media (max-width:900px){.acts{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:680px){.acts{grid-template-columns:1fr}}
+  .act{border:1px solid var(--line); border-radius:12px; background:var(--panel); padding:14px 16px; position:relative; display:flex; flex-direction:column; gap:7px}
+  .act .num{position:absolute; top:12px; inset-inline-end:12px; font:700 20px/1 var(--mono); color:color-mix(in srgb,var(--muted) 45%,transparent)}
+  .act h4{font-size:13.5px; padding-inline-end:34px}
+  .act p{font-size:12.5px; color:var(--muted)}
+  .act .rule{font-size:11.5px; color:#c9d6e8; background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:7px 10px}
+  .act .why{font:11.5px var(--mono); color:var(--muted); margin-top:auto; word-break:break-word}
+  .act.hold{border-inline-start:3px solid var(--amber)}
+  .act.release{border-inline-start:3px solid var(--green)}
+  .act.wire-reject{border-inline-start:3px solid var(--red)}
   .vs{display:flex; align-items:center; justify-content:center; margin:2px 0; font:800 13px var(--mono); color:var(--muted); letter-spacing:2px}
   /* banner */
   #banner{position:fixed; inset-inline:0; bottom:0; z-index:20; background:linear-gradient(90deg,#132a43,#0f2033); border-top:1px solid var(--blue); padding:11px 20px; text-align:center; font-size:13.5px; font-weight:600}
@@ -87,7 +99,7 @@
     @page{size:A4 portrait; margin:14mm 12mm}
     nav,#langBtn,#banner,.btnrow,.artpick button{display:none}
     html,body{background:#fff; color:#16202f; font-size:11pt}
-    .card,.side,pre,.hashbox{background:#fff; border-color:#b9c4d4; box-shadow:none}
+    .card,.side,pre,.hashbox,.act,.act .rule{background:#fff; border-color:#b9c4d4; box-shadow:none}
     .card .d,.muted,.step .s,th,.side .rem{color:#4a586c}
     h2{border-inline-start-color:#1a4f8a}
     .v-ok{color:#0d7a4f}.v-bad{color:#b3232a}
@@ -223,6 +235,15 @@
   <p class="d" data-i18n="disp_d">The engine preserves both positions verbatim and constrains remedies to a closed vocabulary. It structurally cannot name a winner — that power belongs to a neutral procedure both parties accept, not to a hash, a receipt, or a signature.</p>
 </section>
 
+<!-- ───────────────────────────── nine acts -->
+<section id="acts">
+  <h2 data-i18n="h_acts">The nine dispute acts — payout gated on evidence, live</h2>
+  <p class="d" data-i18n="acts_d">The nine-act wire scenario from examples/agent-platform-integration/run-http-payout-gate.mjs, rendered as a grid: every act is a real POST /verify against the real endpoint, and the gate decision (HOLD / RELEASE / wire-refused) is stamped on each card. This is the live run, not a re-telling.</p>
+  <div class="acts" id="actsGrid"></div>
+  <p class="d" style="margin-top:12px" data-i18n="acts_note">Run it yourself — one command replays all nine acts against the real endpoint:</p>
+  <pre style="margin-top:6px">node examples/agent-platform-integration/run-http-payout-gate.mjs</pre>
+</section>
+
 <!-- ───────────────────────────── court mapping -->
 <section id="pc">
   <h2 data-i18n="h_pc">Neutral-procedure mapping — classification, never judgment</h2>
@@ -351,12 +372,56 @@ const I18N = {
          ar:"الصدق: origin SYNTHETIC · realDisputeExists=false · مرساة معاملة حقيقية · تشفير EIP-712 حقيقي فوق مفاتيح اختبارية حتمية."},
   banner1:{en:"Execution verified",ar:"التنفيذ مُتحقق"},
   banner2:{en:"delivery conformity decided",ar:"مطابقة التسليم محسومة"},
+  h_acts:{en:"The nine dispute acts — payout gated on evidence, live",ar:"فصول النزاع التسعة — الدفع محكوم بالأدلة، حيًا"},
+  acts_d:{en:"The nine-act wire scenario from examples/agent-platform-integration/run-http-payout-gate.mjs, rendered as a grid: every act is a real POST /verify against the real endpoint, and the gate decision (HOLD / RELEASE / wire-refused) is stamped on each card. This is the live run, not a re-telling.",
+          ar:"سيناريو الفصول التسعة عبر السلك من examples/agent-platform-integration/run-http-payout-gate.mjs، معروضًا شبكيًا: كل فصل هو POST /verify حقيقي على النقطة الحقيقية، وقرار البوابة (تجميد / إفراج / رفض من السلك) مختوم على كل بطاقة. هذا تشغيل حي لا سرد."},
+  acts_note:{en:"Run it yourself — one command replays all nine acts against the real endpoint:",ar:"شغّلها بنفسك — أمر واحد يعيد الفصول التسعة كلها على النقطة الحقيقية:"},
+  gate_hold:{en:"HOLD",ar:"تجميد"},
+  gate_release:{en:"RELEASE",ar:"إفراج"},
+  gate_wire:{en:"WIRE-REFUSED",ar:"رفض من السلك"},
   /* dynamic views */
   steps:{en:["Agreement + criteria","Authorized intent (EIP-712)","Execution settled (REAL)","Delivery submitted","Acceptance: REJECTED","Dispute: OPEN"],
          ar:["اتفاق + معايير","نيّة مفوَّضة (EIP-712)","تنفيذ مُسوّى (حقيقي)","تسليم مُقدَّم","قبول: مرفوض","نزاع: مفتوح"]},
   okVerdict:{en:"✓ PIN MATCH — sha256 recomputed in-browser equals the recorded pin",ar:"✓ الثبوت مطابق — SHA-256 المحسوب في المتصفح يطابق الهاش المسجل"},
   tamperVerdict:{en:"✗ PIN BROKEN — one byte changed, the recorded sha256 no longer matches (engine: E3 FAIL, exit 1)",ar:"✗ الثبوت انكسر — بايت واحد تغيّر، وSHA-256 المسجل لم يعد يطابق (المحرك: E3 FAIL · exit 1)"},
   restored:{en:"↺ restored — pin matches again",ar:"↺ استُعيد — الثبوت يطابق مجددًا"},
+  /* the nine acts — titles, rules, gate reasons; byte-truth from run-http-payout-gate.mjs */
+  act1t:{en:"Delivery submitted — verdict pending",ar:"تسليم مُقدَّم — الحكم معلّق"},
+  act1p:{en:"Provider delivers all artifacts; the client has recorded no acceptance yet.",ar:"المزوّد يسلّم كل الـartifacts؛ والعميل لم يسجل أي قبول بعد."},
+  act1r:{en:"Evidence VERIFIED over the wire — the client's recorded acceptance does not say ACCEPTED",ar:"الأدلة VERIFIED عبر السلك — سجل قبول العميل لا يقول ACCEPTED"},
+  act1w:{en:"execution evidence admissible; payment settlement proven — NEITHER decides conformity",ar:"أدلة التنفيذ مقبولة؛ وتسوية الدفع مثبتة — ولا واحدة منهما تحسم المطابقة"},
+  act2t:{en:"Criteria-based REJECTED — C-QUALITY",ar:"رفض مستند للمعايير — C-QUALITY"},
+  act2p:{en:"Client records REJECTED citing the failing criterion by id: 2 color tokens on file, 3 required.",ar:"العميل يسجل REJECTED مستشهدًا بالمعيار المخفق بالمعرف: رمزا لونان مسجلان، والمعيار يتطلب 3."},
+  act2r:{en:"Evidence VERIFIED over the wire — the client's recorded acceptance does not say ACCEPTED",ar:"الأدلة VERIFIED عبر السلك — سجل قبول العميل لا يقول ACCEPTED"},
+  act2w:{en:"a party act resting on criterion evaluations — never on chain facts",ar:"فعل طرف يستند لتقييمات المعايير — لا لحقائق السلسلة أبدًا"},
+  act3t:{en:"One flipped byte — wire refuses",ar:"بايت مقلوب واحد — السلك يرفض"},
+  act3p:{en:"Provider re-submits after flipping one artifact byte; the wire report comes back REJECTED (E3).",ar:"المزوّد يعيد التسليم بعد قلب بايت واحد؛ وتقرير السلك يعود REJECTED (E3)."},
+  act3r:{en:"endpoint returned 422 (REJECTED) — no release without a VERIFIED wire report",ar:"النقطة ردت 422 (REJECTED) — لا إفراج بلا تقرير VERIFIED من السلك"},
+  act3w:{en:"check E3 FAIL — recorded sha256 != actual sha256",ar:"الفحص E3 فشل — الـsha256 المسجل لا يطابق المحسوب"},
+  act4t:{en:"The honest boundary — head-on",ar:"الحد الصادق — مباشرة"},
+  act4p:{en:"Evidence VERIFIED, client's REJECTED verdict on file. Execution and settlement proven — conformity untouched.",ar:"الأدلة VERIFIED ورأي العميل REJECTED مسجل. التنفيذ والتسوية مثبتان — والمطابقة بلا مساس."},
+  act4r:{en:"Evidence VERIFIED over the wire — the client's recorded acceptance does not say ACCEPTED",ar:"الأدلة VERIFIED عبر السلك — سجل قبول العميل لا يقول ACCEPTED"},
+  act4w:{en:"execution evidence admissible; payment settlement proven — NEITHER decides conformity",ar:"أدلة التنفيذ مقبولة؛ وتسوية الدفع مثبتة — ولا واحدة منهما تحسم المطابقة"},
+  act5t:{en:"Counterfactual: ACCEPTED — gate opens",ar:"المضاد: قبول — البوابة تفتح"},
+  act5p:{en:"The client records ACCEPTED on the same criteria evaluations — the only thing that was missing.",ar:"العميل يسجل ACCEPTED على تقييمات المعايير نفسها — الشيء الوحيد الذي كان ناقصًا."},
+  act5r:{en:"acceptance condition met — payout released to the provider",ar:"شرط القبول تحقق — صُرف الدفعة للمزوّد"},
+  act5w:{en:"party acceptance, not the receipt, moves the money",ar:"قبول الطرف — لا الإيصال — هو من يحرك المال"},
+  act6t:{en:"Mutual acceptance — no dispute yet",ar:"قبول متبادل — لا نزاع بعد"},
+  act6p:{en:"Both parties sign the same criteria; the client accepts despite the C-QUALITY miss under the rework agreement.",ar:"الطرفان يوقّعان المعايير نفسها؛ والعميل يقبل رغم تجاوز C-QUALITY بموجب اتفاق إعادة العمل."},
+  act6r:{en:"mutual acceptance recorded by both parties on the same criteria evaluations — no dispute open, payout released",ar:"قبول متبادل سجله الطرفان على تقييمات المعايير نفسها — لا نزاع مفتوح، والدفعة صُرفت"},
+  act6w:{en:"acceptance is a party act — it is not immunity",ar:"القبول فعل طرف — وليس حصانة"},
+  act7t:{en:"Dispute opens later — frozen anyway",ar:"نزاع يفتح لاحقًا — التجميد رغم ذلك"},
+  act7p:{en:"A dispute re-opens the record; movement freezes despite mutual acceptance.",ar:"النزاع يعيد فتح السجل؛ والحركة تتجمد رغم القبول المتبادل."},
+  act7r:{en:"record state: DISPUTE_OPEN — movement frozen until the record closes",ar:"حالة السجل: DISPUTE_OPEN — الحركة مجمدة حتى يُغلق السجل"},
+  act7w:{en:"the dispute re-opens the record anyway",ar:"النزاع يعيد فتح السجل رغم كل شيء"},
+  act8t:{en:"Closure declared — wire refuses",ar:"إغلاق مُعلن — السلك يرفض"},
+  act8p:{en:"RECORD_CLOSED declared into the wire while closedAtUtc is still null — F3 names the mismatch.",ar:"إعلان RECORD_CLOSED عبر السلك بينما closedAtUtc لا يزال null — وF3 يسمّي التعارض."},
+  act8r:{en:"endpoint returned 422 (REJECTED) — no release without a VERIFIED wire report",ar:"النقطة ردت 422 (REJECTED) — لا إفراج بلا تقرير VERIFIED من السلك"},
+  act8w:{en:"check F3 FAIL — closure is established by closedAtUtc, not declared",ar:"الفحص F3 فشل — الإغلاق يُثبته closedAtUtc ولا يُعلن"},
+  act9t:{en:"Record closed — movement follows",ar:"السجل مُغلق — الحركة تتبعه"},
+  act9p:{en:"The dispute procedure sets closedAtUtc outside DDE; the platform moves payment per the closed record — DDE names no winner.",ar:"إجراء النزاع يضبط closedAtUtc خارج DDE؛ والمنصة تحرك الدفعة وفق السجل المغلق — وDDE لا تسمّي فائزًا."},
+  act9r:{en:"record closed — closure belongs to the dispute procedure, outside DDE",ar:"السجل أُغلق — الإغلاق من صنع إجراء النزاع، خارج DDE"},
+  act9w:{en:"platform moves payment per the closed record — DDE named no winner",ar:"المنصة تحرك الدفعة وفق السجل المغلق — وDDE لم تسمّ فائزًا"},
 };
 
 /* ------------------------------------------------------------------ data */
@@ -486,6 +551,45 @@ function renderPC() {
     `readiness: READY_FOR_CLAIM_MAPPING\n- evidence classes complete\n- conformity question framed, NOT decided\n- no custody transfer · no merit finding · no endorsement`;
 }
 
+/* ------------------------------------------------------- nine-acts grid */
+// Byte-truth from examples/agent-platform-integration/run-http-payout-gate.mjs:
+// every act is a real POST /verify against the live endpoint; the gate class
+// and the quoted wire line below are that script's actual output, not prose.
+const ACTS = [
+  { n: 1, gate: "hold",        rule: "act1r", why: "act1w" },
+  { n: 2, gate: "hold",        rule: "act2r", why: "act2w" },
+  { n: 3, gate: "wire-reject", rule: "act3r", why: "act3w" },
+  { n: 4, gate: "hold",        rule: "act4r", why: "act4w" },
+  { n: 5, gate: "release",     rule: "act5r", why: "act5w" },
+  { n: 6, gate: "release",     rule: "act6r", why: "act6w" },
+  { n: 7, gate: "hold",        rule: "act7r", why: "act7w" },
+  { n: 8, gate: "wire-reject", rule: "act8r", why: "act8w" },
+  { n: 9, gate: "release",     rule: "act9r", why: "act9w" },
+];
+const GATE_KEY = { hold: "gate_hold", release: "gate_release", "wire-reject": "gate_wire" };
+
+function renderActs() {
+  const gateColor = { hold: "var(--amber)", release: "var(--green)", "wire-reject": "var(--red)" };
+  document.getElementById("actsGrid").innerHTML = ACTS.map((a) => {
+    const gk = GATE_KEY[a.gate];
+    return (
+      `<div class="act ${a.gate}">` +
+      `<span class="num">${a.n}</span>` +
+      `<h4 data-i18n="act${a.n}t"></h4>` +
+      `<p data-i18n="act${a.n}p"></p>` +
+      `<div class="rule" data-i18n="${a.rule}"></div>` +
+      `<div class="why"><span style="color:${gateColor[a.gate]}; font-weight:700">${L(I18N[gk])}</span> · <span data-i18n="${a.why}"></span></div>` +
+      `</div>`
+    );
+  }).join("");
+  // The freshly rendered grid re-runs the static-text swap so every
+  // data-i18n node above gets its L() text in the current language.
+  document.querySelectorAll("#actsGrid [data-i18n]").forEach((el) => {
+    const pair = I18N[el.getAttribute("data-i18n")];
+    if (pair) el.textContent = L(pair);
+  });
+}
+
 function escapeHtml(s) {
   return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 }
@@ -509,6 +613,7 @@ function renderAll() {
   renderArtPick(); renderArt();
   renderCriteria();
   renderDispute();
+  renderActs();
   renderPC();
 }
 
