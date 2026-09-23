@@ -84,6 +84,12 @@ jobs:
       # continuous watch and cannot rot between scheduled sweeps).
       - name: Fuzz mode — multi-seed sweep (one report, per-seed labeled runs)
         run: node examples/delivery-fixture/adversarial-runner.mjs --fuzz 10 --seeds 424242,777,9001,31337
+      # Per-cycle perf budget — documented in the reviewer-commands table and
+      # unit-tested (fixture.test.js), so it must also run in the workflow:
+      # over-budget cycles print named PERF WARNINGs but never flip the
+      # correctness verdict (performance and correctness reported separately).
+      - name: Perf budget — per-cycle timing reported, correctness verdict untouched
+        run: node examples/delivery-fixture/adversarial-runner.mjs --fuzz 50 --budget-ms 250
       - name: Agent-platform payout gate — 4 holds, 1 release (boundary arc)
         run: node examples/agent-platform-integration/run-integration-demo.mjs
       - name: Wire payout gate — scenario rejection over the DDE HTTP endpoint

@@ -25,6 +25,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:f
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parse as parseYaml } from "yaml";
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const README = join(REPO, "examples", "delivery-fixture", "README.md");
@@ -214,4 +215,107 @@ test("intake kit reviewer table: documented verdict lines match the live tools",
   } finally {
     rmSync(ws, { recursive: true, force: true });
   }
+});
+
+// ---------------------------------------------------------------------------
+// dde.yml vs the reviewer table — the workflow cannot drift from the docs.
+//
+// The reviewer-commands table is the source of truth for what evidence
+// surveillance covers. Every adversarial-runner row in it must have a
+// corresponding, currently-reachable step in .github/workflows/dde.yml
+// (parsed with the real YAML parser), and the workflow's perf + HTTP
+// families must exist as steps with their budgets verbatim. Documented-but-
+// never-executed and executed-but-undocumented both fail here, naming the
+// row/step.
+
+const DDE_YML = join(REPO, ".github", "workflows", "dde.yml");
+
+test("dde.yml executes every documented surveillance family from the reviewer table", () => {
+  const md = readFileSync(README, "utf8").replaceAll("\r\n", "\n");
+  const lines = md.split("\n");
+  const header = lines.findIndex((l) => l.startsWith("| Command | Proves | Expected verdict"));
+  assert.ok(header !== -1, "reviewer-commands table vanished from the delivery-fixture README");
+  const rows = [];
+  for (let i = header + 2; i < lines.length && lines[i].startsWith("|"); i++) {
+    const cells = lines[i].split("|");
+    rows.push((cells[1].match(/`([^`]+)`/) || [])[1] || "");
+  }
+  assert.ok(rows.length >= 9, `expected >=9 table rows, found ${rows.length} — the table lost coverage`);
+
+  // Real YAML parse — the zero-jobs trap [C1] forbids anything weaker.
+  const wf = parseYaml(readFileSync(DDE_YML, "utf8"));
+  const steps = wf.jobs.dde.steps.filter((s) => s.run || s.uses);
+  assert.ok(steps.length >= 12, `expected >=12 executable steps in dde.yml, found ${steps.length} — surveillance was gutted`);
+  const stepRuns = steps.map((s) => s.run || "");
+
+  // Documented adversarial-runner rows → the workflow command that must
+  // exercise the same mode, matched by mode-shape so a renamed flag fails
+  // here. Table rows carry no variable substitutions, so the table's own
+  // command text (sans tool name) must appear verbatim in a step.
+  const runnerRows = rows.filter((cmd) => cmd.startsWith("adversarial-runner.mjs"));
+  assert.ok(runnerRows.length >= 5, `expected >=5 adversarial-runner rows, found ${runnerRows.length}`);
+  const runnerFlags = (cmd) => cmd.replace("adversarial-runner.mjs", "").trim();
+  // One canon, both sides, both directions: the commit-derived seed is a
+  // shell variable in the workflow and a named placeholder in the table, and
+  // the multi-seed mode's round count / seed list are per-site choices of
+  // the SAME mode shape (CI runs 10 rounds over 4 seeds; the table quotes
+  // the mode's default). Everything else must match byte-for-byte — a
+  // renamed flag or changed fixed seed fails here.
+  const canonMode = (s) =>
+    s
+      .replace(/--seed "\$SEED"/g, "--seed <commit-derived>")
+      // The workflow pins the documented default seed explicitly
+      // (FUZZ_DEFAULT_SEED = 424242) so the regression seed survives a
+      // default change — canon treats explicit default = default elision.
+      .replace(/ --seed 424242/g, "")
+      .replace(/--fuzz \d+ --seeds .+/, "--fuzz <rounds> --seeds <list>");
+  const canonWfRuns = stepRuns.map(canonMode);
+  for (const cmd of runnerRows) {
+    const flags = runnerFlags(cmd);
+    if (flags === "") continue; // plain row — its evidence is the battery step below
+    const hit = canonWfRuns.some((run) => run.includes(canonMode(flags)));
+    assert.ok(
+      hit,
+      `reviewer table documents "${cmd}" but no dde.yml step executes those flags — documented surveillance the workflow never runs`,
+    );
+  }
+
+  // Executed-but-undocumented: every runner flag-set a dde.yml step uses
+  // must trace back to a table row (or the plain/compound battery, whose
+  // modes ARE the table's non-runner rows).
+  const wfRunnerFlags = stepRuns
+    .filter((run) => run.includes("adversarial-runner.mjs"))
+    .map((run) => {
+      // Line-scoped: in a multi-line `run:` block the invocation lives on
+      // its own line — take the last such line and strip the tool name.
+      const lines = run.split("\n").filter((l) => l.includes("adversarial-runner.mjs"));
+      return (lines.pop() || "").replace(/^[^\n]*adversarial-runner\.mjs/, "").trim();
+    });
+  const documented = new Set(runnerRows.map(runnerFlags).map(canonMode).filter(Boolean));
+  for (const flags of wfRunnerFlags) {
+    assert.ok(
+      flags === "" || documented.has(canonMode(flags)),
+      `dde.yml runs "${flags}" but the reviewer table documents no such mode — surveillance beyond the docs`,
+    );
+  }
+  // The plain row must exist in the table: the plain + compound battery
+  // steps share one invocation, and that invocation documents them.
+  assert.ok(
+    runnerRows.map(runnerFlags).includes(""),
+    "reviewer table lost its plain adversarial-runner row — the workflow's battery step would then be undocumented",
+  );
+
+  // Perf family: budgets documented as the CI gates' own, verbatim.
+  const wfText = stepRuns.join("\n");
+  for (const [needle, what] of [
+    ["benchmark-dde.mjs", "SDK perf step"],
+    ["benchmark-dde-http.mjs", "wire perf step"],
+    ["benchmark-trend.mjs", "trend gate step"],
+  ]) {
+    assert.ok(wfText.includes(needle), `dde.yml lost its ${what} (${needle}) — perf surveillance diverges from the docs`);
+  }
+  assert.ok(
+    wfText.includes("startDeliveryEndpoint") && wfText.includes("/health"),
+    "dde.yml lost its live HTTP smoke step — the endpoint is documented as part of the cycle",
+  );
 });

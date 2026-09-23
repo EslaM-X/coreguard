@@ -104,6 +104,10 @@ CI runs every one of these on each push — the table is not a promise, it is
 a standing watch. The one-page integration summary has its own badge-visible
 workflow for exactly this contract (`.github/workflows/docs-contract.yml`),
 so a visitor sees the page is wire-tested before reading a single command.
+Every adversarial-runner row above also has a matching, currently-reachable
+step in `.github/workflows/dde.yml` (and vice versa) — enforced by
+`test/delivery/reviewer-table.test.js` with the real YAML parser, so the
+workflow cannot drift from this table in either direction.
 
 Performance budgets are on the same watch (own CI steps, fail-closed gates):
 
