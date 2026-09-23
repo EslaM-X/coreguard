@@ -1,8 +1,9 @@
 # CoreGuard → People's Court / Epistemic Labs — Fixture Submission Package
 
-**Status:** ready for counterparty review (draft for submission) · **Date:** 2026-09-23 ·
-**Fixture:** `examples/delivery-fixture/` · **Boundary doc:** `docs/delivery-dispute-boundary.md` ·
-**One-page public summary:** `INTEGRATION.md` (repo root)
+**Status:** ready for exploratory review · **Date:** 2026-09-23 ·
+**Canonical reply:** §4 below — a short, paste-ready letter for elizaOS #21788.
+**Full technical appendix:** §1–§3 + §5 — for the request-demo / manual-scoping path,
+**not** for a long public post.
 
 > **Scope of this record (facts-only).** This document packages the DDE/1
 > synthetic bilateral-dispute fixture for the exploratory review the People's
@@ -14,9 +15,50 @@
 > (`docs/counterparty-*`, `docs/ws-5.md`, `scripts/verify-live.json`,
 > `packages/verifier-c/*`, `submission/*`, `examples/pilot/proof-artifact-1.json`).
 
+> **What the numbers in this record are — and are not.** The `10/10 PASS`,
+> `READY_FOR_CLAIM_MAPPING`, and `zero gaps` strings are outputs of
+> **CoreGuard's own verifier and evidence-class projection**, produced from the
+> committed tree and reproducible with the commands in §3. They are a claim
+> about CoreGuard's fixture, not an assessment, endorsement, or acceptance by
+> People's Court / Epistemic Labs, and do not constitute proof of a real
+> integration. They are assertions of this repository, made verifiable
+> (not merely asserted) by the commands that reproduce them.
+
 ---
 
-## 0. Honesty block (read first)
+## 4. Canonical reply (paste-ready, for #21788)
+
+```
+Thanks. We prepared a dated, redacted fixture submission for exploratory
+mapping.
+
+To be explicit, the fixture is synthetic at the party/dispute/delivery level,
+while it contains a real execution anchor on Core Mainnet. It is not presented
+as a real bilateral paid dispute.
+
+The package maps the agreement and acceptance criteria, parties and authority,
+authorization and execution evidence, delivery hashes, acceptance/rejection
+record, dispute positions, consent/disclosure scope, and retention limits.
+
+CoreGuard's verifier establishes whether the execution evidence is admissible
+and consistent with the declared authorization. It deliberately does not
+decide whether delivery satisfied the agreement; that remains a separate
+acceptance or dispute-resolution question.
+
+Would you consider this labeled synthetic fixture useful as a technical
+mapping test? If so, would you prefer the public thread or the request-demo
+path for review?
+
+Repository commit: e05f29c
+```
+
+This is the post. Nothing longer goes to the thread. The appendices below are
+the material that accompanies the same package through request-demo / manual
+scoping, or is pointed to when a reviewer asks for the machine-readable side.
+
+---
+
+## 0. Technical honesty block (read first — appendix)
 
 | Layer | Origin | Meaning |
 |---|---|---|
@@ -25,16 +67,14 @@
 | Parties, delivery, dispute | **SYNTHETIC** | modeled scenario; `realDisputeExists: false` is structural, declared per record and at the manifest level |
 
 This fixture is **not a real bilateral failure with reachable parties**. It is
-the schema exercise + real-anchor proof requested in the thread's "include
-whether the fixture is synthetic or from a real paid transaction; if real, the
-permitted scope" clause. Submitting it as anything else would break the
-evidence model this repo exists to protect.
+the schema exercise + real-anchor proof the thread's "include whether the
+fixture is synthetic or from a real paid transaction" clause asks to label
+honestly. A real case, when one exists with both parties' signed consent, goes
+to `peoplescourt.ai/request-demo` directly, never through a synthetic fixture.
 
-## 1. Mapping: their freeze list → CoreGuard records
+## 1. Mapping: their freeze list → CoreGuard records (appendix)
 
-Response of 2026-09-19, itemized, each mapped to the record that carries it:
-
-| Required item (their wording, compressed) | CoreGuard record | Live verification |
+| Required item (their wording, compressed) | CoreGuard record | What the verifier emits |
 |---|---|---|
 | Synthetic or real + permitted disclosure scope | `examples/delivery-fixture/hashes.json` (manifest `origin: "SYNTHETIC"`) + `consent-and-disclosure.json` (full disclosure block) | `fixtureOrigin: "SYNTHETIC"` in every run |
 | Exact agreement and acceptance-criteria version | `agreement.json` (v1.0.0) + `acceptance-criteria.json` (4 criteria, fixed pre-delivery) | `ACCEPTANCE_CRITERIA → 4 criteria` |
@@ -46,7 +86,9 @@ Response of 2026-09-19, itemized, each mapped to the record that carries it:
 | Explicit permission from both sides for the redacted review | `consent-and-disclosure.json` — 2 signed EIP-712 grants over one `fixtureRef` | `E5 CONSENT_BINDING PASS` |
 | Retention and privacy limits | `retention-policy.json` (window ends `2027-09-19T00:00:00Z`, purge commitment) | mapped `RETENTION` |
 
-## 2. Current live state (verified this date)
+## 2. Current verifier state (appendix)
+
+Reproduced this record's date from the committed tree:
 
 ```json
 {
@@ -63,7 +105,11 @@ Response of 2026-09-19, itemized, each mapped to the record that carries it:
 }
 ```
 
-## 3. Repro commands (Node only, no install)
+This is CoreGuard's own verifier + projection output (see the scope note at
+the top). It is a claim about CoreGuard's fixture, reproducible below — not a
+statement about People's Court / Epistemic Labs' view of it.
+
+## 3. Repro commands (appendix; Node only, no install)
 
 ```bash
 # 1 — the gate holds, 10/10
@@ -84,60 +130,10 @@ curl -sS -X POST http://127.0.0.1:8787/peoples-court -H "content-type: applicati
 Live in-page (no local run needed): https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html ·
 One page: https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md
 
-## 4. Cover letter (paste-ready, English, for #21788)
+## 5. Bound-not-ply disclaimer (appendix)
 
-```
-Subject: CoreGuard DDE fixture for the exploratory mapping review
-
-Directly answers the "include" list from your 2026-09-19 response.
-
-ANSWER TO Q1 — synthetic or real: this fixture is labeled synthetic at every
-level (manifest + per record, realDisputeExists: false), with two REAL layers
-underneath: the execution anchor is the public Pilot-1 Core Mainnet tx
-0xe67c61fd…91a9b8 (status 0x1, block 38712625, chainId 1116, receipt
-re-verified from rpc.coredao.org), and the intended-action signature plus both
-redaction grants are genuine EIP-712 replays. There is no real bilateral
-failure with reachable parties yet; as soon as one exists with both parties'
-signed consent we will use your request-demo intake rather than posting it.
-
-EVIDENCE CLASSES (stacked against your freeze list):
-agreement v1.0.0 (agreement.json) · acceptance criteria, 4 fixed pre-delivery
-(acceptance-criteria.json) · parties + principals with authority (parties.json)
-· authorized intent / signer / policy / transaction / execution attestation
-(authorization.json + execution-attestation.json) · delivery artifacts with
-SHA-256 pins (delivery-manifest.json, checked 3/3) · rejection record citing
-criterion C-QUALITY (acceptance-record.json) · both positions with a closed
-remedy vocabulary, A=NONE / B=REWORK (dispute-record.json) · both parties'
-signed consent over one fixtureRef (consent-and-disclosure.json) · retention
-window to 2027-09-19 + purge commitment (retention-policy.json).
-
-THE SEPARATION, ENFORCED IN CODE NOT PROSE: the gate cannot cite
-"payment settled" as an acceptance basis (B1), cannot accept or reject with
-zero criterion evaluations (B2), and cannot name a winner (B3). Execution
-verification never decides delivery conformity. Live state: VERIFIED (10 PASS)
-· EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE ·
-READY_FOR_CLAIM_MAPPING, zero gaps.
-
-Repro (Node only): node examples/delivery-fixture/verify-fixture.mjs --json
-(exit 0, 10/10); --tamper logo.svg (exit 1, E3 names both hashes);
-node examples/delivery-fixture/adversarial-runner.mjs (13/13 caught,
-compound 5/5). Wire: POST /verify and /peoples-court (loopback by default).
-In-page live engine: https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html
-
-TWO QUESTIONS:
-1. Is the synthetic-with-real-anchor fixture acceptable as the mapping test
-   your 2026-09-19 reply describes, or should the mapping wait for a real
-   bilateral case?
-2. Preferred delivery: post the fixture publicly here, or through
-   https://peoplescourt.ai/request-demo for your manual scoping workflow?
-
-No claims beyond what the fixture verifiably is. We preserve the record; the
-procedure and its verdicts are yours.
-```
-
-## 5. Bound-not-ply disclaimer
-
-Whatever happens after this package: CoreGuard keeps the evidence sealed,
-hash-pinned, and adjudication-free. The neutral procedure's claim mapping,
-merits, and remedy are People's Court / Epistemic Labs' — not CoreGuard's.
-Neither this record nor the thread reply predicts their outcome.
+CoreGuard keeps the record sealed, hash-pinned, and adjudication-free. The
+neutral procedure's claim mapping, merits, and remedy are People's Court /
+Epistemic Labs' — not CoreGuard's. Neither this record nor the thread reply
+predicts their outcome. The next milestone that matters is their review
+decision and the specific feedback it produces — nothing else changes that.
