@@ -193,7 +193,16 @@ const execution = {
     gasUsed: "21000",
     valueWei: "1000000000000000",
   },
-  paymentSettled: true,
+  executionCoupon: {
+    role: "independent public execution anchor only — a REAL settled transfer; NOT settlement of the modeled agreement",
+    valueWei: "1000000000000000",
+  },
+  compensationSettlement: {
+    status: "NOT_SETTLED",
+    agreementCompensationWei: agreement.compensationWei,
+    settledByExecutionCoupon: false,
+    note: "The execution coupon (0.001 CORE) does not settle the modeled compensation (0.25 CORE). No record claims the modeled obligation is paid.",
+  },
   verifiedVia: {
     rpc: "rpc.coredao.org",
     method: "eth_getTransactionReceipt",
@@ -201,7 +210,7 @@ const execution = {
   },
   reference: "examples/pilot/proof-artifact-1.json — Pilot-1 public proof artifact (VERIFIED)",
   provenance:
-    "REAL — public Pilot-1 Core Mainnet transaction; receipt fields re-verified live from the RPC at fixture generation. This anchors the EXECUTION layer only: it proves payment settled, never delivery conformity.",
+    "REAL — public Pilot-1 Core Mainnet transaction; receipt fields re-verified live from the RPC at fixture generation. This anchors the EXECUTION layer only: the execution coupon transfer is settled on-chain; the modeled agreement compensation is NOT settled by it (compensationSettlement.status = NOT_SETTLED); never delivery conformity.",
 };
 
 // --------------------------------------------------------- delivery manifest

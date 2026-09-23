@@ -110,8 +110,13 @@ test("execution anchor is REAL and matches the public Pilot-1 artifact", () => {
   assert.equal(exec.receipt.status, "0x1 (success)");
   assert.equal(exec.receipt.blockNumber, "38712625");
   assert.equal(exec.chainId, "1116");
-  // the honesty rule: payment settled is an execution fact, never conformity
-  assert.equal(exec.paymentSettled, true);
+  // the honesty rule: the execution coupon settled on-chain is an execution
+  // fact, and the record must NOT claim the modeled compensation was paid
+  assert.equal(exec.paymentSettled, undefined);
+  assert.equal(exec.executionCoupon.valueWei, "1000000000000000");
+  assert.equal(exec.compensationSettlement.status, "NOT_SETTLED");
+  assert.equal(exec.compensationSettlement.agreementCompensationWei, "250000000000000000");
+  assert.equal(exec.compensationSettlement.settledByExecutionCoupon, false);
 });
 
 // ------------------------------------------------------------ E5 — crypto

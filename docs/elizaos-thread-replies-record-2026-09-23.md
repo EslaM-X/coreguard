@@ -122,6 +122,59 @@ integration.
   conformance). No funding, partnership, sponsorship, or introduction request
   was made.
 - Thread state (2026-09-23, re-checked after posting): **mapping test accepted
-  on the public thread; stable anchor delivered; awaiting the mapping result.**
-  The bodies of the owner's comments are not re-asserted here; this entry
-  records only existence, timestamps, ids, and scope.
+  on the public thread; stable anchor delivered** (see reply 5 below for the
+  mapping result and the one correction it produced).  The bodies of the
+  owner's comments are not re-asserted here; this entry records only existence,
+  timestamps, ids, and scope.
+
+---
+
+## Addendum — 2026-09-23 (mapping result + fixture correction)
+
+### Counterparty reply 5) 2026-09-23 — mapping result: boundary holds, one clarification
+
+> Thanks for the stable public anchor and the explicit synthetic/disclosure
+> limits. A read-only pass over `ea59a88:examples/delivery-fixture/` supports
+> the narrow mapping: the agreement and criteria are versioned; authorization
+> and execution are separate records; delivery, rejection, and both party
+> positions are represented without an engine verdict. That is a useful schema
+> exercise, not a real bilateral case or People's Court review/endorsement. ...
+> One boundary needs clarification before calling the modeled obligation paid:
+> `agreement.json` lists `compensationWei` as 250000000000000000, while
+> `execution-attestation.json` records a transfer of 1000000000000000 wei and
+> sets `paymentSettled: true`. Is that receipt intended only as an independent
+> public execution anchor, or as evidence of settlement of this synthetic
+> agreement? On the committed records alone, I would classify it as the former;
+> the receipt does not establish payment of the modeled compensation. I have
+> not independently verified the chain transaction. ... Likewise, the
+> deterministic test-key signatures demonstrate fixture mechanics, not real
+> principal authority or independent consent; the synthetic acceptance
+> rejection is a party record, not an adjudication. We can keep this
+> exploratory and public within the stated scope.
+
+Comment: #21788 reply `#discussioncomment-18568567`, 2026-09-23.
+
+Facts-only reading: the schema mapping largely holds (boundary language);
+exactly one schema-level claim was overclaiming — `paymentSettled: true` could
+be read as settlement of the modeled compensation (0.25 CORE) while the only
+anchored transfer is an execution coupon (0.001 CORE). The counterparty's
+own classification was the generous "former" (independent anchor).
+
+### Owner's fixture correction + re-anchor (2026-09-23)
+
+- The fixture no longer carries any claim that the modeled compensation is
+  paid. `execution-attestation.json` now records `executionCoupon` (the REAL
+  settled transfer, 0.001 CORE) and `compensationSettlement.status =
+  NOT_SETTLED` (`agreementCompensationWei: 250000000000000000`,
+  `settledByExecutionCoupon: false`); the provenance text and the fixture
+  README were aligned; the pin manifest (`hashes.json`) regenerated; the
+  "payment settled" honesty contract in `test/delivery/fixture.test.js` now
+  asserts the new flags.
+- Repro after correction (unchanged): hashes 10/10 byte-exact ·
+  `EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE` ·
+  adversarial 13/13 / 5/5 / fuzz 50 seed 424242 → 0 · B1
+  PAYMENT_INFERENCE_FORBIDDEN PASS · `npm test` (see STATUS). Thread reply
+  with the corrected anchor: see record commit for the posted comment id.
+- Thread state (2026-09-23, re-checked): **mapping result received; one schema
+  correction mailed with the new stable anchor; awaiting any follow-up.**
+  No funding, partnership, sponsorship, or introduction request was made.

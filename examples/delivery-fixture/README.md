@@ -179,7 +179,7 @@ including a criteria-based scenario rejection — lives in
 | `acceptance-criteria.json` | 4 machine-inspectable criteria fixed before delivery |
 | `parties.json` | both sides, agents + principals, deterministic addresses |
 | `authorization.json` | the client agent's declared intent — real EIP-712 signature, replayable |
-| `execution-attestation.json` | the REAL on-chain anchor (payment settled) |
+| `execution-attestation.json` | the REAL on-chain anchor (execution coupon, transfer settled; NOT compensation settlement) |
 | `delivery-manifest.json` | 3 artifacts with exact-byte SHA-256 pins |
 | `acceptance-record.json` | REJECTED — solely on criterion evaluations (C-QUALITY fails: 2 color tokens < required 3) |
 | `dispute-record.json` | both positions, closed remedy vocabulary, no engine verdict |
@@ -189,7 +189,7 @@ including a criteria-based scenario rejection — lives in
 
 ## What the demo teaches
 
-The provider delivers. Payment had already settled on-chain (REAL). The
+The provider delivers. A REAL execution-coupon transfer settled on-chain. The
 client rejects on a named criterion. A dispute opens. **Nothing in the
 chain of custody lets the engine, the receipt, or the signature decide who
 is right** — B1/B2/B3 make that structurally impossible, and the fixture
