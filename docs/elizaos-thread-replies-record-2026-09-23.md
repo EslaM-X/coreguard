@@ -272,3 +272,70 @@ Comment: `#discussioncomment-18569800` (`DC_kwDOMT5cIs4BG1pI`,
   awaiting the bounded read-only critique of the evidence labels.** No
   funding, partnership, sponsorship, pilot, or introduction request was
   made.
+
+### Pair review critique + evidence-labeling correction (2026-09-23)
+
+- **Critique RECEIVED** 17:23:37Z (comment `#discussioncomment-18570343`,
+  `DC_kwDOMT5cIs4BG1xn`, shunhe-wang, 6 min after publication):
+  confirmed execution + delivery objects are structurally identical across
+  A/B, the consent objects differ as intended, all three JSON SHA-256 values
+  match `pair-hashes.json`; **they did not run the verifier and did not
+  independently check the chain receipt**. Two label ambiguities were raised
+  before the pair becomes a safe reusable schema:
+  1. B still carries `consent.modeledAssent: true` while
+     `principalB.assent` is UNKNOWN — a consumer reading the aggregate
+     boolean could treat bilateral assent as established; a tri-state
+     aggregate (or no aggregate) would preserve the scenario distinction.
+  2. The field map calls modeled compensation NOT_SETTLED / not paid while
+     also listing `modeledCompensationSettlement` as unknown — absence of
+     settlement evidence supports "not evidenced as settled", never a
+     verified nonpayment finding; separate evidence status from actual
+     settlement status.
+  Explicitly closed as: evidence-label comments on a synthetic fixture, NOT a
+  finding on real authority, payment, conformity, or merits. Disclosure:
+  People's Court / Epistemic Labs.
+  Verbatim:
+  > I reviewed the committed pair at 1c7223f read-only. The execution and
+  > delivery objects are structurally identical across A/B, the consent
+  > objects differ as intended, and the three JSON file SHA-256 values match
+  > pair-hashes.json. I did not run your verifier or independently check the
+  > chain receipt. Two label ambiguities remain before this is a safe
+  > reusable schema: (1) B still has consent.modeledAssent: true while
+  > principalB.assent is UNKNOWN. A consumer reading the aggregate boolean
+  > could mistakenly treat bilateral assent as established; a tri-state
+  > aggregate or no aggregate would preserve the scenario distinction.
+  > (2) The field map calls modeled compensation NOT_SETTLED / not paid while
+  > also listing modeledCompensationSettlement as unknown. Absence of
+  > settlement evidence supports 'not evidenced as settled,' not a verified
+  > nonpayment finding. Separating evidence status from actual settlement
+  > status would keep the unknown intact. These are evidence-label comments
+  > on a synthetic fixture, not a finding on real authority, payment,
+  > conformity, or merits. Disclosure: People's Court / Epistemic Labs.
+- **Corrected + COMMITTED + PUSHED** `1e75fba` (rewritten on origin by the
+  rebase over the perf-median race; CI green — CI + Docs Wire Contract +
+  Intake Pipeline + DDE Evidence Cycle):
+  1. `consent.modeledAssent` is no longer a boolean — it is a derived
+     tri-state string (A=`FULL`, B=`PARTIAL`); the `FULL | PARTIAL | MISSING
+     | UNKNOWN` state space, `modeledAssentDerivedFrom` (the authoritative
+     party-level fields) and the no-bilateral-read note are declared;
+     `modeledAssentStatus` is removed; B's `principalB.assent` stays UNKNOWN.
+  2. `compensationSettlement.status: NOT_SETTLED` is removed — replaced by
+     `evidenceStatus: NOT_EVIDENCED_AS_SETTLED` + `actualStatus: UNKNOWN`.
+     The same no-boolean shape was applied to the canonical
+     `execution-attestation.json` (`make-fixture.mjs` regenerated), re-pinned
+     `hashes.json` + both DDE pages.
+  Verifier gained invariants V10 (settlement evidence/actual split) + V11
+  (aggregate is a derived tri-state, never a bilateral-assent read) →
+  **11/11 → `ASSENT_PAIR OK`**; 2 regression tests added to
+  `test/delivery/assent-pair.test.js`; fixture honesty contract + pair README
+  aligned. Full suite: 929 tests — 927 pass locally; the two known
+  load-sensitive perf assertions (fixture.test.js, reviewer-table.test.js)
+  are green isolated and CI-authoritative.
+- **Reply POSTED** 18:15:37Z (comment `DC_kwDOMT5cIs4BG164`, dbId 18570936,
+  nested): commit link (`1e75fba`) + the exact change set only — the
+  tri-state aggregate mechanics, the evidence-status/actual-status split in
+  both the pair and the canonical fixture, the new verifier invariants
+  (11/11), the two regression tests, and the unchanged boundaries (both cases
+  synthetic; REAL anchor = execution layer only; no claim of real authority,
+  compensation payment, or merits outcome). No new asks; no defense or
+  narrative.
