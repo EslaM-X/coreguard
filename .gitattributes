@@ -32,3 +32,10 @@ docs/coreguard-gate41-visual-en.html -text
 # Contract test files must hash identically on any machine that verifies
 # them (the workflow YAML contract is itself a gate): pin bytes, no rewrite.
 test/ci/workflow-yaml-contract.test.js -text
+
+# Byte-exact preservation for the committed git hooks (.githooks/pre-push):
+# with core.autocrlf=true the working copy would turn LF into CRLF and the
+# bundled POSIX shell would choke on the \r ("command not found") — meaning
+# the settle guard would silently stop running on Windows. -text keeps every
+# clone's hook bytes LF, so the guard runs identically everywhere.
+.githooks/** -text

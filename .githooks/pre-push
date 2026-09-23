@@ -1,0 +1,51 @@
+#!/bin/sh
+# pre-push — CoreGuard Pages-build settle guard.
+#
+# Blocks any push to `main` while a GitHub Pages build for the branch is still
+# in flight. The build that a push triggers gets CANCELLED if another push
+# lands inside its window ("Page build failed" on the content SHA); the local
+# median pusher (~15-21 s after content pushes, author coreguard-trend-bot)
+# is exactly that "another push". This hook makes the guard unavoidable for
+# every push made from the checkout that has this hook installed — no matter
+# which tool or human issues it (see AGENTS.md [C18]).
+#
+# Install once per checkout:
+#   git config core.hooksPath .githooks
+#
+# Emergency bypass (one push only; do NOT use routinely):
+#   PAGES_SETTLE_SKIP=1 git push
+#
+# Env passed through to scripts/pages-settle.mjs:
+#   PAGES_REPO, PAGES_SETTLE_TOKEN / GITHUB_TOKEN, PAGES_SETTLE_JSON (tests),
+#   PAGES_SETTLE_POLL_MS, PAGES_SETTLE_MAX_WAIT_MS, PAGES_SETTLE_FALLBACK_MS.
+
+set -u
+
+# Only the Pages source branch needs settling; every other ref passes through
+# untouched so feature/PR pushes stay fast.
+has_main=0
+while IFS=' ' read -r _lref _lsha rref _rsha; do
+    [ "$rref" = "refs/heads/main" ] && has_main=1
+done
+[ "$has_main" = "1" ] || exit 0
+
+if [ -n "${PAGES_SETTLE_SKIP:-}" ]; then
+    echo "pre-push: PAGES_SETTLE_SKIP set - bypassing the Pages settle guard for this push" >&2
+    exit 0
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+    echo "pre-push: 'node' not found - cannot run the Pages settle guard; refusing to push" >&2
+    exit 1
+fi
+
+root="$(git rev-parse --show-toplevel)" || exit 1
+
+node "$root/scripts/pages-settle.mjs" >&2
+case $? in
+    0)  exit 0 ;;
+    1)  echo "pre-push: ABORTED - GitHub Pages build is still in flight (see output above). Retry after it settles." >&2
+        exit 1 ;;
+    *)  echo "pre-push: pages-settle failed ($?) - refusing to push." >&2
+        exit 1 ;;
+esac
