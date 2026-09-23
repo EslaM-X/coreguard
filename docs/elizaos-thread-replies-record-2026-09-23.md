@@ -223,3 +223,52 @@ pilot, or introduction request was made in any word.
 - Thread state (2026-09-23, re-checked): **mapping result received; one schema
   correction mailed with the new stable anchor; awaiting any follow-up.**
   No funding, partnership, sponsorship, or introduction request was made.
+
+---
+
+## Addendum — 2026-09-23 (paired-assent next-test: offer → acceptance → publication)
+
+### Counterparty reply 7) 2026-09-23 — paired synthetic fixture proposed (bounded critique offered)
+
+> A useful next test would be a paired synthetic fixture with identical
+> execution and delivery receipts but different modeled consent: in A, both
+> synthetic principals assent to a pinned agreement version within stated
+> authority; in B, one assent is absent or scoped to another action. The
+> expected-field map should label the execution facts identically, but show
+> that B lacks modeled assent for this obligation. Both remain synthetic;
+> neither establishes real-world party authority, payment of the modeled
+> compensation, or a merits outcome. Please pin the package version and
+> hashes, show who is permitted to attest each field, and preserve unknowns
+> instead of filling them from the receipt. If you publish that pair here, I
+> can offer a bounded, read-only critique of the evidence labels. This is not
+> a commitment to an integration, pilot, ongoing review, or adjudication.
+> Disclosure: People's Court / Epistemic Labs.
+
+Comment: `#discussioncomment-18569800` (`DC_kwDOMT5cIs4BG1pI`,
+2026-09-23 16:37:19Z, top-level).
+
+### Owner's acceptance + pair publication (2026-09-23)
+
+- **Acceptance POSTED** 16:47:03Z (comment `DC_kwDOMT5cIs4BG1qn`,
+  dbId 18569895): the next test is confirmed as a paired synthetic fixture
+  focused on separating execution evidence from modeled consent/authority,
+  with execution + delivery receipts identical between A and B; the fixture
+  does not claim real-world authority, paid compensation, or adjudication.
+- **Pair SHIPPED + PUBLISHED**: `assent-pair-v1.0.0` at commit `1c7223f`
+  (`examples/delivery-fixture/pairs/assent-pair/`) — deterministic generator
+  + fail-closed verifier (**10 invariants → `ASSENT_PAIR OK`**) +
+  `expected-field-map.json` (field → value → source → permitted attester →
+  unknown?) + SHA-256 pins (`pair-hashes.json`, self-excluded) + README +
+  3 contract tests (`test/delivery/assent-pair.test.js`); `.gitattributes`
+  pins the pairs tree `-text` for fresh-clone byte parity. CI green on
+  `1c7223f` (CI + Docs Wire Contract + Intake Pipeline + DDE Evidence Cycle).
+- **Posted to the thread** 17:14:04Z (comment `DC_kwDOMT5cIs4BG1vQ`,
+  dbId 18570192) with the commit link, the A/B semantics, the attestation
+  permissions, the explicit unknowns, and the boundaries restated (both
+  cases synthetic; REAL anchor is the execution layer only; no EIP-712
+  signatures in the pair; `compensationSettlement.status = NOT_SETTLED` in
+  both; no integration/pilot/review/adjudication implied by their offer).
+- Thread state (2026-09-23, re-checked after posting): **pair published;
+  awaiting the bounded read-only critique of the evidence labels.** No
+  funding, partnership, sponsorship, pilot, or introduction request was
+  made.
