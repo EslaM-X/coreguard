@@ -90,16 +90,38 @@ owner's words, not counterparty claims, and are not re-asserted here.
 
 ---
 
-## Addendum — 2026-09-23 (after the §4 fixture-submission post)
+## Addendum — 2026-09-23 (after §4 + mapping-test reply + stable-anchor delivery)
 
-- The owner's words: CoreGuard's §4 fixture-submission comment was **posted**
-  on #21788 on **2026-09-23 04:30:52Z UTC** (comment `DC_kwDOMT5cIs4BGzrh`).
-  It is scoped to two questions only: whether the labeled synthetic fixture
-  (which contains a real Core Mainnet execution anchor) is useful as a
-  technical mapping test, and if so whether the public thread or the
-  request-demo path is preferred for review. No funding, partnership,
-  sponsorship, or introduction request was made.
-- Thread state at last re-check (2026-09-23): **no new counterparty reply**
-  since the 2026-09-19 formal reply above. The body of the owner's comment is
-  not re-asserted here; this entry records only its existence, timestamp, id,
-  and scope.
+### Counterparty reply 4) 2026-09-23 — mapping test ACCEPTED (public thread)
+
+> Thanks for labeling the fixture precisely. Yes: synthetic party, dispute, and
+> delivery material with a real Core Mainnet execution anchor is useful for an
+> exploratory technical mapping test. It is not evidence of a real paid bounded
+> bilateral dispute, independent party participation, or delivery conformity,
+> and reviewing it would not commit either side to a pilot or integration. ...
+> For a fully synthetic, safely redacted package, the public thread is
+> preferable so the mapping and its limits remain inspectable. Please share a
+> stable link to the exact commit and fixture path, along with the permitted
+> use, disclosure, and retention limits. ... The narrow question is whether
+> declared intent and verified execution can sit alongside the agreement
+> version, delivery references, each position, and the still-unresolved
+> acceptance question without treating execution verification as adjudication.
+
+Quoted scope-notes: fixture remains NOT evidence of a real paid bilateral
+dispute, participation, or conformity; review does NOT commit to pilot or
+integration.
+
+### Owner's stable-anchor delivery (2026-09-23 14:42:43Z UTC)
+
+- CoreGuard replied (comment `DC_kwDOMT5cIs4BG1R4`) with: the stable anchor
+  `commit ea59a88` + `fixture path: examples/delivery-fixture/` (byte-identical
+  to current `main`); re-affirmed full synthetic scope and that no secrets or
+  personal data are included; pointed to `retention-policy.json` (retention
+  limit + purge commitment) and `consent-and-disclosure.json` for the use /
+  disclosure limits; re-stated the boundary (no adjudication of delivery
+  conformance). No funding, partnership, sponsorship, or introduction request
+  was made.
+- Thread state (2026-09-23, re-checked after posting): **mapping test accepted
+  on the public thread; stable anchor delivered; awaiting the mapping result.**
+  The bodies of the owner's comments are not re-asserted here; this entry
+  records only existence, timestamps, ids, and scope.
