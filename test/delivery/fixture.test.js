@@ -281,6 +281,51 @@ test("F3: a closed dispute record (closedAtUtc) establishes RECORD_CLOSED", () =
   assert.equal(r.expected, "RECORD_CLOSED");
 });
 
+test("F3 closure chain: closure before its own opening fails — order is enforced", () => {
+  const f = defect((x) => { x.disputeRecord.closedAtUtc = "2025-01-01T00:00:00Z"; });
+  const r = checkLifecycleConsistency(f);
+  assert.equal(r.result, "FAIL");
+  assert.match(String(r.expected), /closure precedes its own opening/);
+});
+
+test("F3 closure chain: a closed record with no opening record fails — even when declared RECORD_CLOSED", () => {
+  const f = defect((x) => {
+    delete x.disputeRecord.openedAtUtc;
+    x.disputeRecord.closedAtUtc = "2026-01-02T00:00:00Z";
+    x.lifecycleState = "RECORD_CLOSED"; // the forged declaration must not matter
+  });
+  const r = checkLifecycleConsistency(f);
+  assert.equal(r.result, "FAIL");
+  assert.match(String(r.expected), /closure requires disputeRecord\.openedAtUtc/);
+});
+
+test("F3 closure chain: closure beyond the record's own deadline (recordClosesAtUtc) fails", () => {
+  const f = defect((x) => {
+    x.disputeRecord.closedAtUtc = "2030-01-01T00:00:00Z"; // long after the deadline
+    x.lifecycleState = "RECORD_CLOSED";
+  });
+  const r = checkLifecycleConsistency(f);
+  assert.equal(r.result, "FAIL");
+  assert.match(String(r.expected), /closure exceeds the record's own closure deadline/);
+});
+
+test("F3 closure chain: an unparseable closedAtUtc fails closed — never treated as a stamp", () => {
+  const f = defect((x) => {
+    x.disputeRecord.closedAtUtc = "not-a-timestamp";
+    x.lifecycleState = "RECORD_CLOSED";
+  });
+  const r = checkLifecycleConsistency(f);
+  assert.equal(r.result, "FAIL");
+  assert.match(String(r.expected), /not a parseable UTC timestamp/);
+});
+
+test("F3 closure chain: null closedAtUtc keeps the open lifecycle honest", () => {
+  const f = defect((x) => {});
+  const r = checkLifecycleConsistency(f);
+  assert.equal(r.result, "PASS");
+  assert.equal(r.declared, "DISPUTE_OPEN");
+});
+
 test("F3: declaring RECORD_CLOSED without closedAtUtc fails — closure is established, not declared", () => {
   const f = defect((x) => {
     x.lifecycleState = "RECORD_CLOSED";
@@ -379,8 +424,11 @@ test("adversarial runner fuzz mode: seed-deterministic stacks, all caught", () =
   assert.equal(j.summary.fuzzRounds, 10);
   assert.equal(j.summary.fuzzSurvived, 0);
   assert.equal(j.fuzzResults.length, 10);
+  // Stack size bound derives from the LIVE mutation-set size (summary
+  // carries the single-run count) — adding mutations never breaks this.
+  const maxStack = j.summary.mutations;
   for (const round of j.fuzzResults) {
-    assert.ok(round.stack.length >= 1 && round.stack.length <= 10);
+    assert.ok(round.stack.length >= 1 && round.stack.length <= maxStack);
     assert.deepEqual(round.missedByOwnCheck, []);
   }
 });

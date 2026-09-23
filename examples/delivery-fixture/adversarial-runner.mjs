@@ -134,7 +134,7 @@ async function fuzzRoundsFor(seed, rounds, contextFn = (i) => `fuzz seed ${seed}
   const out = [];
   for (let i = 0; i < rounds; i++) {
     const pool = [...MUTATIONS];
-    const size = 1 + Math.floor(rand() * pool.length); // 1..10 mutations stacked
+    const size = 1 + Math.floor(rand() * pool.length); // 1..13 mutations stacked
     const members = [];
     for (let k = 0; k < size; k++) {
       members.push(pool.splice(Math.floor(rand() * pool.length), 1)[0].id);
@@ -143,7 +143,12 @@ async function fuzzRoundsFor(seed, rounds, contextFn = (i) => `fuzz seed ${seed}
     for (const id of members) MUTATIONS.find((m) => m.id === id).mutate(fixture);
     const state = await runGate(fixture, contextFn(i));
     const caught = Object.entries(state).filter(([, r]) => r === "FAIL").map(([id]) => id);
-    const misses = members.filter((id) => state[id] !== "FAIL");
+    // Survival is judged through each member's DECLARED `hits` (mutation ids
+    // and check ids are different namespaces — e.g. F3c's own check is F3;
+    // indexing `state` by mutation id silently misses everything that does
+    // not share its check's name).
+    const hitsOf = (id) => MUTATIONS.find((m) => m.id === id).hits;
+    const misses = members.filter((id) => !hitsOf(id).some((h) => state[h] === "FAIL"));
     out.push({
       round: i + 1,
       stack: members,
@@ -263,6 +268,36 @@ const MUTATIONS = [
     hits: ["B3"],
     mutate: (x) => { x.disputeRecord.partyB.requestedRemedy = "BAN THE PROVIDER"; },
   },
+
+  // ---- closure-chain mutations (the F3 closedAtUtc series)
+  // The closure chain has its own ordered rule: closure can only FOLLOW an
+  // opening record. Each mutation below attacks one direction of that rule;
+  // `hits` names the only check allowed to catch it. Live-proved before
+  // being added: F3c exploited a real engine hole (closure without opening
+  // stayed PASS) that this series flushed out — the engine now fails it
+  // closed.
+  {
+    id: "F3b",
+    label: "closure precedes its own opening (closedAtUtc before openedAtUtc)",
+    hits: ["F3"],
+    mutate: (x) => { x.disputeRecord.closedAtUtc = "2025-01-01T00:00:00Z"; },
+  },
+  {
+    id: "F3c",
+    label: "closed record with no opening record (closure without an opening)",
+    hits: ["F3"],
+    mutate: (x) => {
+      delete x.disputeRecord.openedAtUtc;
+      x.disputeRecord.closedAtUtc = "2026-01-02T00:00:00Z";
+      x.lifecycleState = "RECORD_CLOSED";
+    },
+  },
+  {
+    id: "F3d",
+    label: 'declare RECORD_CLOSED with no closedAtUtc anywhere (closure asserted, never recorded)',
+    hits: ["F3"],
+    mutate: (x) => { x.lifecycleState = "RECORD_CLOSED"; },
+  },
 ];
 
 // ------------------------------------------------------ compound attacks
@@ -363,7 +398,9 @@ for (const battery of COMPOUND_BATTERIES) {
   }
   const state = await runGate(fixture, `compound battery ${battery.id}`);
   const caught = Object.entries(state).filter(([, r]) => r === "FAIL").map(([id]) => id);
-  const misses = battery.members.filter((id) => state[id] !== "FAIL");
+  // Same hits-mediated survival rule as the fuzz paths (see fuzzRoundsFor).
+  const hitsOfC = (id) => MUTATIONS.find((m) => m.id === id).hits;
+  const misses = battery.members.filter((id) => !hitsOfC(id).some((h) => state[h] === "FAIL"));
   compoundResults.push({
     id: battery.id,
     battery: battery.label,
@@ -377,11 +414,14 @@ const compoundSurvived = compoundResults.filter((r) => r.verdict === "SURVIVED")
 
 // ------------------------------------------ fuzz mode (seed-deterministic stacks)
 
-// Random-size, random-order stacks of the ten mutations — a fuzzer that hits
-// combinations the hand-written batteries never thought of. Determinism:
+// Random-size, random-order stacks of the shipped mutations — a fuzzer that
+// hits combinations the hand-written batteries never thought of. Determinism:
 // mulberry32 over the seed means the same seed replays the exact same rounds
 // (CI-comparable, bug-reproducible). A round SURVIVES if any member's own
-// check stayed PASS — the same blinding standard as the compound batteries.
+// check (its declared `hits`) stayed PASS — the same blinding standard as
+// the compound batteries. Note: mutation ids and CHECK ids are different
+// namespaces (F3c's own check is F3); survival is hits-mediated, never a
+// direct id lookup.
 let fuzzReport = undefined;
 let multiSeedReport = undefined;
 {

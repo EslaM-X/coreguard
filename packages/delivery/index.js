@@ -400,12 +400,37 @@ export async function checkConsentBinding(fixture, evm = undefined) {
  * is checked against them — never inferred silently in the other direction.
  * A closed dispute record (closedAtUtc set) establishes RECORD_CLOSED; closure
  * of the record is NOT adjudication — B3 still names no winner.
+ * The closure chain is ORDERED and fail-closed: a closed stamp must be a
+ * parseable UTC timestamp that FOLLOWS the record's opening (openedAtUtc)
+ * and does not exceed the record's own closure deadline (recordClosesAtUtc).
+ * Closure outside that window — or declared without a stamp — is a forged
+ * record regardless of what the fixture declares.
  */
 export function checkLifecycleConsistency(fixture) {
   const declared = fixture && fixture.lifecycleState;
+  const d = fixture && fixture.disputeRecord;
+  // Ordered closure-chain validation (independent of the declared state).
+  const parseUtc = (v) => (typeof v === "string" && Number.isFinite(Date.parse(v)) ? Date.parse(v) : null);
+  if (d && d.closedAtUtc) {
+    const closedMs = parseUtc(d.closedAtUtc);
+    const openedMs = d.openedAtUtc != null ? parseUtc(d.openedAtUtc) : null;
+    const deadlineMs = d.recordClosesAtUtc != null ? parseUtc(d.recordClosesAtUtc) : null;
+    const reasons = [];
+    if (closedMs === null) reasons.push("disputeRecord.closedAtUtc is not a parseable UTC timestamp");
+    if (openedMs === null) reasons.push("closure requires disputeRecord.openedAtUtc (closure cannot precede its opening)");
+    else if (closedMs !== null && closedMs < openedMs) {
+      reasons.push("closure precedes its own opening (closedAtUtc < openedAtUtc)");
+    }
+    if (deadlineMs !== null && closedMs !== null && closedMs > deadlineMs) {
+      reasons.push("closure exceeds the record's own closure deadline (closedAtUtc > recordClosesAtUtc)");
+    }
+    if (reasons.length) {
+      return { result: "FAIL", declared: declared ?? null, expected: reasons.join("; ") };
+    }
+  }
   const expected =
-    fixture && fixture.disputeRecord && fixture.disputeRecord.closedAtUtc ? "RECORD_CLOSED"
-    : fixture && fixture.disputeRecord && fixture.disputeRecord.openedAtUtc ? "DISPUTE_OPEN"
+    d && d.closedAtUtc ? "RECORD_CLOSED"
+    : d && d.openedAtUtc ? "DISPUTE_OPEN"
     : fixture && fixture.acceptanceRecord && fixture.acceptanceRecord.verdict ? "ACCEPTANCE_RECORDED"
     : fixture && fixture.delivery && fixture.delivery.submittedAtUtc ? "DELIVERY_SUBMITTED"
     : "DRAFT";
