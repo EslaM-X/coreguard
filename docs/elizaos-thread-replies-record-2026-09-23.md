@@ -87,3 +87,19 @@ owner's words, not counterparty claims, and are not re-asserted here.
 > You can share a safely redacted public fixture here, or use
 > https://peoplescourt.ai/request-demo for manual scoping. Disclosure: I am
 > with People's Court / Epistemic Labs.
+
+---
+
+## Addendum — 2026-09-23 (after the §4 fixture-submission post)
+
+- The owner's words: CoreGuard's §4 fixture-submission comment was **posted**
+  on #21788 on **2026-09-23 04:30:52Z UTC** (comment `DC_kwDOMT5cIs4BGzrh`).
+  It is scoped to two questions only: whether the labeled synthetic fixture
+  (which contains a real Core Mainnet execution anchor) is useful as a
+  technical mapping test, and if so whether the public thread or the
+  request-demo path is preferred for review. No funding, partnership,
+  sponsorship, or introduction request was made.
+- Thread state at last re-check (2026-09-23): **no new counterparty reply**
+  since the 2026-09-19 formal reply above. The body of the owner's comment is
+  not re-asserted here; this entry records only its existence, timestamp, id,
+  and scope.
