@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { readdirSync, statSync, readFileSync, mkdtempSync, rmSync, existsSync, cpSync, mkdirSync, symlinkSync } from "node:fs";
+import { readdirSync, statSync, readFileSync, mkdtempSync, rmSync, existsSync, cpSync, mkdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -149,6 +149,16 @@ function buildSandbox(tmp) {
     cpSync(join(REPO, rel), join(tmp, rel), { recursive: true });
     assert.ok(existsSync(join(tmp, rel)), `sandbox staging failed for: ${rel}`);
   }
+  // The sandbox omits the repo's root package.json by design (npm/cwd
+  // semantics stay as the docs intend), but the STAGED example trees are
+  // copies — a `.js` demo (run-demo.js uses `import`) must load as ESM the
+  // way the real repo root's `"type": "module"` governs it. Without this,
+  // Node 18/20 (no syntax auto-detection) read the file as CommonJS and the
+  // documented `node examples/transfer/run-demo.js` is a SyntaxError on CI
+  // while Node 22+ (detect-module) and the dev box stay green. Scoped to
+  // examples/ so cwd-based `node -e` stanzas at the sandbox root are
+  // untouched ("type":"module" for eval comes from the CURRENT dir, C15).
+  writeFileSync(join(tmp, "examples", "package.json"), '{"type":"module"}\n', "utf8");
   assert.ok(existsSync(join(tmp, "examples", "delivery-fixture", "verify-fixture.mjs")), "sandbox: verify-fixture.mjs must exist after staging");
 }
 
