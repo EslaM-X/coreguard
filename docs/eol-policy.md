@@ -31,6 +31,25 @@ local checkout, which is why it survived several verification cycles.
 | **Windows behavior** | **checkout under `autocrlf=true` is byte-exact** for verifier-c and the freeze record | **`test/eol/eol-policy.test.mjs`** — simulates the poison config per-invocation via `git -c core.autocrlf=true checkout-index`, asserts byte equality vs the repository blob, never touches global config |
 | Result captured in evidence | classification + test identity recorded here and in the closure package | this file + `FINAL-CLOSURE-PACKAGE.md` addendum |
 
+## 2b. Addendum (2026-09-24): the delivery fixture joins the byte-exact set
+
+The same proven failure mode surfaced on a second surface: a Windows checkout
+with `core.autocrlf=true` rewrote the DDE delivery-fixture records LF→CRLF
+(4 files incl. `execution-attestation.json` and its pin file `hashes.json`),
+which failed `verify-fixture.mjs` fail-closed locally ("recorded 0x1de45f1e…
+!= actual 0xe38aecf3…") while Linux CI stayed green — invisible to CI exactly
+like the verifier-c case. The records were byte-identical in the repository
+(index == HEAD); only the working tree was rewritten.
+
+Remediation (this commit): `examples/delivery-fixture/** -text` in
+`.gitattributes`, so a fresh Windows clone now checks the fixture out
+byte-exact and the pin re-hash holds on every machine. Verified with
+`git -c core.autocrlf=true checkout-index` byte-parity against the repository
+blob in `test/eol/eol-policy.test.mjs` (fixture case), mirroring the verifier-c
+proof. The fixture's own determinism guarantee (byte-identical regeneration)
+makes `-text` safe here: generation is the only legitimate write path, and it
+always emits LF.
+
 ## 3. Classification: CLOSED
 
 All clauses defined, all behaviors tested, evidence captured. There is no fourth state.

@@ -24,8 +24,23 @@ if (files.length === 0) {
   process.exit(1);
 }
 
-const result = spawnSync(process.execPath, ["--test", ...files], {
+const result = spawnSync(process.execPath, ["--test", ...concurrencyArgs(), ...files], {
   stdio: "inherit",
 });
 
 process.exit(result.status ?? 1);
+
+// [C20] CI parity for load-sensitive assertions: node --test sizes file
+// concurrency from availableParallelism()-1, so a many-core dev box runs the
+// heavy suites side by side while the 2-core CI runs them essentially
+// sequentially. The local contention storms then fail the adversarial
+// runner's `over budget: 0` perf thresholds (control cycle 575ms vs ~150ms
+// quiet) that CI never sees — a local-red/CI-green split in the OPPOSITE
+// direction of [C17]. Pin to 1 (CI-equivalent); NODE_TEST_CONCURRENCY=N opts
+// back into parallelism for quick sweeps at the caller's own risk.
+function concurrencyArgs() {
+  const [major, minor] = process.versions.node.split(".").map(Number);
+  const supportsFlag = major > 18 || (major === 18 && minor >= 17);
+  if (!supportsFlag) return []; // pre-18.17: no --test-concurrency, keep old behavior
+  return [`--test-concurrency=${process.env.NODE_TEST_CONCURRENCY || "1"}`];
+}

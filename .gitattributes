@@ -43,3 +43,10 @@ examples/delivery-fixture/pairs/** -text
 # the settle guard would silently stop running on Windows. -text keeps every
 # clone's hook bytes LF, so the guard runs identically everywhere.
 .githooks/** -text
+
+# Byte-exact preservation for the DDE delivery fixture: hashes.json pins a
+# SHA-256 per record and verify-fixture.mjs re-hashes the RAW disk bytes
+# (fail-closed). core.autocrlf=true rewrote the records to CRLF on a Windows
+# checkout -> "recorded 0x1de45f1e… != actual 0xe38aecf3…" locally while Linux
+# CI stayed green — the same proven failure mode as verifier-c (docs/eol-policy.md).
+examples/delivery-fixture/** -text

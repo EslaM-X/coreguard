@@ -40,6 +40,7 @@ test("policy: .gitattributes pins verifier-c and the frozen evidence trees to -t
   assert.match(attrs, /packages\/verifier-c\/\*\*\s+-text/);
   assert.match(attrs, /coreguard-assurance-v4\.2\.2-remediation\/\*\*\s+-text/);
   assert.match(attrs, /legacy-quarantine\/\*\*\s+-text/);
+  assert.match(attrs, /examples\/delivery-fixture\/\*\*\s+-text/);
 });
 
 test("policy: -text rules are actually IN EFFECT (check-attr, not just present on disk)", () => {
@@ -47,6 +48,7 @@ test("policy: -text rules are actually IN EFFECT (check-attr, not just present o
     "packages/verifier-c/index.js",
     "packages/verifier-c/verifier_c/__init__.py",
     "coreguard-assurance-v4.2.2-remediation/release/freeze/freeze-record-4.2.6.json",
+    "examples/delivery-fixture/hashes.json",
   ]) {
     const out = git(["check-attr", "text", "--", path]).toString();
     assert.match(out, /text: unset/, `expected 'text: unset' for ${path}, got: ${out.trim()}`);
@@ -79,6 +81,31 @@ test("windows behavior: checkout under autocrlf=true is byte-exact for the froze
     const checkedOut = readFileSync(join(tmp, file));
     const repoBlob = git(["cat-file", "blob", `HEAD:${file}`]);
     assert.equal(sha(checkedOut), sha(repoBlob), "frozen evidence bytes changed under autocrlf=true checkout");
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test("windows behavior: checkout under autocrlf=true is byte-exact for the DDE delivery fixture (record + its pin file)", () => {
+  // Proven failure (2026-09-24): autocrlf=true rewrote the fixture records
+  // LF->CRLF on a Windows checkout, so verify-fixture.mjs failed fail-closed
+  // on the hashes.json pins — locally only, invisible to Linux CI. The rule
+  // examples/delivery-fixture/** -text must keep a fresh clone byte-exact.
+  const tmp = mkdtempSync(join(tmpdir(), "cg-eol-"));
+  try {
+    const files = [
+      "examples/delivery-fixture/execution-attestation.json",
+      "examples/delivery-fixture/hashes.json",
+    ];
+    git(["-c", "core.autocrlf=true", "checkout-index", "-f", `--prefix=${tmp}/`, ...files]);
+    for (const file of files) {
+      const checkedOut = readFileSync(join(tmp, file));
+      const repoBlob = git(["cat-file", "blob", `HEAD:${file}`]);
+      assert.equal(
+        sha(checkedOut), sha(repoBlob),
+        `delivery-fixture bytes changed under autocrlf=true checkout — the pins would fail on Windows clones (${file})`
+      );
+    }
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
