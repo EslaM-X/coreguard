@@ -217,6 +217,30 @@ export function prepareAea1({ caseDir, outDir }) {
 }
 
 /**
+ * A10 gate — V9-style no-overclaim check over the boundary's text field.
+ *
+ * The boundary MUST negate any establishment of authority/payment/merits AND
+ * MUST NOT carry a POSITIVE assertion of one. The affirms arm anchors each
+ * positive phrase to an adjacent subject-verb ("settlement was executed"), so
+ * a NEGATED clause can never satisfy it: "settlement was NOT executed" leaves
+ * `not` between the subject and the verb, and "does not settle" uses the bare
+ * infinitive — neither matches affirms, exactly as V9 intends. A naive bare
+ * participle matcher (`(settle|adjudicat|execut)ed`) wrongly trips on those.
+ */
+export function boundaryTextNoOverclaim(text) {
+  const b = String(text ?? "").toLowerCase();
+  const negates = /\bno\b|never|does not|cannot/.test(b);
+  const mentions = /adjudicat|settle|broadcast|integrat|credential|fund/.test(b);
+  // The `(?<!no )` lookbehind keeps a "no settlement was executed" style
+  // clause negated: the `no` precedes the SUBJECT, so the phrase is not an
+  // assertion of fact. A genuine positive ("the settlement was executed")
+  // has no preceding `no` and is caught.
+  const affirms =
+    /(is|are) (an? )?(adjudicator|integration|settlement|credential|escrow)|(?<!no )(settlement|award|payment|transfer|funds?|broadcast) (is|was|were|has been|had been) (executed|settled|paid|moved|released|transferred|authorized|granted|broadcast)|authorizes (the )?(deal|transfer|settlement|release)|(merits|dispute|claim) (resolved|decided|upheld)|(was|is) (sent|broadcast) to (the )?api/.test(b);
+  return { ok: negates && mentions && !affirms, negates, mentions, affirms };
+}
+
+/**
  * Verify an emitted AEA/1 boundary record (fail-closed). Mirrors the
  * dispute-package verifier conventions: every invariant must pass.
  * Returns { ok, checks, failures }.
@@ -250,11 +274,11 @@ export function verifyAea1(outDir) {
   check("A7::noFundsClaim", boundary.settlement?.funds === "NONE_MOVED", "no fund-movement claim may exist");
   check("A8::adapterNotBuilt", boundary.adapter?.integrationStatus === "NOT_BUILT", "adapter integrationStatus must be NOT_BUILT");
   check("A9::networkNotPerformed", boundary.adapter?.networkCall === "NOT_PERFORMED", "networkCall must be NOT_PERFORMED");
-  const bText = String(boundary.boundary ?? "").toLowerCase();
-  const negates = /\bno\b|never|does not|cannot/.test(bText);
-  const mentions = /adjudicat|settle|broadcast|integrat|credential|fund/.test(bText);
-  const affirms = /is (an? )?(adjudicator|integration|settlement)|was (sent|executed|settled|broadcast)|(settle|adjudicat|execut)ed|awarded/.test(bText);
-  check("A10::noOverclaim", negates && mentions && !affirms, "boundary text must negate (not affirm) authority/payment/merits claims");
+  // A10 mirrors V9's gate: the boundary MUST negate any establishment of
+  // authority/payment/merits AND MUST NOT carry a POSITIVE assertion — via the
+  // subject-adjacent affirms arm (never a bare `-ed` participle matcher).
+  const t = boundaryTextNoOverclaim(boundary.boundary);
+  check("A10::noOverclaim", t.ok, `boundary text must negate (not affirm) authority/payment/merits claims (negates=${t.negates} mentions=${t.mentions} affirms=${t.affirms})`);
 
   return { ok: failures.length === 0, checks, failures };
 }

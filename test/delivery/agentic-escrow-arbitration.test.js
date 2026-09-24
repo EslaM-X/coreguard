@@ -11,6 +11,7 @@ import {
   AEA1,
   AEA1_PACKAGE_VERSION,
   sha256,
+  boundaryTextNoOverclaim,
 } from "../../packages/agentic-escrow-arbitration/sdk.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -178,5 +179,38 @@ test("aea1: hashes self-exclude and pin every emitted file", () => {
     }
   } finally {
     rmSync(d, { recursive: true, force: true });
+  }
+});
+
+test("aea1 A10: negated boundary text passes (V9-style: negation required)", () => {
+  // Regression: a bare `(settle|adjudicat|execut)ed` matcher wrongly fails on
+  // "does not settle". The gate must REQUIRE negation and never let a NEGATED
+  // verb satisfy the affirms arm.
+  const negated = [
+    "It does not adjudicate, settle, broadcast, or claim any integration. No funds moved; no settlement was executed by this record; no credential is held; no API call was performed.",
+    "A genuine award is never filled by this layer; settlement authorizationStatus is NOT_AUTHORIZED and funds are NONE_MOVED; the adapter is NOT_BUILT and networkCall is NOT_PERFORMED.",
+    "This boundary does not settle disputes; it does not authorize transfers; no settlement was granted; no award was paid; no broadcast to an API happened.",
+    "No payment, no settlement, no credential — this record never adjudicates, never broadcasts, never moves funds.",
+  ];
+  for (const text of negated) {
+    const r = boundaryTextNoOverclaim(text);
+    assert.equal(r.negates, true, `MUST require negation: ${text}`);
+    assert.equal(r.affirms, false, `MUST NOT affirm on 'does not settle' — got a bare -ed match: ${text}`);
+    assert.equal(r.ok, true, `negated-boundary text must pass A10: ${text}`);
+  }
+});
+
+test("aea1 A10: affirmative boundary text fails (V9-style: no positive assertion)", () => {
+  // The affirms arm must catch a REAL positive assertion, subject-adjacent.
+  const affirmed = [
+    "The settlement was executed and funds were moved to the winner.",
+    "CoreGuard is an adjudicator and authorizes the settlement transfer.",
+    "The award was granted and broadcast to the API; settlement is authorized.",
+    "This layer settles the dispute: award is paid, funds released, credential held and network call performed.",
+  ];
+  for (const text of affirmed) {
+    const r = boundaryTextNoOverclaim(text);
+    assert.equal(r.affirms, true, `MUST affirm on a positive assertion: ${text}`);
+    assert.equal(r.ok, false, `affirmative boundary text must FAIL A10: ${text}`);
   }
 });
