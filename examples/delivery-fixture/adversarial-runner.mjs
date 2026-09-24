@@ -365,6 +365,14 @@ async function runGate(fixture, context = "gate cycle") {
 
 const results = [];
 
+// Warm-up, deliberately unmeasured: the control cycle is the FIRST gate call
+// in this process, so its timing is cold-start (JIT compile + module load +
+// page-in), not the gate's real cost — it flapped past the 250ms budget
+// (300–400ms cold vs 80–160ms warm) while every later cycle sat at a fraction
+// of it [C20]. Warming up before the measured control keeps the budget honest
+// about the gate, not about process birth.
+await verifyDeliveryFixture(honestFixture(), evm);
+
 // Control: the honest fixture must stay clean — a runner whose baseline
 // already fails proves nothing.
 const control = await runGate(honestFixture(), "control (honest fixture)");
