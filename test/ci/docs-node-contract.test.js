@@ -404,8 +404,12 @@ test("every documented node/npm command in the repo runs, is skip-listed with a 
           // CJS and the import statement is a SyntaxError. Pin the ESM
           // semantics ONLY for import-style stanzas — CJS-style `node -e
           // "const fs = require(…)"` lines (REVIEW-GUIDE step 4) must keep
-          // their documented commonjs eval.
-          cmd = cmd.replace(/^node -e "(?=\(|import\s)/, "node --input-type=module -e \"");
+          // their documented commonjs eval. The lookahead tolerates leading
+          // whitespace/newline inside the quotes, because logicalCommands
+          // absorbs multi-line `node -e "…"` blocks with their import on a
+          // later physical line (delivery-dispute-boundary.md's fixture
+          // assembly, real-fixture-intake's fixtureRef).
+          cmd = cmd.replace(/^node -e "\s*(?=\(|import\s)/, "node --input-type=module -e \"");
 
           const expect = expectFor(cmd);
           // CLI invocations (`node packages/cli/src/index.js …`) run from the
