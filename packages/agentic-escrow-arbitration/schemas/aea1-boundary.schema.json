@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/EslaM-X/coreguard/aea1-boundary.schema.json",
+  "title": "AEA/1 boundary record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocolVersion", "packageVersion", "synthetic", "origin", "caseRef", "packageRevision", "escrow", "award", "settlement", "adapter", "boundary"],
+  "properties": {
+    "protocolVersion": { "const": "AEA/1" },
+    "packageVersion": { "type": "string" },
+    "synthetic": { "const": true },
+    "origin": { "const": "SYNTHETIC" },
+    "caseRef": { "enum": ["A", "B"] },
+    "packageRevision": { "type": "string" },
+    "escrow": {
+      "type": "object",
+      "required": ["kind", "deployed", "chain"],
+      "properties": {
+        "kind": { "const": "REFERENCE_INTERFACE" },
+        "deployed": { "const": false },
+        "chain": { "const": "none" }
+      }
+    },
+    "award": {
+      "type": "object",
+      "required": ["status", "adjudicator"],
+      "properties": {
+        "status": { "const": "UNKNOWN" },
+        "adjudicator": { "const": "NONE" }
+      }
+    },
+    "settlement": {
+      "type": "object",
+      "required": ["authorizationStatus", "funds"],
+      "properties": {
+        "authorizationStatus": { "const": "NOT_AUTHORIZED" },
+        "funds": { "const": "NONE_MOVED" }
+      }
+    },
+    "adapter": {
+      "type": "object",
+      "required": ["integrationStatus", "networkCall"],
+      "properties": {
+        "integrationStatus": { "const": "NOT_BUILT" },
+        "networkCall": { "const": "NOT_PERFORMED" }
+      }
+    }
+  }
+}

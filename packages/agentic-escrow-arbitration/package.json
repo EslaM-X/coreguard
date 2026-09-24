@@ -1,0 +1,21 @@
+{
+  "name": "@coreguard/agentic-escrow-arbitration",
+  "version": "0.1.0",
+  "description": "AEA/1 (Agentic Escrow & Arbitration Standard): deterministic boundary record tying a verified ADAL/1 dispute package to an escrow-contract interface and a tribunal submission surface. Reference-only: no contract deployed, no API call, no execution credential is held or claimed.",
+  "type": "module",
+  "main": "./sdk.mjs",
+  "exports": {
+    ".": "./sdk.mjs",
+    "./cli": "./cli.mjs"
+  },
+  "files": [
+    "sdk.mjs",
+    "cli.mjs",
+    "schemas"
+  ],
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
