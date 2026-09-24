@@ -53,6 +53,12 @@ test failure).
 | screenshots | beats 2, 3, 4, 6 | GitHub Release |
 | transcript | full run (capture stdout) | article / accelerator / investor deck |
 
+A clean, ANSI-scrubbed capture of the exact run is committed at
+[`transcript/killer-demo-90s-2026-09-24.txt`](transcript/killer-demo-90s-2026-09-24.txt)
+(LF-only, no BOM; exit 0 — `ALL BEATS GREEN`). Regenerate it any time with the
+runner below and diff against the committed copy: the demo is reproducible, so
+the transcript is a pinned artifact, not a marketing artifact.
+
 Run it once with a plain terminal (no color if scrubbing), capture stdout to a
 file for the transcript, and screen-record the same run for the video — the
 video and the transcript are the same bytes, which is the point.

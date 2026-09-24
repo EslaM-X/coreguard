@@ -1,0 +1,86 @@
+
+1 · THE PROBLEM
+An agent can execute a transaction. Execution is not consent.
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  agent can execute ......... identity + intent + authorization surface
+  a receipt proves execution .. CGEP/1 execution evidence, SHA-256 pinned
+  execution is not consent .... EVP/1 consent labels — FULL / PARTIAL / UNKNOWN
+  consent is not adjudication .. ADAL/1 dispute package, award slot UNKNOWN
+  adjudication is not settlement  escrow reference-only; authority-bound
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+2 · EVIDENCE
+Execution evidence → cryptographic package → pinned hashes.
+────────────────────────────────────────────────────────────────────────────────────────────────────
+  receiptId...........................................0xd4ddd02204f55662ef7db62b7a720c7e8dbff8d92a1cc621df22cf1b5dc22627
+  engine checks.......................................9/9 PASS (RECEIPT_INTEGRITY · L2)
+
+  ✓ execution evidence re-derives and verifies
+
+  delivery fixture (DDE/1)............................decision: EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE
+
+  ✓ delivery evidence replay-passes its pins
+
+3 · CONSENT — the paired fixture
+CASE A and CASE B: identical execution + delivery; consent differs.
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  summary: 11/11 passed · 0 failed
+
+  ✓ paired fixture separates consent from execution
+
+4 · DISPUTE PACKAGE
+ADAL/1 — Evidence + Consent + Positions + Closure → Award Slot → Settle Gate.
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  awardSlot.status....................................UNKNOWN (never prefilled by the evidence layer)
+  escrowRef.deployed..................................false (reference-only)
+  adapter.integrationStatus...........................NOT_BUILT (structural dry-run only)
+
+  ✓ dispute package verifies fail-closed and stays inside its boundary
+
+5 · TAMPER — FAIL-CLOSED
+One flipped byte in the package: the pins refuse.
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  flipped 1 byte in dispute-package.json (temp copy — repo untouched)
+  verifier............................................exit 1 — dispute package verify: FAILED (25 checks — 1 failures) ·   ✖ V1::dispute-package.json: pin mismatch (0xb3676daf6ef5fc492ae8945cff44ee9f6e3b8415e33b2fa84cb6e1db81860c54 != 0x7a5b2677eccbb28876093e3459745b3d8de3f7b5b5badfc430bc5d86ba07ce9a)
+
+  ✓ tampered package is refused
+
+6 · INTEROPERABILITY
+CoreGuard → People's Court structural adapter → Reference Tribunal.
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  adapter dry-run.....................................NOT_PERFORMED  (no live call, no credential, no submission)  (offline, deterministic)
+
+  ✓ adapter maps to the documented surface without any live call
+  reference tribunal · scenario B.....................exit 1 — ✖ consent-GATE: modeled assent is PARTIAL — no bilateral consent evidence; the UNKNOWN party stays UNKNOWN. Fail-closed. · ✖ escrow-reference-only: escrow must remain reference-only while consent is incomplete
+
+  ✓ partial consent stays partial — the tribunal refuses to settle
+
+7 · WHAT CoreGuard IS NOT
+────────────────────────────────────────────────────────────────────────────────────────────────────
+  CoreGuard does not adjudicate.  (B1/B2 forbid any conformity opinion)
+  CoreGuard does not settle.       (escrow reference-only, authority boundary)
+  CoreGuard never fills an UNKNOWN. (EVP/1 labels: absent ≠ absent-of-record)
+
+  COREGUARD — FAIL-CLOSED (fail-open is a test failure)
+  No silent conversion of unknowns.
+  No adjudication by the evidence layer.
+  No settlement without authority.
+
+8 · TAKE IT AND RUN IT
+────────────────────────────────────────────────────────────────────────────────────────────────────
+  npm run demo:90s:killer     (this script, in this repo)
+  npm run demo:90s             (pilot replay, offline)
+  npm test                     (970/970 · CI Node 18/20/22)
+
+  github.com/EslaM-X/coreguard
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+  demo-killer-90s: ALL BEATS GREEN
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
