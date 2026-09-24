@@ -1,0 +1,18 @@
+{
+  "manifest": {
+    "algorithm": "sha256",
+    "protocolVersion": "ADAL/1",
+    "packageVersion": "dispute-package-v1.0.0",
+    "generatedBy": "examples/delivery-fixture/pairs/dispute-package/make-dispute-package.mjs",
+    "generatedAtUtc": "2026-09-24T12:00:00Z",
+    "selfExcluded": [
+      "dispute-hashes.json"
+    ],
+    "note": "ADAL/1 dispute package — evidence layer re-serialized from the committed assent pair; positions/closure/award-slot/escrow/adapter modeled; award UNKNOWN; escrow reference-only; adapter NOT_BUILT."
+  },
+  "caseRef": "A",
+  "evidenceSource": "assent-pair\\assent-a.json",
+  "files": {
+    "dispute-package.json": "0x1dab68e7b68f0d7f0b19898ba5bac0b4b9354de5658890197bf4c7356f94e02e"
+  }
+}
