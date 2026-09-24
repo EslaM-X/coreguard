@@ -370,7 +370,8 @@ reply of 18:15:37Z. The round's output was converted into repo assets only:
 - **Outreach draft** — `docs/outreach-draft-people-court-attestation-layer.md`
   (Variants A/B) drafted but NOT posted; posting before the counterparty
   responds to `1e75fba` would add a third consecutive message from our side.
-  Owner decision pending.
+  **Owner decision: HOLD — nothing is posted until the counterparty
+  responds.**
 - **Fix** — pair README's wrong link (`issues/21788`) corrected to the real
   discussion URL.
 
