@@ -33,7 +33,8 @@ attribution is assumed, and a failure closes doors on trust, not on hardware.
 |---|---|
 | **Live on Core Mainnet** | V2 contract `0x037dF08F2d43c5D03759279Fe35664f6AFf9EA6E`, anchor tx `0x5b9e7d68…3e478d2` block `38764446`, verdict **VERIFIED ANCHOR INTEGRITY**, cross-RPC (coredao + ankr) |
 | **Identity anchor live** | Gate 4.1 `commitIntent` `0x68d9fb…`, block `38827925`, status `0x1`, independent round 66/66 PASS |
-| **Whole-suite green** | `npm test` **851/851** (incl. CI guards 10/10), forge **34/34**, adversarial corpus **73/73**, watchdog 38/38 |
+| **Whole-suite green** | `npm test` **936 total, CI green** (CI guards incl.), forge **34/34**, adversarial corpus **73/73**, watchdog 38/38 |
+| **Public evidence-label review (read-only)** | Iterative read-only schema review of `delivery-fixture` + `assent-pair` by People's Court / Epistemic Labs in public elizaOS #21788 (2026-09-23); two labeling corrections shipped at `1e75fba` (tri-state consent aggregate; evidence status separated from actual settlement status) — **no endorsement, no chain verification, no integration/pilot/adjudication** |
 | **Deterministic (clean clone)** | 749/749 ×2 from pristine `core.autocrlf=false` clone at `0788cfb`; RC manifest 582/582 == git blobs |
 | **No secrets** | Full git history: **942 blobs, 0 embedded secrets** (`scripts/audit-secrets.mjs`) |
 | **Release** | `production-2026-09-19` (owner-declared, non-prerelease) |
@@ -125,3 +126,7 @@ npm run demo:90s:live    # includes live re-derivation from Core Mainnet (read-o
 - VERIFIED ≠ SAFE. No fabricated proof. No fake numbers.
 - Pricing LOCKED (hypothesis only). Outreach: Core = PENDING, ElizaOS = WAITING.
 - Not "Core-backed" until Core says so.
+- Public read-only review ≠ endorsement: People's Court / Epistemic Labs stated
+  explicitly that reviewing the fixture implies no endorsement, integration,
+  pilot, or adjudication, and they did not run the verifier or check the
+  chain.

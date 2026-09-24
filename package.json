@@ -31,6 +31,7 @@
     "demo:vault": "node examples/vault/vault-demo.mjs --allow",
     "demo:attack": "node examples/vault/vault-demo.mjs --attack",
     "create:integration": "node scripts/create-integration.mjs",
+    "evidence-package": "node scripts/make-evidence-package.mjs --out evidence-package-output",
     "live": "node examples/live/live-verify.js",
     "anchor": "powershell -ExecutionPolicy Bypass -File scripts/anchor-local.ps1",
     "anchor:plan": "node scripts/compute-commitment.mjs --out scripts/live-anchor-planned.json",

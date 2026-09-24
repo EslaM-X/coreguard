@@ -2,7 +2,7 @@
 
 Identical execution and delivery receipts in **A** and **B**; the modeled
 **consent** is the only intended difference. Built for the next-test request in
-[elizaOS/CoreGuard #21788](https://github.com/elizaOS/CoreGuard/issues/21788)
+[elizaOS #21788](https://github.com/orgs/elizaOS/discussions/21788)
 (2026-09-23) from People's Court / Epistemic Labs: a bounded, read-only critique
 of the evidence labels.
 

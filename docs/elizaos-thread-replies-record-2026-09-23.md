@@ -339,3 +339,41 @@ Comment: `#discussioncomment-18569800` (`DC_kwDOMT5cIs4BG1pI`,
   synthetic; REAL anchor = execution layer only; no claim of real authority,
   compensation payment, or merits outcome). No new asks; no defense or
   narrative.
+
+### Post-round capture: standard, CLI, case study (2026-09-23/24, no thread posts)
+
+**No message was sent to the thread in this step** — it ends at the correction
+reply of 18:15:37Z. The round's output was converted into repo assets only:
+
+- **EVP/1 standard** — `docs/evidence-package-standard.md` codifies the rules
+  the critique produced: consent is per-party first with a derived tri-state
+  aggregate (never a boolean, never a bilateral-assent read); settlement
+  separates `evidenceStatus` (`NOT_EVIDENCED_AS_SETTLED`) from `actualStatus`
+  (`UNKNOWN`); unknowns preserved with permitted attester `NONE`; SHA-256 pins
+  (self-excluded manifest); deterministic generators; `-text` trees.
+- **One-command CLI** — `scripts/make-evidence-package.mjs` (`npm run
+  evidence-package -- --out <dir>`): stage → generate → verify (11/11,
+  fail-closed) → deliver → re-verify; exit 0 `EVP_OK` / 1 on failure (nothing
+  delivered) / 2 usage. Contract tests: 6/6 (`test/delivery/evidence-package.test.js`),
+  including byte-parity vs the committed pair, determinism, refuse-foreign-dir,
+  and the previously-missing fail-closed pin-tamper test (now V1 rejection).
+- **Case study + publish drafts** — `docs/case-study-agent-evidence-labels-2026-09-23.md`
+  (full article, X thread, LinkedIn post) with an explicit honesty clause:
+  read-only review ≠ endorsement; they did not run the verifier or check the
+  chain. Not yet published (no external accounts/keys in-repo).
+- **Pitch deck** — `submission/14-pitch-deck.md` gained the read-only-review
+  evidence row and an honesty-box line (no endorsement claim); suite count
+  refreshed to 936 (delivery gained the 6 CLI contract tests: 929 → 936).
+  Local suite: 933/936, the three failures being the known load-sensitive
+  timing/perf assertions (fixture.test.js, http.test.js, reviewer-table.test.js),
+  each green isolated; CI authoritative.
+- **Outreach draft** — `docs/outreach-draft-people-court-attestation-layer.md`
+  (Variants A/B) drafted but NOT posted; posting before the counterparty
+  responds to `1e75fba` would add a third consecutive message from our side.
+  Owner decision pending.
+- **Fix** — pair README's wrong link (`issues/21788`) corrected to the real
+  discussion URL.
+
+Thread state remains: **awaiting the counterparty's response to the 1e75fba
+correction.** No asks made at any point; no claims beyond what the records
+support.
