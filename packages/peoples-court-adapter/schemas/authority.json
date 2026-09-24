@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/EslaM-X/coreguard/blob/main/packages/peoples-court-adapter/schemas/authority.json",
+  "title": "Authority-grant mapping (People's Court Partner API v2)",
+  "description": "Output contract for the authority mapping the adapter derives from an ADAL/1 dispute package's consent layer. Mirrors the documented authority-grant surface (/api/v2/authorizations/authority-grants). The mapped object is a CANDIDATE derived from modeled consent data; a live authority grant additionally requires an authorization credential and the platform's confirmation binding (actorId/principalId + digest-bound statement).",
+  "type": "object",
+  "required": [
+    "kind",
+    "derivedFrom",
+    "principal",
+    "role",
+    "withinStatedAuthority",
+    "confirmationRequired",
+    "label"
+  ],
+  "properties": {
+    "kind": { "const": "AUTHORITY_GRANT_CANDIDATE" },
+    "derivedFrom": { "type": "string" },
+    "principal": { "type": "string" },
+    "role": { "type": "string" },
+    "withinStatedAuthority": { "type": [ "boolean", "string" ] },
+    "confirmationRequired": { "const": true },
+    "label": { "const": "DERIVED" }
+  },
+  "additionalProperties": true
+}

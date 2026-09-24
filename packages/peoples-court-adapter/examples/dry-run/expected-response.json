@@ -1,0 +1,37 @@
+{
+  "dryRun": true,
+  "fixtureVersion": "dry-run-v1.0.0",
+  "expectedShape": "acknowledgement shape per the publicly documented Partner API v2; this is the EXPECTED response shape, not a live response.",
+  "fields": [
+    {
+      "name": "packageRevision",
+      "description": "pinned coreguard package revision the platform received"
+    },
+    {
+      "name": "confirmationReference",
+      "description": "platform confirmation reference for the case"
+    },
+    {
+      "name": "consentArtifactIds",
+      "description": "artifact IDs assigned by the platform"
+    },
+    {
+      "name": "status",
+      "value": "RECEIVED_FOR_REVIEW",
+      "description": "ack receipt only; not an adjudication or settlement"
+    },
+    {
+      "name": "rulesPin",
+      "description": "rulesetId + rulesVersion + rulesHash pinned at submission"
+    },
+    {
+      "name": "webhookEventIds",
+      "description": "at-least-once webhook events with eventId dedup + sequence cursor"
+    }
+  ],
+  "accepted": false,
+  "verified": false,
+  "submitted": false,
+  "networkCall": "NOT_PERFORMED",
+  "note": "People's Court Partner API v2 + @peoples-court/x402-disputes are real, publicly documented surfaces. This adapter maps CoreGuard's ADAL/1 record onto their documented shape. Mapping is structural; live submission remains credential-gated and was not performed."
+}

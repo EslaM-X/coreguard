@@ -33,6 +33,7 @@
     "create:integration": "node scripts/create-integration.mjs",
     "evidence-package": "node scripts/make-evidence-package.mjs --out evidence-package-output",
     "dispute-package": "node scripts/make-dispute-package.mjs --case A --out dispute-package-output",
+    "peoples-court:prepare": "node packages/peoples-court-adapter/cli.mjs",
     "live": "node examples/live/live-verify.js",
     "anchor": "powershell -ExecutionPolicy Bypass -File scripts/anchor-local.ps1",
     "anchor:plan": "node scripts/compute-commitment.mjs --out scripts/live-anchor-planned.json",

@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/EslaM-X/coreguard/blob/main/packages/peoples-court-adapter/schemas/evidence-export.json",
+  "title": "Evidence export mapping (People's Court Partner API v2, evidenceExporter role)",
+  "description": "Output contract for the evidence export the adapter derives from an ADAL/1 package's execution + pin layers. Mirrors the documented evidenceExporter surface: a canonical manifest (RFC 8785 for deterministic JSON) whose artifacts are individually pinned and verifiable. Authenticity challenges affect contested weight, never automatic exclusion.",
+  "type": "object",
+  "required": [
+    "kind",
+    "packageRevision",
+    "execution",
+    "pins",
+    "canonicalization",
+    "unknowns",
+    "label"
+  ],
+  "properties": {
+    "kind": { "const": "EVIDENCE_EXPORT_CANDIDATE" },
+    "packageRevision": { "type": "string" },
+    "execution": {
+      "type": "object",
+      "required": [ "network", "chainId", "txHash" ],
+      "properties": {
+        "network": { "const": "core-mainnet" },
+        "chainId": { "const": "1116" },
+        "txHash": { "type": "string", "pattern": "^0x[0-9a-fA-F]{64}$" }
+      }
+    },
+    "pins": { "type": "object" },
+    "canonicalization": { "const": "RFC 8785" },
+    "unknowns": { "type": "array", "items": { "type": "string" } },
+    "label": { "const": "SHA256_PINNED" }
+  },
+  "additionalProperties": true
+}

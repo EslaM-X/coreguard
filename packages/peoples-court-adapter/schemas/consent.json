@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/EslaM-X/coreguard/blob/main/packages/peoples-court-adapter/schemas/consent.json",
+  "title": "Consent mapping (People's Court Partner API v2)",
+  "description": "Output contract for the consent artifact the adapter derives from an ADAL/1 package's EVP/1 consent labels. Mirrors the documented consent surface (/api/v2/authorizations/consents). Modeled assent is carried as an EVP/1 derived tri-state string (FULL|PARTIAL|MISSING|UNKNOWN) and is never converted into an assertion of bilateral real-world consent. Artifact ID assignment is the platform's, after evidence submission.",
+  "type": "object",
+  "required": [
+    "kind",
+    "derivedFrom",
+    "scopeRef",
+    "agreementVersion",
+    "modeledAssent",
+    "perPartyAssent",
+    "artifactIds",
+    "label"
+  ],
+  "properties": {
+    "kind": { "const": "CONSENT_ARTIFACT_CANDIDATE" },
+    "derivedFrom": { "type": "string" },
+    "scopeRef": { "type": "string" },
+    "agreementVersion": { "type": "string" },
+    "modeledAssent": { "enum": [ "FULL", "PARTIAL", "MISSING", "UNKNOWN" ] },
+    "perPartyAssent": {
+      "type": "object",
+      "properties": {
+        "principalA": { "enum": [ "ASSENTED", "NOT_ASSENTED", "MISSING", "UNKNOWN" ] },
+        "principalB": { "enum": [ "ASSENTED", "NOT_ASSENTED", "MISSING", "UNKNOWN" ] }
+      },
+      "required": [ "principalA", "principalB" ]
+    },
+    "artifactIds": { "const": null },
+    "label": { "const": "VERIFIED_LABELS" }
+  },
+  "additionalProperties": true
+}

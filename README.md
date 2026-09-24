@@ -28,6 +28,51 @@
 
 ---
 
+## Protocol ecosystem
+
+CoreGuard is now a **stack of sealed protocols**: each layer consumes the
+previous layer's pinned output, re-verifies it, and never rewrites it.
+
+```
+ CGEP/1   execution truth — intent/policy → commitment → receipt → verifier → anchor
+   │        (live on Core Mainnet 1116; on-chain anchor VERIFIED)
+   └─► EVP/1   evidence labels — consent tri-state (FULL/PARTIAL/UNKNOWN), never a
+       │        boolean; evidenceStatus/actualStatus split; SHA-256 pins
+       └─► ADAL/1   dispute package — positions, closure window, award slot
+            │        UNKNOWN-by-design, escrow reference-only, adapter NOT_BUILT
+            ├─► Adapters   structural mapping onto documented tribunal surfaces
+            │               (People's Court Partner API v2 + x402) — offline dry-run,
+            │               credential-gated, network-call NOT_PERFORMED
+            ├─► Reference tribunal   local synthetic adjudicator + mock escrow,
+            │               fail-closed settlement semantics (no funds, no broadcast)
+            └─► Conformance   per-stage PASS / FAIL / UNKNOWN / NOT_BUILT /
+                              NOT_AUTHORIZED suite (CI-pinned)
+   +  SDK + CLI surfaces (guard.*, verify*, evidence/dispute packages)
+```
+
+| Layer | Standard | Artifacts |
+|---|---|---|
+| Execution truth | [CGEP/1](spec/CGEP-1.md) | receipt, verifier, [anchor](docs/DEPLOYMENT.md), `packages/` (SDK/CLI/guard) |
+| Evidence labels | [EVP/1](docs/evidence-package-standard.md) | `scripts/make-evidence-package.mjs` (EVP_OK, 11/11), committed fixture pairs |
+| Dispute package | [ADAL/1](docs/dispute-package-standard.md) | `scripts/make-dispute-package.mjs` (DP_OK, 25-check verifier), reference-A/B |
+| Adapter (dry-run) | [`@coreguard/peoples-court-adapter`](packages/peoples-court-adapter/README.md) | `npm run peoples-court:prepare`, schemas, dry-run fixtures |
+| Reference tribunal | [examples/reference-tribunal](examples/reference-tribunal/README.md) | sim-tribunal + mock-escrow (synthetic, fail-closed) |
+| Conformance | [integration-surface-map](docs/integration-surface-map-2026-09.md) | `test/delivery/interop-conformance.test.mjs` |
+| Article | [The Missing Verification Layer for Agentic Disputes](docs/article-missing-verification-layer-agentic-disputes.md) | publish-ready drafts (X thread, LinkedIn) |
+
+The stack's boundary promise: **execution, consent, adjudication, and settlement
+authority are four different layers.** CoreGuard pins the first two, freezes the
+record for the third, and maps (without executing) toward the fourth. Every
+artifact refuses to claim more — see the [adapter](packages/peoples-court-adapter/README.md)
+and [tribunal](examples/reference-tribunal/README.md) honesty notes.
+
+```bash
+# the full evidence→dispute→tribunal-ready path, offline and deterministic
+npm run evidence-package -- --out evidence-package-output
+npm run dispute-package -- --case A --out dispute-package-output
+npm run peoples-court:prepare -- --case dispute-package-output
+```
+
 ## Start here
 
 | You are… | Your path | Time |
@@ -456,6 +501,7 @@ packages/    canonical · intent · policy · trace · evidence · firewall · v
              — provenance = Actor Identity Card + AgentProof surfaces (declared, never detected)
              — pricing = hypothesis plan table, Decision-Gate-locked (no enforcement, never bills)
              — delivery = DDE/1 execution/acceptance boundary (engine + SDK + HTTP endpoint, zero-dep)
+             — peoples-court-adapter = ADAL/1 → uploaded-surface dry-run mapper (offline, credential-free)
 contracts/   EvidenceRegistry.sol — commitment registry (deployable, `--legacy`)
 benchmarks/  generator + 73-scenario corpus: valid/invalid/mutations/tamper/performance
 test/        canonicalization · policy · tamper suites + adversarial runner + P1 suites
@@ -464,12 +510,17 @@ examples/    transfer · swap · multistep · live · vault (Phase-1 reference l
              delivery-fixture/ — DDE/1 bilateral dispute fixture (synthetic, replayable: node examples/delivery-fixture/verify-fixture.mjs)
              agent-platform-integration/ — payout gated on DDE: SDK arc + wire-level gate with a criteria-based scenario rejection (runnable)
              real-fixture-intake/ — real-case intake: consent + signed disclosure scope → removal gate → convert-to-fixture.mjs → review-ready REAL fixture
+             reference-tribunal/ — local synthetic adjudicator + mock escrow (fail-closed settlement semantics; NOT People's Court)
              — external integration path (three tiers): delivery-fixture = schema proof · agent-platform-integration = embed the gate · real-fixture-intake = go real
 templates/   integration/ — consumer scaffold for create-coreguard-integration
 scripts/     anchor-local.ps1/.sh — local fork anchor proof ·
              compute-commitment — offline commitment plan ·
              verify-anchor — three-proofs anchor checker
 docs/        deployment · funding · contributing · security · delivery-dispute-boundary.md (DDE/1) · pricing.md
+             evidence-package-standard.md (EVP/1) · dispute-package-standard.md (ADAL/1)
+             article-missing-verification-layer-agentic-disputes.md + publish-ready X/LinkedIn drafts
+             integration-surface-map-2026-09.md (Phase C) · funding-roadmap-2026.md (Phase D)
+             revenue-path-2026-09.md (Phase E) · ip-workstream-2026-09.md (Phase F)
              DELIVERY-DISPUTE-DEMO.html — live bilingual DDE demo
              DDE-API-REFERENCE.html — live HTTP endpoint reference (engine runs in-page)
              INTEGRATION.md (repo root) — one-page shareable integration summary (CI-executed fences)

@@ -31,7 +31,7 @@ Unzip if you received the attachment (you will see the ten records,
 and compare against `hashes.json`:
 
 ```bash
-node --input-type=module -e "import { createHash } from 'node:crypto'; import { readFileSync } from 'node:fs'; const dir = process.argv[1]; const pins = JSON.parse(readFileSync(dir + '/hashes.json', 'utf8')).files; let bad = 0; for (const [name, pin] of Object.entries(pins)) { const actual = '0x' + createHash('sha256').update(readFileSync(dir + '/' + name)).digest('hex'); if (actual !== pin) { console.log('MISMATCH', name, pin, '!=', actual); bad++; } } console.log(bad === 0 ? 'all pins match' : bad + ' mismatches — tampered'); process.exit(bad ? 1 : 0);"
+node --input-type=module -e "import { createHash } from 'node:crypto'; import { readFileSync } from 'node:fs'; const dir = process.argv[1]; const pins = JSON.parse(readFileSync(dir + '/hashes.json', 'utf8')).files; let bad = 0; for (const [name, pin] of Object.entries(pins)) { const actual = '0x' + createHash('sha256').update(readFileSync(dir + '/' + name)).digest('hex'); if (actual !== pin) { console.log('MISMATCH', name, pin, '!=', actual); bad++; } } console.log(bad === 0 ? 'all pins match' : bad + ' mismatches — tampered'); process.exit(bad ? 1 : 0);" <fixture-dir>
 ```
 
 **Expected:** `all pins match`, exit 0. The loop covers the ten records;

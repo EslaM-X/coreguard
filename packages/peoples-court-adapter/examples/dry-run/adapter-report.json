@@ -1,0 +1,30 @@
+{
+  "protocol": "PEOPLES-COURT-ADAPTER/1",
+  "fixtureVersion": "dry-run-v1.0.0",
+  "generatedAtUtc": "2026-09-24T12:00:00Z",
+  "case": "reference-A",
+  "labels": {
+    "authority": "DERIVED",
+    "consent": "VERIFIED_LABELS",
+    "execution": "CORE_MAINNET_RECEIPT",
+    "evidence": "SHA256_PINNED",
+    "record": "ADAL/1",
+    "award": "EXTERNAL",
+    "settlement": "AUTHORITY_BOUND",
+    "network-call": "NOT_PERFORMED"
+  },
+  "stage": "PEOPLES_COURT_ADAPTER_READY",
+  "networkCall": "NOT_PERFORMED",
+  "disclaimer": "Structural dry-run mapping to the publicly documented People's Court Partner API v2 + x402 dispute surface. No live call; no credential embedded; no settlement authority asserted.",
+  "rulesPin": {
+    "rulesetId": "pending-assignment",
+    "rulesVersion": "pending-assignment",
+    "rulesHash": "pending-assignment",
+    "note": "the platform's governing Rules are pinned at submission; CoreGuard records the reference, it does not author the rules."
+  },
+  "files": [
+    "expected-request.json",
+    "expected-response.json",
+    "adapter-report.json"
+  ]
+}

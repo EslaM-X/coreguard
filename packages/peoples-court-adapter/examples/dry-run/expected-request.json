@@ -1,0 +1,136 @@
+{
+  "dryRun": true,
+  "fixtureVersion": "dry-run-v1.0.0",
+  "protocol": "PEOPLES-COURT-ADAPTER/1",
+  "generatedAtUtc": "2026-09-24T12:00:00Z",
+  "generatedBy": "packages/peoples-court-adapter/adapter.mjs",
+  "targetSurface": "People's Court Partner API v2 + @peoples-court/x402-disputes (publicly documented surface; referenced, not invoked)",
+  "labels": {
+    "authority": "DERIVED",
+    "consent": "VERIFIED_LABELS",
+    "execution": "CORE_MAINNET_RECEIPT",
+    "evidence": "SHA256_PINNED",
+    "record": "ADAL/1",
+    "award": "EXTERNAL",
+    "settlement": "AUTHORITY_BOUND",
+    "network-call": "NOT_PERFORMED"
+  },
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/v2/authorizations/authority-grants",
+      "purpose": "live authority grant binding (actorId/principalId + digest-bound statement)",
+      "note": "mapped object is a DERIVED candidate; live grant requires authorized credential"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/authorizations/consents",
+      "purpose": "consent artifact registration scoped to the pinned agreement",
+      "note": "artifact IDs are assigned by the platform after submission"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/evidence/exports",
+      "purpose": "evidenceExporter export of the canonical, pinned evidence manifest",
+      "note": "RFC 8785 canonical manifest; artifacts individually pinned and verifiable"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/settlements/bindings",
+      "purpose": "authority-bound settlement binding naming allowed actions + authority corpus",
+      "note": "an Award does not move money; execution needs a separately scoped settlement credential"
+    },
+    {
+      "method": "POST",
+      "path": "x402-disputes: adjudication.prepare()",
+      "purpose": "dispute declaration + consent-aware adjudication initiation (idempotencyKey, authorityGrantId, consentArtifactIds)",
+      "note": "packet integrity + party/amount bindings verified before transport"
+    }
+  ],
+  "rulesPin": {
+    "rulesetId": "pending-assignment",
+    "rulesVersion": "pending-assignment",
+    "rulesHash": "pending-assignment",
+    "note": "the platform's governing Rules are pinned at submission; CoreGuard records the reference, it does not author the rules."
+  },
+  "mappings": {
+    "authority": {
+      "kind": "AUTHORITY_GRANT_CANDIDATE",
+      "derivedFrom": "ADO.layers consent.parties (modeled) — DERIVED, not live authority",
+      "principal": "0x716891f369eadbd06bb0a2c2ed091a193e4390e6",
+      "counterparty": "0xb240f6879da4c214d534fd18874ee12142b8c274",
+      "role": "client",
+      "withinStatedAuthority": true,
+      "confirmationRequired": true,
+      "label": "DERIVED",
+      "note": "A live authority grant additionally requires an authorized People's Court credential and the platform's confirmation binding (actorId/principalId + digest-bound statement)."
+    },
+    "consentArtifact": {
+      "kind": "CONSENT_ARTIFACT_CANDIDATE",
+      "derivedFrom": "evidence.consent.modeledAssent + parties",
+      "scopeRef": "ASSENT-DEED-2026-09-23/O1",
+      "agreementVersion": "DDE-FIXTURE-001-AGREEMENT@1.0.0",
+      "modeledAssent": "FULL",
+      "perPartyAssent": {
+        "principalA": "ASSENTED",
+        "principalB": "ASSENTED"
+      },
+      "artifactIds": null,
+      "label": "VERIFIED_LABELS",
+      "note": "modeledAssent is an EVP/1 derived tri-state; it is never converted into an assertion of bilateral real-world consent. Artifact IDs are assigned by the platform after evidence submission."
+    },
+    "evidenceExport": {
+      "kind": "EVIDENCE_EXPORT_CANDIDATE",
+      "packageRevision": "0x1dab68e7b68f0d7f0b19898ba5bac0b4b9354de5658890197bf4c7356f94e02e",
+      "execution": {
+        "network": "core-mainnet",
+        "chainId": "1116",
+        "txHash": "0xe67c61fda81200bf026faee31c23a7b7e7f56ed24f06ffe24f071fa06891a9b8",
+        "receipt": {
+          "status": "0x1 (success)",
+          "blockNumber": "38712625"
+        }
+      },
+      "pins": {
+        "dispute-package.json": "0x1dab68e7b68f0d7f0b19898ba5bac0b4b9354de5658890197bf4c7356f94e02e"
+      },
+      "canonicalization": "RFC 8785",
+      "unknowns": [
+        "realWorldAuthority",
+        "modeledCompensationSettlement",
+        "meritsOutcome"
+      ],
+      "label": "SHA256_PINNED",
+      "note": "evidenceExporter-style export: canonical manifest with individually pinned, verifiable artifacts. Authenticity challenges affect contested weight at adjudication, never automatic exclusion."
+    },
+    "settlementBinding": {
+      "kind": "SETTLEMENT_BINDING_CANDIDATE",
+      "awardStatus": "UNKNOWN",
+      "adjudicator": "NONE",
+      "escrow": {
+        "deployed": false,
+        "chain": "none",
+        "kind": "REFERENCE_INTERFACE"
+      },
+      "allowedActions": [],
+      "executionBoundary": "An Award does not move money. Execution is separate and requires a settlement adapter credential scoped to exactly these actions within this authority corpus. decision_served never triggers execution without that separately scoped credential.",
+      "label": "AUTHORITY_BOUND",
+      "note": "CoreGuard escrow is reference-only in this record. No settlement instruction may be issued without a real signed award over this package's bytes and an authority-bound credential."
+    }
+  },
+  "bodyRef": "expected-request-body.json",
+  "credentialsRequired": [
+    {
+      "name": "channelToken",
+      "purpose": "authenticated channel to the Partner API",
+      "status": "NOT_PROVIDED"
+    },
+    {
+      "name": "settlementAdapterCredential",
+      "purpose": "separately scoped settlement execution credential",
+      "status": "NOT_PROVIDED"
+    }
+  ],
+  "networkCall": "NOT_PERFORMED",
+  "disclaimer": "This is a dry-run structural template, not a live submission. No credential is embedded, no network call is made, and no settlement authority is asserted or implied."
+}
