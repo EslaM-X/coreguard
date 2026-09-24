@@ -9,9 +9,12 @@ of a decision into success.
 
 ## 1. The one concrete, open OSS path: OCV Catalyst v2
 
-**Status: CONFIRMED OPEN (Summer 2026 cohort, verified 2026-09-24).**
+**Status: WINDOW CLOSED — next window unannounced (re-verified 2026-09-24).**
 
-| Item | Value (verified) |
+The Summer 2026 v2 cohort is no longer open for application. Historical window
+for reference (do not cite as open):
+
+| Item | Value (historical, window closed) |
 |---|---|
 | Program | OCV Catalyst v2 — OSS incubator |
 | Award | $10,000 |
@@ -19,19 +22,22 @@ of a decision into success.
 | Selection | rolling review |
 | Application deadline | 2026-06-28 |
 | Kickoff | 2026-07-14 |
-| Application channel | greenhouse.io OSS listing |
 
-Notes:
-- This is the **only** currently-live OSS grant path we could confirm with dates
-  from a primary source. An earlier search result pointed at a "v1 Application
-  (Spring 2026)" record with different dates (deadline January 16, kickoff
-  February 2); those dates describe an earlier cohort and must not be cited for
-  the Summer 2026 window.
-- Candidate fit: CoreGuard is a determinism-focused, test-heavy OSS protocol —
-  the conformance/verification angle is directly demonstrable in a 3-month
-  incubator (forensic determinism, adapter conformance, reference tribunal).
-- Pre-submission evidence already in-repo: 23 new conformance/contract tests for
-  the adapter + tribunal, byte-determinism tests, fail-closed semantics.
+Re-verification notes:
+- Verified against OCV's handbook (`handbook.opencoreventures.com/catalyst`)
+  and the Greenhouse listing on 2026-09-24: the only advertised windows are
+  Spring 2026 (closed) and Summer 2026 v2 (closed); **no Fall/Winter 2026 or
+  later window is announced**.
+- The handbook page currently still advertises the stale Spring 2026 window —
+  a page existing does not make a window open. Do not build a plan on this
+  path until a fresh window is confirmed from a primary source.
+- Keeping the record here preserves the verified numbers in case the loop
+  opens again; the moment a new window is confirmed it is moved back to the
+  confirmed-open table with fresh dates.
+- Candidate fit (unchanged): CoreGuard is a determinism-focused, test-heavy
+  OSS protocol — the conformance/verification angle is directly demonstrable
+  (forensic determinism, adapter conformance, reference tribunal, live-slice
+  harness L1–L3).
 
 ### Milestones we would ship each is funded
 
@@ -59,7 +65,7 @@ table above, with dates, in the same "verified" format.
 
 | Path | Probability | Amount | Trigger |
 |---|---|---|---|
-| OCV Catalyst v2 | honest: low (8 slots) | $10,000 | application by 2026-06-28 |
+| OCV Catalyst v3 (next cohort) | honest: low (8 slots) | $10,000 | next window unannounced — re-verify before planning |
 | Service: verification runs for BTCFi protocols/auditors | medium | $2k–10k / engagement | external demand + a signed engagement |
 | Core accelerator (if a current cohort opens) | low–medium | variable | confirmed window + application |
 | Grants (ecosystem DAOs, matching pools) | low | variable | open calls, no fabrication |
