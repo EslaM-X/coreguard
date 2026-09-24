@@ -82,11 +82,27 @@ test("boundary: legacy-quarantine is excluded by design and reported", () => {
     const q = join(d, "legacy-quarantine");
     mkdirSync(q);
     writeFileSync(join(q, "legacy-broadcast.txt"), PEM);
+    writeFileSync(join(d, "README.txt"), "in-scope clean file so the scan certifies something\n");
     const out = join(d, "rep.json");
     const r = runAudit(d, [], out);
     assert.equal(r.status, 0, `quarantined private-key material must be out of scan scope: ${r.stdout}${r.stderr}`);
     const report = JSON.parse(readFileSync(out, "utf8"));
     assert.ok(report.excludedDirs.includes("legacy-quarantine"));
+    assert.ok(!r.stdout.includes("legacy-broadcast.txt"));
+  });
+});
+
+test("boundary: a nonexistent root is a scanner error, never a pass", () => {
+  const r = runAudit(join(REPO, "no-such-dir-" + Date.now()));
+  assert.equal(r.status, 2);
+  assert.match(r.stderr + r.stdout, /does not exist or is not a directory/);
+});
+
+test("boundary: an empty scan certifies nothing (exit 2, not PASS)", () => {
+  withTmp((d) => {
+    const r = runAudit(d);
+    assert.equal(r.status, 2);
+    assert.match(r.stderr + r.stdout, /0 files in scan scope/);
   });
 });
 

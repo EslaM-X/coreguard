@@ -44,6 +44,8 @@ redacted SHA-256 prefix only.
   a private key, `deployed: true`, `networkCall: PERFORMED`, a filled
   `awardSlot` — are refused, that the exclusions hold, that `git` never tracks
   a local env secret, and that the report is byte-deterministic.
+- A root that does not exist, or a scan that yields **zero in-scope files**,
+  exits `2` — an empty scan certifies nothing and is never reported as PASS.
 
 ## The honest boundary of this boundary
 

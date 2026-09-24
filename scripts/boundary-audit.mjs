@@ -24,13 +24,15 @@
  * Usage:
  *   node scripts/boundary-audit.mjs [--root <dir>] [--out <report.json>]
  *
- * Exit: 0 = clean, 1 = violations found (fail-closed), 2 = scanner error.
+ * Exit: 0 = clean, 1 = violations found (fail-closed), 2 = scanner error —
+ * a root that does not exist, or a scan that yields zero in-scope files,
+ * exits 2: an empty scan certifies nothing and must never report PASS.
  * Matched content is never echoed — only paths, check ids, and a redacted
  * SHA-256 prefix.
  */
 
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -129,7 +131,16 @@ function main() {
   const root = resolve(rootIdx >= 0 ? args[rootIdx + 1] : REPO);
   const outPath = outIdx >= 0 ? args[outIdx + 1] : null;
 
+  if (!existsSync(root) || !statSync(root).isDirectory()) {
+    console.error(`BOUNDARY-AUDIT: ERROR  root does not exist or is not a directory: ${root}`);
+    process.exit(2);
+  }
+
   const files = walk(root);
+  if (files.length === 0) {
+    console.error(`BOUNDARY-AUDIT: ERROR  0 files in scan scope under ${root} — refusing to certify an empty scan (fail-closed)`);
+    process.exit(2);
+  }
   const findings = [];
   let scannedText = 0;
   let scannedJson = 0;
