@@ -135,6 +135,7 @@ const SKIP = [
   { re: /startDeliveryEndpoint/, reason: "server-start one-liner — executed against a live child by doc-curl-contract.test.js (double-binding port 8787 here would also hang this fence)" },
   { re: /^cd coreguard$/, reason: "lands in the fresh clone created by the documented `git clone` in the same fence (external network) — the package's own verification fences run from the package root" },
   { re: /forge /, reason: "Solidity toolchain (foundry) — a non-Node contract file guarded by the CI Contracts job (forge build / forge test), not a node/npm command; not installed on every dev box" },
+  { re: /^node scripts\/build-verifier\.mjs$/, reason: "artifact build gate — exit code is toolchain-present-dependent: without cargo it SHA-checks only and exits 0, but on CI the auto-installed rustup cargo lacks the wasm32-unknown-unknown target so regeneration fails and it exits 1; the byte-drift verdict is owned by the independent-verifier pipeline, not a docs contract" },
 ];
 
 /** Build the reader's world: junctions for read-only surfaces, copies for the rest. */
