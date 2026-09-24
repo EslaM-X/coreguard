@@ -18,8 +18,8 @@ credential-gated / governance-blocked).
 | 2 | People's Court Partner API v2 — consents | `/api/v2/authorizations/consents` | consent-artifact mapping (`VERIFIED_LABELS`) |
 | 3 | People's Court evidenceExporter role | canonical manifest (RFC 8785), pinned artifacts | evidence-export mapping (`SHA256_PINNED`) |
 | 4 | People's Court settlement bindings | named allowed actions + authority corpus; Award ≠ execution | settlement-binding mapping (`AUTHORITY_BOUND`) |
-| 5 | People's Court webhooks | at-least-once, `eventId` dedup, sequence cursor | documented in adapter fixture; not implemented |
-| 6 | x402 dispute extension (`@peoples-court/x402-disputes`) | `adjudication.prepare()` with `idempotencyKey`, `authorityGrantId`, `consentArtifactIds` | referenced as an endpoint in the dry-run fixture; not invoked |
+| 5 | People's Court webhooks | at-least-once, `eventId` dedup, sequence cursor | `webhook-consumer.mjs` — replay consumer (dedup + cursor + replay-ahead gaps) + `examples/recorded-feed.json` fixture |
+| 6 | x402 dispute extension (`@peoples-court/x402-disputes`) | `adjudication.prepare()` with `idempotencyKey`, `authorityGrantId`, `consentArtifactIds` | `x402-prepare.mjs` — deterministic packet builder + digest pin; called by `cli-harness.mjs` |
 | 7 | Generic tribunal (any external adjudicator) | signed reasoned Award over package bytes | `examples/reference-tribunal` simulator (SYNTHETIC) |
 | 8 | Escrow / settlement execution | CoreGuard `escrowRef` interface (reference-only) | mock escrow state machine (no funds, no broadcast) |
 
@@ -32,8 +32,8 @@ credential-gated / governance-blocked).
 | PC Partner API v2 (authority grants + consents) | **DRY-RUN** | integrator with authorized PC credential | produce mapped candidates + offline template |
 | PC evidenceExporter | **DRY-RUN** | integrator | emit pinned, canonical evidence manifest fields |
 | PC settlement binding | **DRY-RUN** | integrator with settlement adapter credential | name the boundary; never write an executable action |
-| PC webhooks | **NOT_BUILT** | integrator | contract documented; consumer not implemented |
-| x402 `adjudication.prepare()` | **DRY-RUN** | integrator | packet-shaped fixtures; verification of packet integrity as a local pre-step |
+| PC webhooks | **DRY-RUN** | integrator | webhook consumer shipped + replay-tested offline (`eventId` dedup, sequence cursor, out-of-order hold); no live receive |
+| x402 `adjudication.prepare()` | **DRY-RUN** | integrator | deterministic packet builder + digest pin; live call credential-gated |
 | Generic tribunal (award slot) | **NOT_AUTHORIZED** — CoreGuard never fills the award slot | external adjudicator | award slot stays `UNKNOWN`; a real award is external-signed |
 | Escrow settlement execution | **NOT_AUTHORIZED** — governance `CONDITIONAL NO-GO`; `deployed:false` | owner decision + separate credential | reference interface only |
 

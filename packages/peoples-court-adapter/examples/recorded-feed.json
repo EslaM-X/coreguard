@@ -1,0 +1,85 @@
+{
+  "protocol": "PEOPLES-COURT-WEBHOOK-FEED/1",
+  "note": "Recorded at-least-once webhook stream (fixture). Simulates a credential-holding integrator's test-account delivery: in-order events, one duplicate redelivery (event_0002 sent twice), and one out-of-order delivery (event_0005 arriving before event_0004). payloadHash values are the true SHA-256 of the canonical payload — the consumer verifies each one; a corrupted event fails closed. The harness never dials out; this feed is the recorded input only.",
+  "events": [
+    {
+      "eventId": "event_0001",
+      "sequence": 1,
+      "type": "submission.received",
+      "occurredAtUtc": "2026-09-24T10:00:01Z",
+      "payload": {
+        "packageRevision": "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+        "status": "RECEIVED_FOR_REVIEW"
+      },
+      "payloadHash": "0x26a37eba206a14716cd621d261b6eddd704298b268f77593d84c745aeb1e3f0c"
+    },
+    {
+      "eventId": "event_0002",
+      "sequence": 2,
+      "type": "evidence.exported",
+      "occurredAtUtc": "2026-09-24T10:00:02Z",
+      "payload": {
+        "packageRevision": "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+        "manifest": "RFC 8785 canonical, SHA-256 pinned"
+      },
+      "payloadHash": "0x7d6661a23760f87e47e7ca4127b91ca8b01a499150e293d762510e3d2ec73ad2"
+    },
+    {
+      "eventId": "event_0002",
+      "sequence": 2,
+      "type": "evidence.exported",
+      "occurredAtUtc": "2026-09-24T10:00:02Z",
+      "payload": {
+        "packageRevision": "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+        "manifest": "RFC 8785 canonical, SHA-256 pinned"
+      },
+      "payloadHash": "0x7d6661a23760f87e47e7ca4127b91ca8b01a499150e293d762510e3d2ec73ad2"
+    },
+    {
+      "eventId": "event_0003",
+      "sequence": 3,
+      "type": "consent.artifacts.registered",
+      "occurredAtUtc": "2026-09-24T10:00:03Z",
+      "payload": {
+        "packageRevision": "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+        "consentArtifactIds": ["ca_001", "ca_002"]
+      },
+      "payloadHash": "0x4d7e5e512743a0857947c62352fa248f1017ac4f3ad46e6288d79663ef2d891c"
+    },
+    {
+      "eventId": "event_0005",
+      "sequence": 5,
+      "type": "authority.grant.confirmed",
+      "occurredAtUtc": "2026-09-24T10:00:05Z",
+      "payload": {
+        "packageRevision": "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+        "authorityGrantId": "ag_001",
+        "confirmationBinding": "actorId/principalId + digest-bound statement"
+      },
+      "payloadHash": "0x7da4a45c3d125bf22cfdb1c35fc81ed316b25ec60b172cb352975dceac88dd7a"
+    },
+    {
+      "eventId": "event_0004",
+      "sequence": 4,
+      "type": "rules.pinned",
+      "occurredAtUtc": "2026-09-24T10:00:04Z",
+      "payload": {
+        "packageRevision": "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+        "rulesetId": "RS-7",
+        "rulesHash": "pinned-at-submission"
+      },
+      "payloadHash": "0x4aa0ebfb614037a4ea7e21142b627a4d118e72f4ea5f1014361953149484ebfb"
+    },
+    {
+      "eventId": "event_0006",
+      "sequence": 6,
+      "type": "adjudication.prepared",
+      "occurredAtUtc": "2026-09-24T10:00:06Z",
+      "payload": {
+        "packageRevision": "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+        "status": "PREPARED_FOR_REVIEW"
+      },
+      "payloadHash": "0xf4a75fc466cd054e761bb14ad0dca34fd86b1c2b7d948121e412f09895971bcd"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "x402 dispute extension — adjudication.prepare() packet",
+  "description": "Ready-for-transport packet shaped to @peoples-court/x402-disputes. The live call is performed by a credential-holding integrator; CoreGuard performs no network call.",
+  "type": "object",
+  "required": ["protocol", "method", "idempotencyKey", "authorityGrantId", "consentArtifactIds", "payload", "networkCall", "note"],
+  "properties": {
+    "protocol": { "const": "X402-DISPUTES/1" },
+    "method": { "const": "adjudication.prepare" },
+    "idempotencyKey": { "type": "string", "pattern": "^[0-9a-f]{48}$" },
+    "authorityGrantId": { "type": "string" },
+    "consentArtifactIds": { "type": "array", "items": { "type": "string" } },
+    "payload": {
+      "type": "object",
+      "required": ["packageRevision", "disputeRef", "partiesBound"],
+      "properties": {
+        "packageRevision": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "disputeRef": { "type": "string" },
+        "partiesBound": { "const": true }
+      }
+    },
+    "networkCall": { "const": "NOT_PERFORMED" },
+    "note": { "type": "string" }
+  }
+}

@@ -35,6 +35,7 @@
     "evidence-package": "node scripts/make-evidence-package.mjs --out evidence-package-output",
     "dispute-package": "node scripts/make-dispute-package.mjs --case A --out dispute-package-output",
     "peoples-court:prepare": "node packages/peoples-court-adapter/cli.mjs",
+    "peoples-court:harness": "node packages/peoples-court-adapter/cli-harness.mjs",
     "aea1:prepare": "node packages/agentic-escrow-arbitration/cli.mjs",
     "live": "node examples/live/live-verify.js",
     "anchor": "powershell -ExecutionPolicy Bypass -File scripts/anchor-local.ps1",

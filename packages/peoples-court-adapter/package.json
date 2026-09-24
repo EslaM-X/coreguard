@@ -6,12 +6,19 @@
   "main": "./adapter.mjs",
   "exports": {
     ".": "./adapter.mjs",
-    "./cli": "./cli.mjs"
+    "./cli": "./cli.mjs",
+    "./cli-harness": "./cli-harness.mjs",
+    "./webhook-consumer": "./webhook-consumer.mjs",
+    "./x402-prepare": "./x402-prepare.mjs"
   },
   "files": [
     "adapter.mjs",
     "cli.mjs",
-    "schemas"
+    "cli-harness.mjs",
+    "webhook-consumer.mjs",
+    "x402-prepare.mjs",
+    "schemas",
+    "examples"
   ],
   "private": true,
   "engines": {
