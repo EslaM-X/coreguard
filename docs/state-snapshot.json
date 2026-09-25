@@ -1,0 +1,24 @@
+{
+  "measuredAtUtc": "2026-09-25T11:30:09Z",
+  "gitCommit": "b9a5ee7d05e0c5b52ff95a3917728e63ff9c3789",
+  "commitsAheadOfV060": 66,
+  "testsTotal": 1022,
+  "boundaryAudit": {
+    "filesScanned": 1016,
+    "violations": 0,
+    "check": "PASS"
+  },
+  "peoplesCourtHarness": "PEOPLES_COURT_HARNESS_READY",
+  "docsNode": {
+    "executed": 70,
+    "skipListed": 53,
+    "docsCovered": 18
+  },
+  "reproduce": {
+    "tests": "npm test",
+    "audit": "npm run boundary:audit",
+    "harness": "npm run peoples-court:harness",
+    "docsNode": "node --test --test-concurrency=1 test/ci/docs-node-contract.test.js",
+    "snapshot": "node scripts/current-state.mjs --write --tests <full-suite pass count>"
+  }
+}

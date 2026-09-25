@@ -6,7 +6,7 @@
  * suite runs identically on every supported Node version and OS.
  */
 
-import { readdirSync } from "fs";
+import { readdirSync, readFileSync } from "fs";
 import { join } from "path";
 import { spawnSync } from "child_process";
 
@@ -25,8 +25,38 @@ if (files.length === 0) {
 }
 
 const result = spawnSync(process.execPath, ["--test", ...concurrencyArgs(), ...files], {
-  stdio: "inherit",
+  encoding: "utf8",
+  maxBuffer: 128 * 1024 * 1024,
 });
+
+if (result.stdout) process.stdout.write(result.stdout);
+if (result.stderr) process.stderr.write(result.stderr);
+
+// Machine-binding the reported suite count: after a green run, the pass total
+// must equal docs/state-snapshot.json.testsTotal. The snapshot is regenerated
+// with `node scripts/current-state.mjs --write --tests <n>` after every full
+// green run, so any test growth/shrink breaks `npm test` until the docs that
+// cite the number are refreshed — the count can never silently outlive the doc.
+if (result.status === 0) {
+  const pass = Number((result.stdout.match(/^ℹ pass (\d+)$/m) || [])[1] ?? NaN);
+  const total = Number((result.stdout.match(/^ℹ tests (\d+)$/m) || [])[1] ?? NaN);
+  const snapshotPath = join(process.cwd(), "docs", "state-snapshot.json");
+  try {
+    const expected = JSON.parse(readFileSync(snapshotPath, "utf8")).testsTotal;
+    if (Number.isFinite(pass) && Number.isFinite(expected) && pass !== expected) {
+      console.error(`\nRUN-TESTS: DRIFT  suite passed ${pass} tests but docs/state-snapshot.json pins testsTotal=${expected}.`);
+      console.error(`RUN-TESTS:        run: node scripts/current-state.mjs --write --tests ${pass}`);
+      console.error(`RUN-TESTS:        then refresh every doc that cites the count, then re-run npm test.`);
+      process.exit(1);
+    }
+    if (Number.isFinite(total) && Number.isFinite(pass) && pass !== total) {
+      console.error(`\nRUN-TESTS: AGGREGATE MISMATCH  TAP reported tests ${total} but pass ${pass}.`);
+      process.exit(1);
+    }
+  } catch {
+    // no committed snapshot yet — nothing to enforce (first snapshot run).
+  }
+}
 
 process.exit(result.status ?? 1);
 
