@@ -1,6 +1,6 @@
 # CoreGuard DDE — Integration (one page)
 
-[![Docs Wire Contract](https://github.com/EslaM-X/coreguard/actions/workflows/docs-contract.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/docs-contract.yml) · **every command on this page is executed against a live endpoint on every push**
+[![Docs Wire Contract](https://github.com/EslaM-X/coreguard/actions/workflows/docs-contract.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/docs-contract.yml) · [![Docs](https://img.shields.io/badge/docs-API%20reference%20live-0969DA.svg?logo=githubpages&logoColor=white)](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html) · **every command on this page is executed against a live endpoint on every push**
 
 > **Execution verification does not decide delivery conformity.**
 > Acceptance or rejection of the delivered work is a separate determination
