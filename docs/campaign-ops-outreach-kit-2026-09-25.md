@@ -1,4 +1,4 @@
-# Campaign Ops â€” Outreach Execution Kit (2026-09-25)
+# Campaign Ops — Outreach Execution Kit (2026-09-25)
 
 Owner-facing kit for the **adoption mode** that began this day. Everything in
 the plan (`docs/master-launch-adoption-plan-v2-2026-09-25.md`) becomes
@@ -6,16 +6,16 @@ executable here: the exact Phase A message, six copy-ready Phase B letters,
 the only success metric that matters, and the rule that hard-stops release
 creep. Nothing in this file is sent automatically. Every letter needs the
 owner's separate sign-off (the gate column) before it exists in anyone's
-inbox â€” and the truth ledger at the end records whatever actually goes out.
+inbox — and the truth ledger at the end records whatever actually goes out.
 
-Ù…Ù„Ø®Øµ Ø¨Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©: Ù…Ø±Ø­Ù„Ø© Ø§Ù„ØªØ«Ø¨ÙŠØª Ø§Ù†ØªÙ‡ØªØŒ ÙˆÙ†Ø­Ù† ÙÙŠ Ù…Ø±Ø­Ù„Ø© Ø§Ù„Ø¹Ø±Ø¶. Ø§Ù„Ù‡Ø¯Ù Ø§Ù„ÙˆØ­ÙŠØ¯
-Ù„Ù„Ù‚ÙŠØ§Ø³ Ù‡Ùˆ **Ø§Ø³ØªÙ‡Ù„Ø§Ùƒ Ø®Ø§Ø±Ø¬ÙŠ Ù„Ø­Ø²Ù…Ø© Ø§Ù„Ø£Ø¯Ù„Ø©** (ÙŠÙØ´ØºÙ‘Ù„ Ø£Ùˆ ÙŠÙØ­Øµ Ø£Ø­Ø¯Ù‡Ù… `npm test`/
-`boundary:audit` Ø¹Ù„Ù‰ Ø§Ø³ØªÙ†Ø³Ø§Ø®Ù‡ Ø£Ùˆ ÙŠØ³ØªØ®Ø¯Ù… Ø­Ø²Ù…Ø© EVP/1 Ø£Ùˆ ADAL/1 Ø¯Ø§Ø®Ù„ Ù†Ø¸Ø§Ù…Ù‡) â€”
-Ù„ÙŠØ³ Ø¹Ø¯Ø¯ Ø§Ù„Ø±Ø³Ø§Ø¦Ù„ ÙˆÙ„Ø§ Ø§Ù„Ø±Ø¯ÙˆØ¯ ÙˆÙ„Ø§ Ø§Ù„Ø¥Ø¹Ø¬Ø§Ø¨Ø§Øª. Ø³Øª Ø±Ø³Ø§Ø¦Ù„ Ø¬Ø§Ù‡Ø²Ø© Ù„Ù„Ù†Ø³Ø® Ø¨Ø§Ù„Ø£Ø³ÙÙ„ØŒ
-ÙƒÙ„ ÙˆØ§Ø­Ø¯Ø© ØªÙ‚Ù†ÙŠØ© Ù‚ØµÙŠØ±Ø© Ø¨Ù„Ø§ Ø£ÙŠ Ø·Ù„Ø¨ ("No asks")ØŒ ÙˆÙ†Ø´Ø± ÙƒÙ„ ÙˆØ§Ø­Ø¯Ø© Ù‚Ø±Ø§Ø±Ùƒ Ø§Ù„Ù…Ù†ÙØµÙ„.
-Ù„Ø§ Ø¥Ø±Ø³Ø§Ù„ ØªÙ„Ù‚Ø§Ø¦ÙŠ Ø¹Ù„Ù‰ Ø§Ù„Ø¥Ø·Ù„Ø§Ù‚ØŒ ÙˆÙ„Ø§ Ù…ÙØ·Ø§Ø±Ø¯Ø© Ù…Ù‡Ù…Ø§ Ø·Ø§Ù„ Ø§Ù„ØµÙ…Øª.
+ملخص بالعربية: مرحلة التثبيت انتهت، ونحن في مرحلة العرض. الهدف الوحيد
+للقياس هو **استهلاك خارجي لحزمة الأدلة** (يُشغّل أو يفحص أحدهم `npm test`/
+`boundary:audit` على استنساخه أو يستخدم حزمة EVP/1 أو ADAL/1 داخل نظامه) —
+ليس عدد الرسائل ولا الردود ولا الإعجابات. ست رسائل جاهزة للنسخ بالأسفل،
+كل واحدة تقنية قصيرة بلا أي طلب ("No asks")، ونشر كل واحدة قرارك المنفصل.
+لا إرسال تلقائي على الإطلاق، ولا مُطاردة مهما طال الصمت.
 
-## 1. Phase A â€” the one People's Court message
+## 1. Phase A — the one People's Court message
 
 The message is final in `docs/phase-a-people-court-followup-draft-2026-09-25.md`
 (same artifact-first framing the owner confirmed: *"We kept building. The
@@ -24,7 +24,7 @@ current artifact is mechanically anchored and reproducible across Node
 
 Posting rules (binding, from the plan):
 - Verify the day you post: `npm test` green and
-  `node scripts/current-state.mjs --check` â†’ CHECK OK.
+  `node scripts/current-state.mjs --check` → CHECK OK.
 - Post under the existing thread (not a new one), owner's account, GitHub
   Discussion Markdown.
 - Then hold indefinitely. Re-entry only on their reply. If they never reply,
@@ -32,7 +32,7 @@ Posting rules (binding, from the plan):
 - People's Court is a technical-signal channel, not a gate: whether or not
   they reply, Phase B below proceeds on schedule.
 
-## 2. Phase B â€” six copy-ready letters
+## 2. Phase B — six copy-ready letters
 
 All letters share this honesty skeleton: we are the evidence/verification
 boundary between execution evidence and adjudication/settlement; every claim
@@ -40,7 +40,7 @@ is reproducible from a fresh clone; nothing asks anything. Each letter is
 written for the target's real surface. Commands stay inline (rendered as code)
 so a counterparty can literally run them.
 
-Shared facts every letter may state (stable, snapshot-anchored â€” no file
+Shared facts every letter may state (stable, snapshot-anchored — no file
 counts on purpose, so letters never go stale):
 - `npm test` = 1033 tests, CI-enforced against `docs/state-snapshot.json` on
   Node 18/20/22 (a stale number in any doc is a failing build).
@@ -53,14 +53,14 @@ counts on purpose, so letters never go stale):
   (integrationStatus NOT_BUILT), synthetic reference tribunal.
 - Anchor: https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
 
-### Letter B1 â€” Internet-Court ecosystem (GenLayer / Internet Court coalition)
+### Letter B1 — Internet-Court ecosystem (GenLayer / Internet Court coalition)
 
 Target surface: GenLayer docs/forum + the Internet Court initiative contacts
 (July-2026 coalition incl. MetaMask, OKX, BNB Chain, Matter Labs; mainnet
 target Q4 2026). Entry artifacts: EVP/1 + ADAL/1 + conformance fixtures.
 
 > You are building the environment where AI adjudication will reason over
-> agent disputes. The hard part of that is not the judge â€” it is the
+> agent disputes. The hard part of that is not the judge — it is the
 > evidence: deterministic, source-attested, reproducible. We built exactly
 > that rail and it is open.
 >
@@ -75,7 +75,7 @@ target Q4 2026). Entry artifacts: EVP/1 + ADAL/1 + conformance fixtures.
 > The whole repository is machine-audited: 1033 tests enforced against a
 > committed snapshot on Node 18/20/22, and a boundary audit that refuses any
 > file claiming a live call, a stored credential, or a settlement. A fresh
-> clone reproduces all of it â€” `npm ci && npm test && npm run boundary:audit`.
+> clone reproduces all of it — `npm ci && npm test && npm run boundary:audit`.
 >
 > If any of this is useful to the arbiters you are designing, it can be
 > inspected or run as-is. No asks.
@@ -83,7 +83,7 @@ target Q4 2026). Entry artifacts: EVP/1 + ADAL/1 + conformance fixtures.
 Never say: partnership, sponsorship, "their arbiter uses our format", any
 integration commitment, deployment timeline. Gate: owner sign-off before send.
 
-### Letter B2 â€” Agentic-court systems (tribunal / Polycourt / QE-Court)
+### Letter B2 — Agentic-court systems (tribunal / Polycourt / QE-Court)
 
 Target surface: `kalashshah/tribunal` (iNFT judges, REE/Gensyn, MCP server),
 Polycourt (TEE + x402 + weighted judges), QE-Court
@@ -91,18 +91,18 @@ Polycourt (TEE + x402 + weighted judges), QE-Court
 AEA/1 + adapter + reference tribunal; conformance fixtures.
 
 > Between an agent's execution evidence and a verifiable adjudicator's
-> verdict there must be a boundary that preserves evidence honestly â€” or the
+> verdict there must be a boundary that preserves evidence honestly — or the
 > verdict is only as trustworthy as the stories fed it. That boundary is the
 > artifact we build.
 >
 > AEA/1 records the escrow/arbitration boundary: a verified ADAL/1 dispute
-> package, an escrow-contract reference, a tribunal submission surface â€” and
+> package, an escrow-contract reference, a tribunal submission surface — and
 > our adapter's integrationStatus honestly stays NOT_BUILT until a
 > credential-holding integrator runs a step (`npm run aea1:prepare`). The
 > repo also ships a synthetic reference tribunal and conformance fixtures so
 > anyone can exercise the flow offline and deterministically.
 >
-> Reproducible everywhere: `npm ci && npm test && npm run boundary:audit` â€”
+> Reproducible everywhere: `npm ci && npm test && npm run boundary:audit` —
 > 1033 tests CI-enforced on Node 18/20/22; the audit refuses any claim of a
 > performed network call.
 >
@@ -112,7 +112,7 @@ AEA/1 + adapter + reference tribunal; conformance fixtures.
 Never say: running any of their nodes, endorsing their verdicts, joint
 verdict authority, "moved from DRY-RUN". Gate: owner sign-off.
 
-### Letter B3 â€” Legacy ODR rails (evidence-in, not replacement)
+### Letter B3 — Legacy ODR rails (evidence-in, not replacement)
 
 Target surface: Kleros (PNK courts), UMA/Optimistic Oracle, Reality.eth,
 Aragon Court (dormant), Jur. Entry artifacts: EVP/1 + the
@@ -126,7 +126,7 @@ Aragon Court (dormant), Jur. Entry artifacts: EVP/1 + the
 > EVP/1 packages evidence with modeled consent and a strict split between
 > evidence status and actual status, and `verify-provenance` gives every
 > package a byte-pinned exit code (0 = valid direct STAMP, 2 = schema-invalid,
-> 3 = authority does not own the provenance, 4 = adapter unavailable â€”
+> 3 = authority does not own the provenance, 4 = adapter unavailable —
 > internally never a silent pass). It is all offline and hash-pinned.
 >
 > Reproduce from a fresh clone: `npm ci && npm test && npm run boundary:audit`
@@ -138,19 +138,19 @@ Aragon Court (dormant), Jur. Entry artifacts: EVP/1 + the
 Never say: "our standard replaces yours", "we are the new Kleros", pricing.
 Gate: owner sign-off.
 
-### Letter B4 â€” Agent-commerce infrastructure (x402 / A2A / marketplaces / escrows)
+### Letter B4 — Agent-commerce infrastructure (x402 / A2A / marketplaces / escrows)
 
 Target surface: x402 ecosystem, agent-to-agent protocol groups, agent
 marketplace/escrow builders. Entry artifacts: integration-surface map +
 adapter (DRY-RUN) + `verify-provenance`.
 
-> Agent commerce disputes will settle in escrows and arbitration rails â€” and
+> Agent commerce disputes will settle in escrows and arbitration rails — and
 > the only asset those rails can verify is the evidence boundary, not the
 > sales pitch behind a transaction. We build that boundary.
 >
 > Our integration map names each live surface (platform grants, x402
 > `adjudication.prepare()`, escrow bindings, webhooks) and states the honest
-> status: DRY-RUN, adapter NOT_BUILT â€” the repo's audit structurally refuses
+> status: DRY-RUN, adapter NOT_BUILT — the repo's audit structurally refuses
 > any file that claims a performed network call or a stored credential.
 > Everything that CAN be proven today is offline and pinned: `npm test` =
 > 1033 tests CI-enforced on Node 18/20/22, boundary audit 0 violations on the
@@ -164,7 +164,7 @@ adapter (DRY-RUN) + `verify-provenance`.
 Never say: live calls, stored credentials, "our escrow", revenue, pricing.
 Gate: owner sign-off.
 
-### Letter B5 â€” Core ecosystem
+### Letter B5 — Core ecosystem
 
 Target surface: CoreDAO developer support; note `inquire@coredao.org` was
 already sent (see truth ledger + STATUS), Core Ventures track NOT ACTIVATED.
@@ -177,7 +177,7 @@ Entry artifacts: evidence dossier + funding one-pager (EN/AR) + publish pack.
 >
 > The repository is machine-audited so every claim is reproducible from a
 > fresh clone: `npm test` = 1033 tests CI-enforced on Node 18/20/22,
-> `npm run boundary:audit` = committed-tree scan, 0 violations â€” the audit
+> `npm run boundary:audit` = committed-tree scan, 0 violations — the audit
 > refuses any claim of a performed call, a stored credential, or a
 > settlement, so the repo literally cannot overstate itself.
 >
@@ -188,7 +188,7 @@ Never say: any promise of chain funding, "Core supports us", reward
 expectations. Gate: owner sign-off (and Core Ventures stays off until a
 separate owner decision).
 
-### Letter B6 â€” Accelerators / grants (application-oriented)
+### Letter B6 — Accelerators / grants (application-oriented)
 
 Target surface: application-based programs for agent-infrastructure /
 dispute-infra / AI-commerce rails. Use publish pack + one-pager + dossier.
@@ -196,7 +196,7 @@ dispute-infra / AI-commerce rails. Use publish pack + one-pager + dossier.
 > CoreGuard is offline-first verification and evidence infrastructure for
 > agentic commerce and disputes: EVP/1 evidence packages, ADAL/1 dispute and
 > attestation standard, AEA/1 escrow/arbitration boundary record, a
-> conformance adapter and reference tribunal â€” everything deterministic,
+> conformance adapter and reference tribunal — everything deterministic,
 > hash-pinned, and machine-audited (1033 tests CI-enforced on Node 18/20/22;
 > the repo's own audit refuses any claim of a live call, a stored
 > credential, or a settlement).
@@ -228,7 +228,7 @@ Gate: owner sign-off per application.
 **Success = independent external consumption of the evidence package.** Signs
 that count (record each in the ledger):
 - An independent system or engineer runs the artifact on a fresh clone
-  (`npm ci && npm test && npm run boundary:audit`) and reports â€” a PASS or a
+  (`npm ci && npm test && npm run boundary:audit`) and reports — a PASS or a
   critique both count (a critique that upgrades the standard is a win).
 - A counterparty forks or links the EVP/1 / ADAL/1 artifact or uses it as the
   evidential input of an adjudication flow.
@@ -252,7 +252,7 @@ measurable external milestone lands. The four acceptable triggers:
 4. The first paid verification/conformance engagement is signed.
 
 Until one of the four is real and recorded, main stays at v0.6.0-era truth
-with snapshot-pinned numbers â€” which is itself the honest pitch.
+with snapshot-pinned numbers — which is itself the honest pitch.
 
 ## 6. Reply taxonomy (how to read any response)
 
@@ -268,14 +268,14 @@ with snapshot-pinned numbers â€” which is itself the honest pitch.
 
 | # | Track | Target | Sent? | Date | Reply? | Outcome | Owner gate |
 |---|---|---|---|---|---|---|---|
-| A1 | Phase A | People's Court (thread #21788) | **yes â€” POSTED 2026-09-25** | 2026-09-25 | no reply yet | comment `â€¦18600613` (reply to `#18570343`) | posted once; **hold indefinitely â€” no bump, ever** |
-| B1 | Internet-Court ecosystem | GenLayer / Internet Court contacts | no | â€” | â€” | â€” | sign-off |
-| B2 | Agentic-court systems | tribunal / Polycourt / QE-Court | no | â€” | â€” | â€” | sign-off |
-| B3 | Legacy ODR rails | Kleros / UMA / Reality.eth | no | â€” | â€” | â€” | sign-off |
-| B4 | Agent-commerce | x402 / A2A / marketplaces / escrows | no | â€” | â€” | â€” | sign-off |
-| B5a | Core ecosystem | inquire@coredao.org | yes (earlier session) | retained in STATUS | â€” | â€” | follow-up = new sign-off |
-| B5b | Core ecosystem | Core Ventures (track B NOT ACTIVATED) | no | â€” | â€” | â€” | separate owner decision required |
-| B6 | Accelerators / grants | application programs | no | â€” | â€” | â€” | sign-off per application |
+| A1 | Phase A | People's Court (thread #21788) | no — owner holds | — | — | — | owner posts manually; then hold |
+| B1 | Internet-Court ecosystem | GenLayer / Internet Court contacts | no | — | — | — | sign-off |
+| B2 | Agentic-court systems | tribunal / Polycourt / QE-Court | no | — | — | — | sign-off |
+| B3 | Legacy ODR rails | Kleros / UMA / Reality.eth | no | — | — | — | sign-off |
+| B4 | Agent-commerce | x402 / A2A / marketplaces / escrows | no | — | — | — | sign-off |
+| B5a | Core ecosystem | inquire@coredao.org | yes (earlier session) | retained in STATUS | — | — | follow-up = new sign-off |
+| B5b | Core ecosystem | Core Ventures (track B NOT ACTIVATED) | no | — | — | — | separate owner decision required |
+| B6 | Accelerators / grants | application programs | no | — | — | — | sign-off per application |
 
 Every row is written before anything leaves; identical to how the repo treats
 every other claim.
