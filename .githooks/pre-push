@@ -18,14 +18,22 @@
 # Env passed through to scripts/pages-settle.mjs:
 #   PAGES_REPO, PAGES_SETTLE_TOKEN / GITHUB_TOKEN, PAGES_SETTLE_JSON (tests),
 #   PAGES_SETTLE_POLL_MS, PAGES_SETTLE_MAX_WAIT_MS, PAGES_SETTLE_FALLBACK_MS.
+#   PAGES_SETTLE_SHA — set automatically below to the NEW main tip being
+#   pushed: the guard then waits for THAT commit's own Pages build to
+#   register AND finish, closing the registration gap a naive settle falls
+#   into right after a push (the bot race, AGENTS.md [C18]).
 
 set -u
 
 # Only the Pages source branch needs settling; every other ref passes through
 # untouched so feature/PR pushes stay fast.
 has_main=0
+new_sha=""
 while IFS=' ' read -r _lref _lsha rref _rsha; do
-    [ "$rref" = "refs/heads/main" ] && has_main=1
+    if [ "$rref" = "refs/heads/main" ] && [ "$_rsha" != "0000000000000000000000000000000000000000" ]; then
+        has_main=1
+        new_sha="$_rsha"
+    fi
 done
 [ "$has_main" = "1" ] || exit 0
 
@@ -41,7 +49,11 @@ fi
 
 root="$(git rev-parse --show-toplevel)" || exit 1
 
-node "$root/scripts/pages-settle.mjs" >&2
+# Pin the settle to the NEW main tip being pushed: the guard waits for THAT
+# commit's own Pages build to register AND finish (closes the registration
+# gap — AGENTS.md [C18]). An empty SHA (no usable ref line) disables pinning,
+# same semantics as the all-zero deletion line.
+PAGES_SETTLE_SHA="$new_sha" node "$root/scripts/pages-settle.mjs" >&2
 case $? in
     0)  exit 0 ;;
     1)  echo "pre-push: ABORTED - GitHub Pages build is still in flight (see output above). Retry after it settles." >&2

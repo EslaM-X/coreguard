@@ -145,7 +145,14 @@ jobs:
               git config user.email "noreply@coreguard.local"
               git add benchmarks/perf-history.jsonl docs/badges
               git commit -m "chore(perf): record benchmark medians [skip ci]"
-              git push
+              # Pin the settle to the CONTENT commit being published: the
+              # guard waits for THAT SHA's own build to register AND finish,
+              # closing the registration gap where /latest still reports the
+              # previous (terminal, aged) build — the naive settle in that
+              # gap authorized exactly the push that cancelled the content
+              # build (the recurring bot race, AGENTS.md [C18]).
+              PAGES_SETTLE_SHA="$(git rev-parse HEAD~1)" node scripts/pages-settle.mjs && git push || \
+                { echo "::warning::Content build for $(git rev-parse --short HEAD~1) not settled — deferring the median commit (self-heals on the next push)"; git reset --hard HEAD; }
             else
               echo "::warning::Pages build still in flight — deferring the median commit (self-heals on the next push)"
               git reset --hard HEAD

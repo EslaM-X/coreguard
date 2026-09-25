@@ -18,6 +18,10 @@
  * Exit code contract (the ONLY thing callers rely on):
  *   0  settled   — latest build is terminal (built/errored) and older than
  *                  PAGES_SETTLE_MIN_AGE_SEC, or no build exists at all.
+ *                  With PAGES_SETTLE_SHA set, settled additionally requires
+ *                  the LATEST build to be for THAT commit (commit match) —
+ *                  the guard then knows the build FOR THE COMMIT BEING
+ *                  PUBLISHED finished, not merely that nothing is running.
  *   1  unsettled — still queued/building when PAGES_SETTLE_MAX_WAIT_MS ran
  *                  out. Caller must NOT push now (it would cancel the live
  *                  build); let the next scheduled attempt retry instead.
@@ -43,6 +47,25 @@
  *                                             sleep this then settle anyway.
  *                                             We cannot see the queue, so we
  *                                             wait out a typical build first.
+ *   PAGES_SETTLE_SHA          optional       the commit this push is about
+ *                                             to publish. Closes the
+ *                                             REGISTRATION GAP: right after
+ *                                             a push, /pages/builds/latest
+ *                                             can still report the PREVIOUS
+ *                                             commit's (terminal, aged)
+ *                                             build while the new commit's
+ *                                             build has not registered yet —
+ *                                             a naive settle in that gap
+ *                                             authorizes exactly the push
+ *                                             that cancels the content build
+ *                                             (the bot race, AGENTS.md
+ *                                             [C18]). With the SHA set, the
+ *                                             guard waits for THAT commit's
+ *                                             own build instead.
+ *   PAGES_SETTLE_BRANCH_JSON  test hook      simulates the /branches/main
+ *                                             probe used to distinguish
+ *                                             "build not registered yet"
+ *                                             from "nothing to wait for".
  *
  * Determinism: pure function of its inputs; no wall-clock appears in exit
  * decisions except the age computation, which tests pass explicitly.
@@ -105,6 +128,43 @@ async function readLatest({ repo, token, simFile }) {
   return res.json();
 }
 
+/**
+ * Is `sha` reachable from the Pages source branch tip on the remote?
+ *   true   — yes: a build for it MUST appear (registration gap → keep waiting)
+ *   false  — no: a pre-push call (the SHA is definitionally not on the remote
+ *            yet) or a fresh/unrelated push → settle without waiting
+ *   null   — probe failed → caller falls back to legacy behavior
+ * In sim mode (PAGES_SETTLE_BRANCH_JSON) the branch probe is file-backed and
+ * deterministic: tip == sha → true, any other tip → false, 404/missing → null.
+ */
+async function shaOnSourceBranch({ repo, token, sha, simFile }) {
+  try {
+    if (simFile !== undefined) {
+      const bytes = readFileSync(simFile, "utf8").trim();
+      if (bytes === "" || bytes === "404") return null;
+      const tip = String(JSON.parse(bytes)?.commit?.commit?.sha ?? "").toLowerCase();
+      if (!tip) return null;
+      return tip === sha.toLowerCase();
+    }
+    const headers = {
+      Accept: "application/vnd.github+json",
+      "User-Agent": `${repo} pages-settle`,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+    const branchRes = await fetch(`${API}/repos/${repo}/branches/main`, { headers });
+    if (!branchRes.ok) return null;
+    const tip = String((await branchRes.json())?.commit?.commit?.sha ?? "").toLowerCase();
+    if (!tip) return null;
+    if (tip === sha.toLowerCase()) return true;
+    const cmp = await fetch(`${API}/repos/${repo}/compare/${sha}...${tip}`, { headers });
+    if (!cmp.ok) return null;
+    const status = (await cmp.json())?.status;
+    return status === "behind" || status === "identical";
+  } catch {
+    return null;
+  }
+}
+
 async function main() {
   const args = process.argv.slice(2);
   if (args.length !== 0) {
@@ -114,6 +174,13 @@ async function main() {
   }
   const repo = process.env.PAGES_REPO ?? process.env.GITHUB_REPOSITORY ?? "EslaM-X/coreguard";
   const token = process.env.PAGES_SETTLE_TOKEN ?? process.env.GITHUB_TOKEN;
+  // An empty value (no usable ref line), an all-zero line (branch deletion),
+  // or an absent variable all disable pinning.
+  const rawSha = (process.env.PAGES_SETTLE_SHA ?? "").trim() || null;
+  const wantSha = rawSha && /^0+$/.test(rawSha) ? null : rawSha;
+  const simBranchFile = process.env.PAGES_SETTLE_BRANCH_JSON !== undefined
+    ? process.env.PAGES_SETTLE_BRANCH_JSON
+    : undefined;
   const minAgeMs = envInt("PAGES_SETTLE_MIN_AGE_SEC", 15) * 1000;
   const pollMs = envInt("PAGES_SETTLE_POLL_MS", 10000);
   const maxWaitMs = envInt("PAGES_SETTLE_MAX_WAIT_MS", 180000);
@@ -139,6 +206,30 @@ async function main() {
       return;
     }
     if (body.none) {
+      if (wantSha) {
+        // A SHA is expected but no build is registered yet. Distinguish the
+        // registration gap (the commit IS on the source branch — its build
+        // MUST come) from "nothing to wait for" (fresh site / unrelated push
+        // / a pre-push call whose SHA is definitionally not on the remote
+        // yet). On a probe error, fall back to legacy behavior.
+        const reachable = await shaOnSourceBranch({ repo, token, sha: wantSha, simFile: simBranchFile });
+        if (reachable === true) {
+          latestInfo = { status: "awaiting-registration", sha: wantSha.slice(0, 7) };
+          waitedMs = Date.now() - started;
+          if (waitedMs >= maxWaitMs) {
+            report(false, { reason: "build-not-registered-yet", latest: latestInfo, waitedMs });
+            process.exitCode = 1;
+            return;
+          }
+          await sleep(pollMs);
+          continue;
+        }
+        if (reachable === false) {
+          report(true, { reason: "sha-not-on-source-branch", latest: null, waitedMs });
+          return;
+        }
+        // reachable === null → probe failed; legacy behavior below.
+      }
       report(true, { reason: "no-build-yet", latest: null, waitedMs });
       return;
     }
@@ -146,6 +237,37 @@ async function main() {
     latestInfo = { status: cls.status, createdAt: cls.createdAt };
     waitedMs = Date.now() - started;
     if (cls.tone === "terminal") {
+      // With a pinned SHA, ONLY that commit's own build counts as settled.
+      // A terminal build for any other (older) commit means the content
+      // build either has not registered yet or is still queued — pushing
+      // now would cancel it (the bot race).
+      if (wantSha) {
+        const buildSha = String(body.commit ?? "").trim().toLowerCase();
+        const wanted = wantSha.trim().toLowerCase();
+        if (!buildSha || buildSha !== wanted) {
+          // The visible terminal build is NOT the pinned commit's. Two very
+          // different situations: the pinned SHA is already on the remote
+          // (bot side — its build must still register/finish → WAIT) versus
+          // a pre-push call where the SHA is not on the remote yet (the
+          // visible build is an OLD, finished one; this push starts a fresh
+          // build and cancels nothing alive → SETTLE). A failed probe is
+          // treated as the bot side (conservative: wait).
+          const reachable = await shaOnSourceBranch({ repo, token, sha: wanted, simFile: simBranchFile });
+          if (reachable === false) {
+            report(true, { reason: "sha-not-on-source-branch", latest: latestInfo, waitedMs });
+            return;
+          }
+          latestInfo = { status: cls.status, createdAt: cls.createdAt, sha: buildSha || null, expected: wanted.slice(0, 7) };
+          waitedMs = Date.now() - started;
+          if (waitedMs >= maxWaitMs) {
+            report(false, { reason: "waiting-for-sha-build", latest: latestInfo, waitedMs });
+            process.exitCode = 1;
+            return;
+          }
+          await sleep(pollMs);
+          continue;
+        }
+      }
       const createdAtMs = cls.createdAt ? Date.parse(cls.createdAt) : NaN;
       const ageMs = Number.isFinite(createdAtMs) ? Date.now() - createdAtMs : minAgeMs;
       if (ageMs >= minAgeMs) {

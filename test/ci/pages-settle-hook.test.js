@@ -62,7 +62,10 @@ function runHook(inputLines, extraEnv = {}) {
   });
 }
 
-const MAIN_LINE = "refs/heads/main 0000000000000000000000000000000000000000 refs/heads/main 0000000000000000000000000000000000000000";
+// A REAL new main tip: the all-zero line means branch DELETION, which the
+// (correct) hook passes through without settling — pushes carry a real SHA.
+const NEW_SHA = "a".repeat(40);
+const MAIN_LINE = "refs/heads/main 0000000000000000000000000000000000000000 refs/heads/main " + NEW_SHA;
 const OTHER_LINE = "refs/heads/feat/x 0000000000000000000000000000000000000000 refs/heads/feat/x 0000000000000000000000000000000000000000";
 
 function sandbox() {
@@ -71,6 +74,8 @@ function sandbox() {
     dir,
     simPath: join(dir, "sim.json"),
     writeSim: (payload) => writeFileSync(join(dir, "sim.json"), payload),
+    branchPath: join(dir, "branch.json"),
+    writeBranch: (payload) => writeFileSync(join(dir, "branch.json"), payload),
     cleanup: () => rmSync(dir, { recursive: true, force: true }),
   };
 }
@@ -89,6 +94,7 @@ test("hook: main push aborts while the build is queued/building (exit 1)", async
   const s = sandbox();
   try {
     s.writeSim(JSON.stringify({ status: "queued", created_at: "2026-09-23T00:00:00.000Z" }));
+    // Pinned to the new tip; the sim build is active → max-wait aborts.
     const r = await runHook([MAIN_LINE], {
       PAGES_SETTLE_JSON: s.simPath,
       PAGES_SETTLE_MAX_WAIT_MS: "300",
@@ -104,8 +110,13 @@ test("hook: main push aborts while the build is queued/building (exit 1)", async
 test("hook: main push passes once the build is terminal and aged (exit 0)", async () => {
   const s = sandbox();
   try {
+    // The pinned SHA's own build is terminal and aged; the branch probe shows
+    // a DIFFERENT tip only if the push had not landed — here the settle call
+    // runs pre-push, so the remote does not know the SHA yet → sha-not-on-
+    // source-branch → settle immediately (true pre-push semantics).
     s.writeSim(JSON.stringify({ status: "built", created_at: oldIso() }));
-    const r = await runHook([MAIN_LINE], { PAGES_SETTLE_JSON: s.simPath });
+    s.writeBranch(JSON.stringify({ commit: { commit: { sha: "e".repeat(40) } } }));
+    const r = await runHook([MAIN_LINE], { PAGES_SETTLE_JSON: s.simPath, PAGES_SETTLE_BRANCH_JSON: s.branchPath });
     assert.equal(r.code, 0, `stderr: ${r.stderr}`);
   } finally {
     s.cleanup();
@@ -123,6 +134,7 @@ test("hook: file is honest (shebang + main-only gate + settle call), tracked + e
   assert.match(body, /refs\/heads\/main/);
   assert.match(body, /scripts\/pages-settle\.mjs/);
   assert.match(body, /PAGES_SETTLE_SKIP/);
+  assert.match(body, /PAGES_SETTLE_SHA/, "the hook must pin the settle to the new main tip");
   assert.match(body, /git config core\.hooksPath \.githooks/);
   const trackedHook = execFileSync("git", ["ls-files", "--", ".githooks/pre-push"], {
     cwd: REPO,
@@ -137,4 +149,94 @@ test("hook: file is honest (shebang + main-only gate + settle call), tracked + e
   // -text preservation: a CR byte in the working-copy hook breaks the bundled
   // shell on Windows (`\r: command not found`) -> the guard silently stops.
   assert.ok(!body.includes("\r"), "hook must be LF-only (-text in .gitattributes)");
+});
+test("settle: registration gap — SHA on the remote but its build not registered yet keeps waiting, then settles on the SHA build", async () => {
+  const s = sandbox();
+  try {
+    const sha = "d".repeat(40);
+    // Read 1: /latest still shows the PREVIOUS commit's aged, terminal build
+    // (the registration gap) — must NOT settle, because the pinned SHA's own
+    // build is absent. Mid-run the sim flips to state 2 (the settle script
+    // re-reads the file on every poll): the SHA's build registered and built.
+    s.writeSim(JSON.stringify({ status: "built", commit: "e".repeat(40), created_at: oldIso() }));
+    s.writeBranch(JSON.stringify({ commit: { commit: { sha } } }));
+    const r = spawn(process.execPath, ["scripts/pages-settle.mjs"], {
+      cwd: REPO,
+      env: {
+        ...process.env,
+        PAGES_SETTLE_JSON: s.simPath,
+        PAGES_SETTLE_BRANCH_JSON: s.branchPath,
+        PAGES_SETTLE_SHA: sha,
+        PAGES_SETTLE_MIN_AGE_SEC: "0",
+        PAGES_SETTLE_POLL_MS: "50",
+        PAGES_SETTLE_MAX_WAIT_MS: "10000",
+      },
+    });
+    let stdout = "";
+    r.stdout.on("data", (d) => (stdout += d));
+    const flip = setTimeout(() => {
+      s.writeSim(JSON.stringify({ status: "built", commit: sha, created_at: oldIso() }));
+    }, 200);
+    const code = await new Promise((res) => r.on("close", (c) => { clearTimeout(flip); res(c); }));
+    assert.equal(code, 0, `stdout: ${stdout}`);
+    assert.match(stdout, /"settled": true/, "must settle once the SHA's own build is terminal");
+  } finally {
+    s.cleanup();
+  }
+});
+
+test("settle: SHA build absent while an OLD build is terminal → not settled (the race is closed)", async () => {
+  const s = sandbox();
+  try {
+    const sha = "d".repeat(40);
+    // /latest forever shows an OLD terminal build for a DIFFERENT commit —
+    // the exact registration-gap signature that used to authorize the cancel.
+    s.writeSim(JSON.stringify({ status: "built", commit: "e".repeat(40), created_at: oldIso() }));
+    // Branch probe: the SHA IS the tip — so the gap waits, never settles.
+    s.writeBranch(JSON.stringify({ commit: { commit: { sha } } }));
+    const r = spawn(process.execPath, ["scripts/pages-settle.mjs"], {
+      cwd: REPO,
+      env: {
+        ...process.env,
+        PAGES_SETTLE_JSON: s.simPath,
+        PAGES_SETTLE_BRANCH_JSON: s.branchPath,
+        PAGES_SETTLE_SHA: sha,
+        PAGES_SETTLE_MIN_AGE_SEC: "0",
+        PAGES_SETTLE_POLL_MS: "50",
+        PAGES_SETTLE_MAX_WAIT_MS: "400",
+      },
+    });
+    let stdout = "";
+    r.stdout.on("data", (d) => (stdout += d));
+    const code = await new Promise((res) => r.on("close", res));
+    assert.equal(code, 1, "must NOT settle while only an older commit's build is visible");
+    assert.match(stdout, /waiting-for-sha-build/);
+  } finally {
+    s.cleanup();
+  }
+});
+
+test("settle: pre-push semantics — SHA not on the remote branch yet settles immediately (sha-not-on-source-branch)", async () => {
+  const s = sandbox();
+  try {
+    const sha = "d".repeat(40);
+    // No build registered at all (fresh site / first push of this SHA).
+    s.writeSim("404");
+    // Branch probe: remote tip is a DIFFERENT commit — the push has not landed.
+    s.writeBranch(JSON.stringify({ commit: { commit: { sha: "e".repeat(40) } } }));
+    const out = execFileSync(process.execPath, ["scripts/pages-settle.mjs"], {
+      cwd: REPO,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        PAGES_SETTLE_JSON: s.simPath,
+        PAGES_SETTLE_BRANCH_JSON: s.branchPath,
+        PAGES_SETTLE_SHA: sha,
+        PAGES_SETTLE_POLL_MS: "50",
+      },
+    });
+    assert.match(out, /sha-not-on-source-branch/, "pre-push calls settle without waiting for their own future build");
+  } finally {
+    s.cleanup();
+  }
 });
