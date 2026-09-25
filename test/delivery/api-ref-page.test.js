@@ -162,6 +162,25 @@ test("api-ref: defense codes over a real wire — the page's request shapes yiel
     assert.match(j.error, /allowlist/);
   } finally { await new Promise((res) => s403.close(res)); }
 });
+test("api-ref: runPc drives a fresh handler — the factory-as-handler misfire (HTTP 0) is locked out", () => {
+  // [C24] ENGINE_READY is a FACTORY; handing the factory itself (not its
+  // product) to callHandler leaves statusCode 0 with no exception — a dead
+  // control that shipped silently on the published page. The call site must
+  // await the factory and invoke it, exactly like the six scenarios do.
+  const html = readFileSync(PAGE, "utf8");
+  assert.match(html, /return \(\) => mod\.createDeliveryRequestHandler/,
+    "ENGINE_READY must be a factory — fresh handler per run (fresh rate budget)");
+  const pcAt = html.indexOf('document.getElementById("runPc").onclick');
+  assert.ok(pcAt > 0, "runPc wiring missing");
+  const seg = html.slice(pcAt, pcAt + 700);
+  assert.match(seg, /const makeHandler = await ENGINE_READY;/,
+    "runPc must await the factory under its scenario name");
+  assert.match(seg, /callHandler\(makeHandler\(\), "POST", "\/peoples-court"/,
+    "runPc must drive a FRESH handler from the factory");
+  assert.doesNotMatch(seg, /const handler = await ENGINE_READY;[\s\S]*callHandler\(handler,/,
+    "the misfire literal (factory passed as handler → HTTP 0) is forbidden");
+});
+
 test("api-ref: idempotent build — re-running the injector changes no bytes", () => {
   const before = readFileSync(PAGE, "utf8");
   execFileSync(process.execPath, [INJECTOR], { cwd: REPO, stdio: "pipe" });
