@@ -145,14 +145,15 @@ jobs:
               git config user.email "noreply@coreguard.local"
               git add benchmarks/perf-history.jsonl docs/badges
               git commit -m "chore(perf): record benchmark medians [skip ci]"
-              # Pin the settle to the CONTENT commit being published: the
-              # guard waits for THAT SHA's own build to register AND finish,
-              # closing the registration gap where /latest still reports the
-              # previous (terminal, aged) build — the naive settle in that
-              # gap authorized exactly the push that cancelled the content
-              # build (the recurring bot race, AGENTS.md [C18]).
-              PAGES_SETTLE_SHA="$(git rev-parse HEAD~1)" node scripts/pages-settle.mjs && git push || \
-                { echo "::warning::Content build for $(git rev-parse --short HEAD~1) not settled — deferring the median commit (self-heals on the next push)"; git reset --hard HEAD; }
+              # Pin the settle to the CONTENT commit being published. At this
+              # moment HEAD IS the content commit (the median is not created
+              # until after settle) — HEAD~1 would be the PREVIOUS cycle's
+              # commit, whose "not on branch" answer short-circuits the guard
+              # and re-opens the race (AGENTS.md [C27]: identity, verified
+              # from the actual ref state, not from an assumption).
+              CONTENT_SHA="$(git rev-parse HEAD)"
+              PAGES_SETTLE_SHA="$CONTENT_SHA" node scripts/pages-settle.mjs && git push || \
+                { echo "::warning::Content build for $(git rev-parse --short HEAD) not settled — deferring the median commit (self-heals on the next push)"; git reset --hard HEAD; }
             else
               echo "::warning::Pages build still in flight — deferring the median commit (self-heals on the next push)"
               git reset --hard HEAD
