@@ -14,8 +14,8 @@ until an explicit per-step owner sign-off exists (phase-3 plan §5, binding).
 
 | Capability | Where it lives | Proof (reproduces locally) |
 |---|---|---|
-| Evidence model + offline proof | whole repo | `npm test` → **1022 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
-| Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **768 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
+| Evidence model + offline proof | whole repo | `npm test` → **1033 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
+| Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **780 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
 | Docs-node contract (executable docs stay runnable) | `test/ci/docs-node-contract.test.js` | 70 executed · 53 skip-listed · 18 docs covered |
 | Live-submission harness (recorded feed, webhooks DRY-RUN, x402 DRY-RUN) | `packages/peoples-court-adapter/` | `npm run peoples-court:harness` → 11/11 |
 | Boundary enforcement (fail-closed) | `scripts/boundary-audit.mjs` + `test/ci/boundary-enforcement.test.js` | `npm run boundary:audit` → PASS |
@@ -88,19 +88,40 @@ So "the Phase 3 decision" = exactly two questions, both yours:
   integrator** who will run the authorized step(s) (you with a test account, a
   named partner/institution, or nobody for now).
 
-Both are **not made** — that is the entire "pending" status. Nothing promised
-is blocked by it: the engine, the boundary layer, the suite, the on-chain
-anchor, and all proof-value already exist (§1). The only freeze while pending:
-pilot surfaces stay DRY-RUN and the adapter's `integrationStatus` stays
-NOT_BUILT — the honest position, and exactly the discipline a funder's due
-diligence rewards.
+**Both are now MADE — 2026-09-25, owner, recorded as binding.** Factored
+decision, not a power delegation:
+
+- **Decision A — scope: recognized, and answered with a ceiling, not an
+  authorization.** No L1/L2/L3 step is ever authorized without a named
+  integrator **and** a per-step recorded owner approval; L1 (authority-grant
+  live capture) is sandbox-authorization level only, and only once a named
+  integrator exists; L2/L3 live executions are pilot-only, only when a real
+  partner/institution exists; **automatic settlement is not authorized, ever.**
+  Until then everything stays DRY-RUN with `integrationStatus` NOT_BUILT — the
+  honest ceiling today, **L0**.
+- **Decision B — identity: nobody for now.** The credential-holding integrator
+  is declared **undefined**; the definition is deferred to the moment a real
+  partner + concrete use case exist, and the repo records the named holder then
+  (no standing authority).
+
+Execution consequence: the adoption ladder — unified states · transition
+machine · CoreGuard Conformance Suite (CG-CS/1) · Evidence Passport · Adoption
+Dashboard — is built and runs offline as an honest enforcement matrix
+(`scripts/ladder/`, `npm run ladder:status`); every live gate structurally
+requires the two recorded conditions above, so no branch can ever ship a live
+step without them. Normative doc:
+`docs/live-integration-and-adoption-ladder-2026-09-25.md`.
 
 باختصار بالعربية: «قرار Phase 3» ليس شيئًا تقنيًا غامضًا — هو سؤالان لك فقط:
 **(أ) نطاق** أيٍّ من خطوات التكامل الحي الثلاث تسمح يومًا ما بأن تُنفَّذ (أو لا
 شيء، وهذا صحيح ولا يكلفك شيئًا)؛ **(ب) هوية** من هو الشخص/الكيان الحقيقي الذي
-بحوزته حساب اختبار منصة التحكيم سينفّذ الخطوة المأذون بها. لم تتّخذ أيًّا منهما
-حتى الآن، ولا شيء من الموعود محجوب بانتظارهما — الأسطح تبقى DRY-RUN بأمانة حتى
-تكتب سطر التفويض. أبسط خيار صالح الآن: «لا شيء» — والمشروع كامل الفائدة كما هو.
+بحوزته حساب اختبار منصة التحكيم سينفّذ الخطوة المأذون بها. **وقد اتُّخذ القراران
+وسُجِّلا كقرارين ملزمين (2026-09-25)**: (أ) لا يُسمح بأيٍّ من L1/L2/L3 دون
+**integrator مُسمّى + موافقة مالك مسجلة لكل خطوة**؛ L1 = إذن sandbox فقط عند وجود
+المُدمِج؛ L2/L3 = تجربة تجريبية فقط مع شريك حقيقي؛ **التسوية التلقائية ممنوعة
+أبدًا**؛ السقف الحالي L0 بأمانة. (ب) **لا أحد حاليًا** — حامل credential غير
+معرّف، ويُعرَّف ويُسجَّل اسمه عند ظهور شريك حقيقي مع حالة استخدام ملموسة.
+أبسط خيار صالح بقدر السقف: «لا شيء بعد» — والمشروع كامل الفائدة كما هو.
 
 **Decision A — among the three planned live steps, which do you authorize,
 ever?** You do not have to decide anything to run L0 forever (the finished
@@ -183,3 +204,13 @@ rewards.
    policy, and per-track gates live in
    `docs/campaign-ops-outreach-kit-2026-09-25.md` — the operating doc of this
    phase.
+8. **The adoption ladder is the operating architecture for every live step.**
+   Live Integration & Adoption Ladder (L0–L8), unified integration states
+   (13), transition state machine with guards, CoreGuard Conformance Suite,
+   Evidence Passport, and Adoption Dashboard are implemented and enforced
+   offline (`scripts/ladder/` + `test/integrations/`, doc:
+   `docs/live-integration-and-adoption-ladder-2026-09-25.md`). No L1/L2/L3
+   step, no PRODUCTION state, and no external milestone counter moves without
+   the two recorded conditions from §4 (named integrator + per-step owner
+   approval; Dec A/B as decided 2026-09-25). B1–B6 letters each still need a
+   separate owner sign-off before sending.

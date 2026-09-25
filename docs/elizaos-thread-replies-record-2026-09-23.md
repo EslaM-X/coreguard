@@ -378,3 +378,25 @@ reply of 18:15:37Z. The round's output was converted into repo assets only:
 Thread state remains: **awaiting the counterparty's response to the 1e75fba
 correction.** No asks made at any point; no claims beyond what the records
 support.
+
+---
+
+### Phase A posted (2026-09-25) — the kept-building update, owner-directed
+
+**POSTED once, manually, 2026-09-25** as a reply to the counterparty's last
+review (`#18570343`, the 17:23:37Z read-only critique) — comment
+`DC_kwDOMT5cIs4BG9Kl`, dbId 18600613:
+https://github.com/elizaOS/eliza/discussions/21788#discussioncomment-18600613.
+
+Content = the Phase A message from
+`docs/phase-a-people-court-followup-draft-2026-09-25.md` (reformatted to
+Discussion markdown): ADAL/1 shipped standard, AEA/1 boundary record, the two
+label corrections from their critique now first-class regression-tested fields,
+the fail-closed enforcement (1022 tests pinned to a committed snapshot, 0
+boundary violations, docs-node contract), fresh-clone reproduction, and "if
+useful, inspect or run as-is — no asks."
+
+**After this message: hold indefinitely.** No bump, no reminder, no second
+message. State machine follows the reply taxonomy in
+`docs/campaign-ops-outreach-kit-2026-09-25.md` (silence ⇒ close by record and
+continue Phase B under owner gates).

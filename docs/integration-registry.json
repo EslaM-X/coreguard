@@ -1,0 +1,109 @@
+{
+  "platform": {
+    "testsTotal": 1033,
+    "filesScanned": 780,
+    "violations": 0,
+    "peoplesCourtHarness": "PEOPLES_COURT_HARNESS_READY",
+    "docsNode": {
+      "executed": 70,
+      "skipListed": 53,
+      "docsCovered": 18
+    },
+    "conformanceSuite": "CG-CS/1",
+    "platformLevel": "L0",
+    "platformLevelLabel": "PUBLIC / REPRODUCIBLE / OFFLINE"
+  },
+  "adapters": [
+    {
+      "id": "PEOPLES_COURT_ADAPTER",
+      "name": "People's Court attestation adapter",
+      "surface": "packages/peoples-court-adapter",
+      "standard": [
+        "ADAL/1",
+        "EVP/1"
+      ],
+      "status": "DRY_RUN",
+      "integrationStatus": "NOT_BUILT",
+      "networkCall": "NOT_PERFORMED",
+      "lastVerification": "NOT_RECORDED",
+      "environment": "OFFLINE / DRY-RUN — recorded fixtures only",
+      "capabilities": "per-party evidence attestation, derived tri-state modeled consent, recorded-feed live-submission harness",
+      "limitations": "synthetic fixtures only; no credential stored; recording surface only"
+    },
+    {
+      "id": "AGENTIC_ESCROW_ARBITRATION_ADAPTER",
+      "name": "Agentic Escrow & Arbitration adapter",
+      "surface": "packages/agentic-escrow-arbitration",
+      "standard": [
+        "AEA/1",
+        "ADAL/1"
+      ],
+      "status": "DRY_RUN",
+      "integrationStatus": "NOT_BUILT",
+      "networkCall": "NOT_PERFORMED",
+      "lastVerification": "NOT_RECORDED",
+      "environment": "OFFLINE / DRY-RUN — recorded fixtures only",
+      "capabilities": "ties a verified ADAL/1 dispute package to an escrow-contract reference and a tribunal submission boundary record",
+      "limitations": "escrow referenced, never executed; adapter template only"
+    },
+    {
+      "id": "REFERENCE_TRIBUNAL",
+      "name": "Reference tribunal (offline synthetic adjudicator)",
+      "surface": "examples/reference-tribunal",
+      "standard": [
+        "ADAL/1"
+      ],
+      "status": "DRY_RUN",
+      "integrationStatus": "NOT_BUILT",
+      "networkCall": "NOT_PERFORMED",
+      "lastVerification": "NOT_RECORDED",
+      "environment": "OFFLINE / DRY-RUN — recorded fixtures only",
+      "capabilities": "named offline deterministic adjudicator: award only on FULL bilateral assent + pins verify; scenarios A–E fail-closed",
+      "limitations": "synthetic, local, never a live authority; mock escrow refuses anything not authority-bound"
+    }
+  ],
+  "tracks": [
+    {
+      "id": "TRACK_INTERNET_COURT_ECOSYSTEM",
+      "name": "Internet-Court ecosystem",
+      "letter": "B1",
+      "state": "NOT_STARTED",
+      "target": "GenLayer / Internet Court contacts"
+    },
+    {
+      "id": "TRACK_AGENTIC_TRIBUNALS",
+      "name": "Agentic-court systems",
+      "letter": "B2",
+      "state": "NOT_STARTED",
+      "target": "tribunal / Polycourt / QE-Court"
+    },
+    {
+      "id": "TRACK_LEGACY_ODR_RAILS",
+      "name": "Legacy ODR rails",
+      "letter": "B3",
+      "state": "NOT_STARTED",
+      "target": "Kleros / UMA / Reality.eth"
+    },
+    {
+      "id": "TRACK_AGENT_COMMERCE",
+      "name": "Agent-commerce",
+      "letter": "B4",
+      "state": "NOT_STARTED",
+      "target": "x402 / A2A / marketplaces / escrows"
+    },
+    {
+      "id": "TRACK_CORE_ECOSYSTEM",
+      "name": "Core ecosystem",
+      "letter": "B5",
+      "state": "NOT_STARTED",
+      "target": "Core DAO (inquire@coredao.org sent earlier; Core Ventures NOT ACTIVATED — separate owner decision)"
+    },
+    {
+      "id": "TRACK_ACCELERATORS_GRANTS",
+      "name": "Accelerators / grants",
+      "letter": "B6",
+      "state": "NOT_STARTED",
+      "target": "application programs (per-application owner gate)"
+    }
+  ]
+}

@@ -1,7 +1,16 @@
 # Phase A — People's Court technical follow-up (draft, ONE message, no chasing)
 
-Owner-process note: this is a **draft for the owner to post manually** (2026-09-25).
-Nothing here is auto-sent; nothing is scheduled; nothing asks for a reply.
+**ARCHIVED AS POSTED — 2026-09-25.** This message was posted to thread #21788
+as a reply to the counterparty's last critique (`#18570343`) — comment
+`DC_kwDOMT5cIs4BG9Kl` (dbId 18600613):
+https://github.com/elizaOS/eliza/discussions/21788#discussioncomment-18600613.
+The text below is the **verbatim posted message**; its 1022/768 figures are the
+post-time facts of that message and stay frozen here as the archive. New claims
+must cite the current snapshot figures (now 1033 / 780), never these.
+
+Owner-process note: this was posted by the owner-directed agent reply
+(2026-09-25). Nothing here is auto-sent; nothing is scheduled; nothing asks for
+a reply.
 The design rule after the 2026-09-23 18:15 correction round: we send exactly one
 technical artifact update, then wait indefinitely. No follow-up akten, no
 "bumping", no timeline expectations. The clock restarts only if they reply.

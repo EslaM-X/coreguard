@@ -1,0 +1,141 @@
+# Live Integration & Adoption Ladder — CoreGuard (2026-09-25)
+
+This is the operating architecture for how CoreGuard moves from an open,
+offline, reproducible evidence layer toward a court-neutral, partner-ready
+integration infrastructure — **without ever claiming a live step that did not
+happen**. Every status on this page is backed by a machine-measured surface;
+the honest position is not a weakness, it is the product.
+
+## 1. The two axes
+
+- **Per-integration state** (`scripts/ladder/states.mjs`) — what one adapter
+  has provably reached.
+- **Platform level** (`L0–L8`, same file) — what the network as a whole has
+  provably reached. Current level: **L0 — PUBLIC / REPRODUCIBLE / OFFLINE**.
+
+The state space (13 states, in order):
+
+`NOT_STARTED → DESIGNED → DRY_RUN → SANDBOX_READY → SANDBOX_AUTHORIZED → LIVE_PREPARED → WEBHOOK_CONNECTED → CONFORMANCE_TESTING → CONFORMANT → PRODUCTION`, with `SUSPENDED`, `REVOKED`, `DEPRECATED` as the non-operational outcomes.
+
+A state means what its entry in `STATE_MEANING` says. Advisory authority is
+mirrored in `STATE_AUTHORITY`: nothing past `DRY_RUN` is real until the
+transition guards below are satisfied by recorded records.
+
+## 2. The guarded transition machine
+
+`scripts/ladder/state-machine.mjs` is a pure, deterministic transition table.
+Every edge into a live step carries requirements that a repository alone can
+never fabricate:
+
+| Step | Requires |
+|---|---|
+| `SANDBOX_READY → SANDBOX_AUTHORIZED` (L1) | `namedIntegrator` + `ownerApproval` + `environmentSandboxOnly` + `noRealFunds` |
+| `SANDBOX_AUTHORIZED → LIVE_PREPARED` (L2) | + `adjudicationSurfaceConfirmed` + `noSettlementAuthority` |
+| `LIVE_PREPARED → WEBHOOK_CONNECTED` (L3) | + `webhookSecurity` + `policyBoundaryActive` |
+| `CONFORMANCE_TESTING → CONFORMANT` | `conformanceSuitePass` |
+| `CONFORMANT → PRODUCTION` | + `securityCheckPass` + `evidenceContractPass` + `partnerApproval` + `deploymentScopeDefined` |
+
+The red line is enforced twice: in prose and in code. The machine refuses every
+live transition whose records are absent — you can ask it directly:
+
+`node scripts/ladder/evidence-passport.mjs` and `node scripts/ladder/cli.mjs`
+(for humans), and any caller can prove WHY a step is blocked by reading
+`evaluateTransition(from, to, conditions).missing`.
+
+## 3. Platform levels L0–L8
+
+- **L0 — PUBLIC / REPRODUCIBLE / OFFLINE**: evidence generation, deterministic
+  verification, replay, tamper detection, fail-closed semantics, dry-run
+  adapters — all reproducible from a fresh clone. **(this is where we are)**
+- **L1 — AUTHORIZED SANDBOX**: an integrator holds a limited sandbox credential
+  (scoped, audited, revocable; no real funds, no settlement).
+- **L2 — LIVE ADJUDICATION PREPARATION**: a prepared `adjudication.prepare()`
+  packet is accepted by a real external platform; still no automatic
+  settlement.
+- **L3 — LIVE WEBHOOK INTEGRATION**: live adjudication results stream into the
+  verifier through an audited webhook (auth, replay protection, event ids,
+  idempotency, dead-letter).
+- **L4 — PRODUCTION CONFORMANCE**: the production integration still passes the
+  CoreGuard Conformance Suite on every release.
+- **L5 — MULTI-PARTNER INTEROPERABILITY**: CoreGuard is the neutral evidence
+  layer between multiple adjudicators; no single one is load-bearing.
+- **L6 — VERIFIABLE INFRASTRUCTURE**: versioned receipts, verification
+  registry, integration attestations, compatibility matrix, machine-readable
+  status.
+- **L7 — COMMERCIAL INFRASTRUCTURE**: verification service, conformance,
+  evidence gateways — the MIT protocol stays open; the value is services.
+- **L8 — PARTNER NETWORK**: partner program, adapter marketplace, ecosystem
+  listings — we build the system that makes it easy for others to come to us.
+
+No level is claimed by intent; a level is reached only when an adapter's state
+floor and every listed prerequisite are recorded and visible in the registry.
+
+## 4. CoreGuard Conformance Suite
+
+`scripts/ladder/conformance.mjs` defines the fixed, versioned suite
+(`CG-CS/1`) with six criteria: evidence contract, determinism, replay, tamper
+detection, security, compatibility. A verdict is computed ONLY from the
+evidence object you pass in — nothing is assumed.
+
+**"CoreGuard Verified Integration"** (the badge) means exactly and only:
+this integration passed the CoreGuard Conformance Suite for the pinned
+version. It is **not** an endorsement: not of the counterparty, its funds, its
+adjudication, or its project; and it grants no live authority by itself.
+
+## 5. Evidence Passport
+
+`scripts/ladder/evidence-passport.mjs --write` produces
+`docs/integration-registry.json` — a deterministic, machine-readable passport
+for every adapter with `integrationStatus NOT_BUILT`, `networkCall
+NOT_PERFORMED`, a true state, an environment, capabilities, and limitations.
+Human passports print via `--print`. The generated file is regenerated only
+from the registry source (`scripts/ladder/adapters.mjs`); never hand-edited.
+
+## 6. Adoption Dashboard
+
+`scripts/ladder/adoption-dashboard.mjs --write` produces
+`docs/adoption-dashboard.md` — one board reading three committed sources
+(snapshot, registry, milestones). Engineering numbers are the measured truth;
+external milestone counters are 0 until an authorized step appends to
+`docs/adoption-milestones.json`. The board never invents a number upward and
+never hides a zero.
+
+## 7. Funding ladder (targets, never promises)
+
+- Stage A — technical evidence: **done** (suite + boundary + snapshot).
+- Stage B — first external verifier: next milestone to chase.
+- Stage C — first integration (DRY-RUN → sanctioned sandbox).
+- Stage D — multiple conformant integrations.
+- Stage E — first paid engagement (verification/conformance/infrastructure).
+- Stage F — recurring revenue.
+- Stage G — partner ecosystem.
+
+None of these is a claim; each is a doorway. As the owner's binding policy
+says, no v0.7.x on commit count — a release requires one of the four external
+triggers (external verifier ran the package / first integration pilot / first
+real adapter consumer / first paid engagement), and funding outcomes are never
+promised in advance.
+
+## 8. Owner decisions on the live ladder (2026-09-25, binding)
+
+- **Decision A (scope)**: live steps L1–L3 are authorized only when a **named
+  integrator** exists with a concrete use case and a **recorded owner
+  approval** per step; L1 as a sandbox authorization, L2/L3 pilot-only, never
+  standing. **Automatic settlement is never authorized.** Current ceiling
+  today: L0.
+- **Decision B (identity)**: the credential-holding integrator is **nobody for
+  now** — the credential is defined only when a real partner/integrator
+  appears and the use case is concrete. Until then every surface stays
+  DRY-RUN and `integrationStatus` stays `NOT_BUILT`.
+
+These decisions recorded in the decisions instrument
+(`docs/owner-decisions-and-claimable-facts-2026-09.md` §4/§8). They are the
+answer to the Phase 3 questions, not the opening of any live step.
+
+## 9. Verification of this page
+
+Everything here is machine-checked by `test/integrations/ladder.test.mjs`:
+state space integrity, transition guards (including the refusal of live steps
+without records), registry honesty (NOT_BUILT / NOT_PERFORMED, no invented
+state), passport determinism, conformance verdicts, and dashboard buildability.
+`npm run ladder:status` prints the same truths directly.
