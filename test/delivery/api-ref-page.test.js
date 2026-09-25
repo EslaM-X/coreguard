@@ -196,8 +196,10 @@ test("api-ref: deep links — the boundary doc's try-it-live pointers resolve to
   // and deep-links the #playground anchor instead), and this contract fails
   // the push the day either side renames.
   const doc = readFileSync(join(REPO, "docs", "delivery-dispute-boundary.md"), "utf8");
+  const readme = readFileSync(join(REPO, "README.md"), "utf8");
   const html = readFileSync(PAGE, "utf8");
-  const links = [...doc.matchAll(/DDE-API-REFERENCE\.html#(run=[a-z-]+|playground)/g)].map((m) => m[1]);
+  const links = [...doc.matchAll(/DDE-API-REFERENCE\.html#(run=[a-z-]+|playground)/g)].map((m) => m[1])
+    .concat([...readme.matchAll(/DDE-API-REFERENCE\.html#(run=[a-z-]+|playground)/g)].map((m) => m[1]));
   assert.ok(links.includes("run=honest") && links.includes("run=peoples-court") && links.includes("playground"),
     "boundary doc must deep-link verify, peoples-court and health to the live page");
   assert.match(html, /match\(\/\^#run=\(\[a-z-\]\+\)\$\/\)/,

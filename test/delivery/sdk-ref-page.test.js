@@ -166,10 +166,15 @@ test("sdk-ref: deep links — INTEGRATION.md's release-law arc resolves to wired
   // must be a wired scenario, and this contract fails the push the day
   // either side renames.
   const doc = readFileSync(join(REPO, "INTEGRATION.md"), "utf8");
+  const readme = readFileSync(join(REPO, "README.md"), "utf8");
   const html = readFileSync(PAGE, "utf8");
-  const links = [...doc.matchAll(/DDE-SDK-REFERENCE\.html#run=([a-z]+)/g)].map((m) => m[1]);
+  const links = [...doc.matchAll(/DDE-SDK-REFERENCE\.html#run=([a-z]+)/g)].map((m) => m[1])
+    .concat([...readme.matchAll(/DDE-SDK-REFERENCE\.html#run=([a-z]+)/g)].map((m) => m[1]));
   assert.ok(links.includes("verify") && links.includes("accepted") && links.includes("tamper") && links.includes("misuse"),
     "INTEGRATION.md must deep-link all four gate-arc scenarios");
+  assert.ok(readme.includes("DDE-API-REFERENCE.html#run=honest") && readme.includes("DDE-API-REFERENCE.html#run=tamper")
+    && links.includes("verify") && links.includes("accepted"),
+    "README must deep-link its three fixture examples (honest/accepted/tamper) to the live pages");
   assert.match(html, /match\(\/\^#run=\(\[a-z\]\+\)\$\/\)/,
     "page must parse the #run= deep-link grammar");
   // [C24] sibling: the hash consumer must run AFTER the boot's final

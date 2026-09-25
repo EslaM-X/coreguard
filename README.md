@@ -316,6 +316,12 @@ else releasePayout();
   `NOT_RUN`, never fabricated. The SDK never signs, never broadcasts, never
   judges conformity.
 
+**See it run in the browser** — the two live reference pages replay these
+examples over the real fixture in your tab: the honest fixture → [HOLD on the
+API page](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html#run=honest) and [HOLD on the SDK page](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html#run=verify) · the
+counterfactual ACCEPTED → [RELEASE](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html#run=accepted) · a flipped artifact byte → [422 on the
+API page](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html#run=tamper) and [REFUSED on the SDK page](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html#run=tamper).
+
 (Inside this repo, import from `packages/delivery/sdk.js` — the package
 specifier above is the installed surface with the same exports.)
 
