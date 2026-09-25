@@ -342,6 +342,20 @@ default of 1m); adapt names to your proxy if it is not nginx.
 | body cap | 1 MiB (two layers) | 1 MiB, with the edge cap ≤ 1 MiB so oversize dies at the proxy |
 | TLS | out of scope (loopback) | terminated at the proxy; the app speaks plain HTTP over loopback/private net |
 
+**Copy-ready production start** — the proxy posture as one verified line:
+
+```bash
+# proxy front door: pin the proxy's source address, size the in-process
+# limiter ABOVE the proxy's per-client edge ceiling (edge 10 r/s → backstop 600/min)
+node --input-type=module -e "import { startDeliveryEndpoint } from './packages/delivery/http.js'; const server = await startDeliveryEndpoint({ port: 8787, allowAddresses: ['127.0.0.1'], rateLimit: { windowMs: 60000, max: 600 } }); console.log('DDE endpoint (proxy posture) on :8787 —', server.address());"
+```
+
+The limiter keys on the proxy (the direct peer), so its `x-ratelimit-*`
+headers read as the backstop budget — `x-ratelimit-limit: 600` on every
+response is the proof the posture took. Per-client limiting lives at the
+edge (`limit_req`), the app ignores forwarded headers by contract, and the
+allowlist is the containment layer for a misexposed port.
+
 **Backups and recovery.** The endpoint is stateless by design: no database, no
 persisted fixtures, rate-limit state is per-process memory. There is nothing
 to back up at the app layer. Back up instead: (1) the **reverse-proxy config**
