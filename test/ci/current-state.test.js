@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 // [C28] The canonical current-state snapshot (docs/state-snapshot.json) is the
 // single machine-measured source for every number a doc or release cites
@@ -12,7 +13,9 @@ import { join } from "node:path";
 // the suite on any drift; the full-suite pass count is additionally enforced
 // by scripts/run-tests.mjs after every green run.
 
-const REPO = join(import.meta.dirname, "..", "..");
+// Node 18 has no import.meta.dirname — use the repo-wide fileURLToPath idiom
+// so all three engine legs (18/20/22) load this file identically.
+const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SNAPSHOT = join(REPO, "docs", "state-snapshot.json");
 const STATE = join(REPO, "scripts", "current-state.mjs");
 
