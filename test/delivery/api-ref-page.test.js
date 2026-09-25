@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { execFileSync } from "node:child_process";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -86,6 +86,82 @@ test("api-ref: page structure — all six wire scenarios + boundary + i18n", () 
   assert.equal((html.match(/<\/html>/g) || []).length, 1, "exactly one document close (no duplicated tail)");
 });
 
+test("api-ref: external defense probes — the 403/429/413 buttons script exactly the documented preconditions", () => {
+  // The page must SHOW every defense code a visitor can trigger on their own
+  // running endpoint, and the buttons must fire requests whose shape matches
+  // the documented guard semantics (not a generic "expect an error" stub):
+  //   429 — 120 verifications fill the fixed window, #121 is refused
+  //   413 — an otherwise-honest fixture padded beyond the 1 MiB cap
+  //   403 — a /health probe from a non-listed address (and the page must say
+  //         that an unfiltered endpoint answering 200 is the contract too)
+  const html = readFileSync(PAGE, "utf8");
+  for (const [id, i18n] of [["runExt429", "btn_ext429"], ["runExt413", "btn_ext413"], ["runExt403", "btn_ext403"]]) {
+    assert.ok(html.includes(`id="${id}"`) && html.includes(`data-i18n="${i18n}"`), `${id} button missing or unbound to its i18n key`);
+    assert.match(html, new RegExp(`${i18n}:\\{en:"[^\"]+",ar:"[^\"]+"\\}`), `${i18n} must carry bilingual labels`);
+  }
+  assert.match(html, /live_ext_defense_note:\{en:/, "precondition note (429/413/403 semantics) must be present");
+  assert.match(html, /for \(let i = 0; i < 121; i\+\+\)/, "429 probe must fire 121 verifications");
+  assert.match(html, /1200 \* 1024/, "413 probe must exceed the documented 1 MiB cap");
+  assert.match(html, /externalProbe\(false, "allowlist"\)/, "403 probe must be wired to the allowlist arm");
+  assert.match(html, /allowAddresses/, "the 403 note must name the operator allowlist");
+  for (const mode of ["ratelimit", "oversize", "allowlist"]) {
+    assert.match(html, new RegExp(`externalProbe\\(false, "${mode}"\\)`), `${mode} arm must be wired to a button`);
+  }
+});
+
+test("api-ref: defense codes over a real wire — the page's request shapes yield 429/413/403 from the actual handler", async () => {
+  // The strongest half of the contract: replay the EXACT requests the three
+  // buttons script against a live startDeliveryEndpoint instance and require
+  // the documented codes with the documented bodies.
+  const { startDeliveryEndpoint, MAX_BODY_BYTES } = await import(pathToFileURL(join(REPO, "packages", "delivery", "http.js")).href);
+  const { loadFixtureFromDir } = await import(pathToFileURL(join(REPO, "packages", "delivery", "sdk.js")).href);
+  // [C16] the live fixture tree is regenerated in place by the determinism
+  // contract during a parallel full-suite run — retry a torn read, never
+  // accept partial bytes.
+  let fixture;
+  for (let i = 0; i < 5 && !fixture; i++) {
+    try { ({ fixture } = loadFixtureFromDir(join(REPO, "examples", "delivery-fixture"))); }
+    catch { await new Promise((r) => setTimeout(r, 50)); }
+  }
+  assert.ok(fixture, "fixture could not be loaded intact");
+  const base = { "content-type": "application/json" };
+
+  // 413 — honest fixture + whitespace padding over the declared cap.
+  const s413 = await startDeliveryEndpoint({ port: 0 });
+  try {
+    const p413 = s413.address().port;
+    const r = await fetch(`http://127.0.0.1:${p413}/verify`, { method: "POST", headers: base, body: JSON.stringify(fixture) + " ".repeat(1200 * 1024) });
+    assert.equal(r.status, 413);
+    const j = await r.json();
+    assert.equal(j.status, "REJECTED");
+    assert.match(j.error, new RegExp(`exceeds ${MAX_BODY_BYTES} bytes`));
+    assert.equal(r.headers.get("x-dde-boundary"), "DDE-BOUNDARY");
+
+    // 429 — 120 verifications fill the window, #121 is refused with retry-after.
+    let last;
+    for (let i = 0; i < 121; i++) {
+      last = await fetch(`http://127.0.0.1:${p413}/verify`, { method: "POST", headers: base, body: JSON.stringify(fixture) });
+    }
+    assert.equal(last.status, 429);
+    const j429 = await last.json();
+    assert.equal(j429.status, "REJECTED");
+    assert.match(j429.error, /rate limit exceeded/);
+    assert.ok(Number(last.headers.get("retry-after")) >= 1, "429 must carry retry-after");
+  } finally { await new Promise((res) => s413.close(res)); }
+
+  // 403 — a second endpoint pinned to a foreign allowlist; a loopback /health
+  // probe is refused before anything else (an unfiltered endpoint answering
+  // 200 is the OTHER documented posture, asserted by the honest suites).
+  const s403 = await startDeliveryEndpoint({ port: 0, allowAddresses: ["198.51.100.9"] });
+  try {
+    const p403 = s403.address().port;
+    const r = await fetch(`http://127.0.0.1:${p403}/health`);
+    assert.equal(r.status, 403);
+    const j = await r.json();
+    assert.equal(j.status, "REJECTED");
+    assert.match(j.error, /allowlist/);
+  } finally { await new Promise((res) => s403.close(res)); }
+});
 test("api-ref: idempotent build — re-running the injector changes no bytes", () => {
   const before = readFileSync(PAGE, "utf8");
   execFileSync(process.execPath, [INJECTOR], { cwd: REPO, stdio: "pipe" });

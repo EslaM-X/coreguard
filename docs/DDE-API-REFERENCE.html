@@ -132,7 +132,13 @@
       <button class="btn" id="runHealth" data-i18n="btn_health"></button>
       <button class="btn" id="runExtVerify" data-i18n="btn_extverify"></button>
     </div>
+    <div class="btnrow">
+      <button class="btn" id="runExt429" data-i18n="btn_ext429"></button>
+      <button class="btn" id="runExt413" data-i18n="btn_ext413"></button>
+      <button class="btn" id="runExt403" data-i18n="btn_ext403"></button>
+    </div>
     <div class="note" data-i18n="live_ext_note"></div>
+    <div class="note" data-i18n="live_ext_defense_note"></div>
   </div>
   <pre class="codeblk" id="out" style="margin-top:14px; min-height:120px; display:none"></pre>
 </section>
@@ -215,6 +221,11 @@ const I18N = {
                  ar:"افحص نقطة بدأتها بالسطر الموثق. الـloopback نفسه يعمل مباشرة؛ المصادر الأخرى تحتاج CORS من جهتك."},
   btn_health:{en:"GET /health",ar:"GET /health"},
   btn_extverify:{en:"POST /verify",ar:"POST /verify"},
+  btn_ext429:{en:"Flood → 429",ar:"إغراق ← 429"},
+  btn_ext413:{en:"Oversize → 413",ar:"حجم زائد ← 413"},
+  btn_ext403:{en:"Allowlist probe → 403",ar:"مسبار القائمة ← 403"},
+  live_ext_defense_note:{en:"Defense codes need their preconditions on YOUR endpoint: 429 fires after 120 verifications in a minute, 413 needs an over-1-MiB body, 403 only if you started the endpoint with an allowAddresses list and probe from a non-listed address. The buttons script exactly that — a rejected peer never consumes rate-limit budget (allowlist fires first).",
+                         ar:"رموز الدفاع تشترط شروطها على نقطتك أنت: 429 بعد 120 عملية تحقق في الدقيقة، و413 بجسم فوق 1 MiB، و403 فقط إذا بدأت النقطة بقائمة allowAddresses وفحصت من عنوان خارجها. الأزرار نصّب هذا تمامًا — النظير المرفوض لا يستهلك ميزانية المعدل (القائمة أولًا)."},
   live_ext_note:{en:"This page is served from github.io — cross-origin fetches to 127.0.0.1 require the endpoint to opt in via CORS. Serve the repo locally (e.g. npx serve) and open this page from there to probe a local endpoint.",
                  ar:"تُخدَم هذه الصفحة من github.io — الطلبات عبر المصدر إلى 127.0.0.1 تتطلب موافقة النقطة عبر CORS. اخدم المستودع محليًا (مثل npx serve) وافتح الصفحة من هناك لفحص نقطة محلية."},
   out_pending:{en:"running…",ar:"جارٍ التنفيذ…"},
@@ -421,7 +432,7 @@ async function runScenario(sc) {
 }
 
 function setBusy(b) {
-  for (const id of ["runVerify","runPc","runTamper","runHealth","runExtVerify"])
+  for (const id of ["runVerify","runPc","runTamper","runHealth","runExtVerify","runExt429","runExt413","runExt403"])
     document.getElementById(id).disabled = b;
 }
 
@@ -463,7 +474,7 @@ function renderDetail() {
 }
 
 /* -------------------------------------------------------- external probing */
-async function externalProbe(verify) {
+async function externalProbe(verify, defense) {
   setBusy(true);
   const out = document.getElementById("out");
   out.style.display = "block";
@@ -471,12 +482,31 @@ async function externalProbe(verify) {
   try {
     const base = document.getElementById("extUrl").value.trim().replace(/\/+$/, "");
     if (!base) throw new Error(L({en:"enter a base URL first",ar:"أدخل عنوان URL الأساسي أولًا"}));
-    const res = await fetch(base + (verify ? "/verify" : "/health"), verify
-      ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(FD) }
-      : { method: "GET" });
+    let res, note = "";
+    if (defense === "ratelimit") {
+      // Fire 121 honest verifications — 120 fill the fixed window, #121 must be refused with 429.
+      let last;
+      for (let i = 0; i < 121; i++) last = await fetch(base + "/verify", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(FD) });
+      res = last;
+    } else if (defense === "oversize") {
+      // An honest, valid fixture padded with whitespace beyond the 1 MiB cap — rejected on size, not content.
+      res = await fetch(base + "/verify", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(FD) + " ".repeat(1200 * 1024) });
+    } else if (defense === "allowlist") {
+      // A GET /health probe from this browser's address — expect 403 only if the endpoint
+      // was started with an allowAddresses list that excludes this browser. An unfiltered
+      // endpoint (default loopback posture) answers 200 OK instead — that is the contract too.
+      res = await fetch(base + "/health");
+      note = "\n\n" + L({en:"allowlist check: 403 = this browser's address is outside the endpoint's allowAddresses list · 200 = the endpoint runs unfiltered (default loopback posture) — the absence of 403 is itself the documented behavior, not a failure.",ar:"فحص القائمة: 403 يعني أن عنوان متصفحك خارج قائمة allowAddresses للنقطة · و200 يعني أن النقطة تعمل بلا تصفية (الوضع الافتراضي loopback) — غياب 403 هو السلوك الموثق نفسه، وليس فشلًا."});
+    } else {
+      res = await fetch(base + (verify ? "/verify" : "/health"), verify
+        ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(FD) }
+        : { method: "GET" });
+    }
     const text = await res.text();
+    const ra = res.headers.get("retry-after");
     out.textContent = "HTTP " + res.status + "\n\n" + text +
-      "\n\nx-dde-boundary: " + (res.headers.get("x-dde-boundary") || L({en:"(not exposed cross-origin)",ar:"(غير مكشوفة عبر المصدر)"}));
+      "\n\nx-dde-boundary: " + (res.headers.get("x-dde-boundary") || L({en:"(not exposed cross-origin)",ar:"(غير مكشوفة عبر المصدر)"})) +
+      (ra ? "\nretry-after: " + ra : "") + note;
   } catch (err) {
     out.textContent = L({en:"probe failed (CORS or connection): ",ar:"فشل المسبار (CORS أو اتصال): "}) + err.message;
   } finally { setBusy(false); }
@@ -530,6 +560,9 @@ async function main() {
   }
   document.getElementById("runHealth").onclick = () => externalProbe(false);
   document.getElementById("runExtVerify").onclick = () => externalProbe(true);
+  document.getElementById("runExt429").onclick = () => externalProbe(false, "ratelimit");
+  document.getElementById("runExt413").onclick = () => externalProbe(false, "oversize");
+  document.getElementById("runExt403").onclick = () => externalProbe(false, "allowlist");
   document.getElementById("langBtn").onclick = () => {
     window.cgLang = window.cgLang === "en" ? "ar" : "en";
     applyStatic();
