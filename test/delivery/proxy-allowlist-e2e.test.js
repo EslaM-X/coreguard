@@ -73,6 +73,10 @@ test("e2e: allowlisted endpoint behind a proxy peer — forwarded headers never 
       const rej = await r.json();
       assert.equal(rej.status, "REJECTED");
       assert.match(rej.error, /allowlist/);
+      // releaseWhen-style named reasons: unified rejection language across
+      // every endpoint guard, mirroring the SDK gate's reasons[0] shape.
+      assert.ok(Array.isArray(rej.reasons) && rej.reasons.length === 1, "403 must carry one named reason");
+      assert.match(rej.reasons[0], /^peer address is not on the endpoint allowlist —/);
     }
     const directHealth = await fetch(direct + "/health");
     assert.equal(directHealth.status, 403, "the allowlist does NOT exempt /health — an unlisted peer learns nothing, not even liveness");
@@ -84,6 +88,10 @@ test("e2e: allowlisted endpoint behind a proxy peer — forwarded headers never 
     }
     assert.equal(last.status, 429, "the proxy peer's own budget exhausts");
     assert.ok(Number(last.headers.get("retry-after")) >= 1, "429 carries retry-after");
+    const limited = await last.json();
+    assert.ok(Array.isArray(limited.reasons) && limited.reasons.length === 1, "429 must carry one named reason");
+    assert.match(limited.reasons[0], /^rate limit exceeded —/);
+    assert.match(limited.reasons[0], /retry after \d+s$/);
     // after the flood: an unlisted peer still gets 403 (not 429) AND leaves the
     // proxy's exhausted budget untouched — the next proxy call is still 429.
     const strangerAfter = await fetch(direct + "/verify", { method: "POST", headers: { ...json, "x-forwarded-for": "::1" }, body });

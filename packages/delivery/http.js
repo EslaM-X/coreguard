@@ -76,6 +76,9 @@ function oversizeBody() {
   return {
     status: "REJECTED",
     error: `request body exceeds ${MAX_BODY_BYTES} bytes — fixtures are small JSON documents (fail-closed)`,
+    // releaseWhen-style named reasons: every guard rejection speaks the same
+    // language the SDK's gate speaks — stable first phrase, actionable tail.
+    reasons: [`request body exceeds ${MAX_BODY_BYTES} bytes — fixtures are small JSON documents; send a smaller body (fail-closed)`],
     ddeVersion: DDE_VERSION,
     boundary: BOUNDARY_BANNER.statement,
   };
@@ -86,6 +89,7 @@ function notAllowedBody() {
   return {
     status: "REJECTED",
     error: "peer address not on the endpoint allowlist (fail-closed); bind loopback or add this address explicitly",
+    reasons: ["peer address is not on the endpoint allowlist — bind loopback or add this address to allowAddresses explicitly (fail-closed)"],
     ddeVersion: DDE_VERSION,
     boundary: BOUNDARY_BANNER.statement,
   };
@@ -235,6 +239,7 @@ export function createDeliveryRequestHandler({ evm = undefined, rateLimit, allow
         return send(429, {
           status: "REJECTED",
           error: `rate limit exceeded — max ${limiter.max} requests per ${Math.round(limiter.windowMs / 1000)}s window per address (fail-closed); retry later`,
+          reasons: [`rate limit exceeded — max ${limiter.max} requests per ${Math.round(limiter.windowMs / 1000)}s window per direct peer (fail-closed); retry after ${verdict.retryAfterSec}s`],
           ddeVersion: DDE_VERSION,
           boundary: BOUNDARY_BANNER.statement,
         }, { "retry-after": String(verdict.retryAfterSec) });

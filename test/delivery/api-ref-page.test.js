@@ -135,6 +135,8 @@ test("api-ref: defense codes over a real wire — the page's request shapes yiel
     const j = await r.json();
     assert.equal(j.status, "REJECTED");
     assert.match(j.error, new RegExp(`exceeds ${MAX_BODY_BYTES} bytes`));
+    assert.ok(Array.isArray(j.reasons) && j.reasons.length === 1, "413 must carry one named reason");
+    assert.match(j.reasons[0], /^request body exceeds 1048576 bytes —/);
     assert.equal(r.headers.get("x-dde-boundary"), "DDE-BOUNDARY");
 
     // 429 — 120 verifications fill the window, #121 is refused with retry-after.
