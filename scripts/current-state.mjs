@@ -46,7 +46,17 @@ function measureAudit() {
       throw new Error(`boundary audit did not pass: ${r.stdout}${r.stderr}`);
     }
     const report = JSON.parse(readFileSync(out, "utf8"));
-    return { filesScanned: report.scannedFiles, violations: report.findingsCount, check: "PASS" };
+    // filesScanned must be a tree-COMMITTED count (git ls-files, same
+    // exclusions the audit applies), NOT a disk-walk count: a dev disk carries
+    // local untracked/ignored files that a CI/reviewer clone never sees, so a
+    // disk count would certify different numbers on different machines. The
+    // audit still runs against the disk for its CONTENT checks (violations);
+    // the number we pin is the one a fresh clone reproduces.
+    const tracked = git(["ls-files"])
+      .split("\n")
+      .filter((f) => f && !f.startsWith(".git/") && !f.startsWith("node_modules/") && !f.startsWith("legacy-quarantine/"))
+      .filter((f) => !/^\.env($|\.)/.test(f.split("/").pop()) || f.endsWith(".example"));
+    return { filesScanned: tracked.length, violations: report.findingsCount, check: "PASS" };
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
