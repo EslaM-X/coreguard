@@ -109,6 +109,16 @@ test("api-ref: external defense probes — the 403/429/413 buttons script exactl
   }
 });
 
+test("api-ref: cross-links — the page mirrors its scenarios to the SDK reference page, bilingually", () => {
+  const html = readFileSync(PAGE, "utf8");
+  assert.match(html, /DDE-SDK-REFERENCE\.html#run=verify/, "must cross-link the SDK verify scenario");
+  assert.match(html, /DDE-SDK-REFERENCE\.html#run=accepted/, "must cross-link the SDK accepted scenario");
+  assert.match(html, /DDE-SDK-REFERENCE\.html#run=tamper/, "must cross-link the SDK tamper scenario");
+  assert.match(html, /xlink:\{en:"/, "cross-link line must be bilingual");
+  const buildAt = html.indexOf('xl.innerHTML = L(I18N.xlink)');
+  assert.ok(buildAt > 0, "cross-links must be rebuilt into #xlinks");
+});
+
 test("api-ref: defense codes over a real wire — the page's request shapes yield 429/413/403 from the actual handler", async () => {
   // The strongest half of the contract: replay the EXACT requests the three
   // buttons script against a live startDeliveryEndpoint instance and require

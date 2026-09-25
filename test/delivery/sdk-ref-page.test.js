@@ -198,3 +198,14 @@ test("sdk-ref: deep links — INTEGRATION.md's release-law arc resolves to wired
       `deep link #run=${sc} has no wired in-page scenario`);
   }
 });
+
+test("sdk-ref: cross-links — the page mirrors its scenarios to the API reference page, bilingually", () => {
+  const html = readFileSync(PAGE, "utf8");
+  assert.match(html, /DDE-API-REFERENCE\.html#run=honest/, "must cross-link the wire honest scenario");
+  assert.match(html, /DDE-API-REFERENCE\.html#run=peoples-court/, "must cross-link the wire projection");
+  assert.match(html, /DDE-API-REFERENCE\.html#run=tamper/, "must cross-link the wire tamper scenario");
+  assert.match(html, /xlink:\{en:"/, "cross-link line must be bilingual");
+  const buildAt = html.indexOf('xl.innerHTML = L(I18N.xlink)');
+  const staticAt = html.indexOf("function applyStatic");
+  assert.ok(buildAt > staticAt > 0, "cross-links must be rebuilt after the i18n static pass");
+});

@@ -119,6 +119,9 @@ curl -sS http://127.0.0.1:8787/health
 ```
 
 No terminal? Each command above runs in the published page with no server and no clone — try it live: [verify](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html#run=honest) · [peoples-court](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html#run=peoples-court) · [health](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html#playground) — and the page deep-links every wire scenario in the table (`#run=tamper`, `#run=badjson`, `#run=oversize`, `#run=ratelimit`, `#run=notfound`).
+The two live pages cross-link each other: the same fixture runs through the SDK gate on the
+[SDK reference page](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html) (`#run=verify` → HOLD,
+`#run=accepted` → RELEASE, `#run=tamper` → REFUSED) — the engine is identical, only the transport differs.
 
 Prefer to *see* the wire contract before running anything? The published
 [DDE-API-REFERENCE page](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html)

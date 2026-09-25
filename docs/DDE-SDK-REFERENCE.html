@@ -111,6 +111,7 @@
       <tbody id="scBody"></tbody>
     </table>
   </div>
+  <p class="d" style="margin-top:10px" id="xlinks" data-i18n="xlink"></p>
   <div class="card" style="margin-top:14px" id="scDetail">
     <h3 data-i18n="detail_empty"></h3>
     <pre class="codeblk" id="scDetailPre" style="display:none"></pre>
@@ -151,6 +152,10 @@ function L(pair) { return (window.cgLang === "ar" ? pair.ar : pair.en); }
 
 const I18N = {
   langbtn:{en:"العربية",ar:"English"},
+  xlink:{en:"Cross-links — the same fixture on the HTTP wire (engine in-page): ",ar:"روابط متبادلة — الـfixture نفسه على سلك HTTP (المحرك داخل الصفحة): "},
+  xlink_w:{en:"wire POST /verify",ar:"سلك POST /verify"},
+  xlink_pc:{en:"wire POST /peoples-court",ar:"سلك POST /peoples-court"},
+  xlink_t:{en:"wire tamper → 422",ar:"سلك العبث ← 422"},
   boot_checking:{en:"embedded SDK: booting…",ar:"الـSDK المضمّن: جارٍ الإقلاع…"},
   boot_ok:{en:"embedded SDK: live — every verdict and gate decision below was captured from it",ar:"الـSDK المضمّن: حي — كل حكم وكل قرار بوابة أدناه ملتقط منه"},
   boot_fail:{en:"embedded SDK failed to boot — table pending, nothing fabricated: ",ar:"فشل إقلاع الـSDK المضمّن — الجدول معلّق، لا شيء مُختلق: "},
@@ -207,6 +212,17 @@ function applyStatic() {
     if (I18N[k]) el.innerHTML = L(I18N[k]);
   }
   document.title = L({en:"CoreGuard DDE — SDK Reference",ar:"CoreGuard DDE — مرجع الـSDK"});
+  // Cross-links: mirror each SDK scenario to its wire counterpart on the
+  // API reference page (same fixture, same engine, transport differs).
+  // Rebuilt HERE so every language flip rebuilds them too.
+  const xl = document.getElementById("xlinks");
+  if (xl) {
+    // Literal hrefs (no variable) — the page contract asserts them statically.
+    const parts = [ `<a href="DDE-API-REFERENCE.html#run=honest">${esc(L(I18N.xlink_w))}</a>`,
+                    `<a href="DDE-API-REFERENCE.html#run=peoples-court">${esc(L(I18N.xlink_pc))}</a>`,
+                    `<a href="DDE-API-REFERENCE.html#run=tamper">${esc(L(I18N.xlink_t))}</a>` ];
+    xl.innerHTML = L(I18N.xlink) + parts.join(" · ");
+  }
 }
 
 /* ========================================================= embedded SDK

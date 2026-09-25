@@ -139,6 +139,7 @@
     </div>
     <div class="note" data-i18n="live_ext_note"></div>
     <div class="note" data-i18n="live_ext_defense_note"></div>
+    <p class="note" id="xlinks" data-i18n="xlink"></p>
   </div>
   <pre class="codeblk" id="out" style="margin-top:14px; min-height:120px; display:none"></pre>
 </section>
@@ -229,6 +230,10 @@ const I18N = {
   live_ext_note:{en:"This page is served from github.io — cross-origin fetches to 127.0.0.1 require the endpoint to opt in via CORS. Serve the repo locally (e.g. npx serve) and open this page from there to probe a local endpoint.",
                  ar:"تُخدَم هذه الصفحة من github.io — الطلبات عبر المصدر إلى 127.0.0.1 تتطلب موافقة النقطة عبر CORS. اخدم المستودع محليًا (مثل npx serve) وافتح الصفحة من هناك لفحص نقطة محلية."},
   out_pending:{en:"running…",ar:"جارٍ التنفيذ…"},
+  xlink:{en:"Cross-links — the same fixture through the SDK gate (verifyFixture + releaseWhen in-page): ",ar:"روابط متبادلة — الـfixture نفسه عبر بوابة الـSDK (verifyFixture + releaseWhen داخل الصفحة): "},
+  xlink_sdk:{en:"SDK verify → HOLD",ar:"SDK verify ← HOLD"},
+  xlink_acc:{en:"SDK ACCEPTED → RELEASE",ar:"SDK ACCEPTED ← RELEASE"},
+  xlink_tamper:{en:"SDK tamper → REFUSED",ar:"SDK tamper ← REFUSED"},
   h_limits:{en:"Request &amp; rate limits",ar:"الطلبات وحدود المعدل"},
   pr_size_t:{en:"Size — two layers",ar:"الحجم — طبقتان"},
   pr_size_d:{en:"A declared content-length over 1 MiB is rejected before any body byte is read; the streaming cap stays the truth for chunked or lying senders. Same 413 either way.",
@@ -264,6 +269,17 @@ function applyStatic() {
     if (I18N[k]) el.innerHTML = L(I18N[k]);
   }
   document.title = L({en:"CoreGuard DDE — API Reference",ar:"CoreGuard DDE — مرجع الواجهة"});
+  // Cross-links: mirror each wire scenario to its SDK-gate counterpart on
+  // the SDK reference page (same fixture, same engine, different surface).
+  // Rebuilt HERE so every language flip rebuilds them too.
+  const xl = document.getElementById("xlinks");
+  if (xl) {
+    // Literal hrefs (no variable) — the page contract asserts them statically.
+    const parts = [ `<a href="DDE-SDK-REFERENCE.html#run=verify">${esc(L(I18N.xlink_sdk))}</a>`,
+                    `<a href="DDE-SDK-REFERENCE.html#run=accepted">${esc(L(I18N.xlink_acc))}</a>`,
+                    `<a href="DDE-SDK-REFERENCE.html#run=tamper">${esc(L(I18N.xlink_tamper))}</a>` ];
+    xl.innerHTML = L(I18N.xlink) + parts.join(" · ");
+  }
 }
 /* ============================================================ embedded engine
    The endpoint's own createDeliveryRequestHandler runs IN THIS PAGE over two
