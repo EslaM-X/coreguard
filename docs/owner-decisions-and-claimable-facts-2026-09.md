@@ -15,7 +15,7 @@ until an explicit per-step owner sign-off exists (phase-3 plan §5, binding).
 | Capability | Where it lives | Proof (reproduces locally) |
 |---|---|---|
 | Evidence model + offline proof | whole repo | `npm test` → **1022 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
-| Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **767 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
+| Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **768 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
 | Docs-node contract (executable docs stay runnable) | `test/ci/docs-node-contract.test.js` | 70 executed · 53 skip-listed · 18 docs covered |
 | Live-submission harness (recorded feed, webhooks DRY-RUN, x402 DRY-RUN) | `packages/peoples-court-adapter/` | `npm run peoples-court:harness` → 11/11 |
 | Boundary enforcement (fail-closed) | `scripts/boundary-audit.mjs` + `test/ci/boundary-enforcement.test.js` | `npm run boundary:audit` → PASS |
@@ -70,6 +70,38 @@ file that claims a live call, a stored credential, or a settlement."
 
 ## 4. The two decisions that remain yours (plain words)
 
+### What "the Phase 3 decision" means (clarification, 2026-09-25)
+
+Terminology quirk: `L1/L2/L3` appears twice in this repo with two different
+meanings. For the integration boundary (this section), **L1/L2/L3 are the ONLY
+three live steps toward a real integration** — L1 a live authority grant, L2 a
+live `adjudication.prepare()` packet, L3 a live webhook replay (full detail in
+`docs/execution-kit-integrator-2026-09.md`). The unrelated meaning lives in
+ARCHITECTURE.md (L1 receipt pinning / L2 replay — chain-verification depth);
+that one needs no decision.
+
+So "the Phase 3 decision" = exactly two questions, both yours:
+- **Decision A — scope**: which of those three live steps do you ever
+  authorize (L1 only / L1-L2 / L1-L3 — or none, which is a valid answer and
+  costs nothing).
+- **Decision B — identity**: who, if anyone, is the **credential-holding
+  integrator** who will run the authorized step(s) (you with a test account, a
+  named partner/institution, or nobody for now).
+
+Both are **not made** — that is the entire "pending" status. Nothing promised
+is blocked by it: the engine, the boundary layer, the suite, the on-chain
+anchor, and all proof-value already exist (§1). The only freeze while pending:
+pilot surfaces stay DRY-RUN and the adapter's `integrationStatus` stays
+NOT_BUILT — the honest position, and exactly the discipline a funder's due
+diligence rewards.
+
+باختصار بالعربية: «قرار Phase 3» ليس شيئًا تقنيًا غامضًا — هو سؤالان لك فقط:
+**(أ) نطاق** أيٍّ من خطوات التكامل الحي الثلاث تسمح يومًا ما بأن تُنفَّذ (أو لا
+شيء، وهذا صحيح ولا يكلفك شيئًا)؛ **(ب) هوية** من هو الشخص/الكيان الحقيقي الذي
+بحوزته حساب اختبار منصة التحكيم سينفّذ الخطوة المأذون بها. لم تتّخذ أيًّا منهما
+حتى الآن، ولا شيء من الموعود محجوب بانتظارهما — الأسطح تبقى DRY-RUN بأمانة حتى
+تكتب سطر التفويض. أبسط خيار صالح الآن: «لا شيء» — والمشروع كامل الفائدة كما هو.
+
 **Decision A — among the three planned live steps, which do you authorize,
 ever?** You do not have to decide anything to run L0 forever (the finished
 engine + boundary layer). The live steps are:
@@ -119,3 +151,35 @@ Nothing is blocked that was promised. Everything in §1 is real and finished;
 the phase-3 plan stays planning-only by contract (§5 "no standing
 authorization"), and that is exactly the discipline a funder's due diligence
 rewards.
+
+## 7. Strategy decisions — adoption mode entered (2026-09-25, owner, binding)
+
+1. **Hardening is paused; adoption starts.** No further hardening work before
+   the campaign runs; returns now come from external consumption, not new
+   internal checks.
+2. **Success is defined once**: independent external consumption of the
+   evidence package (someone outside runs/verifies/links/forks an EVP/1 or
+   ADAL/1 artifact, or a third-party critique that upgrades the standard).
+   Reply counts and artifact-free praise are explicitly NOT success.
+3. **People's Court is not a gate.** One Phase A message, then Phase B
+   proceeds regardless of their silence; the engagement remains an external
+   technical signal only (never endorsement).
+4. **Phase A is exactly one short technical message**: "We kept building. The
+   current artifact is now mechanically anchored and reproducible across Node
+   18/20/22. If useful, you can inspect or run the current evidence package."
+   No asks, no bumping, ever. (Message-ready draft:
+   `docs/phase-a-people-court-followup-draft-2026-09-25.md`.)
+5. **No v0.7.x on commit count.** A new release requires one of four external
+   triggers: an external verifier ran the package; a first integration pilot;
+   a first real adapter consumer; a first paid verification/conformance
+   engagement.
+6. **Monetization/integration language is phase-C only and never "buy
+   CoreGuard"** — always: "you have a dispute/agent/escrow system; CoreGuard
+   can be the evidence + verification boundary between execution evidence and
+   adjudication/settlement", addressed to courts, agent-commerce systems,
+   ODR, escrows, and the Core ecosystem without binding the project to one
+   court.
+7. **Execution tooling for the campaign**: letters, KPI, ledger, versioning
+   policy, and per-track gates live in
+   `docs/campaign-ops-outreach-kit-2026-09-25.md` — the operating doc of this
+   phase.

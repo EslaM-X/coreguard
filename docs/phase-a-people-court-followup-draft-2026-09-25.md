@@ -14,7 +14,7 @@ technical artifact update, then wait indefinitely. No follow-up akten, no
   reference tribunal) and this session's canonical measured state made **every
   number we could ever state re-producible on a fresh clone** (1022 tests
   CI-enforced against `docs/state-snapshot.json`, boundary audit 0 violations,
-  767-file committed-tree scope, docs-node contract live).
+  768-file committed-tree scope, docs-node contract live).
 - That is a genuine change in the artifact's verifiability since our last
   message: worth exactly one message, nothing more.
 
