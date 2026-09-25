@@ -53,6 +53,17 @@
   <li><a href="https://github.com/EslaM-X/coreguard/tree/main/examples/real-fixture-intake">real-fixture intake kit</a> — نطاق إفصاح موقّع + بوابة إغلاق + تحويل بكلمة واحدة لملف قابل للمراجعة الخارجية.</li>
 </ul>
 
+<h2>هندسة الثقة / Trust architecture</h2>
+<p class="d">ما يشتريه المموّل أو الشركة المُدمِجة ليس كودًا فحسب، بل انضباط تحقق: كل ادعاء ميكانيكي التحقق، وكل فحص محصّن ضد الانجراف بين قناتين. الأضلاع الأربعة:</p>
+<div class="en">What a funder or an integrating company buys is not just code — it is verification discipline: every claim is mechanically checkable, and every check is drift-proof. Four pillars:</div>
+<div class="grid">
+  <div class="card"><b>الهوية من السلك / <span class="en">Identity from the wire</span></b><small>هوية النظير عنوان مقبسه — الترويسات المُحوَّلة بيانات تسجيل لا هوية. انتحال عنوان البروكسي المدرج حرفيًا يعطي 403؛ مثبت باختبار E2E على طوبولوجيا بروكسي حقيقية (dual-stack ::1/127.0.0.1).<span class="en">A peer's identity is its socket address — forwarded headers are logging data, never identity. Forging even the allowlisted proxy's address verbatim yields 403; proven by an E2E test over a real proxy topology.</span></small></div>
+  <div class="card"><b>أدلة مثبتة بالالتزام / <span class="en">Commit-anchored evidence</span></b><small>التقارير تُهشّم من <span class="ltr">git show</span> لا من القرص — ما يُقتبس يقتبس البانر معه، وما يُدّعى يُعاد إنتاجه من الشجرة الملتزمة.<span class="en">Reports hash from git blobs, not disk — quoting a report quotes the boundary with it, and every claim reproduces from the committed tree.</span></small></div>
+  <div class="card"><b>أحكام مربوطة بالبايتات / <span class="en">Verdicts bound to bytes</span></b><small>الحكم الأخضر يلتزم بايتات محددة (pins)، وكل مستهلك يعيد تشغيل البوابة على الشجرة نفسها التي يقرأها — لا «أخضر محفوظ» يُنقل عبر الخطوات.<span class="en">A GREEN verdict binds exact bytes (pins), and every consumer re-runs the gate on the same tree it reads — no remembered GREEN crosses a step boundary.</span></small></div>
+  <div class="card"><b>العقود تفشل الدفع / <span class="en">Contracts fail the push</span></b><small>النثر لا ينفصل عن الكود: عقد doc-curl ينفّذ كل أمر موثق، وعقود الصفحات تقفل الروابط الحرفية، وعقد التوازن يحرس سجل الدروس — حين يكذب الأصل يفشل الدفع بالاسم.<span class="en">Prose cannot drift from code: the doc-curl contract executes every documented command, page contracts lock literal links, and a balance contract guards the lessons index — when the artifact lies, the push fails by name.</span></small></div>
+</div>
+<p class="d" style="margin-top:.6rem">مثال حي: سباق نشر Pages تكرر 15+ مرة كأعراض معالَجة، حتى جرّعت آليته الحقيقية (فجوة تسجيل في API) وأُغلق من الجذر بتثبيت كل تسوية على SHA الالتزام الذي يجب أن يكتمل بناؤه — موثق كـ[C26]/[C27] في <a href="https://github.com/EslaM-X/coreguard/blob/main/AGENTS.md">AGENTS.md</a>.<span class="en">Live example: a deploy race treated 15+ times as symptoms until its real mechanism was root-caused (a registration gap in the Pages API) and closed at the root by pinning every settle to the commit SHA whose build must finish — documented as [C26]/[C27] in AGENTS.md.</span></p>
+
 <h2>التوثيق المهم / Governance &amp; truth</h2>
 <ul>
   <li><a href="STATUS.md">docs/STATUS.md</a> — مصدر الحقيقة الواحد؛ كل رقم مقيس، لا تخمين.</li>
