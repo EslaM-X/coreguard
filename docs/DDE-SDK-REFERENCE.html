@@ -392,6 +392,21 @@ async function main() {
   }
   renderTable(); renderDetail();
 
+  /* --- #run=<scenario> hash, processed AFTER the boot re-render so a deep
+     link's selection survives the boot pass — and AFTER SDK is resolved, so
+     the rerun it triggers actually has the SDK in hand ([C24] sibling: a
+     block that races its own boot state is a control nobody clicked). */
+  const runHash = (location.hash || "").match(/^#run=([a-z]+)$/);
+  if (runHash) {
+    const sc = runHash[1];
+    if (SCENARIOS.includes(sc)) {
+      selected = sc;
+      renderTable(); renderDetail();
+      document.getElementById("playground").scrollIntoView({ behavior: "smooth" });
+      rerun(sc);
+    }
+  }
+
   document.getElementById("scBody").addEventListener("click", (e) => {
     const run = e.target.closest("button[data-run]");
     if (run) { rerun(run.getAttribute("data-run")); return; }

@@ -158,3 +158,38 @@ test("sdk-ref: idempotent build — re-running the injector changes no bytes (bo
   assert.equal(readFileSync(PAGE, "utf8"), beforeSdk, "SDK page injector must be idempotent");
   assert.equal(readFileSync(APIREF, "utf8"), beforeApi, "API page injector must be idempotent");
 });
+
+test("sdk-ref: deep links — INTEGRATION.md's release-law arc resolves to wired in-page scenarios", () => {
+  // INTEGRATION.md §"Two-line SDK gate" points its four-scenario release arc
+  // (HOLD/RELEASE/REFUSED/REFUSED) at the published page via #run=… deep
+  // links. The page must consume that exact hash grammar, every linked name
+  // must be a wired scenario, and this contract fails the push the day
+  // either side renames.
+  const doc = readFileSync(join(REPO, "INTEGRATION.md"), "utf8");
+  const html = readFileSync(PAGE, "utf8");
+  const links = [...doc.matchAll(/DDE-SDK-REFERENCE\.html#run=([a-z]+)/g)].map((m) => m[1]);
+  assert.ok(links.includes("verify") && links.includes("accepted") && links.includes("tamper") && links.includes("misuse"),
+    "INTEGRATION.md must deep-link all four gate-arc scenarios");
+  assert.match(html, /match\(\/\^#run=\(\[a-z\]\+\)\$\/\)/,
+    "page must parse the #run= deep-link grammar");
+  // [C24] sibling: the hash consumer must run AFTER the boot's final
+  // renderTable()/renderDetail() — a block placed mid-main races the boot
+  // re-render (its selection gets wiped) and reruns against an unresolved
+  // SDK. The last boot render is the earliest safe point.
+  const html2 = html;
+  const hashAt = html2.indexOf("^#run=");
+  // the boot's final render is the LAST re-render BEFORE the hash block
+  // (the hash block itself contains a render pair — search only up to it)
+  const bootRerenderAt = html2.slice(0, hashAt).lastIndexOf("renderTable(); renderDetail();");
+  const rerunAt = html2.indexOf("async function rerun");
+  assert.ok(hashAt > 0 && rerunAt > 0 && bootRerenderAt > 0,
+    "deep-link block, boot re-render or rerun() missing from page script");
+  assert.ok(hashAt > bootRerenderAt && hashAt < rerunAt,
+    "hash consumer must sit between the boot's final render and rerun()'s definition");
+  const pageScenarios = [...html.matchAll(/const SCENARIOS = \[([^\]]+)\]/g)][0];
+  assert.ok(pageScenarios, "SCENARIOS list missing from page script");
+  for (const sc of links) {
+    assert.match(pageScenarios[1], new RegExp(`"${sc}"`),
+      `deep link #run=${sc} has no wired in-page scenario`);
+  }
+});

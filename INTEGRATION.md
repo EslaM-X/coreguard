@@ -86,6 +86,13 @@ requires a `VERIFIED` report **and** a party-signed acceptance record resting
 on criterion evaluations. Signatures, receipts and settlement are admissible
 evidence — never a verdict.
 
+**See the release law run** — the published SDK reference page carries the
+real `verifyFixture` + `releaseWhen` and replays the whole four-scenario gate
+arc (HOLD, RELEASE, REFUSED, REFUSED) in your browser: [verify → HOLD](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html#run=verify) ·
+[accepted → RELEASE](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html#run=accepted) ·
+[tamper → REFUSED](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html#run=tamper) ·
+[misuse → REFUSED](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html#run=misuse).
+
 ## People's Court intake projection
 
 ```bash
