@@ -268,7 +268,7 @@ with snapshot-pinned numbers — which is itself the honest pitch.
 
 | # | Track | Target | Sent? | Date | Reply? | Outcome | Owner gate |
 |---|---|---|---|---|---|---|---|
-| A1 | Phase A | People's Court (thread #21788) | no — owner holds | — | — | — | owner posts manually; then hold |
+| A1 | Phase A | People's Court (thread #21788) | yes — POSTED 2026-09-25 (comment `…18601897`, 15:45:07Z, reply under `#18570343`) | — | — | held in thread after the 15:45:07Z reply | owner posted manually; hold indefinitely |
 | B1 | Internet-Court ecosystem | GenLayer / Internet Court contacts | no | — | — | — | sign-off |
 | B2 | Agentic-court systems | tribunal / Polycourt / QE-Court | no | — | — | — | sign-off |
 | B3 | Legacy ODR rails | Kleros / UMA / Reality.eth | no | — | — | — | sign-off |

@@ -381,20 +381,27 @@ support.
 
 ---
 
-### Phase A posted (2026-09-25) — the kept-building update, owner-directed
+### Phase A posted (2026-09-25T15:45:07Z) — the label-follow-up reply, owner-directed
 
 **POSTED once, manually, 2026-09-25** as a reply to the counterparty's last
 review (`#18570343`, the 17:23:37Z read-only critique) — comment
-`DC_kwDOMT5cIs4BG9Kl`, dbId 18600613:
-https://github.com/elizaOS/eliza/discussions/21788#discussioncomment-18600613.
+`DC_kwDOMT5cIs4BG9ep`, dbId 18601897:
+https://github.com/elizaOS/eliza/discussions/21788#discussioncomment-18601897.
 
-Content = the Phase A message from
-`docs/phase-a-people-court-followup-draft-2026-09-25.md` (reformatted to
-Discussion markdown): ADAL/1 shipped standard, AEA/1 boundary record, the two
-label corrections from their critique now first-class regression-tested fields,
-the fail-closed enforcement (1022 tests pinned to a committed snapshot, 0
-boundary violations, docs-node contract), fresh-clone reproduction, and "if
-useful, inspect or run as-is — no asks."
+Content = the Phase A message recorded verbatim in
+`docs/phase-a-people-court-followup-draft-2026-09-25.md` (posted 15:45:07Z, as a
+reply under `#18570343`): the two label corrections from their critique now
+first-class regression-tested fields (tri-state modeled consent — never a
+boolean; evidenceStatus/actualStatus split — never a verified nonpayment
+reading), assent-pair 11/11 reviewed,
+and the then-current measured state (1033 tests enforced against a committed
+snapshot, 780 committed files / 0 boundary violations, docs-node contract
+live, integration surface honest at L0 with all counters 0) — "reproducible on
+a clean clone across Node 18/20/22 ... No asks."
+
+Verified live on the wire (GraphQL node lookup + page shows "8 comments · 13
+replies"); this corrects a superseded record that had claimed a phantom comment
+(dbId 18600613) which did not exist on the thread.
 
 **After this message: hold indefinitely.** No bump, no reminder, no second
 message. State machine follows the reply taxonomy in

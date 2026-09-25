@@ -1,12 +1,12 @@
 # Phase A — People's Court technical follow-up (draft, ONE message, no chasing)
 
-**ARCHIVED AS POSTED — 2026-09-25.** This message was posted to thread #21788
-as a reply to the counterparty's last critique (`#18570343`) — comment
-`DC_kwDOMT5cIs4BG9Kl` (dbId 18600613):
-https://github.com/elizaOS/eliza/discussions/21788#discussioncomment-18600613.
-The text below is the **verbatim posted message**; its 1022/768 figures are the
-post-time facts of that message and stay frozen here as the archive. New claims
-must cite the current snapshot figures (now 1033 / 780), never these.
+**ARCHIVED AS POSTED — 2026-09-25T15:45:07Z.** This message was posted to
+thread #21788 as a reply to the counterparty's last critique (`#18570343`) —
+comment `DC_kwDOMT5cIs4BG9ep` (dbId 18601897):
+https://github.com/elizaOS/eliza/discussions/21788#discussioncomment-18601897.
+The text below is the **verbatim posted message**; its 1033/780 figures are the
+post-time snapshot facts of that message and stay frozen here as the archive.
+New claims must cite the then-current snapshot at the time of any later post.
 
 Owner-process note: this was posted by the owner-directed agent reply
 (2026-09-25). Nothing here is auto-sent; nothing is scheduled; nothing asks for
@@ -21,9 +21,9 @@ technical artifact update, then wait indefinitely. No follow-up akten, no
   `1e75fba` → our reply 18:15:37, `#18570936`) closed with us holding the ball.
 - Since that reply, `v0.5.14` shipped end-to-end (ADAL/1 + AEA/1 + adapter +
   reference tribunal) and this session's canonical measured state made **every
-  number we could ever state re-producible on a fresh clone** (1022 tests
+  number we could ever state re-producible on a fresh clone** (1033 tests
   CI-enforced against `docs/state-snapshot.json`, boundary audit 0 violations,
-  768-file committed-tree scope, docs-node contract live).
+  780-file committed-tree scope, docs-node contract live).
 - That is a genuine change in the artifact's verifiability since our last
   message: worth exactly one message, nothing more.
 
@@ -38,47 +38,40 @@ technical artifact update, then wait indefinitely. No follow-up akten, no
 - They are free to reply; we do not chase. If they never reply, the thread is
   CLOSED BY RECORD, not by silence.
 
-## The message (draft, EN — copy-ready)
+## The message (posted verbatim, EN — reply to `#18570343`)
 
-> Following the 2026-09-23 18:15:37 correction reply and the two read-only
-> rounds before it, the evidence layer that grew from this thread has been
-> built out further, and today every number behind it is machine-measured and
-> CI-enforced. Here is the current state of the interoperable artifact —
-> entirely offline, checkable on any machine, written and reviewed in the
-> open:
+> Thanks for the close read — both label ambiguities are now resolved at the
+> schema level and locked by regression tests, and the artifact has moved
+> further since the correction round.
 >
-> ADAL/1 — Agentic Dispute & Attestation Layer — is now a shipped standard: a
-> dispute package with per-party evidence attestation, resolved intents, an
-> award slot that stays UNKNOWN/NONE, escrow referenced (never executed), and
-> pinned hashes. One command produces and re-verifies it:
+> 1) Modeled consent is no longer a boolean aggregate. `consent.modeledAssent`
+> is a derived tri-state among FULL | PARTIAL | MISSING | UNKNOWN, computed from
+> the party-level assent fields it names via `modeledAssentDerivedFrom`; the
+> schema note forbids reading it as bilateral assent. In the B fixture,
+> `parties.principalB.assent` remains UNKNOWN and is never filled from a
+> receipt.
 >
->   npm run dispute-package -- --case A --out <dir>   — DISPUTE_PACKAGE_OK
+> 2) Settlement evidence status is separated from actual status.
+> `compensationSettlement` no longer carries a boolean NOT_SETTLED; it now
+> records `evidenceStatus = NOT_EVIDENCED_AS_SETTLED` plus `actualStatus =
+> UNKNOWN`. Absence of settlement evidence is recorded as not-evidenced, never
+> as a verified nonpayment finding — the same shape is used in the canonical
+> `execution-attestation.json`.
 >
-> AEA/1 — Agentic Escrow & Arbitration Layer — ties a verified ADAL/1 dispute
-> package to an escrow-contract reference and a tribunal submission surface as
-> a boundary record (adapter integrationStatus remains NOT_BUILT):
+> Both behaviors are pinned by regression tests (assent-pair 11/11, fixture
+> honesty contract, expected-field-map).
 >
->   npm run aea1:prepare
+> Since the correction round the artifact has kept moving. The currently
+> measured committed state — reproducible on a clean clone across Node 18/20/22 —
+> is 1033 tests with the total enforced against a committed snapshot (a stale
+> figure anywhere fails the build), 780 committed files with 0 boundary
+> violations, and a live docs-node contract. The integration surface is
+> recorded honestly at L0: all three adapters sit at NOT_BUILT/NOT_PERFORMED,
+> adoption counters are 0 until something real is recorded, and no live
+> authority, credential, or settlement is claimed.
 >
-> Both build on the EVP/1 evidence-package standard, where the two label
-> corrections from your read-only critique of the assent pair are now
-> first-class fields with regression tests: derived tri-state modeled consent
-> (never a boolean), and the evidenceStatus/actualStatus split (absence
-> supports "not evidenced as settled", never verified nonpayment).
->
-> The whole repository now fails closed against its own claims: `npm test`
-> passes 1022 tests and the count is enforced against a committed snapshot (a
-> stale number in any document is a failing build); `npm run boundary:audit`
-> scans the committed tree with 0 violations; the docs-node contract keeps
-> every documented command runnable. A fresh clone reproduces all of it:
->
->   npm ci && npm test && npm run boundary:audit
->
-> No integration, no credentials, no network calls, no endorsement claimed —
-> mechanically, the repository refuses to claim otherwise.
->
-> If any of this is useful for the court's own work, it can be inspected or
-> run as-is. No asks.
+> Anything here can be inspected or run as-is (`npm ci && npm test && npm run
+> boundary:audit`). No asks.
 
 ## Posting checklist (owner)
 
