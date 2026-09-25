@@ -2,7 +2,8 @@
 
 Machine-backed board — every number below is read from committed sources
 (`docs/state-snapshot.json`, `docs/integration-registry.json`,
-`docs/adoption-milestones.json`). External counters are 0 until a recorded,
+`docs/adoption-milestones.json`, `docs/risk-findings.json`,
+`docs/reputation-registry.json`). External counters are 0 until a recorded,
 authorized step appends a milestone; they are never invented upward.
 
 ## Platform level
@@ -13,8 +14,8 @@ authorized step appends a milestone; they are never invented upward.
 
 | Metric | Value |
 |---|---|
-| Test suite | 1033 |
-| Boundary audit | 780 files / 0 violations |
+| Test suite | 1043 |
+| Boundary audit | 785 files / 0 violations |
 | Docs-node contract | 70 executed · 53 skip-listed · 18 covered |
 | Live-submission harness | PEOPLES_COURT_HARNESS_READY |
 
@@ -28,6 +29,21 @@ authorized step appends a milestone; they are never invented upward.
 | Live adapters | 0 |
 | Conformant | 0 |
 | Outreach tracks | 6 |
+
+## Risk findings & reputation (CG-RF/1 · CG-RP/1)
+
+| Metric | Value |
+|---|---|
+| Risk findings version | CG-RF/1 |
+| Risk findings (total) | 8 |
+| Risk findings OPEN | 4 |
+| Reputation version | CG-RP/1 |
+| Reputation grade | UNPROVEN |
+| Reputation score | 0 |
+
+Findings are risk findings only — never a fuzzy safety score. Reputation
+equals only recorded external milestones; engineering numbers are evidence,
+not reputation.
 
 ## External milestones (append-only ledger)
 

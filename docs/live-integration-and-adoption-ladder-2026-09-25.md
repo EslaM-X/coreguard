@@ -94,9 +94,11 @@ from the registry source (`scripts/ladder/adapters.mjs`); never hand-edited.
 ## 6. Adoption Dashboard
 
 `scripts/ladder/adoption-dashboard.mjs --write` produces
-`docs/adoption-dashboard.md` — one board reading three committed sources
-(snapshot, registry, milestones). Engineering numbers are the measured truth;
-external milestone counters are 0 until an authorized step appends to
+`docs/adoption-dashboard.md` — one board reading five committed sources
+(snapshot, registry, milestones, risk findings, reputation), with a governance
+block summarizing CG-RF/1 (8 findings, 4 open) and CG-RP/1 (grade UNPROVEN,
+score 0). Engineering numbers are the measured truth; external milestone
+counters are 0 until an authorized step appends to
 `docs/adoption-milestones.json`. The board never invents a number upward and
 never hides a zero.
 
@@ -134,8 +136,31 @@ answer to the Phase 3 questions, not the opening of any live step.
 
 ## 9. Verification of this page
 
-Everything here is machine-checked by `test/integrations/ladder.test.mjs`:
+Everything here is machine-checked by `test/integrations/ladder.test.mjs` and
+`test/integrations/ladder-v03.test.mjs`:
 state space integrity, transition guards (including the refusal of live steps
 without records), registry honesty (NOT_BUILT / NOT_PERFORMED, no invented
-state), passport determinism, conformance verdicts, and dashboard buildability.
+state), passport determinism, conformance verdicts, dashboard buildability,
+and the v0.3 reputation/findings determinism + fail-closed contracts.
 `npm run ladder:status` prints the same truths directly.
+
+## 10. Risk findings & reputation (v0.3 first-pass, 2026-09-25)
+
+`scripts/ladder/risk-findings.mjs` (CG-RF/1) and
+`scripts/ladder/reputation.mjs` (CG-RP/1) make the v0.3 surface enforced,
+deterministic code reading committed sources only — never a fuzzy safety score.
+
+- **Risk findings (`docs/risk-findings.json`, generated)**: 8 findings
+  (RF-001..RF-008) with statuses OPEN / OK / UNVERIFIED over categories
+  integration · governance · adoption · validation · engineering. The file is
+  derived-status-only: statuses change with the sources, numbers never embed,
+  so the artifact stays hash-stable across test-count changes. It fails
+  closed — the moment any registered adapter reports a live status, RF-003
+  (settlement authority) goes OPEN and RF-001 (live call) goes UNVERIFIED.
+- **Reputation (`docs/reputation-registry.json`, generated)**: reputation
+  equals ONLY recorded external milestones — 1 point per recorded entry,
+  never the amount. Today: score 0, grade UNPROVEN, all six external counters
+  0. Unknown counters are ignored, never invented.
+- Regenerate with `npm run ladder:findings:write` + `npm run ladder:reputation:write`
+  any time the snapshot moves; the dashboard governance block
+  (§6) reads the same two files.

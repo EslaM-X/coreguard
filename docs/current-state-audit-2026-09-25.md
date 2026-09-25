@@ -19,11 +19,11 @@ trends) are external results that nobody can promise.
 
 | Metric | Value | Reproduction | Machine pin |
 |---|---|---|---|
-| Full test suite | **1033/1033 pass** | `npm test` | `run-tests.mjs` enforces pass total == `state-snapshot.json`.testsTotal (drift = red) |
-| Boundary audit | **PASS — 780 files scanned (committed-tree scope), 0 violations** | `npm run boundary:audit` | `current-state.mjs --check` re-measures vs the snapshot |
+| Full test suite | **1043/1043 pass** | `npm test` | `run-tests.mjs` enforces pass total == `state-snapshot.json`.testsTotal (drift = red) |
+| Boundary audit | **PASS — 785 files scanned (committed-tree scope), 0 violations** | `npm run boundary:audit` | `current-state.mjs --check` re-measures vs the snapshot |
 | People's-Court harness | **PEOPLES_COURT_HARNESS_READY** (recorded feed; webhooks ×402 DRY-RUN; no live call, no credential) | `npm run peoples-court:harness -- --case examples/delivery-fixture/pairs/dispute-package/reference-A` | `current-state.mjs --check` |
 | Docs-node contract | **70 executed · 53 skip-listed · 18 docs covered** | `node --test --test-concurrency=1 test/ci/docs-node-contract.test.js` | `current-state.mjs --check` |
-| Git | `main`, **77 commits ahead** of `v0.6.0` (informational only — in flux with every push; canonical value lives in the snapshot) | `git rev-list v0.6.0..HEAD --count` | recorded in the snapshot as metadata |
+| Git | `main`, **83 commits ahead** of `v0.6.0` (informational only — in flux with every push; canonical value lives in the snapshot) | `git rev-list v0.6.0..HEAD --count` | recorded in the snapshot as metadata |
 
 The measured snapshot lives at `docs/state-snapshot.json` (committed, valid JSON,
 anchored on a reachable commit). Numbers cited anywhere must match it; the
@@ -111,7 +111,7 @@ The refuse list (each with the mechanical guard that makes the refusal true):
   never claimed.
 - *Revenue / pricing / "court that CoreGuard runs"* — pricing LOCKED; the
   adjudicator is the consumer's, never "ours".
-- *Old test numbers (970-era)* — the suite is 1033 and any stale citation is a
+- *Old test numbers (970-era)* — the suite is 1043 and any stale citation is a
   drift bug, mechanically caught by the snapshot enforcement.
 
 ## How to refresh this audit

@@ -2,10 +2,12 @@
 /**
  * adoption-dashboard.mjs — the machine-backed adoption board.
  *
- * Reads THREE committed sources and nothing else:
+ * Reads FIVE committed sources and nothing else:
  *   1. docs/state-snapshot.json          — engineering truth
  *   2. docs/integration-registry.json    — integration/track states
  *   3. docs/adoption-milestones.json     — external results (append-only)
+ *   4. docs/risk-findings.json           — derived risk findings (CG-RF/1)
+ *   5. docs/reputation-registry.json     — derived reputation surface (CG-RP/1)
  *
  * External milestone counters are ZERO until an authorized step records an
  * entry; the board never invents a number upward and never hides a zero.
@@ -26,6 +28,8 @@ const REPO = join(HERE, "..", "..");
 const SNAPSHOT = join(REPO, "docs", "state-snapshot.json");
 const REGISTRY = join(REPO, "docs", "integration-registry.json");
 const MILESTONES = join(REPO, "docs", "adoption-milestones.json");
+const FINDINGS = join(REPO, "docs", "risk-findings.json");
+const REPUTATION = join(REPO, "docs", "reputation-registry.json");
 const OUT = join(REPO, "docs", "adoption-dashboard.md");
 
 const read = (p, fallback) => {
@@ -37,6 +41,8 @@ export function buildBoard() {
   const snapshot = read(SNAPSHOT, null);
   const registry = read(REGISTRY, null);
   const milestones = read(MILESTONES, []);
+  const findings = read(FINDINGS, null);
+  const reputation = read(REPUTATION, null);
   const mCounts = {};
   for (const m of milestones) mCounts[m.counter] = (mCounts[m.counter] || 0) + 1;
 
@@ -48,6 +54,7 @@ export function buildBoard() {
   const level = (registry && registry.platform && registry.platform.platformLevel) || "L0";
   const levelMeta = PLATFORM_LEVELS.find((l) => l.id === level);
   const counter = (name) => mCounts[name] || 0;
+  const openFindings = findings ? findings.findings.filter((x) => x.status === "OPEN").length : null;
 
   return {
     platformLevel: level,
@@ -67,6 +74,14 @@ export function buildBoard() {
       conformant: byState["CONFORMANT"] || 0,
       tracks: tracks.length,
     },
+    governance: {
+      riskFindingsVersion: findings ? findings.version : null,
+      riskFindingsTotal: findings ? findings.findings.length : null,
+      openFindings,
+      reputationVersion: reputation ? reputation.version : null,
+      reputationGrade: reputation ? reputation.grade : null,
+      reputationScore: reputation ? reputation.score : null,
+    },
     external: {
       externalVerifiers: counter("externalVerifiers"),
       integrations: counter("integrations"),
@@ -81,13 +96,15 @@ export function buildBoard() {
 export function boardText(board) {
   const g = board.engineering;
   const a = board.adoption;
+  const gov = board.governance;
   const e = board.external;
   return [
     "# CoreGuard Adoption Dashboard",
     "",
     "Machine-backed board — every number below is read from committed sources",
     "(`docs/state-snapshot.json`, `docs/integration-registry.json`,",
-    "`docs/adoption-milestones.json`). External counters are 0 until a recorded,",
+    "`docs/adoption-milestones.json`, `docs/risk-findings.json`,",
+    "`docs/reputation-registry.json`). External counters are 0 until a recorded,",
     "authorized step appends a milestone; they are never invented upward.",
     "",
     "## Platform level",
@@ -113,6 +130,21 @@ export function boardText(board) {
     `| Live adapters | ${a.liveAdapters} |`,
     `| Conformant | ${a.conformant} |`,
     `| Outreach tracks | ${a.tracks} |`,
+    "",
+    "## Risk findings & reputation (CG-RF/1 · CG-RP/1)",
+    "",
+    `| Metric | Value |`,
+    `|---|---|`,
+    `| Risk findings version | ${gov.riskFindingsVersion ?? "n/a"} |`,
+    `| Risk findings (total) | ${gov.riskFindingsTotal ?? "n/a"} |`,
+    `| Risk findings OPEN | ${gov.openFindings ?? "n/a"} |`,
+    `| Reputation version | ${gov.reputationVersion ?? "n/a"} |`,
+    `| Reputation grade | ${gov.reputationGrade ?? "n/a"} |`,
+    `| Reputation score | ${gov.reputationScore ?? "n/a"} |`,
+    "",
+    "Findings are risk findings only — never a fuzzy safety score. Reputation",
+    "equals only recorded external milestones; engineering numbers are evidence,",
+    "not reputation.",
     "",
     "## External milestones (append-only ledger)",
     "",

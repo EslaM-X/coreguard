@@ -16,6 +16,9 @@ layer Core's BTCFI ecosystem builds on.
    that *enforce* intent/policy at runtime, not just prove it after the fact.
 4. **Post-MS2: Passport / reputation + risk findings (v0.3)** — discretionary,
    explicitly marked as risk *findings*, never a fuzzy safety score.
+   **First-pass shipped 2026-09-25** (CG-RP/1 reputation + CG-RF/1 risk findings
+   as enforced deterministic code reading committed sources only; reputation =
+   recorded external milestones, every external counter still 0).
 
 ## Why Core
 
