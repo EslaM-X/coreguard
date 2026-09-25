@@ -197,6 +197,22 @@ reference consumer runs as a live nine-scenario wire demo (mutual acceptance, a
 later dispute that freezes the payout, a closure claim rejected as unproven,
 and release only once the closed record is established by `closedAtUtc`):
 
+**Copy-ready hardening** — to arm the third guard from the start, hand the
+allowlist to the same start one-liner:
+
+```bash
+# the loopback bind is already its own guard; arm the list when the bind must
+# deliberately widen (public/private interface) or to pin a proxy's address:
+node --input-type=module -e "import { startDeliveryEndpoint } from './packages/delivery/http.js'; const server = await startDeliveryEndpoint({ port: 8787, allowAddresses: ['127.0.0.1', '::1'] }); console.log('DDE endpoint (allowlisted) on :8787 —', server.address());"
+```
+
+The list keys on the **direct peer** socket address: everyone not on it gets
+`403` before the rate limiter — `/health` gated too (an unlisted address
+learns nothing, not even liveness), and a rejected peer never consumes
+rate-limit budget. IPv4-mapped IPv6 collapses to plain IPv4, so a dual-stack
+loopback matches either spelling. Behind a reverse proxy, pin the proxy's
+source address — never read forwarded headers (see the proxy posture below).
+
 ```js
 // your platform, before releasing any payout:
 import { loadFixtureFromDir } from "@coreguard/delivery/sdk"; // or build the fixture object yourself
