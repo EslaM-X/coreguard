@@ -23,7 +23,7 @@ trends) are external results that nobody can promise.
 | Boundary audit | **PASS — 768 files scanned (committed-tree scope), 0 violations** | `npm run boundary:audit` | `current-state.mjs --check` re-measures vs the snapshot |
 | People's-Court harness | **PEOPLES_COURT_HARNESS_READY** (recorded feed; webhooks ×402 DRY-RUN; no live call, no credential) | `npm run peoples-court:harness -- --case examples/delivery-fixture/pairs/dispute-package/reference-A` | `current-state.mjs --check` |
 | Docs-node contract | **70 executed · 53 skip-listed · 18 docs covered** | `node --test --test-concurrency=1 test/ci/docs-node-contract.test.js` | `current-state.mjs --check` |
-| Git | `main`, **74 commits ahead** of `v0.6.0` (informational only — in flux with every push; canonical value lives in the snapshot) | `git rev-list v0.6.0..HEAD --count` | recorded in the snapshot as metadata |
+| Git | `main`, **76 commits ahead** of `v0.6.0` (informational only — in flux with every push; canonical value lives in the snapshot) | `git rev-list v0.6.0..HEAD --count` | recorded in the snapshot as metadata |
 
 The measured snapshot lives at `docs/state-snapshot.json` (committed, valid JSON,
 anchored on a reachable commit). Numbers cited anywhere must match it; the
