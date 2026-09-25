@@ -1,0 +1,26 @@
+{
+  "version": "CG-RP/1",
+  "grade": "UNPROVEN",
+  "gradeLabel": "no recorded external milestone — credibility rests on engineering truth alone",
+  "score": 0,
+  "rule": "Reputation equals only the recorded external milestones; nothing else in this repository raises it. An engineering number is evidence, not reputation.",
+  "basis": {
+    "ledger": "docs/adoption-milestones.json",
+    "counters": [
+      "externalVerifiers",
+      "integrations",
+      "conformantPartners",
+      "productionDeployments",
+      "paidEngagements",
+      "funding"
+    ]
+  },
+  "counters": {
+    "externalVerifiers": 0,
+    "integrations": 0,
+    "conformantPartners": 0,
+    "productionDeployments": 0,
+    "paidEngagements": 0,
+    "funding": 0
+  }
+}

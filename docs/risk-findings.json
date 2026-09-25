@@ -1,0 +1,107 @@
+{
+  "suite": "CoreGuard Risk Findings",
+  "version": "CG-RF/1",
+  "statuses": [
+    "OPEN",
+    "OK",
+    "UNVERIFIED"
+  ],
+  "basis": {
+    "snapshot": "docs/state-snapshot.json",
+    "registry": "docs/integration-registry.json",
+    "milestones": "docs/adoption-milestones.json"
+  },
+  "findings": [
+    {
+      "id": "RF-001",
+      "title": "No live integration exists",
+      "category": "integration",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "statement": "Every registered adapter is DRY_RUN with integrationStatus NOT_BUILT; no live network call exists on any surface.",
+      "evidence": [
+        "docs/integration-registry.json#adapters",
+        "scripts/ladder/adapters.mjs"
+      ]
+    },
+    {
+      "id": "RF-002",
+      "title": "No named integrator / credential holder is recorded",
+      "category": "governance",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "statement": "Decision B: the integrator is nobody for now; a credential is defined only when a real partner appears with a concrete use case.",
+      "evidence": [
+        "docs/owner-decisions-and-claimable-facts-2026-09.md"
+      ]
+    },
+    {
+      "id": "RF-003",
+      "title": "No settlement authority is granted",
+      "category": "governance",
+      "severity": "CRITICAL",
+      "status": "OK",
+      "statement": "No surface carries settlement authority; the red line is enforced by the transition guards and the boundary audit.",
+      "evidence": [
+        "scripts/ladder/state-machine.mjs",
+        "scripts/ladder/states.mjs"
+      ]
+    },
+    {
+      "id": "RF-004",
+      "title": "External adoption counters are at zero",
+      "category": "adoption",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "statement": "No external verifier, integration, conformant partner, deployment, paid engagement, or funding milestone is recorded.",
+      "evidence": [
+        "docs/adoption-milestones.json"
+      ]
+    },
+    {
+      "id": "RF-005",
+      "title": "Surfaces are backed by synthetic fixtures only",
+      "category": "validation",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "statement": "Adapters declare limitations of synthetic fixtures only; no real external record has been ingested by an authorized step.",
+      "evidence": [
+        "docs/integration-registry.json#adapters"
+      ]
+    },
+    {
+      "id": "RF-006",
+      "title": "Boundary audit is clean on the committed tree",
+      "category": "engineering",
+      "severity": "MEDIUM",
+      "status": "OK",
+      "statement": "Zero violations across the committed tree; any file claiming a live call, a stored credential, or a settlement fails the audit.",
+      "evidence": [
+        "docs/state-snapshot.json#boundaryAudit"
+      ]
+    },
+    {
+      "id": "RF-007",
+      "title": "Full test suite is pinned to a committed snapshot",
+      "category": "engineering",
+      "severity": "MEDIUM",
+      "status": "OK",
+      "statement": "The full-suite pass total is machine-enforced against docs/state-snapshot.json; drift fails the build by design.",
+      "evidence": [
+        "docs/state-snapshot.json#testsTotal"
+      ]
+    },
+    {
+      "id": "RF-008",
+      "title": "Docs-node contract and live-submission harness are green",
+      "category": "engineering",
+      "severity": "LOW",
+      "status": "OK",
+      "statement": "Executable docs are run or deliberately skip-listed, and the peoples-court harness reports READY on the committed snapshot.",
+      "evidence": [
+        "docs/state-snapshot.json#peoplesCourtHarness",
+        "docs/state-snapshot.json#docsNode"
+      ]
+    }
+  ]
+}
