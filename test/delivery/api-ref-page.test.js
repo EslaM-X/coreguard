@@ -59,6 +59,20 @@ test("api-ref: http shim covers the exact Node Buffer surface the engine uses", 
   assert.ok(bindAt > 0 && engineAt > bindAt, "Buffer global must be bound before the engine import");
 });
 
+test("api-ref: browser-equivalent boot — the bare @coreguard/canonical import is mapped (engine links in-page)", () => {
+  // index.js imports its canonical dependency BARE. A browser has no
+  // node_modules walk, so the page's module registry must map that exact
+  // specifier — this precise gap shipped once and the embedded engine failed
+  // to link ONLY in browsers (Node-based tests resolved the bare specifier
+  // via node_modules and stayed green). Fail closed on the page source.
+  const html = readFileSync(PAGE, "utf8");
+  assert.match(html, /replaceAll\('from "@coreguard\/canonical"'/,
+    "module registry must map the bare @coreguard/canonical specifier");
+  const mapAt = html.indexOf("@coreguard/canonical\"");
+  const engineAt = html.indexOf("await import(httpUrl)");
+  assert.ok(mapAt > 0 && engineAt > mapAt, "bare mapping must exist before the engine import");
+});
+
 test("api-ref: page structure — all six wire scenarios + boundary + i18n", () => {
   const html = readFileSync(PAGE, "utf8");
   for (const code of [200, 422, 400, 413, 429, 404]) {

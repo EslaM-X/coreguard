@@ -293,6 +293,11 @@ const ENGINE_READY = (async () => {
     .replaceAll('import("node:crypto")', `import(${JSON.stringify(mods["node:crypto"])})`)
     .replaceAll('from "node:http"', `from ${JSON.stringify(mods["node:http"])}`)
     .replaceAll('from "../canonical/index.js"', `from ${JSON.stringify(mods["__canonical__"])}`)
+    // index.js imports the canonical package BARE ("@coreguard/canonical") —
+    // a browser has no node_modules walk, so without this mapping the import
+    // fails at link time and the embedded engine never boots (proven by the
+    // pages-boot contract test).
+    .replaceAll('from "@coreguard/canonical"', `from ${JSON.stringify(mods["__canonical__"])}`)
     .replaceAll('from "../delivery/index.js"', `from ${JSON.stringify(mods["__delivery__"])}`)
     .replaceAll('from "../delivery/sdk.js"', `from ${JSON.stringify(mods["__sdk__"])}`)
     // sdk.js imports its sibling index.js relatively ("./index.js") — a blob

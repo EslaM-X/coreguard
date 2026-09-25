@@ -35,8 +35,10 @@ import { fileURLToPath } from "node:url";
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const DEMO = join(REPO, "docs", "DELIVERY-DISPUTE-DEMO.html");
 const APIREF = join(REPO, "docs", "DDE-API-REFERENCE.html");
+const SDKREF = join(REPO, "docs", "DDE-SDK-REFERENCE.html");
 const MARKER = "/*__DDE_DATA__*/";
 const MARKER_API = "/*__DDE_API_DATA__*/";
+const MARKER_SDK = "/*__DDE_SDK_DATA__*/";
 
 const NAMES = [
   "agreement", "acceptance-criteria", "authorization", "execution-attestation",
@@ -192,7 +194,10 @@ for (const v of VECTORS) {
 // Runs the shim source in-process by swapping its node-specific surface for a
 // dynamic import and calling createHash().update(v).digest("hex").
 async function evalSha256(shimSrc, input) {
-  const file = join(REPO, "examples/delivery-fixture/.tmp-shim-check.mjs");
+  // Unique per-process temp file: two injectors racing (the two page-contract
+  // test files run in parallel) used to share one name and one deleted it
+  // while the other still needed to exec it — the C16 race, in miniature.
+  const file = join(REPO, "examples/delivery-fixture/" + `.tmp-shim-check-${process.pid}-${Date.now()}.mjs`);
   writeFileSync(file, shimSrc + `\nconst h = createHash("sha256").update(${JSON.stringify(input)}, "utf8").digest("hex");\nprocess.stdout.write(h);\n`, "utf8");
   const { execFileSync } = await import("node:child_process");
   const out = execFileSync(process.execPath, [file], { encoding: "utf8" });
@@ -281,3 +286,113 @@ if (apiLine.test(html2)) {
 }
 writeFileSync(APIREF, html2, "utf8");
 console.log(`injected engine payload into docs/DDE-API-REFERENCE.html (${apiData.length} bytes)`);
+
+/* ---------------------------------------------------------------- page 3 */
+
+// docs/DDE-SDK-REFERENCE.html — the in-page SDK surface (verifyFixture +
+// releaseWhen). The browser has NO node built-ins and NO node_modules walk,
+// so sdk.js's imports need real shim modules with the exact surface the SDK
+// uses — each one honest about its limits:
+//   node:fs    fail-closed: existsSync() → false, readFileSync → throws. The
+//              page exercises the IN-MEMORY path; a fixtureDir call in-page
+//              would throw the same "fixture directory not found" the SDK
+//              throws for a missing dir — never a silent success.
+//   node:path  string-level join/dirname/resolve (sep-aware); fileURLToPath
+//              lives here too so sdk.js's top-level HERE derivation from a
+//              blob: URL links and computes, unused by the in-memory path.
+//   node:url   fileURLToPath → pathToFileURL identity round-trip.
+//   node:http  Buffer only — the engine hashes artifacts through the bare
+//              Buffer global (artifactSha256); browsers have none. The page
+//              binds it as a global BEFORE importing the engine (same order
+//              the API-reference page is contracted on).
+const PATH_URL_SHIM = `/* node:path + node:url shim — created by inject-demo-data.mjs.
+   String-level surface only: join/dirname/resolve (sep-aware) and a
+   fileURLToPath ↔ pathToFileURL identity round-trip. The in-page SDK drives
+   the in-memory fixture path, so these exist to keep sdk.js's import surface
+   honest and its top-level HERE derivation linkable on a blob: URL. */
+const SEP = "/";
+function isAbs(p) { return p.startsWith(SEP) || /^[A-Za-z]:[\\\\/]/.test(p); }
+function normalize(p) {
+  const parts = p.split(/[\\\\/]+/);
+  const out = [];
+  for (const part of parts) {
+    if (part === "" || part === ".") continue;
+    if (part === "..") { if (out.length && out[out.length - 1] !== "..") out.pop(); else if (!isAbs(p)) out.push(".."); continue; }
+    out.push(part);
+  }
+  return (isAbs(p) ? (p.startsWith("/") ? SEP : parts[0] + SEP) : "") + out.join(SEP);
+}
+export function join(...segs) {
+  const joined = segs.filter((s) => s !== "").join(SEP);
+  return isAbs(joined) ? normalize(joined) : normalize(joined);
+}
+export function dirname(p) { const n = normalize(p); const i = n.lastIndexOf(SEP); return i <= 0 ? (isAbs(n) ? SEP : ".") : n.slice(0, i); }
+export function resolve(...segs) { return normalize(segs.join(SEP)); }
+export function fileURLToPath(u) {
+  // String-level only, and deliberately NOT a full URL parser. sdk.js's
+  // top-level HERE derivation calls this on import.meta.url, which is a
+  // blob: URL in-page — return it as a plain string (the in-memory path
+  // never uses HERE, so nothing downstream can depend on its file-ness).
+  const s = String(u);
+  if (s.startsWith("file:///")) return decodeURIComponent(s.slice("file://".length));
+  if (s.startsWith("file://")) return "//" + decodeURIComponent(s.slice("file://".length));
+  if (s.startsWith("blob:")) return s;             // in-page module URL, HERE unused
+  throw new Error("fileURLToPath: not a file URL");
+}
+export function pathToFileURL(p) {
+  const abs = normalize(p).split("?")[0].split("#")[0];
+  return new URL("file://" + (abs.startsWith("/") ? "" : "/") + abs.split("/").map(encodeURIComponent).join("/"));
+}
+export default { join, dirname, resolve, fileURLToPath, pathToFileURL };
+`;
+
+// node:fs shim — fail-closed by design. The page NEVER fakes a filesystem:
+// existsSync() reports false (no dir exists in a browser), readFileSync
+// throws the same class of error the real SDK throws for a missing dir.
+const FS_SHIM = `/* node:fs shim — fail-closed (browser); created by inject-demo-data.mjs.
+   The in-page SDK exercises the in-memory fixture path ONLY. A fixtureDir
+   call in-page hits this shim and fails honestly: existsSync() is false and
+   readFileSync throws — never a fabricated filesystem. */
+export function existsSync() { return false; }
+export function readFileSync() { throw new Error("node:fs is unavailable in-page — the embedded SDK verifies in-memory fixtures; use fixtureDir in Node"); }
+export default { existsSync, readFileSync };
+`;
+
+// Link-time check: the real SDK must import cleanly in Node before we embed
+// its source anywhere (fail-closed — never embed code that cannot even load).
+await import(pathToFileURL(join(REPO, "packages/delivery/sdk.js")).href);
+
+const sdkClaims = {
+  engine: "packages/delivery/sdk — verifyFixture + releaseWhen",
+  predicate: "VERIFIED + peoplesCourt ACCEPTANCE_RECORD ref === ACCEPTED",
+  note: "in-page shims are fail-closed: node:fs reports no filesystem (the page drives the in-memory path); node:http provides Buffer for the engine's artifact hashing",
+};
+
+let html3 = readFileSync(SDKREF, "utf8");
+const sdkPayload = {
+  fixture,
+  claims: sdkClaims,
+  sources: {
+    "packages/canonical/index.js": canonicalBundled,
+    "packages/delivery/index.js": readSrc("packages/delivery/index.js"),
+    "packages/delivery/sdk.js": readSrc("packages/delivery/sdk.js"),
+    "__shim__/crypto.mjs": CRYPTO_SHIM,
+    "__shim__/http.mjs": HTTP_SHIM,
+    "__shim__/fs.mjs": FS_SHIM,
+    "__shim__/path.mjs": PATH_URL_SHIM,
+  },
+};
+const sdkData = "window.__DDE_SDK_DATA__ = " + JSON.stringify(sdkPayload) + ";";
+// Same idempotency contract as pages 1–2: replace the live payload line, or
+// the pristine marker on a fresh tree.
+const sdkLine = /^window\.__DDE_SDK_DATA__ = .*;$/m;
+if (sdkLine.test(html3)) {
+  html3 = html3.replace(sdkLine, sdkData);
+} else if (html3.includes(MARKER_SDK)) {
+  html3 = html3.replace(MARKER_SDK, sdkData);
+} else {
+  console.error("inject: __DDE_SDK_DATA__ marker/payload not found — page structure changed?");
+  process.exit(1);
+}
+writeFileSync(SDKREF, html3, "utf8");
+console.log(`injected SDK payload into docs/DDE-SDK-REFERENCE.html (${sdkData.length} bytes)`);

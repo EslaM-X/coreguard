@@ -13,6 +13,7 @@
 
 [![CI](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml)
 [![DDE Evidence Cycle](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml)
+[![Docs](https://img.shields.io/badge/docs-API%20reference%20live-0969DA.svg?logo=githubpages&logoColor=white)](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html)
 [![Intake Pipeline](https://github.com/EslaM-X/coreguard/actions/workflows/intake.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/intake.yml)
 [![DDE perf · engine](docs/badges/perf-engine.svg)](benchmarks/perf-history.jsonl)
 [![DDE perf · wire](docs/badges/perf-wire.svg)](benchmarks/perf-history.jsonl)
@@ -376,6 +377,8 @@ records: [examples/delivery-fixture/](examples/delivery-fixture/) · live
 bilingual demo: [DELIVERY-DISPUTE-DEMO.html](https://eslam-x.github.io/coreguard/DELIVERY-DISPUTE-DEMO.html) ·
 HTTP endpoint reference with an **in-page live engine**: [DDE-API-REFERENCE.html](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html)
 (all six wire codes captured from the real DDE/1 handler running in the browser tab) ·
+SDK reference with `verifyFixture` + `releaseWhen` **running live in-page**: [DDE-SDK-REFERENCE.html](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html)
+(the honest gate arc — HOLD, RELEASE, structural REFUSED — captured from the real SDK over the real fixture) ·
 one-page shareable integration summary (drop-in for discussions and social posts):
 [INTEGRATION.md](https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md)
 — its every runnable fence executes in CI against the real endpoint.
