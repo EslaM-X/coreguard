@@ -505,11 +505,29 @@ async function main() {
     setBusy(true);
     const out = document.getElementById("out"); out.style.display = "block"; out.textContent = L(I18N.out_pending);
     try {
-      const handler = await ENGINE_READY;
-      const r = await callHandler(handler, "POST", "/peoples-court", JSON.stringify(FD), { "content-type": "application/json" });
+      const makeHandler = await ENGINE_READY;   // factory — same as the scenarios
+      const r = await callHandler(makeHandler(), "POST", "/peoples-court", JSON.stringify(FD), { "content-type": "application/json" });
       out.textContent = "HTTP " + r.code + "\n\n" + r.text;
     } catch (err) { out.textContent = err.message; } finally { setBusy(false); }
   };
+
+  /* --- deep links (#run=<scenario>) — the boundary doc's "try it live" pointers land here ---
+     docs/delivery-dispute-boundary.md §6 links each curl example to one of these;
+     keep this block after the handlers above so a clicked handler is already wired. */
+  const runHash = (location.hash || "").match(/^#run=([a-z-]+)$/);
+  if (runHash) {
+    const sc = runHash[1];
+    const known = ["honest", "tamper", "badjson", "oversize", "ratelimit", "notfound"];
+    if (known.includes(sc)) {
+      selected = sc;
+      renderCodes(); renderDetail();
+      document.getElementById("playground").scrollIntoView({ behavior: "smooth" });
+      runScenario(sc);
+    } else if (sc === "peoples-court") {
+      document.getElementById("playground").scrollIntoView({ behavior: "smooth" });
+      document.getElementById("runPc").click();
+    }
+  }
   document.getElementById("runHealth").onclick = () => externalProbe(false);
   document.getElementById("runExtVerify").onclick = () => externalProbe(true);
   document.getElementById("langBtn").onclick = () => {

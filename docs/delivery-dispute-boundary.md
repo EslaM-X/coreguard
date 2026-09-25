@@ -118,6 +118,8 @@ curl -sS -X POST http://127.0.0.1:8787/peoples-court \
 curl -sS http://127.0.0.1:8787/health
 ```
 
+No terminal? Each command above runs in the published page with no server and no clone — try it live: [verify](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html#run=honest) · [peoples-court](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html#run=peoples-court) · [health](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html#playground) — and the page deep-links every wire scenario in the table (`#run=tamper`, `#run=badjson`, `#run=oversize`, `#run=ratelimit`, `#run=notfound`).
+
 Prefer to *see* the wire contract before running anything? The published
 [DDE-API-REFERENCE page](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html)
 embeds the real DDE/1 handler and captures every status code below live in your

@@ -92,3 +92,30 @@ test("api-ref: idempotent build — re-running the injector changes no bytes", (
   const after = readFileSync(PAGE, "utf8");
   assert.equal(after, before, "injector must be idempotent over the committed page");
 });
+
+test("api-ref: deep links — the boundary doc's try-it-live pointers resolve to wired in-page scenarios", () => {
+  // docs/delivery-dispute-boundary.md §6 points its curl examples at the
+  // published page via #run=… deep links. The page must consume that exact
+  // hash grammar, every linked name must be a wired scenario (peoples-court
+  // deep-links the runPc handler; the /health curl has no embedded scenario
+  // and deep-links the #playground anchor instead), and this contract fails
+  // the push the day either side renames.
+  const doc = readFileSync(join(REPO, "docs", "delivery-dispute-boundary.md"), "utf8");
+  const html = readFileSync(PAGE, "utf8");
+  const links = [...doc.matchAll(/DDE-API-REFERENCE\.html#(run=[a-z-]+|playground)/g)].map((m) => m[1]);
+  assert.ok(links.includes("run=honest") && links.includes("run=peoples-court") && links.includes("playground"),
+    "boundary doc must deep-link verify, peoples-court and health to the live page");
+  assert.match(html, /match\(\/\^#run=\(\[a-z-\]\+\)\$\/\)/,
+    "page must parse the #run= deep-link grammar");
+  const hashAt = html.indexOf("^#run=");
+  const pcAt = html.indexOf('document.getElementById("runPc").onclick');
+  assert.ok(hashAt > 0 && pcAt > 0 && hashAt > pcAt, "hash consumer must sit after the handlers it drives");
+  for (const link of links) {
+    if (!link.startsWith("run=")) continue;
+    const sc = link.slice(4);
+    const wired = sc === "peoples-court"
+      ? html.includes('document.getElementById("runPc").click()')
+      : html.includes(`"${sc}"`);
+    assert.ok(wired, `deep link #${link} has no wired in-page scenario`);
+  }
+});
