@@ -30,6 +30,9 @@ const REGISTRY = join(REPO, "docs", "integration-registry.json");
 const MILESTONES = join(REPO, "docs", "adoption-milestones.json");
 const FINDINGS = join(REPO, "docs", "risk-findings.json");
 const REPUTATION = join(REPO, "docs", "reputation-registry.json");
+const CLAIMS = join(REPO, "docs", "claims-registry.json");
+const BADGES = join(REPO, "docs", "badge-registry.json");
+const GATE = join(REPO, "docs", "release-gate.json");
 const OUT = join(REPO, "docs", "adoption-dashboard.md");
 
 const read = (p, fallback) => {
@@ -43,6 +46,9 @@ export function buildBoard() {
   const milestones = read(MILESTONES, []);
   const findings = read(FINDINGS, null);
   const reputation = read(REPUTATION, null);
+  const claims = read(CLAIMS, null);
+  const badges = read(BADGES, null);
+  const gate = read(GATE, null);
   const mCounts = {};
   for (const m of milestones) mCounts[m.counter] = (mCounts[m.counter] || 0) + 1;
 
@@ -101,6 +107,27 @@ export function buildBoard() {
         customers: "0 verified",
         partners: "0 verified",
       },
+      /* The three surfaces that turn "we believe this" into "the build checks
+         it": the claim ceiling (what may be said), the badge contract (what may
+         be shown), and the release gate (what must hold before any of it ships). */
+      claimCeiling: claims
+        ? {
+            total: claims.counts.total,
+            byStatus: claims.counts.byStatus,
+            externalClaims: claims.counts.externalClaims,
+            violations: claims.audit.violations.length,
+            downgraded: claims.audit.downgraded,
+          }
+        : null,
+      badges: badges
+        ? {
+            contract: badges.schema,
+            specimens: badges.specimens.length,
+            issuers: badges.issuerCount,
+            criteria: (badges.specimens[0] && badges.specimens[0].criteriaTotal) || null,
+          }
+        : null,
+      gate: gate ? { schema: gate.schema, verdict: gate.verdict, passed: gate.passed, total: gate.total, independence: gate.independence.ok } : null,
     },
     external: {
       externalVerifiers: counter("externalVerifiers"),
@@ -118,6 +145,7 @@ export function boardText(board) {
   const a = board.adoption;
   const gov = board.governance;
   const e = board.external;
+  const cp = board.controlPlane;
   return [
     "# CoreGuard Adoption Dashboard",
     "",
@@ -143,6 +171,23 @@ export function boardText(board) {
     `| Commercial revenue | ${board.controlPlane?.commercial.revenue} |`,
     `| Commercial customers | ${board.controlPlane?.commercial.customers} |`,
     `| Commercial partners | ${board.controlPlane?.commercial.partners} |`,
+    "",
+    "## Claim ceiling, badges & release gate (committed artifacts)",
+    "",
+    "| Surface | Value |",
+    "|---|---|",
+    `| Claims tracked | ${cp.claimCeiling ? cp.claimCeiling.total : "n/a"} |`,
+    `| Claims by status | ${cp.claimCeiling ? Object.entries(cp.claimCeiling.byStatus).map(([k, v]) => `${k} ${v}`).join(" · ") : "n/a"} |`,
+    `| Claims depending on an external outcome | ${cp.claimCeiling ? cp.claimCeiling.externalClaims : "n/a"} |`,
+    `| Claim-ceiling violations | ${cp.claimCeiling ? cp.claimCeiling.violations : "n/a"} |`,
+    `| Badges issued to anyone | ${cp.badges ? cp.badges.issuers : "n/a"} |`,
+    `| Badge specimens (never issued) | ${cp.badges ? cp.badges.specimens : "n/a"} |`,
+    `| Release gate | ${cp.gate ? `${cp.gate.verdict} — ${cp.gate.passed}/${cp.gate.total} legs, independence ${cp.gate.independence ? "PASS" : "FAIL"}` : "n/a"} |`,
+    "",
+    `The claim ceiling is the list of things this repository may say, with a`,
+    `status each. ${cp.claimCeiling ? cp.claimCeiling.externalClaims : 0} of them depend on an external outcome and are therefore`,
+    `marked GATED, UNKNOWN or NOT_PERFORMED rather than verified. A badge is`,
+    `issued to no one. The release gate is not a release authorization.`,
     "",
     "Zeroes here are a trust feature, never hidden. No percentage is printed:",
     "every value is derived from a committed source or stays at its honest",

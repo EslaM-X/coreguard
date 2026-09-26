@@ -1,0 +1,149 @@
+{
+  "schema": "CG-RG/1",
+  "scope": "the committed tree is internally consistent and its claims are backed — this is NOT a release authorization",
+  "verdict": "GATE_PASS",
+  "total": 18,
+  "passed": 18,
+  "failed": 0,
+  "independence": {
+    "ok": true,
+    "violations": [],
+    "checkedLegs": 18
+  },
+  "legs": [
+    {
+      "leg": "tests",
+      "command": "npm test",
+      "surface": "the full suite + the snapshot total enforcement",
+      "status": "PASS",
+      "detail": "npm run test — npm notice run node scripts/run-tests.mjs"
+    },
+    {
+      "leg": "boundary",
+      "command": "npm run boundary:audit",
+      "surface": "committed-tree boundary scan",
+      "status": "PASS",
+      "detail": "npm run boundary:audit — npm notice run node scripts/boundary-audit.mjs"
+    },
+    {
+      "leg": "levels",
+      "command": "npm run verify:levels",
+      "surface": "L0-L4 verification levels",
+      "status": "PASS",
+      "detail": "1 committed test file import verification-levels.mjs"
+    },
+    {
+      "leg": "states",
+      "command": "npm run integration:states",
+      "surface": "the 13 integration states",
+      "status": "PASS",
+      "detail": "1 committed test file import integration-states.mjs"
+    },
+    {
+      "leg": "adapters",
+      "command": "npm run adapters:status",
+      "surface": "adapter DRY_RUN posture",
+      "status": "PASS",
+      "detail": "npm run adapters:status — npm notice run node packages/adapters/providers.mjs --status"
+    },
+    {
+      "leg": "sandbox",
+      "command": "npm run partner:sandbox",
+      "surface": "8 offline integration scenarios",
+      "status": "PASS",
+      "detail": "8 scenarios classified"
+    },
+    {
+      "leg": "journey",
+      "command": "npm run partner:journey -- --self-check",
+      "surface": "the 10-leg integration journey",
+      "status": "PASS",
+      "detail": "18/18 invariants"
+    },
+    {
+      "leg": "replay",
+      "command": "npm run integration:replay",
+      "surface": "CG-IR/1 bundle replay",
+      "status": "PASS",
+      "detail": "11/11 invariants"
+    },
+    {
+      "leg": "attack",
+      "command": "npm run attack-lab",
+      "surface": "10 fail-closed tamper cases",
+      "status": "PASS",
+      "detail": "10/10 tamper cases, 0 unexpected"
+    },
+    {
+      "leg": "observability",
+      "command": "npm run observability",
+      "surface": "the event sink contract",
+      "status": "PASS",
+      "detail": "1 committed test file import observability.mjs"
+    },
+    {
+      "leg": "passport",
+      "command": "npm run passport:v2",
+      "surface": "the portable evidence passport",
+      "status": "PASS",
+      "detail": "CGEP/1-PASSPORT-V2 · 3 adapters · 0 receipts"
+    },
+    {
+      "leg": "conformance",
+      "command": "npm run conformance:report",
+      "surface": "CG-CS/1 suite + CG-CR/1 report",
+      "status": "PASS",
+      "detail": "npm run conformance:report — npm notice run node scripts/ladder/conformance.mjs --write"
+    },
+    {
+      "leg": "quickstart",
+      "command": "npm run quickstart",
+      "surface": "the offline developer quickstart",
+      "status": "PASS",
+      "detail": "npm run quickstart — npm notice run node examples/platform-quickstart/quickstart.mjs"
+    },
+    {
+      "leg": "webhook",
+      "command": "npm run webhook",
+      "surface": "CG-WH/1 receiver",
+      "status": "PASS",
+      "detail": "8/8 invariants"
+    },
+    {
+      "leg": "x402",
+      "command": "npm run x402",
+      "surface": "X402/1 gated payment harness",
+      "status": "PASS",
+      "detail": "12/12 invariants"
+    },
+    {
+      "leg": "commercial",
+      "command": "npm run commercial:packaging",
+      "surface": "the commercial packaging contract",
+      "status": "PASS",
+      "detail": "18/18 invariants"
+    },
+    {
+      "leg": "claims",
+      "command": "npm run claims:audit",
+      "surface": "CG-CL/1 claim ceiling",
+      "status": "PASS",
+      "detail": "28 claims, 0 violations"
+    },
+    {
+      "leg": "badge",
+      "command": "npm run badge:verify",
+      "surface": "CG-BDG/1 self-verifying artwork",
+      "status": "PASS",
+      "detail": "15/15 invariants"
+    }
+  ],
+  "notClaimed": {
+    "releaseAuthorized": false,
+    "badgeIssued": false,
+    "ownerSignOff": false,
+    "independentReview": false,
+    "liveChainAuthority": false,
+    "note": "the gate reports the BUILD. Every commercial, legal, and external outcome stays GATED or UNKNOWN regardless of this verdict."
+  }
+}

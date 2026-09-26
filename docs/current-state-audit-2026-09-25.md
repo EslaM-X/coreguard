@@ -19,7 +19,7 @@ trends) are external results that nobody can promise.
 
 | Metric | Value | Reproduction | Machine pin |
 |---|---|---|---|
-| Full test suite | **1095/1095 pass** | `npm test` | `run-tests.mjs` enforces pass total == `state-snapshot.json`.testsTotal (drift = red) |
+| Full test suite | **1153/1153 pass** | `npm test` | `run-tests.mjs` enforces pass total == `state-snapshot.json`.testsTotal (drift = red) |
 | Boundary audit | **PASS — 794 files scanned (committed-tree scope), 0 violations** | `npm run boundary:audit` | `current-state.mjs --check` re-measures vs the snapshot |
 | People's-Court harness | **PEOPLES_COURT_HARNESS_READY** (recorded feed; webhooks ×402 DRY-RUN; no live call, no credential) | `npm run peoples-court:harness -- --case examples/delivery-fixture/pairs/dispute-package/reference-A` | `current-state.mjs --check` |
 | Docs-node contract | **81 executed · 53 skip-listed · 18 docs covered** | `node --test --test-concurrency=1 test/ci/docs-node-contract.test.js` | `current-state.mjs --check` |

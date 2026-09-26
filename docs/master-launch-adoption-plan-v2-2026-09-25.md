@@ -2,7 +2,7 @@
 
 Built from `docs/current-state-audit-2026-09-25.md`, NOT from the old
 v0.6.0-era plan. The starting truth is the pinned snapshot
-(`docs/state-snapshot.json`): 1095 tests (CI-enforced), boundary audit
+(`docs/state-snapshot.json`): 1153 tests (CI-enforced), boundary audit
 794 files / 0 violations on the committed tree, docs-node contract live, main 91
 commits ahead of v0.6.0. Positioning (owner-confirmed): CoreGuard is **evidence and
 verification infrastructure for agentic dispute systems** — not a court, not a

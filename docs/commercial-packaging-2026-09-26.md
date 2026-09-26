@@ -20,8 +20,12 @@ for-sale product.
 - The six-method adapter contract and the four provider stubs: `packages/adapters/`
 - The conformance suite CG-CS/1 and its badge contract: `scripts/ladder/conformance.mjs`
 - Evidence Passport v2: `scripts/passport-v2.mjs`
-- The CG-WH/1 webhook receiver (HMAC, replay window, idempotency): `packages/webhook`
-- The X402/1 request harness, gated on an owner-locked price: `packages/x402`
+- The CG-WH/1 webhook receiver (HMAC, replay window, idempotency): `packages/webhook/index.mjs`
+- The X402/1 request harness, gated on an owner-locked price: `packages/x402/index.mjs`
+- The CG-IR/1 integration replay lab: `scripts/integration-replay-lab.mjs`
+- The CG-PJ/1 ten-leg integration journey: `scripts/partner-journey.mjs`
+- The CG-CL/1 claim registry and its ceiling auditor: `scripts/ladder/claim-registry.mjs`
+- The CG-BDG/1 self-verifying badge system: `packages/badge/index.mjs`
 - Reputation and risk machines (CG-RP/1, CG-RF/1), both deriving from committed milestones only
 - Price: **LOCKED (owner decision)**
 
@@ -40,17 +44,25 @@ Everything in Open Core, plus:
 
 Would be: your deployment, your credentials, your chain, your data boundary, an SLA.
 
+**Enterprise Integration is available as tooling, not as a partnership.** Everything an
+integrator needs in order to deploy is in this repository and runs today; what does not exist
+is a named party on either side of the contract. The named integrator is **NONE**, and the
+owner decision is to keep it that way until a real counterparty exists who owns the key
+material and the uptime. No company name appears on this tier, and none may be implied by
+reusing the tooling.
+
 Blocked on, and honest about, each prerequisite:
 
 | Prerequisite | State | Why it is not a checkbox |
 | --- | --- | --- |
-| A named integrator | none | Every adapter is `DRY_RUN`; a deployment needs a party who owns the key material and the uptime |
+| A named integrator | **NONE** (owner decision, 2026-09-26) | Every adapter is `DRY_RUN`; a deployment needs a party who owns the key material and the uptime |
 | Live chain authority | absent | L1 `VERIFIED` requires a real `getReceipt`; there is no live path in this repository |
 | Per-step owner approval | required | Decision A/B (2026-09-25) forbids execution or authorization without it |
 | Security review | not performed | No third-party review has been done or may be claimed |
 | Pricing | LOCKED | No commercial terms exist |
 
-Price: **LOCKED, and the tier does not exist as a deliverable today.**
+Gate: `OWNER_SIGN_OFF_REQUIRED`. Price: **LOCKED, and the tier does not exist as a deliverable
+today.**
 
 ### Professional Services
 
@@ -65,9 +77,17 @@ Would be: many independent implementations passing one pinned conformance suite 
 one badge that means only "this integration's attestations passed CG-CS/1 for the pinned
 version".
 
-Current state, mechanically: `badgeIssuerCount: 0` in `docs/conformance-report.json`, because
-no integration has run the suite. The badge's contract (`neverMeans`) forbids reading it as
-endorsement of a counterparty, its funds, its adjudication, or any legal outcome.
+Current state, mechanically: `badgeIssuerCount: 0` in `docs/conformance-report.json` and
+`issuerCount: 0` in `docs/badge-registry.json`, because no integration has run the suite. The
+badge's contract (`neverMeans`) forbids reading it as endorsement of a counterparty, its funds,
+its adjudication, or any legal outcome.
+
+**Owner decision (2026-09-26): the third-party badge is NOT ISSUED.** The badge system itself
+is built and provable — `packages/badge/index.mjs` renders deterministic SVG whose embedded
+payload is re-derivable from the record it names, and a forged or edited badge fails
+verification — but the specimens in `docs/badges/` are labelled `SPECIMEN · NOT ISSUED` and
+name no third party. Gate: `BADGE_NOT_ISSUED`. An issuance requires a CG-CS/1 record whose six
+criteria all pass, plus an owner decision; neither exists.
 
 Price: **LOCKED, and there is no network to price.**
 
@@ -91,14 +111,32 @@ like every other number in this repo.
 
 ## How to verify this document
 
-- `node packages/x402/index.mjs`-based self-check: `npm run x402` (no quote → GATED; zero price → GATED; unlocked price → HYPOTHESIS; DRY_RUN settle → NOT_PERFORMED with zero revenue)
+- `npm run commercial:packaging` — the CG-CP/1 contract: every cited path exists, the only
+  money figure is `$0`, prices are LOCKED, the named integrator is NONE, the badge count is 0,
+  and every gated tier names its gate
+- `npm run x402` (no quote → GATED; zero price → GATED; unlocked price → HYPOTHESIS; DRY_RUN settle → NOT_PERFORMED with zero revenue)
 - `npm run webhook` (unsigned, tampered, stale, future-dated, duplicate, and missing-key cases)
 - `npm run conformance:report` (criteria, badge contract, `badgeIssuerCount: 0`)
-- `npm run ladder:dashboard:write` (the commercial counters: $0, 0, 0)
+- `npm run badge:verify` (re-derives each specimen's digest from its record; a forged payload fails)
+- `npm run claims:audit` (CG-CL/1: no claim may assert more than its evidence)
+- `npm run partner:journey -- --self-check` (the ten-leg integration journey)
+- `npm run release:gate` (every proof surface in one process, plus the gate's own independence audit)
+- `npm run ladder:dashboard:write` (the commercial counters: `$0`, 0, 0)
 - `npm test` (the suite total, enforced against `docs/state-snapshot.json`)
 
-## Decision needed from the owner
+## Owner decisions — CLOSED 2026-09-26
 
-1. Lock or keep locked: the price of each tier (or confirm the hypothesis stays a hypothesis).
-2. Name the integrator, or confirm the Enterprise tier stays a document and not a promise.
-3. Confirm the badge contract wording before it is ever printed next to a third party's name.
+These were open questions; the owner has now answered all three, and the answers are enforced
+by code rather than by prose:
+
+1. **Prices: LOCKED.** No amount is published, and the x402 gate answers `PRICE_NOT_LOCKED`
+   for every price the owner has not locked. `packages/pricing` stays a `1-hypothesis`
+   version. Turning prices on is a one-line owner decision plus a commit — and the dashboard
+   number changes in the same push, like every other number here.
+2. **Named integrator: NONE.** The Enterprise tier stays a document, not a promise.
+   Enterprise Integration remains available as tooling that anyone may run; no party's name is
+   attached to it, and the repository may not imply one.
+3. **Badge: NOT ISSUED.** The badge contract wording is accepted as written. No third-party
+   badge exists until a real CG-CS/1 pass and a separate owner decision.
+
+Gate: `OWNER_SIGN_OFF_REQUIRED` for anything beyond this document.

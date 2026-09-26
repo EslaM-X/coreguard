@@ -27,6 +27,23 @@ authorized step appends a milestone; they are never invented upward.
 | Commercial customers | 0 verified |
 | Commercial partners | 0 verified |
 
+## Claim ceiling, badges & release gate (committed artifacts)
+
+| Surface | Value |
+|---|---|
+| Claims tracked | 28 |
+| Claims by status | VERIFIED 16 · UNKNOWN 6 · HYPOTHESIS 0 · RESEARCH 1 · GATED 3 · NOT_PERFORMED 2 |
+| Claims depending on an external outcome | undefined |
+| Claim-ceiling violations | 0 |
+| Badges issued to anyone | 0 |
+| Badge specimens (never issued) | 2 |
+| Release gate | GATE_PASS — 18/18 legs, independence PASS |
+
+The claim ceiling is the list of things this repository may say, with a
+status each. undefined of them depend on an external outcome and are therefore
+marked GATED, UNKNOWN or NOT_PERFORMED rather than verified. A badge is
+issued to no one. The release gate is not a release authorization.
+
 Zeroes here are a trust feature, never hidden. No percentage is printed:
 every value is derived from a committed source or stays at its honest
 default.
@@ -35,9 +52,9 @@ default.
 
 | Metric | Value |
 |---|---|
-| Test suite | 1095 |
-| Boundary audit | 803 files / 0 violations |
-| Docs-node contract | 81 executed · 53 skip-listed · 18 covered |
+| Test suite | 1153 |
+| Boundary audit | 817 files / 0 violations |
+| Docs-node contract | 87 executed · 53 skip-listed · 19 covered |
 | Live-submission harness | PEOPLES_COURT_HARNESS_READY |
 
 ## Adoption surface (from the integration registry)

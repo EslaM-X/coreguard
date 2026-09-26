@@ -215,26 +215,40 @@ rewards.
    approval; Dec A/B as decided 2026-09-25). B1–B6 letters each still need a
    separate owner sign-off before sending.
 
-## 9. Commercial decisions this cycle surfaced (owner sign-off still required)
+## 9. Commercial decisions this cycle surfaced — CLOSED as "hold", not as "go"
 
 This cycle was asked to finish the roadmap, and the honest way to finish it turned out to be
-to build the two surfaces the roadmap already named. Three decisions are now waiting on the
-owner, and none of them can be taken by the repository:
+to build the two surfaces the roadmap already named. Three commercial questions were raised.
+All three are now closed in the only direction the evidence supports: each one is
+**held at its honest default**. Holding is a decision; it is not a deferral, and it is not
+an authorization. None of them is claimed as a success.
 
-1. **Prices stay LOCKED by default.** `packages/pricing` is `1-hypothesis` and the x402
-   harness answers `GATED / PRICE_NOT_LOCKED` for any price the owner has not locked. The
-   five tiers in `docs/commercial-packaging-2026-09-26.md` therefore describe what is
-   delivered and what is gated, with no number. Locking a price is a one-line change plus a
-   commit, and when it happens the dashboard revenue line must move in the same push.
-2. **The Enterprise tier is a document, not a deliverable.** A named integrator, live chain
-   authority, credentials, security review, and per-step owner approval are all absent. No
-   tier may be sold before at least the integrator and the approval exist; Decision A/B
-   (2026-09-25) already forbids execution or authorization without them.
+1. **Prices stay LOCKED — `CL-PRICES-LOCKED` (GATED, held).** `packages/pricing` is
+   `1-hypothesis` and the x402 harness answers `GATED / PRICE_NOT_LOCKED` for any price the
+   owner has not locked; an unlocked price carries `priceStatus: HYPOTHESIS`. The five tiers
+   in `docs/commercial-packaging-2026-09-26.md` therefore describe what is delivered and what
+   is gated, with no number, and a detector fails the build on any money figure other than
+   `$0`. Unlocking a price is a one-line change plus a commit, and when it happens the
+   dashboard revenue line must move in the same push.
+2. **The Enterprise tier is a document, not a deliverable — `CL-NAMED-INTEGRATOR`
+   (GATED, held).** No named integrator exists (`Named Integrator = NONE`). A named
+   integrator, live chain authority, credentials, security review, and per-step owner
+   approval are all absent. No tier may be sold before at least the integrator and the
+   approval exist; Decision A/B (2026-09-25) already forbids execution or authorization
+   without them. The tooling is available to an integrator today; the partnership is not
+   claimed.
 3. **The CG-CS/1 badge wording is fixed before it is ever printed next to a third party's
-   name.** `badgeIssuerCount` is 0 and the contract's `neverMeans` forbids reading it as
-   endorsement of the counterparty, its funds, its adjudication, or any legal outcome. The
-   first badge is a public statement about a named party, so it is an owner decision, not a
-   suite run.
+   name — `CL-BADGE-NOT-ISSUED` (GATED, held).** `badgeIssuerCount` is 0 and the contract's
+   `neverMeans` forbids reading a badge as endorsement of the counterparty, its funds, its
+   adjudication, or any legal outcome. Only two files exist under `docs/badges/`, both
+   specimens, both stamped `NOT ISSUED`, and the record carries a non-enumerable brand so a
+   specimen cannot be copied into an issued badge. The first badge is a public statement
+   about a named party, so **issuance** remains a separate future owner decision — this
+   section closes the wording, not the door.
+
+The build is provably independent of all three: `CL-BUILD-ADOPTION-INDEPENDENT` is
+`VERIFIED` and `test/integrations/developer-kit.test.mjs` fails if any of the three ever
+becomes `VERIFIED` while its decision is held.
 
 Unchanged by this cycle: revenue `$0`, customers 0, partners 0, reputation `UNPROVEN`,
 L4 `RESEARCH`, and no third-party verification, review, or endorsement has occurred.
@@ -267,7 +281,7 @@ L4 `RESEARCH`, and no third-party verification, review, or endorsement has occur
    Plane prints no invented percentage at all.
 8. **A stale number in any document is a failing build.** Every count is
    machine-measured into `docs/state-snapshot.json` and enforced by
-   `scripts/run-tests.mjs`; the current sync is 1095/1095 tests, 796 committed
+   `scripts/run-tests.mjs`; the current sync is 1153/1153 tests, 817 committed
    files, 0 violations, docs-node 81·53·18.
 9. **B1–B6 keep their gates; B6 is OWNER SIGN-OFF REQUIRED.** The platform
    build continues in parallel with the outreach tracks; no letter, no message

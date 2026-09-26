@@ -1,0 +1,47 @@
+{
+  "schema": "CG-BDG/1",
+  "suite": "CG-CS/1",
+  "rules": {
+    "INTEGRATION": [
+      "Issued only from a CG-CS/1 record whose six criteria all PASS.",
+      "Certifies the integration's attestations only — never the counterparty, its funds, its adjudication, or any legal outcome.",
+      "Carries the subject id, the suite version, and a digest of the exact record; any edit to those fails verification."
+    ],
+    "SPECIMEN": [
+      "Design specimen. NOT ISSUED. No third party holds this badge.",
+      "NOT ISSUED: rendered so the design and its verification path are provable before any issuance decision exists."
+    ]
+  },
+  "issuerCount": 0,
+  "issuers": [],
+  "issuedNote": "No badge is issued to any third party. An issuance requires a CG-CS/1 record whose six criteria all pass, and the record must be reviewable by whoever the badge names.",
+  "specimens": [
+    {
+      "id": "SPECIMEN-VERIFIED-INTEGRATION",
+      "subject": "SPECIMEN · NOT ISSUED",
+      "kind": "SPECIMEN",
+      "suite": "CG-CS/1",
+      "criteriaPass": true,
+      "criteriaPassed": 6,
+      "criteriaTotal": 6,
+      "digest": "0FC2E2506285",
+      "note": "Shows exactly what an issued badge looks like. It is not one, and it is issued to nobody.",
+      "file": "docs/badges/specimen-verified-integration.svg",
+      "verified": true
+    },
+    {
+      "id": "SPECIMEN-NOT-CONFORMANT",
+      "subject": "SPECIMEN · NOT ISSUED",
+      "kind": "SPECIMEN",
+      "suite": "CG-CS/1",
+      "criteriaPass": false,
+      "criteriaPassed": 2,
+      "criteriaTotal": 6,
+      "digest": "792861CA01BF",
+      "note": "The refusal face: what the system shows when the suite does not pass. A failing record can never be issued a badge, and this artwork proves the refusal is designed, not accidental.",
+      "file": "docs/badges/specimen-not-conformant.svg",
+      "verified": true
+    }
+  ],
+  "specimenCount": 2
+}

@@ -7,7 +7,7 @@ UNKNOWN until a real counterparty provides real evidence.
 
 Measuring surfaces (CI-enforced; do not hand-edit):
 
-- docs/state-snapshot.json — testsTotal 1095 · filesScanned 803 · violations 0 · docsNode 81·53·18
+- docs/state-snapshot.json — testsTotal 1153 · filesScanned 817 · violations 0 · docsNode 81·53·18
 - docs/evidence-passport-v2.json — the portable verification identity
 - docs/adoption-dashboard.md — the control plane, derived numbers only
 - docs/reputation-registry.json — UNPROVEN / score 0 (zeros are the trust feature)
