@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readdirSync, statSync, readFileSync, mkdtempSync, rmSync, existsSync, cpSync, mkdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, dirname, resolve } from "node:path";
+import { join, dirname, resolve, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /**
@@ -123,6 +123,7 @@ const PKG_SCRIPTS = JSON.parse(readFileSync(join(REPO, "package.json"), "utf8"))
 const SKIP = [
   { re: /(^|\s)npm (install|ci)(\s|$)/, reason: "registry install (npm ci is owned by every workflow's setup step; the documented @coreguard/sdk install is E404 — unpublished)" },
   { re: /npm test/, reason: "full suite — this contract runs inside it (recursion)" },
+  { re: /npm run release:gate(\s|$)/, reason: "the gate's `tests` leg IS `npm test` — this contract lives inside that suite, so executing the gate here re-enters this file (unbounded recursion; a Node 18 CI leg was SIGTERMed at 8m25s over it). Owned by the Engine leg's `release:gate:independence` step + scripts/pre-push-check.mjs" },
   { re: /npm run (corpus|benchmark)(\s|$)/, reason: "corpus rewrites committed benchmarks/ (the make-fixture rule); plain benchmark re-derives it from the corpus" },
   { re: /npm run benchmark:/, reason: "perf medians are owned by the DDE Evidence Cycle (dde.yml runs benchmark-dde/-http + trend badges); not re-run here" },
   { re: /npm run (anchor:plan|anchor:verify)/, reason: "rewrites committed scripts/live-anchor-planned.json (freeze-adjacent) / drives PowerShell against live Mainnet state" },
@@ -137,6 +138,87 @@ const SKIP = [
   { re: /forge /, reason: "Solidity toolchain (foundry) — a non-Node contract file guarded by the CI Contracts job (forge build / forge test), not a node/npm command; not installed on every dev box" },
   { re: /^node scripts\/build-verifier\.mjs$/, reason: "artifact build gate — exit code is toolchain-present-dependent: without cargo it SHA-checks only and exits 0, but on CI the auto-installed rustup cargo lacks the wasm32-unknown-unknown target so regeneration fails and it exits 1; the byte-drift verdict is owned by the independent-verifier pipeline, not a docs contract" },
 ];
+
+/**
+ * RECURSION GUARD — the trap this file fell into once already.
+ *
+ * A documented `npm run <script>` is EXECUTED here. So a script that runs the
+ * suite is a bomb: this file lives inside `npm test`, the gate's `tests` leg IS
+ * `npm test`, and the fence re-enters this file until the runner is killed.
+ * That shipped as a `SIGTERM` (exit 143) on the Node 18 leg after 8m25s, with
+ * exit-code-only triage pointing at nothing.
+ *
+ * Two precision traps, both paid for in this one guard:
+ *
+ *  1. BODY-ONLY DETECTION IS VACUOUS. `release:gate`'s package.json body is
+ *     `node scripts/release-gate.mjs`, which names no test command — the
+ *     `tests` leg is a string INSIDE that module. A body-only heuristic calls
+ *     it safe, the guard passes on the bomb, and CI times out instead.
+ *     Hence DECLARED_INDIRECT below, asserted by the "declared means declared"
+ *     test so it cannot rot into naming something harmless.
+ *
+ *  2. MENTION IS NOT INVOCATION. Reading a script's whole source to find the
+ *     suite anywhere in it classifies `claims`, `publish:check` and
+ *     `integration:states` as runners purely because their text MENTIONS
+ *     `npm test` in a comment or a usage string. A guard that cries wolf on
+ *     safe commands gets ignored, and then ignored for the real one. So the
+ *     mechanical half reads only package.json bodies (one-liners, no prose) and
+ *     the indirect half is declared and checked.
+ */
+const SUITE_MARKER = /npm\s+(test|run\s+test)\b|scripts[\\/]run-tests\.mjs|node\s+--test\b|pre-push-check\.mjs/;
+
+/** Scripts whose body itself spawns the suite. Mechanical, no prose involved. */
+const SUITE_RUNNING = new Set(
+  Object.entries(PKG_SCRIPTS).filter(([, body]) => SUITE_MARKER.test(String(body))).map(([n]) => n)
+);
+
+/** Scripts that reach the suite through a module instead of their own body. */
+const DECLARED_INDIRECT = ["release:gate"];
+for (const n of DECLARED_INDIRECT) SUITE_RUNNING.add(n);
+
+test("no documented command re-enters this contract through the test suite", () => {
+  const offenders = [];
+  // CRLF MUST be normalized here, exactly as the executor below does. Skip it
+  // and `extractBashFences` (which matches `bash\n`) sees ZERO fences in every
+  // CRLF-checked-out file: the guard then passes on the bomb locally while
+  // firing on Linux CI — a check whose behaviour depends on the checkout's
+  // line endings, which is the cross-machine trap [C3] in miniature. Found by
+  // negative control: removing the SKIP entry did not fail the guard here.
+  for (const md of listMarkdown(REPO)) {
+    const rel = relative(REPO, md).split(sep).join("/");
+    if (rel.startsWith("legacy-quarantine/") || rel.includes("/node_modules/")) continue;
+    for (const fence of extractBashFences(readFileSync(md, "utf8").replaceAll("\r\n", "\n"))) {
+      for (const cmd of logicalCommands(fence)) {
+        if (SKIP.some((s) => s.re.test(cmd))) continue;
+        for (const line of cmd.split("\n")) {
+          const m = line.match(/npm run ([\w:.-]+)/);
+          if (!m || !SUITE_RUNNING.has(m[1])) continue;
+          offenders.push(`${rel}: \`${m[1]}\` runs the suite and is not skip-listed`);
+        }
+      }
+    }
+  }
+  assert.deepEqual(offenders, [], `documented suite-running commands must be skip-listed (recursion):\n${offenders.join("\n")}`);
+});
+
+test("the recursion guard is neither vacuous nor crying wolf", () => {
+  // not vacuous: the declaration must still be true, so renaming or rewriting
+  // the gate cannot leave a stale "safe" classification behind.
+  for (const n of DECLARED_INDIRECT) {
+    const body = String(PKG_SCRIPTS[n] || "");
+    let surface = body;
+    for (const m of body.matchAll(/node\s+(?:--?[\w=-]+\s+)*([\w./\\-]+\.(?:mjs|cjs|js))/g)) {
+      try { surface += "\n" + readFileSync(resolve(REPO, m[1]), "utf8"); } catch { /* unresolvable target */ }
+    }
+    assert.ok(SUITE_MARKER.test(surface), `DECLARED_INDIRECT lists "${n}" but neither its body nor its module reaches the suite — drop it or fix the declaration`);
+  }
+  assert.ok(SUITE_RUNNING.has("test"), "the `test` script must classify as suite-running");
+  // not crying wolf: these merely MENTION `npm test` in their source text and
+  // are safe to execute — if they ever start classified, this fails first.
+  for (const n of ["claims", "claims:audit", "publish:check", "integration:states"]) {
+    assert.ok(!SUITE_RUNNING.has(n), `"${n}" is classified as a suite runner, but it only mentions npm test — mention is not invocation`);
+  }
+});
 
 /** Build the reader's world: junctions for read-only surfaces, copies for the rest. */
 function buildSandbox(tmp) {

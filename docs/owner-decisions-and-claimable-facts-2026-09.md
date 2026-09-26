@@ -14,7 +14,7 @@ until an explicit per-step owner sign-off exists (phase-3 plan §5, binding).
 
 | Capability | Where it lives | Proof (reproduces locally) |
 |---|---|---|
-| Evidence model + offline proof | whole repo | `npm test` → **1153 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
+| Evidence model + offline proof | whole repo | `npm test` → **1155 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
 | Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **817 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
 | Docs-node contract (executable docs stay runnable) | `test/ci/docs-node-contract.test.js` | 94 executed · 53 skip-listed · 19 docs covered |
 | Live-submission harness (recorded feed, webhooks DRY-RUN, x402 DRY-RUN) | `packages/peoples-court-adapter/` | `npm run peoples-court:harness` → 11/11 |
@@ -281,7 +281,7 @@ L4 `RESEARCH`, and no third-party verification, review, or endorsement has occur
    Plane prints no invented percentage at all.
 8. **A stale number in any document is a failing build.** Every count is
    machine-measured into `docs/state-snapshot.json` and enforced by
-   `scripts/run-tests.mjs`; the current sync is 1153/1153 tests, 817 committed
+   `scripts/run-tests.mjs`; the current sync is 1155/1155 tests, 817 committed
    files, 0 violations, docs-node 81·53·18.
 9. **B1–B6 keep their gates; B6 is OWNER SIGN-OFF REQUIRED.** The platform
    build continues in parallel with the outreach tracks; no letter, no message

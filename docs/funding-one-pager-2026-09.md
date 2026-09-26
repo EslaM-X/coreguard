@@ -30,7 +30,7 @@ execution evidence → consent state → ADAL/1 dispute package → tribunal ada
   refused and the demo *exits non-zero if the refusal doesn't happen*.
 - **Honest tri-state consent:** `FULL / PARTIAL / UNKNOWN`; incomplete evidence
   is never converted into bilateral consent.
-- **1153 tests, CI-enforced** against a committed snapshot on Node 18/20/22 (a
+- **1155 tests, CI-enforced** against a committed snapshot on Node 18/20/22 (a
   stale number in any doc is a failing build); ethical discipline is tested too
   — the suite asserts the project never overclaims.
 - **L1 `VERIFIED` pilot on Core Mainnet:** real transfer, tx

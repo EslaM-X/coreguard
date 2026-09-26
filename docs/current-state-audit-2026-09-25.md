@@ -19,10 +19,10 @@ trends) are external results that nobody can promise.
 
 | Metric | Value | Reproduction | Machine pin |
 |---|---|---|---|
-| Full test suite | **1153/1153 pass** | `npm test` | `run-tests.mjs` enforces pass total == `state-snapshot.json`.testsTotal (drift = red) |
+| Full test suite | **1155/1155 pass** | `npm test` | `run-tests.mjs` enforces pass total == `state-snapshot.json`.testsTotal (drift = red) |
 | Boundary audit | **PASS — 794 files scanned (committed-tree scope), 0 violations** | `npm run boundary:audit` | `current-state.mjs --check` re-measures vs the snapshot |
 | People's-Court harness | **PEOPLES_COURT_HARNESS_READY** (recorded feed; webhooks ×402 DRY-RUN; no live call, no credential) | `npm run peoples-court:harness -- --case examples/delivery-fixture/pairs/dispute-package/reference-A` | `current-state.mjs --check` |
-| Docs-node contract | **94 executed · 53 skip-listed · 19 docs covered** | `node --test --test-concurrency=1 test/ci/docs-node-contract.test.js` | `current-state.mjs --check` |
+| Docs-node contract | **93 executed · 54 skip-listed · 19 docs covered** | `node --test --test-concurrency=1 test/ci/docs-node-contract.test.js` | `current-state.mjs --check` |
 | Git | `main`, **91 commits ahead** of `v0.6.0` (informational only — in flux with every push; canonical value lives in the snapshot) | `git rev-list v0.6.0..HEAD --count` | recorded in the snapshot as metadata |
 
 The measured snapshot lives at `docs/state-snapshot.json` (committed, valid JSON,

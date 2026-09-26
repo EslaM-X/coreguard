@@ -101,13 +101,13 @@
     "L4 is RESEARCH; 'ZK supported' is never claimed until a real circuit/prover/verifier exists with a benchmark and conformance"
   ],
   "engineering": {
-    "testsTotal": 1148,
-    "filesScanned": 815,
+    "testsTotal": 1155,
+    "filesScanned": 817,
     "violations": 0,
     "docsNode": {
-      "executed": 81,
-      "skipListed": 53,
-      "docsCovered": 18
+      "executed": 93,
+      "skipListed": 54,
+      "docsCovered": 19
     }
   }
 }
