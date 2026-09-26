@@ -30,9 +30,9 @@ execution evidence → consent state → ADAL/1 dispute package → tribunal ada
   refused and the demo *exits non-zero if the refusal doesn't happen*.
 - **Honest tri-state consent:** `FULL / PARTIAL / UNKNOWN`; incomplete evidence
   is never converted into bilateral consent.
-- **991 passing conformance + delivery tests**, CI green (attention: ethical
-  discipline is tested too — e.g. the conformance suite asserts the project
-  never overclaims).
+- **1043 tests, CI-enforced** against a committed snapshot on Node 18/20/22 (a
+  stale number in any doc is a failing build); ethical discipline is tested too
+  — the suite asserts the project never overclaims.
 - **L1 `VERIFIED` pilot on Core Mainnet:** real transfer, tx
   `0xe67c61fd…6891a9b8`, block `38712625` — independent recomputation against
   pre-declared authorization; registrar already carries frozen proof anchors.
@@ -43,6 +43,12 @@ execution evidence → consent state → ADAL/1 dispute package → tribunal ada
 - **Structural adapter + reference tribunal:** offline dry-run mapping toward
   external dispute surfaces; award slot stays `UNKNOWN`; escrow stays
   reference-only (`deployed:false`).
+- **v0.3 governance first-pass shipped (2026-09-25):** a machine-readable
+  **Evidence Passport**, **Reputation (CG-RP/1 = recorded external milestones
+  only; today 0)** and **risk findings (CG-RF/1 = findings only, never a fuzzy
+  safety score)** over the live-integration ladder — `npm run ladder:*`
+  (status · passport · dashboard · reputation · findings), all reading the
+  committed snapshot.
 
 ## 3. Market and revenue path
 
@@ -97,10 +103,11 @@ integrator) → first external integration.
   `CONDITIONAL NO-GO`, `deployed:false`.
 - No "security guarantees", fake adoption, partnership, or funding metrics.
 
-## 7. Honest status flags (as of 2026-09-24)
+## 7. Honest status flags (as of 2026-09-25)
 
 - Revenue: **$0**; external adoption: **unproven** — those are the honest
-  numbers this page preserves.
+  numbers this page preserves; the snapshot-anchored dashboard
+  (`docs/adoption-dashboard.md`) shows the same zeros.
 - OCV Catalyst: the Summer 2026 v2 window **closed (deadline 2026-06-28)**;
   **no next window is announced** (verified against OCV handbook + Greenhouse,
   2026-09-24). The roadmap re-verifies before any plan is built on it.

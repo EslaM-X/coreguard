@@ -10,6 +10,12 @@ re-derivable from the committed tree.
 Release reference (the ONLY link used anywhere):
 https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
 
+Companion live surfaces (same committed sources, all deterministic):
+`docs/live-integration-and-adoption-ladder-2026-09-25.md` (the 13-state
+machine + guarded transitions) · `docs/adoption-dashboard.md` (snapshot-anchored
+board) · `docs/risk-findings.json` / `docs/reputation-registry.json` (CG-RF/1 ·
+CG-RP/1) — regenerate with `npm run ladder:*`.
+
 ---
 
 ## 1. What is verified today (offline, reproducible)
