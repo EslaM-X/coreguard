@@ -7,7 +7,7 @@ UNKNOWN until a real counterparty provides real evidence.
 
 Measuring surfaces (CI-enforced; do not hand-edit):
 
-- docs/state-snapshot.json — testsTotal 1153 · filesScanned 817 · violations 0 · docsNode 81·53·18
+- docs/state-snapshot.json — testsTotal 1153 · filesScanned 817 · violations 0 · docsNode 94·53·19
 - docs/evidence-passport-v2.json — the portable verification identity
 - docs/adoption-dashboard.md — the control plane, derived numbers only
 - docs/reputation-registry.json — UNPROVEN / score 0 (zeros are the trust feature)
@@ -172,6 +172,12 @@ do the thing it cannot honestly do.
 - npm run x402                   # X402/1 gated harness self-check
 - npm run conformance:report     # writes docs/conformance-report.json
 - npm run quickstart             # the three-verb integration path
+- npm run claims                 # CG-CL/1 claim registry
+- npm run claims:audit           # the claim ceiling
+- npm run badge:verify           # CG-BDG/1 self-verifying artwork
+- npm run partner:journey        # CG-PJ/1 ten-leg journey
+- npm run integration:replay     # CG-IR/1 bundle replay
+- npm run release:gate           # CG-RG/1, 18 legs
 - npm test                       # the suite, CI-enforced against the snapshot
 
 ## 14. Binding honesty rules (restated so future work cannot drift)
@@ -190,3 +196,81 @@ do the thing it cannot honestly do.
    claims "AVAILABLE", the code is either there or the row is downgraded — the
    two CG-WH/1 and X402/1 rows that were prose-only are now real modules, and
    a test asserts the packaging document cites only files that exist.
+
+## 15. The honesty layer (CG-CL/1, CG-BDG/1, CG-PJ/1, CG-IR/1, CG-RG/1)
+
+§1–§12 build capability. §15 is the part that stops the capability from being
+*described* beyond what it has proven. Each surface exists because a row in the
+roadmap was prose with nothing behind it.
+
+### 15.1 CG-CL/1 — the claim ceiling
+
+`scripts/ladder/claim-registry.mjs` → `docs/claims-registry.json`
+(`npm run claims`, `npm run claims:audit`)
+
+28 claims, each derived from committed sources, each carrying exactly one
+status of `VERIFIED · UNKNOWN · HYPOTHESIS · RESEARCH · GATED ·
+NOT_PERFORMED`. The asymmetry is the point: `UNKNOWN` may stand with no
+evidence, because insufficient evidence is a legitimate finding; `VERIFIED`
+never may. 11 of the 28 depend on an external outcome and therefore sit at
+`GATED`/`UNKNOWN`/`NOT_PERFORMED` — they are not weak claims, they are correctly
+labelled ones.
+
+The audit verdict is written *into* the artifact, because a reader of the
+committed file must be able to see that it was checked, and the control plane
+may not re-derive a result from a module and present it as recorded.
+
+### 15.2 CG-BDG/1 — the badge contract
+
+`packages/badge/index.mjs` → `docs/badge-registry.json` + `docs/badges/*.svg`
+(`npm run badge:verify`)
+
+The artwork is the proof. `verifyBadge()` re-derives every digest from the
+record and compares byte for byte, so a single hand-edit is caught. The record
+carries a non-enumerable `brand`, so a specimen cannot be copied into an issued
+badge. Two specimens ship — `6/6` and `2/6` — because a badge system that
+cannot show a refusal cannot be trusted to show an approval. `issuerCount` is
+0. Full contract, including what a badge *never* means:
+[docs/badge-system-2026-09-26.md](badge-system-2026-09-26.md).
+
+### 15.3 CG-PJ/1 — the partner journey
+
+`scripts/partner-journey.mjs` (`npm run partner:journey`)
+
+Ten legs over one bundle. A clean run reads `MATCH`, never `VERIFIED`: L2 is the
+weakest link, and promoting the journey to `VERIFIED` on the strength of its
+strongest leg would inflate the evidence. A well-formed tampering of a leg
+lowers the whole journey to `MISMATCH`.
+
+### 15.4 CG-IR/1 — bundle replay
+
+`scripts/integration-replay-lab.mjs` (`npm run integration:replay`)
+
+Replays a bundle through L0–L3 with no partial credit, and keeps the two
+failure shapes apart: a **well-formed** tx hash the chain does not know is
+`MISMATCH/TX_NOT_FOUND` (the authority was asked and answered), while a
+**malformed** hash is `UNKNOWN` (there was never enough evidence to ask with).
+
+### 15.5 CG-RG/1 — the release gate
+
+`scripts/release-gate.mjs` + `scripts/release-gate-child.mjs` →
+`docs/release-gate.json` (`npm run release:gate`)
+
+18 legs covering the test suite, the boundary audit, every machine above, and
+the docs contract. Its scope is stated in its own output: internal consistency
+and backed claims — **not** a release authorization. It audits its own source
+for network, credential and external-outcome dependencies on every invocation
+(`npm run release:gate:independence`, which is fast enough to run on every
+push).
+
+The gate shipped with four false passes inside itself, all found by running it:
+a counter reading the wrong field name (so a leg reported `0/8` and passed), a
+`module loaded` fallback that passed modules it had asked nothing, repo-relative
+paths resolved against the wrong root, and a banned-pattern regex whose own
+literal matched its own source. Plus a spawn of `npm.cmd` without a shell,
+which modern Node refuses — so five legs failed with no output at all. All six
+classes are now locked by tests, and the rule they encode is short enough to
+restate: **a verifier that reports a count must fail on a zero denominator, and
+a self-auditing check must be run against itself before it is trusted with
+anything.**
+

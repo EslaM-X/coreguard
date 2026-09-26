@@ -14,9 +14,9 @@ until an explicit per-step owner sign-off exists (phase-3 plan §5, binding).
 
 | Capability | Where it lives | Proof (reproduces locally) |
 |---|---|---|
-| Evidence model + offline proof | whole repo | `npm test` → **1061 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
-| Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **796 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
-| Docs-node contract (executable docs stay runnable) | `test/ci/docs-node-contract.test.js` | 81 executed · 53 skip-listed · 18 docs covered |
+| Evidence model + offline proof | whole repo | `npm test` → **1153 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
+| Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **817 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
+| Docs-node contract (executable docs stay runnable) | `test/ci/docs-node-contract.test.js` | 94 executed · 53 skip-listed · 19 docs covered |
 | Live-submission harness (recorded feed, webhooks DRY-RUN, x402 DRY-RUN) | `packages/peoples-court-adapter/` | `npm run peoples-court:harness` → 11/11 |
 | Boundary enforcement (fail-closed) | `scripts/boundary-audit.mjs` + `test/ci/boundary-enforcement.test.js` | `npm run boundary:audit` → PASS |
 | CI green on every push (all 4 gates) | `.github/workflows/` | `gh run list --branch main` |

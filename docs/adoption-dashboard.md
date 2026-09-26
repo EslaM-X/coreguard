@@ -54,7 +54,7 @@ default.
 |---|---|
 | Test suite | 1153 |
 | Boundary audit | 817 files / 0 violations |
-| Docs-node contract | 87 executed · 53 skip-listed · 19 covered |
+| Docs-node contract | 94 executed · 53 skip-listed · 19 covered |
 | Live-submission harness | PEOPLES_COURT_HARNESS_READY |
 
 ## Adoption surface (from the integration registry)

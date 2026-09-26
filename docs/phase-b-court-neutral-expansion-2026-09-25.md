@@ -19,7 +19,7 @@ person. Dates and org lists can move.
 - Escrow/arbitration boundary record `AEA/1` — `npm run aea1:prepare`.
 - Attestation adapter (`packages/peoples-court-adapter`, integrationStatus
   NOT_BUILT) + synthetic `examples/reference-tribunal`.
-- Conformance/determinism: `npm test` (1061, CI-enforced) + `npm run
+- Conformance/determinism: `npm test` (1153, CI-enforced) + `npm run
   boundary:audit` (0 violations, committed-tree scope) + docs-node contract.
 - Public anchor: release `https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0`.
 

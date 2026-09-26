@@ -113,7 +113,7 @@ title to jump.
 
 ## Files That Change Together
 
-- `H1-H8.md` expected numbers ↔ engine version ↔ `npm test` test counts ↔ validator check count (currently 2.1.2 ↔ 16 ↔ 919 ↔ 649 — the npm test number tracks the latest measured count).
+- `H1-H8.md` expected numbers ↔ engine version ↔ `npm test` test counts ↔ validator check count (currently 2.1.2 ↔ 16 ↔ 1153 ↔ 649 — the npm test number tracks the latest measured count).
 - `freeze-record-4.2.6.json` ↔ any file it pins ↔ `.gitattributes` tree list ↔ README pin-count claim (now 47 = 28+19 after the dashboard joined; README.md's own pin is inside the record it links from). The dashboard's `#payout` section is bilingual per the AGENTS.md i18n pattern: its `test/p2/governance-dashboard-i18n.test.js` contract keeps the EN markup defaults and the AR dictionary structurally paired — edit one side only and the pairing check fails by name.
 - Bilingual dashboard pair ↔ AGENTS.md i18n pattern above ↔ the EN mirror (`coreguard-gate41-visual-en.html`) — regenerate the dictionary by structural pairing after ANY structural edit to either file; hand-edits to one side silently break the 637/637 node pairing.
 - `verification/cg-assurance-verify.ps1` self-test count (21) ↔ `selftest.tap` frozen bytes ↔ README/STATUS claims (21/21).

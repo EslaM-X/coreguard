@@ -39,6 +39,8 @@ jobs:
       - name: Guard - workflow YAML (zero-jobs trap)
         run: node scripts/check-workflows.mjs
       - run: npm ci
+      - name: Release gate self-audit (no test run — the gate auditing its own source)
+        run: npm run release:gate:independence
       - run: npm test
       - run: npm run corpus
       - run: npm run benchmark

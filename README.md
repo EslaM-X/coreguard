@@ -226,6 +226,40 @@ npm run quickstart          # the three-verb integration path: commit / capture 
 Map and rules: [docs/verification-and-integration-platform-2026-09-26.md](docs/verification-and-integration-platform-2026-09-26.md).
 Commercial tiers (prices LOCKED, revenue $0): [docs/commercial-packaging-2026-09-26.md](docs/commercial-packaging-2026-09-26.md).
 
+### Claim ceiling, badges & the release gate (what this repo may say, and what may ship)
+
+The four commands below are the honesty layer. They do not make the project look
+better; they make it harder to describe than it is. Everything here runs offline
+with no credentials and no network.
+
+```bash
+npm run claims               # CG-CL/1: 28 claims derived from committed sources, one status each
+npm run claims:audit         # fails if a VERIFIED claim has no evidence, or an evidence path is missing
+npm run badge:verify         # CG-BDG/1: re-derive every badge digest from its record, byte for byte
+npm run partner:journey      # CG-PJ/1: ten integration legs over one bundle
+npm run integration:replay   # CG-IR/1: replay a bundle through L0-L3, no partial credit
+npm run release:gate         # CG-RG/1: 18 legs, and the gate audits its own source
+npm run release:gate:independence   # the gate's self-audit alone — fast, no test run
+```
+
+Four rules that the machine enforces, not the prose:
+
+- **`VERIFIED` requires a chain authority.** A format-valid receipt nobody
+  confirmed is `UNKNOWN`, never `VERIFIED`.
+- **A clean partner journey is `MATCH`, not `VERIFIED`.** L2 is the weakest
+  link, and inflating it would inflate the evidence.
+- **A badge's artwork is its proof.** Hand-edit one byte and `verifyBadge()`
+  fails. `issuerCount` is 0: nothing is issued to anyone, and only two
+  `NOT ISSUED` specimens exist.
+- **A gate that cannot assert anything fails.** A leg that proves nothing is
+  `FAIL`, never a quiet pass — a green check with no assertion behind it is
+  worse than no check, because it gets trusted.
+
+What is **not** claimed anywhere: badge issuance, a named integrator, an
+unlocked price, external review, a live-chain authority, or any revenue. See
+[docs/badge-system-2026-09-26.md](docs/badge-system-2026-09-26.md) and §9 of
+[docs/owner-decisions-and-claimable-facts-2026-09.md](docs/owner-decisions-and-claimable-facts-2026-09.md).
+
 ### Phase 1 cheat sheet (`npx coreguard demo`, `@coreguard/sdk`)
 
 ```bash
