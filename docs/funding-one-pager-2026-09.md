@@ -34,8 +34,13 @@ execution evidence → consent state → ADAL/1 dispute package → tribunal ada
   stale number in any doc is a failing build); ethical discipline is tested too
   — the suite asserts the project never overclaims.
 - **L1 `VERIFIED` pilot on Core Mainnet:** real transfer, tx
-  `0xe67c61fd…6891a9b8`, block `38712625` — independent recomputation against
-  pre-declared authorization; registrar already carries frozen proof anchors.
+  `0xe67c61fd…6891a9b8`, block `38712625` — independently re-derived
+  (`RECEIPT_INTEGRITY`) against a pre-declared EIP-712 authorization; record in
+  `submission/06-mainnet-proof.md` + frozen `scripts/verify-live.json` (live
+  re-derivation: `npm run demo:90s:live`; tx/block regression-asserted in
+  `test/delivery/fixture.test.js`; the anchoring registrar is cross-RPC-verified
+  at `rpc.coredao.org` + `rpc.ankr.com`). Read-only — no L2/trace claim,
+  `VERIFIED ≠ SAFE`.
 - **Test-account-ready live-submission harness:** builds and pins the x402
   `adjudication.prepare()` packet (deterministic idempotencyKey) and replays a
   recorded webhook stream (eventId dedup + sequence cursor) — one command,

@@ -33,8 +33,12 @@ execution evidence → consent state → ADAL/1 dispute package → tribunal ada
   18/20/22 — أي رقم قديم في أي وثيقة هو بناء فاشل؛ والانضباط الأخلاقي مُختبر
   أيضًا (المجموعة تتأكد أن المشروع لا يبالغ أبدًا في الادعاء).
 - **تجربة L1 `VERIFIED` على Core Mainnet:** تحويل حقيقي، tx
-  `0xe67c61fd…6891a9b8`، بلوك `38712625` — إعادة حساب مستقلة مقابل التفويض
-  المُعلَن مسبقًا؛ السجل المركزي يحمل بالفعل مراسي إثبات مجمَّدة.
+  `0xe67c61fd…6891a9b8`، بلوك `38712625` — إعادة اشتقاق مستقلة (`RECEIPT_INTEGRITY`)
+  مقابل تفويض EIP-712 مُعلَن مسبقًا؛ السجل في `submission/06-mainnet-proof.md` +
+  `scripts/verify-live.json` المجمَّد (إعادة الاشتقاق الحيّة: `npm run demo:90s:live`؛
+  tx/block مثبَّتان كاختبار regression في `test/delivery/fixture.test.js`؛ والـ
+  registrar المرسِي مُتحقَّق عبر RPC مستقلّين: `rpc.coredao.org` + `rpc.ankr.com`).
+  قراءة-فقط — لا ادعاء L2/trace، و`VERIFIED ≠ SAFE`.
 - **أداة جاهزة لحساب اختبار (harness):** تبني وتثبّت حزمة x402
   `adjudication.prepare()` (مع `idempotencyKey` حتمي) وتعيد تشغيل بث webhooks
   مسجَّلًا (إزالة تكرار `eventId` + مؤشر تسلسل) — بأمر واحد ودون اتصال،
