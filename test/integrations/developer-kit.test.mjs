@@ -140,6 +140,25 @@ test("the journey's own invariants hold", () => {
   assert.equal(r.ok, true, JSON.stringify(r.cases.filter((c) => !c.pass), null, 2));
 });
 
+test("the journey's findings leg reports what the committed artifact records", () => {
+  /* The leg once said "7 OPEN" while docs/risk-findings.json said 4, because
+     it called deriveFindings({ registry }) — that function takes every
+     committed source as an INPUT and defaults a missing one to {}, so the
+     absent snapshot collapsed RF-006/007/008 to OPEN. A reviewer-facing
+     number contradicting the committed artifact is the defect this whole
+     layer exists to prevent, and nothing caught it: the artifact is pinned to
+     build() by ladder-v03, but the journey was never pinned to the artifact.
+     Both directions are asserted — a silent drift in EITHER number is a
+     failure, so the leg cannot quietly start under- or over-reporting. */
+  const artifact = JSON.parse(readFileSync(join(REPO, "docs", "risk-findings.json"), "utf8"));
+  const committedOpen = artifact.findings.filter((f) => f.status === "OPEN").length;
+  const leg = runJourney().legs.find((l) => l.leg === "findings");
+  assert.ok(leg, "the journey must carry a findings leg");
+  assert.equal(leg.total, artifact.findings.length, "findings leg total must equal the committed artifact's finding count");
+  assert.equal(leg.open, committedOpen, "findings leg OPEN count must equal the committed artifact's OPEN count");
+  assert.ok(leg.open >= 1, "an open finding must still be reported, never cleared");
+});
+
 test("the journey runs its ten legs in the documented order", () => {
   const run = runJourney();
   assert.equal(JOURNEY_SCHEMA, "CG-PJ/1");

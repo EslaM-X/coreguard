@@ -1,7 +1,7 @@
 {
   "platform": {
-    "testsTotal": 1155,
-    "filesScanned": 817,
+    "testsTotal": 1162,
+    "filesScanned": 818,
     "violations": 0,
     "peoplesCourtHarness": "PEOPLES_COURT_HARNESS_READY",
     "docsNode": {

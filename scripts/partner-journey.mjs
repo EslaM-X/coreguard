@@ -37,7 +37,7 @@ import { commit, verifyReceipt, replay, merkleTree, merkleProof, verifyMerkle } 
 import { createWebhookReceiver, HEADER_SIGNATURE, HEADER_TIMESTAMP, HEADER_IDEMPOTENCY } from "../packages/webhook/index.mjs";
 import { createX402Harness, quoteFor } from "../packages/x402/index.mjs";
 import { buildPassportV2 } from "./passport-v2.mjs";
-import { deriveFindings } from "./ladder/risk-findings.mjs";
+import { build as buildFindings } from "./ladder/risk-findings.mjs";
 import { buildReputation } from "./ladder/reputation.mjs";
 import { replayBundle, buildBundle, labChain, LAB_SECRET } from "./integration-replay-lab.mjs";
 import { readFileSync, existsSync } from "node:fs";
@@ -229,9 +229,20 @@ export function runJourney({
   /* ------------------------------------------------------- 9. findings */
   /* The leg asserts that CG-RF/1 DERIVED the register, not that the register
      is clear: an open finding is a fact to report, and reporting it is the
-     pass condition. Claiming the register were clean would be the lie. */
+     pass condition. Claiming the register were clean would be the lie.
+
+     It MUST go through build(), not the bare deriveFindings(). deriveFindings()
+     takes every committed source as an INPUT and defaults a missing one to {},
+     so calling it with only a registry silently empties the snapshot and
+     collapses the three engineering findings (RF-006 boundary audit, RF-007
+     suite pin, RF-008 docs-node/harness) to OPEN. That reported "7 OPEN"
+     while docs/risk-findings.json — proven equal to build() by
+     test/integrations/ladder-v03.test.mjs — said 4: a reviewer-facing surface
+     contradicting the committed artifact, in the direction of overstating
+     risk. build() reads all three committed sources exactly as the CLI does,
+     so the leg and the artifact cannot disagree. */
   const source = registry === undefined ? read(join(REPO, "docs", "integration-registry.json"), null) : registry;
-  const findings = deriveFindings({ registry: source });
+  const findings = buildFindings({ registry: source });
   const open = findings.findings.filter((f) => f.status === "OPEN");
   legs.push(
     leg("findings", "VERIFIED", `CG-RF/1 derived ${findings.findings.length} finding(s), ${open.length} OPEN — reported, not cleared`, {
