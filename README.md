@@ -189,7 +189,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 919 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard
+npm test              # 1061 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard, verification-platform suite
 git config core.hooksPath .githooks   # install the Pages settle pre-push guard — every main push waits for the Pages build
 npm run corpus        # deterministic 73-scenario adversarial corpus
 npm run benchmark     # 73/73 pass
@@ -206,6 +206,20 @@ npm run demo:vault                    # reference Vault ladder: deposit ALLOW �
 npm run demo:attack                   # re-runs the same intent; six attacks BLOCKED + post INVALID
 npm run create:integration -- my-dapp # scaffold a consumer integration (intent/policy/verifier/tests)
 ```
+
+### Verification & Integration Platform (offline, no credentials)
+
+```bash
+npm run verify:levels       # L0-L4 machine: commitment, chain-confirmed receipt, replay, merkle, L4 boundary
+npm run integration:states  # 13-state integration machine: doorway records + no-silent-pass verdict
+npm run partner:sandbox     # 8 partner scenarios, offline mock chain (VERIFIED / MISMATCH / UNKNOWN / REJECTED)
+npm run attack-lab          # 10 tamper cases — tampered → FAIL, unknown → UNKNOWN, valid → VERIFIED
+npm run passport:v2         # the portable Evidence Passport (deterministic object)
+npm run adapters:status     # four provider surfaces, all DRY_RUN — no live claim
+npm run observability       # local event sink self-check
+```
+
+Map and rules: [docs/verification-and-integration-platform-2026-09-26.md](docs/verification-and-integration-platform-2026-09-26.md).
 
 ### Phase 1 cheat sheet (`npx coreguard demo`, `@coreguard/sdk`)
 
@@ -546,6 +560,7 @@ submission/  Investor / Core Submission Pack (15 items) — run `npm run demo:90
 | **v0.1 — On-chain anchor on Core** | ✅ live on Mainnet `0x037dF08F2d43c5D03759279Fe35664f6AFf9EA6E` (VERIFIED ANCHOR INTEGRITY) |
 | **v0.2 — Execution Firewall** (simulation-gated smart accounts, intent-based authorization) | ✅ Phase 1 delivered: engine (`packages/firewall`, attack-lab) + `@coreguard/sdk` guard.* + reference Vault ladder (`npx coreguard demo allow|attack`) + `coreguard-verify` CI action (plan-90d-repo §2) |
 | **v0.3 — Passport / reputation + risk findings** | ✅ first-pass shipped (2026-09-25): integration state machine + unified states · CoreGuard Conformance Suite (CG-CS/1) · **Evidence Passport** machine-readable registry · **Reputation (CG-RP/1) + risk-findings (CG-RF/1)** as enforced deterministic code (`npm run ladder:status` / `ladder:passport` / `ladder:dashboard` / `ladder:findings` / `ladder:reputation` — scratch `docs/live-integration-and-adoption-ladder-2026-09-25.md`); reputation = recorded external milestones only (never an amount); findings are risk findings only, never a fuzzy safety score |
+| **v0.3.1 — Verification & Integration Platform** | ✅ shipped (2026-09-26, continuous build): L0–L4 machine (`verify:levels` — L1 now needs a chain confirmation, structure alone is UNKNOWN) · 13-state integration machine (`integration:states`) · six-method **adapter contract** with DRY_RUN honesty (`adapters:status`) · **Partner Sandbox** 8 offline scenarios (`partner:sandbox`) · **Attack Lab** 10 tamper cases (`attack-lab`) · **Evidence Passport v2** (`passport:v2`) · dashboard **Control Plane** (derived only, `$0`/0/0 stay visible); map: `docs/verification-and-integration-platform-2026-09-26.md` |
 | **v0.4 — ZK privacy proofs (L4)** | 🔬 research |
 
 ## Work with us

@@ -14,8 +14,8 @@ until an explicit per-step owner sign-off exists (phase-3 plan §5, binding).
 
 | Capability | Where it lives | Proof (reproduces locally) |
 |---|---|---|
-| Evidence model + offline proof | whole repo | `npm test` → **1043 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
-| Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **785 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
+| Evidence model + offline proof | whole repo | `npm test` → **1061 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
+| Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **796 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
 | Docs-node contract (executable docs stay runnable) | `test/ci/docs-node-contract.test.js` | 70 executed · 53 skip-listed · 18 docs covered |
 | Live-submission harness (recorded feed, webhooks DRY-RUN, x402 DRY-RUN) | `packages/peoples-court-adapter/` | `npm run peoples-court:harness` → 11/11 |
 | Boundary enforcement (fail-closed) | `scripts/boundary-audit.mjs` + `test/ci/boundary-enforcement.test.js` | `npm run boundary:audit` → PASS |
@@ -214,3 +214,40 @@ rewards.
    the two recorded conditions from §4 (named integrator + per-step owner
    approval; Dec A/B as decided 2026-09-25). B1–B6 letters each still need a
    separate owner sign-off before sending.
+
+## 8. Strategy decisions — continuous build + adoption (2026-09-26, owner, binding)
+
+1. **Never wait for an external milestone.** The build track and the adoption
+   track run in parallel; the engine is the product, adoption is the path. No
+   silence from any counterparty (People's Court, a company, a funder, an
+   integrator) ever pauses the build.
+2. **The platform is now the operating surface**: the L0–L4 verification
+   protocol, the 13-state integration machine, the six-method adapter contract,
+   the Partner Sandbox, the Attack Lab, local observability, Evidence Passport
+   v2 and the Control Plane are all implemented and enforced offline
+   (`docs/verification-and-integration-platform-2026-09-26.md`).
+3. **L1 honesty hinge (binding)**: a format-valid receipt without a chain
+   confirmation is `UNKNOWN/NO_CHAIN_EVIDENCE`; a chain that contradicts it is
+   `MISMATCH`. Structure alone never yields VERIFIED.
+4. **`UNKNOWN ≠ FAILED ≠ VERIFIED` is a platform rule**, not a slogan: every
+   machine record, sandbox scenario and attack case carries a verdictCode, and
+   no path upgrades a partial pass.
+5. **L4 stays RESEARCH.** The provider interface is frozen; "ZK supported" is
+   never claimed before a real circuit, prover, verifier, benchmark and
+   conformance exist.
+6. **Reputation counts external milestones only.** Engineering signals (tests
+   green, conformance pass, replay verified) are recorded evidence and never
+   move the score; unknown kinds and counters are ignored, never invented.
+7. **Zeros stay zeros.** Revenue `$0`, customers 0, partners 0, reputation
+   UNPROVEN — a trust feature, never hidden behind a percentage. The Control
+   Plane prints no invented percentage at all.
+8. **A stale number in any document is a failing build.** Every count is
+   machine-measured into `docs/state-snapshot.json` and enforced by
+   `scripts/run-tests.mjs`; the current sync is 1061/1061 tests, 796 committed
+   files, 0 violations, docs-node 70·53·18.
+9. **B1–B6 keep their gates; B6 is OWNER SIGN-OFF REQUIRED.** The platform
+   build continues in parallel with the outreach tracks; no letter, no message
+   and no follow-up leaves the repo without its recorded owner gate.
+10. **v0.4 is research-only** (the L4 interface boundary); the next release
+    still waits for one of the four external triggers in §7.5 — shipping
+    platform capability is not a release trigger.

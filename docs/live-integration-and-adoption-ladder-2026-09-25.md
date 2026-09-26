@@ -164,3 +164,31 @@ deterministic code reading committed sources only — never a fuzzy safety score
 - Regenerate with `npm run ladder:findings:write` + `npm run ladder:reputation:write`
   any time the snapshot moves; the dashboard governance block
   (§6) reads the same two files.
+
+## 11. Verification & Integration Platform (v0.3.1, 2026-09-26)
+
+The platform that makes this ladder runnable offline is specified in
+`docs/verification-and-integration-platform-2026-09-26.md` and enforced by
+`test/integrations/verification-platform.test.mjs`:
+
+- **L0–L4 machine** (`npm run verify:levels`): deterministic commitment; L1
+  requires a chain authority — a format-valid receipt with no confirmation is
+  UNKNOWN/NO_CHAIN_EVIDENCE and a contradicting chain is MISMATCH; L2 replay
+  never upgrades a partial pass; L3 merkle proofs available; L4 interface
+  frozen, RESEARCH.
+- **Integration machine** (`npm run integration:states`): the 13 doorway states
+  of §3 each carry entry/exit criteria, required evidence, a verification
+  command, a failure state, an UNKNOWN state and an audit record; an
+  unauthorized jump is REJECTED, never a silent pass.
+- **Adapter contract** (`npm run adapters:status`): one six-method surface;
+  execute() in DRY_RUN returns NOT_PERFORMED; status() without credentials is
+  UNKNOWN / NOT_BUILT.
+- **Partner Sandbox** (`npm run partner:sandbox`): 8 offline scenarios on a
+  mock chain — happy VERIFIED, tampered MISMATCH, missing/partial/unknown
+  UNKNOWN, expired/duplicate REJECTED.
+- **Attack Lab** (`npm run attack-lab`): 10 tamper cases — tampered FAIL,
+  unknown UNKNOWN, valid VERIFIED, exit 1 on any miss.
+- **Evidence Passport v2** (`npm run passport:v2`): one deterministic
+  portable object (`docs/evidence-passport-v2.json`).
+- **Control Plane**: the dashboard's derived verification / integration /
+  commercial block, with `$0` / 0 / 0 shown as-is and no invented percentage.

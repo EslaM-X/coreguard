@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "CGEP/1-PASSPORT-V2",
+  "subject": "coreguard-verification-platform",
+  "verificationLevel": "L0",
+  "commitment": {
+    "commitmentId": "0x87ee79475bc937550398cadf612ff8bb9ef50ffc998041d48e1b77dadc0d670c",
+    "intentHash": "0x96a57823d9730a91cbdc3f7a8827a558f07a9b4883ee5fb9dad804d1fc65abc2",
+    "schemaVersion": "CGEP/1",
+    "timestamp": null,
+    "subject": "coreguard-verification-platform",
+    "policy": [
+      {
+        "id": "CG-CS/1"
+      },
+      {
+        "id": "CG-RF/1"
+      },
+      {
+        "id": "CG-RP/1"
+      }
+    ]
+  },
+  "receipts": [],
+  "proofs": [],
+  "riskFindings": [
+    {
+      "id": "RF-001",
+      "status": "OPEN",
+      "severity": "HIGH",
+      "rule": null
+    },
+    {
+      "id": "RF-002",
+      "status": "OPEN",
+      "severity": "HIGH",
+      "rule": null
+    },
+    {
+      "id": "RF-003",
+      "status": "OK",
+      "severity": "CRITICAL",
+      "rule": null
+    },
+    {
+      "id": "RF-004",
+      "status": "OPEN",
+      "severity": "MEDIUM",
+      "rule": null
+    },
+    {
+      "id": "RF-005",
+      "status": "OPEN",
+      "severity": "MEDIUM",
+      "rule": null
+    },
+    {
+      "id": "RF-006",
+      "status": "OK",
+      "severity": "MEDIUM",
+      "rule": null
+    },
+    {
+      "id": "RF-007",
+      "status": "OK",
+      "severity": "MEDIUM",
+      "rule": null
+    },
+    {
+      "id": "RF-008",
+      "status": "OK",
+      "severity": "LOW",
+      "rule": null
+    }
+  ],
+  "reputationMilestones": [],
+  "reputationGrade": "UNPROVEN",
+  "reputationScore": 0,
+  "integrations": [
+    {
+      "id": "PEOPLES_COURT_ADAPTER",
+      "status": "DRY_RUN",
+      "integrationStatus": "NOT_BUILT",
+      "networkCall": "NOT_PERFORMED"
+    },
+    {
+      "id": "AGENTIC_ESCROW_ARBITRATION_ADAPTER",
+      "status": "DRY_RUN",
+      "integrationStatus": "NOT_BUILT",
+      "networkCall": "NOT_PERFORMED"
+    },
+    {
+      "id": "REFERENCE_TRIBUNAL",
+      "status": "DRY_RUN",
+      "integrationStatus": "NOT_BUILT",
+      "networkCall": "NOT_PERFORMED"
+    }
+  ],
+  "claims": [],
+  "unknowns": [
+    "no external integration receipts yet — L1/L2 proofs are recorded only when a conforming external integration produces them",
+    "L4 is RESEARCH; 'ZK supported' is never claimed until a real circuit/prover/verifier exists with a benchmark and conformance"
+  ],
+  "engineering": {
+    "testsTotal": 1061,
+    "filesScanned": 796,
+    "violations": 0,
+    "docsNode": {
+      "executed": 77,
+      "skipListed": 53,
+      "docsCovered": 18
+    }
+  }
+}

@@ -10,13 +10,34 @@ authorized step appends a milestone; they are never invented upward.
 
 - **L0 — PUBLIC / REPRODUCIBLE / OFFLINE**
 
+## Control plane (derived from committed evidence only)
+
+| Surface | Status |
+|---|---|
+| Verification L0 | PASS — offline reproducible |
+| Verification L1 | RECORDED_ONLY — live receipts proven only when a real receipt is recorded |
+| Verification L2 | REPLAY_CAPABLE — deterministic replay engine online |
+| Verification L3 | AVAILABLE — merkle proof primitives |
+| Verification L4 | RESEARCH — interface boundary only, no fake ZK |
+| Integration — sandbox | AVAILABLE — npm run partner:sandbox (offline, mock chain) |
+| Integration — webhook | AVAILABLE — documented start lines wire-proven |
+| Integration — adapters | DRY_RUN — 3 adapter(s), no live claim |
+| Integration — production | UNKNOWN |
+| Commercial revenue | $0 |
+| Commercial customers | 0 verified |
+| Commercial partners | 0 verified |
+
+Zeroes here are a trust feature, never hidden. No percentage is printed:
+every value is derived from a committed source or stays at its honest
+default.
+
 ## Engineering truth (from the state snapshot)
 
 | Metric | Value |
 |---|---|
-| Test suite | 1043 |
-| Boundary audit | 785 files / 0 violations |
-| Docs-node contract | 70 executed · 53 skip-listed · 18 covered |
+| Test suite | 1061 |
+| Boundary audit | 796 files / 0 violations |
+| Docs-node contract | 77 executed · 53 skip-listed · 18 covered |
 | Live-submission harness | PEOPLES_COURT_HARNESS_READY |
 
 ## Adoption surface (from the integration registry)

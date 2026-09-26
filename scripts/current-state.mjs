@@ -23,7 +23,7 @@
  */
 
 import { execFileSync, spawnSync } from "node:child_process";
-import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -147,7 +147,13 @@ function main() {
   // Write-mode measures the tree WITH the snapshot file already present, so the
   // recorded audit count matches a committed checkout whose --check re-runs on
   // a tree that includes docs/state-snapshot.json (else drift on the first run).
-  if (modeWrite) writeFileSync(SNAPSHOT, "{}", "utf8");
+  // The placeholder is written ONLY when the file is absent: truncating a
+  // present snapshot to `{}` used to poison every nested reader (e.g. the
+  // documented `npm run passport:v2` reads boundaryAudit.filesScanned during
+  // the docs-node contract, and the docs-node contract runs INSIDE this
+  // measurement) — a failed measurement then left a corrupt `{}` committed
+  // surface behind, and the next --check failed on it.
+  if (modeWrite && !existsSync(SNAPSHOT)) writeFileSync(SNAPSHOT, "{}", "utf8");
   const measured = measure(knownTests);
 
   if (modeWrite) {

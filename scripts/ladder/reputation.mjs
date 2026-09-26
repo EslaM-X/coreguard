@@ -36,7 +36,32 @@ export const REPUTATION_COUNTERS = Object.freeze([
   "productionDeployments",
   "paidEngagements",
   "funding",
+  "sandboxIntegrations",
+  "liveReceipts",
+  "multiPartners",
+  "commercialUsage",
 ]);
+
+/**
+ * Milestone-kind taxonomy. `class` "external" means a recorded event raised by
+ * a real external counterparty (may raise reputation); "internal" means an
+ * engineering/evidence signal that is RECORDED but never raises reputation —
+ * engineering numbers are evidence, not reputation.
+ */
+export const MILESTONE_KINDS = Object.freeze({
+  TESTS_PASSING: { klass: "internal", raisesReputation: false, counter: null },
+  CONFORMANCE_PASS: { klass: "internal", raisesReputation: false, counter: null },
+  REPLAY_VERIFIED: { klass: "internal", raisesReputation: false, counter: null },
+  EXTERNAL_VERIFIER: { klass: "external", raisesReputation: true, counter: "externalVerifiers" },
+  SANDBOX_INTEGRATION: { klass: "external", raisesReputation: true, counter: "sandboxIntegrations" },
+  LIVE_RECEIPT: { klass: "external", raisesReputation: true, counter: "liveReceipts" },
+  PRODUCTION_INTEGRATION: { klass: "external", raisesReputation: true, counter: "productionDeployments" },
+  MULTI_PARTNER: { klass: "external", raisesReputation: true, counter: "multiPartners" },
+  COMMERCIAL_USAGE: { klass: "external", raisesReputation: true, counter: "commercialUsage" },
+});
+
+export const MILESTONE_RULE =
+  "Milestones escalate the ledger surface; only external-class events raise reputation. Engineering numbers (tests, conformance, replay passes) are recorded evidence, never reputation.";
 export const GRADE_BANDS = Object.freeze([
   { min: 0, grade: "UNPROVEN", label: "no recorded external milestone — credibility rests on engineering truth alone" },
   { min: 1, grade: "EARLY-EVIDENCE", label: "at least one recorded external milestone" },
@@ -53,8 +78,15 @@ export function buildReputation(inputs = {}) {
   const milestones = inputs.milestones || [];
   const counters = Object.fromEntries(REPUTATION_COUNTERS.map((c) => [c, 0]));
   let recognized = 0;
+  const internalRecorded = [];
   for (const m of milestones) {
-    if (counters[m.counter] !== undefined) {
+    const kind = MILESTONE_KINDS[m.kind || m.counter];
+    if (kind && kind.klass === "external" && counters[kind.counter] !== undefined) {
+      counters[kind.counter] += 1;
+      recognized += 1;
+    } else if (kind && kind.klass === "internal") {
+      internalRecorded.push({ kind: m.kind, note: m.note || null });
+    } else if (!kind && counters[m.counter] !== undefined) {
       counters[m.counter] += 1;
       recognized += 1;
     }
@@ -70,8 +102,11 @@ export function buildReputation(inputs = {}) {
     basis: {
       ledger: "docs/adoption-milestones.json",
       counters: REPUTATION_COUNTERS,
+      kinds: MILESTONE_KINDS,
+      milestoneRule: MILESTONE_RULE,
     },
     counters,
+    internalRecorded,
   };
 }
 

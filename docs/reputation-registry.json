@@ -12,8 +12,60 @@
       "conformantPartners",
       "productionDeployments",
       "paidEngagements",
-      "funding"
-    ]
+      "funding",
+      "sandboxIntegrations",
+      "liveReceipts",
+      "multiPartners",
+      "commercialUsage"
+    ],
+    "kinds": {
+      "TESTS_PASSING": {
+        "klass": "internal",
+        "raisesReputation": false,
+        "counter": null
+      },
+      "CONFORMANCE_PASS": {
+        "klass": "internal",
+        "raisesReputation": false,
+        "counter": null
+      },
+      "REPLAY_VERIFIED": {
+        "klass": "internal",
+        "raisesReputation": false,
+        "counter": null
+      },
+      "EXTERNAL_VERIFIER": {
+        "klass": "external",
+        "raisesReputation": true,
+        "counter": "externalVerifiers"
+      },
+      "SANDBOX_INTEGRATION": {
+        "klass": "external",
+        "raisesReputation": true,
+        "counter": "sandboxIntegrations"
+      },
+      "LIVE_RECEIPT": {
+        "klass": "external",
+        "raisesReputation": true,
+        "counter": "liveReceipts"
+      },
+      "PRODUCTION_INTEGRATION": {
+        "klass": "external",
+        "raisesReputation": true,
+        "counter": "productionDeployments"
+      },
+      "MULTI_PARTNER": {
+        "klass": "external",
+        "raisesReputation": true,
+        "counter": "multiPartners"
+      },
+      "COMMERCIAL_USAGE": {
+        "klass": "external",
+        "raisesReputation": true,
+        "counter": "commercialUsage"
+      }
+    },
+    "milestoneRule": "Milestones escalate the ledger surface; only external-class events raise reputation. Engineering numbers (tests, conformance, replay passes) are recorded evidence, never reputation."
   },
   "counters": {
     "externalVerifiers": 0,
@@ -21,6 +73,11 @@
     "conformantPartners": 0,
     "productionDeployments": 0,
     "paidEngagements": 0,
-    "funding": 0
-  }
+    "funding": 0,
+    "sandboxIntegrations": 0,
+    "liveReceipts": 0,
+    "multiPartners": 0,
+    "commercialUsage": 0
+  },
+  "internalRecorded": []
 }

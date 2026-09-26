@@ -42,7 +42,7 @@ so a counterparty can literally run them.
 
 Shared facts every letter may state (stable, snapshot-anchored — no file
 counts on purpose, so letters never go stale):
-- `npm test` = 1043 tests, CI-enforced against `docs/state-snapshot.json` on
+- `npm test` = 1061 tests, CI-enforced against `docs/state-snapshot.json` on
   Node 18/20/22 (a stale number in any doc is a failing build).
 - `npm run boundary:audit` = committed-tree scan, 0 violations; the audit
   refuses any file that claims a live call, a stored credential, or a
@@ -72,7 +72,7 @@ target Q4 2026). Entry artifacts: EVP/1 + ADAL/1 + conformance fixtures.
 > `npm run dispute-package -- --case A --out <dir>` (exit 0 =
 > DISPUTE_PACKAGE_OK).
 >
-> The whole repository is machine-audited: 1043 tests enforced against a
+> The whole repository is machine-audited: 1061 tests enforced against a
 > committed snapshot on Node 18/20/22, and a boundary audit that refuses any
 > file claiming a live call, a stored credential, or a settlement. A fresh
 > clone reproduces all of it — `npm ci && npm test && npm run boundary:audit`.
@@ -103,7 +103,7 @@ AEA/1 + adapter + reference tribunal; conformance fixtures.
 > anyone can exercise the flow offline and deterministically.
 >
 > Reproducible everywhere: `npm ci && npm test && npm run boundary:audit` —
-> 1043 tests CI-enforced on Node 18/20/22; the audit refuses any claim of a
+> 1061 tests CI-enforced on Node 18/20/22; the audit refuses any claim of a
 > performed network call.
 >
 > If the evidence boundary is useful for your judge or your escrow flow, it
@@ -130,7 +130,7 @@ Aragon Court (dormant), Jur. Entry artifacts: EVP/1 + the
 > internally never a silent pass). It is all offline and hash-pinned.
 >
 > Reproduce from a fresh clone: `npm ci && npm test && npm run boundary:audit`
-> (1043 tests, CI-enforced on Node 18/20/22).
+> (1061 tests, CI-enforced on Node 18/20/22).
 >
 > If evidence-in with pinned provenance helps any court or oracle flow, it
 > can be inspected or run as-is. No asks.
@@ -153,7 +153,7 @@ adapter (DRY-RUN) + `verify-provenance`.
 > status: DRY-RUN, adapter NOT_BUILT — the repo's audit structurally refuses
 > any file that claims a performed network call or a stored credential.
 > Everything that CAN be proven today is offline and pinned: `npm test` =
-> 1043 tests CI-enforced on Node 18/20/22, boundary audit 0 violations on the
+> 1061 tests CI-enforced on Node 18/20/22, boundary audit 0 violations on the
 > committed tree.
 >
 > Reproducible: `npm ci && npm test && npm run boundary:audit`.
@@ -176,7 +176,7 @@ Entry artifacts: evidence dossier + funding one-pager (EN/AR) + publish pack.
 > verified evidence side is L1-verified on a real Core transfer.
 >
 > The repository is machine-audited so every claim is reproducible from a
-> fresh clone: `npm test` = 1043 tests CI-enforced on Node 18/20/22,
+> fresh clone: `npm test` = 1061 tests CI-enforced on Node 18/20/22,
 > `npm run boundary:audit` = committed-tree scan, 0 violations — the audit
 > refuses any claim of a performed call, a stored credential, or a
 > settlement, so the repo literally cannot overstate itself.
@@ -197,7 +197,7 @@ dispute-infra / AI-commerce rails. Use publish pack + one-pager + dossier.
 > agentic commerce and disputes: EVP/1 evidence packages, ADAL/1 dispute and
 > attestation standard, AEA/1 escrow/arbitration boundary record, a
 > conformance adapter and reference tribunal — everything deterministic,
-> hash-pinned, and machine-audited (1043 tests CI-enforced on Node 18/20/22;
+> hash-pinned, and machine-audited (1061 tests CI-enforced on Node 18/20/22;
 > the repo's own audit refuses any claim of a live call, a stored
 > credential, or a settlement).
 >
