@@ -16,7 +16,7 @@ until an explicit per-step owner sign-off exists (phase-3 plan §5, binding).
 |---|---|---|
 | Evidence model + offline proof | whole repo | `npm test` → **1061 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
 | Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **796 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
-| Docs-node contract (executable docs stay runnable) | `test/ci/docs-node-contract.test.js` | 70 executed · 53 skip-listed · 18 docs covered |
+| Docs-node contract (executable docs stay runnable) | `test/ci/docs-node-contract.test.js` | 81 executed · 53 skip-listed · 18 docs covered |
 | Live-submission harness (recorded feed, webhooks DRY-RUN, x402 DRY-RUN) | `packages/peoples-court-adapter/` | `npm run peoples-court:harness` → 11/11 |
 | Boundary enforcement (fail-closed) | `scripts/boundary-audit.mjs` + `test/ci/boundary-enforcement.test.js` | `npm run boundary:audit` → PASS |
 | CI green on every push (all 4 gates) | `.github/workflows/` | `gh run list --branch main` |
@@ -215,6 +215,30 @@ rewards.
    approval; Dec A/B as decided 2026-09-25). B1–B6 letters each still need a
    separate owner sign-off before sending.
 
+## 9. Commercial decisions this cycle surfaced (owner sign-off still required)
+
+This cycle was asked to finish the roadmap, and the honest way to finish it turned out to be
+to build the two surfaces the roadmap already named. Three decisions are now waiting on the
+owner, and none of them can be taken by the repository:
+
+1. **Prices stay LOCKED by default.** `packages/pricing` is `1-hypothesis` and the x402
+   harness answers `GATED / PRICE_NOT_LOCKED` for any price the owner has not locked. The
+   five tiers in `docs/commercial-packaging-2026-09-26.md` therefore describe what is
+   delivered and what is gated, with no number. Locking a price is a one-line change plus a
+   commit, and when it happens the dashboard revenue line must move in the same push.
+2. **The Enterprise tier is a document, not a deliverable.** A named integrator, live chain
+   authority, credentials, security review, and per-step owner approval are all absent. No
+   tier may be sold before at least the integrator and the approval exist; Decision A/B
+   (2026-09-25) already forbids execution or authorization without them.
+3. **The CG-CS/1 badge wording is fixed before it is ever printed next to a third party's
+   name.** `badgeIssuerCount` is 0 and the contract's `neverMeans` forbids reading it as
+   endorsement of the counterparty, its funds, its adjudication, or any legal outcome. The
+   first badge is a public statement about a named party, so it is an owner decision, not a
+   suite run.
+
+Unchanged by this cycle: revenue `$0`, customers 0, partners 0, reputation `UNPROVEN`,
+L4 `RESEARCH`, and no third-party verification, review, or endorsement has occurred.
+
 ## 8. Strategy decisions — continuous build + adoption (2026-09-26, owner, binding)
 
 1. **Never wait for an external milestone.** The build track and the adoption
@@ -243,8 +267,8 @@ rewards.
    Plane prints no invented percentage at all.
 8. **A stale number in any document is a failing build.** Every count is
    machine-measured into `docs/state-snapshot.json` and enforced by
-   `scripts/run-tests.mjs`; the current sync is 1061/1061 tests, 796 committed
-   files, 0 violations, docs-node 70·53·18.
+   `scripts/run-tests.mjs`; the current sync is 1095/1095 tests, 796 committed
+   files, 0 violations, docs-node 81·53·18.
 9. **B1–B6 keep their gates; B6 is OWNER SIGN-OFF REQUIRED.** The platform
    build continues in parallel with the outreach tracks; no letter, no message
    and no follow-up leaves the repo without its recorded owner gate.

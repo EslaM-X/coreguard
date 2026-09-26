@@ -7,7 +7,7 @@ UNKNOWN until a real counterparty provides real evidence.
 
 Measuring surfaces (CI-enforced; do not hand-edit):
 
-- docs/state-snapshot.json — testsTotal 1061 · filesScanned 796 · violations 0 · docsNode 70·53·18
+- docs/state-snapshot.json — testsTotal 1095 · filesScanned 803 · violations 0 · docsNode 81·53·18
 - docs/evidence-passport-v2.json — the portable verification identity
 - docs/adoption-dashboard.md — the control plane, derived numbers only
 - docs/reputation-registry.json — UNPROVEN / score 0 (zeros are the trust feature)
@@ -91,10 +91,10 @@ claimed.
 scripts/ladder/adoption-dashboard.mjs gained a controlPlane block: five
 verification rows (L0 PASS, L1 RECORDED_ONLY, L2 REPLAY_CAPABLE, L3
 AVAILABLE, L4 RESEARCH), four integration rows (sandbox AVAILABLE, webhook
-AVAILABLE, adapters DRY_RUN, production UNKNOWN), and three commercial rows
-(revenue $0, customers 0 verified, partners 0 verified). No percentage is
-printed; every value is read from a committed source or stays at its honest
-default.
+AVAILABLE — CG-WH/1 HMAC + replay window + idempotency, adapters DRY_RUN,
+production UNKNOWN), and three commercial rows (revenue $0, customers
+0 verified, partners 0 verified). No percentage is printed; every value is
+read from a committed source or stays at its honest default.
 
 ## 9. Reputation (milestone taxonomy, never a rating)
 
@@ -124,7 +124,42 @@ Public Artifact -> Developer Run -> Conformance Pass -> Production Integration
 steps are locally provable; every later step stays 0 until a recorded,
 authorized external event appends to docs/adoption-milestones.json.
 
-## 12. Run everything (one line each)
+## 12. Commercial surfaces (CG-WH/1, X402/1, CG-CR/1)
+
+Three surfaces the roadmap listed as "AVAILABLE" that had no code behind them.
+This cycle built them rather than softening the claim, and each one refuses to
+do the thing it cannot honestly do.
+
+- `packages/webhook` — CG-WH/1, the receiver: domain-separated HMAC-SHA256 over
+  the exact body bytes plus a sender timestamp (constant-time compare), a
+  replay window that rejects stale AND future-dated deliveries, and a
+  mandatory Idempotency-Key whose replay returns the FIRST outcome without
+  re-running the handler. DRY_RUN authenticates and reports NOT_PERFORMED; a
+  handler that throws yields UNKNOWN. There is no keyless mode and no built-in
+  side effect. Run: `npm run webhook`.
+- `packages/x402` — X402/1, the commercial-request harness: a deterministic
+  canonical 402 challenge whose id is a function of the canonical bytes, signed
+  with a domain-separated HMAC only when the integrator injects a secret. The
+  admission gate is the point: no quote, a zero quote, or a price the owner has
+  not locked are all GATED, and an unlocked price is labelled
+  `priceStatus: HYPOTHESIS`. `settle()` needs an injected settler; DRY_RUN books
+  zero cents and there is no code path that increments revenue. Run:
+  `npm run x402`. This is what the X402 provider row in
+  `packages/adapters/providers.mjs` always pointed at; the path exists now.
+- `docs/conformance-report.json` — CG-CR/1, the machine-readable conformance
+  report: the six criteria, the badge contract, and `badgeIssuerCount: 0`,
+  because no integration has run CG-CS/1 yet. It carries no timestamp on
+  purpose: an artifact that churns every run trains reviewers to ignore diffs.
+  Run: `npm run conformance:report`.
+- `examples/platform-quickstart/` — the three-verb path (commit, capture,
+  verify) that a new integrator actually starts from, offline, with a non-zero
+  exit if any honesty line is wrong. Run: `npm run quickstart`.
+- `docs/commercial-packaging-2026-09-26.md` — the five tiers with, per tier,
+  what is delivered versus what is gated. Prices LOCKED, revenue $0, and a test
+  that fails the build if the document ever names a missing file or advertises
+  a number other than $0.
+
+## 13. Run everything (one line each)
 
 - npm run verify:levels          # L0–L4 self-check
 - npm run integration:states     # 13-state machine self-check
@@ -133,9 +168,13 @@ authorized external event appends to docs/adoption-milestones.json.
 - npm run passport:v2            # the portable identity
 - npm run adapters:status        # four DRY_RUN providers
 - npm run observability          # event sink self-check
-- npm test                       # 1061/1061, CI-enforced against the snapshot
+- npm run webhook                # CG-WH/1 receiver self-check
+- npm run x402                   # X402/1 gated harness self-check
+- npm run conformance:report     # writes docs/conformance-report.json
+- npm run quickstart             # the three-verb integration path
+- npm test                       # the suite, CI-enforced against the snapshot
 
-## 13. Binding honesty rules (restated so future work cannot drift)
+## 14. Binding honesty rules (restated so future work cannot drift)
 
 1. UNKNOWN is insufficient evidence. UNKNOWN is not FAILED and not VERIFIED.
 2. A format-valid receipt without a chain confirmation is UNKNOWN.
@@ -147,3 +186,7 @@ authorized external event appends to docs/adoption-milestones.json.
 6. Revenue, customers and partners stay 0 until a real event is recorded.
 7. Every number in any document is machine-measured and CI-enforced; a stale
    number is a failing build.
+8. A surface named in an inventory must exist. When a doc or a registry row
+   claims "AVAILABLE", the code is either there or the row is downgraded — the
+   two CG-WH/1 and X402/1 rows that were prose-only are now real modules, and
+   a test asserts the packaging document cites only files that exist.

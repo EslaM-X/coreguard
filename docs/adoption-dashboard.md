@@ -20,7 +20,7 @@ authorized step appends a milestone; they are never invented upward.
 | Verification L3 | AVAILABLE — merkle proof primitives |
 | Verification L4 | RESEARCH — interface boundary only, no fake ZK |
 | Integration — sandbox | AVAILABLE — npm run partner:sandbox (offline, mock chain) |
-| Integration — webhook | AVAILABLE — documented start lines wire-proven |
+| Integration — webhook | AVAILABLE — CG-WH/1 receiver: HMAC + replay window + idempotency (npm run webhook) |
 | Integration — adapters | DRY_RUN — 3 adapter(s), no live claim |
 | Integration — production | UNKNOWN |
 | Commercial revenue | $0 |
@@ -35,9 +35,9 @@ default.
 
 | Metric | Value |
 |---|---|
-| Test suite | 1061 |
-| Boundary audit | 796 files / 0 violations |
-| Docs-node contract | 77 executed · 53 skip-listed · 18 covered |
+| Test suite | 1095 |
+| Boundary audit | 803 files / 0 violations |
+| Docs-node contract | 81 executed · 53 skip-listed · 18 covered |
 | Live-submission harness | PEOPLES_COURT_HARNESS_READY |
 
 ## Adoption surface (from the integration registry)

@@ -1,0 +1,45 @@
+{
+  "report": "CG-CR/1",
+  "suite": "CG-CS/1",
+  "criteria": [
+    {
+      "id": "evidenceContractPass",
+      "label": "evidence contract — the integration's attestations honor EVP/1 shape and pins"
+    },
+    {
+      "id": "determinismPass",
+      "label": "determinism — identical inputs reproduce identical receipts"
+    },
+    {
+      "id": "replayPass",
+      "label": "replay — the verifier re-derives the evidence byte-for-byte"
+    },
+    {
+      "id": "tamperDetectionPass",
+      "label": "tamper detection — any byte change flips the verdict fail-closed"
+    },
+    {
+      "id": "securityCheckPass",
+      "label": "security — scoped credentials, revocation, no stored secrets in-repo"
+    },
+    {
+      "id": "compatibilityPass",
+      "label": "compatibility — the integration's surface matches the documented adapter contract"
+    }
+  ],
+  "badge": {
+    "name": "CoreGuard Verified Integration",
+    "claimTowards": "integration passed the CoreGuard Conformance Suite for the pinned version",
+    "versionRef": "CG-CS/1",
+    "neverMeans": [
+      "CoreGuard endorses the counterparty or its project",
+      "CoreGuard guarantees the counterparty, its funds, or its adjudication",
+      "CoreGuard guarantees any settlement or legal outcome",
+      "the integration has any live authority by itself"
+    ]
+  },
+  "defaultVerdict": "INCOMPLETE_EVIDENCE",
+  "badgeIssuers": [],
+  "badgeIssuerCount": 0,
+  "note": "No integration is badge-eligible: CG-CS/1 evidence is collected from real integrations, and none has been run yet. An empty list is the honest state, not a gap to fill with prose."
+}

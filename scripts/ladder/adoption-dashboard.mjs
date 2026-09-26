@@ -92,7 +92,7 @@ export function buildBoard() {
       ],
       integration: {
         sandbox: "AVAILABLE — npm run partner:sandbox (offline, mock chain)",
-        webhook: "AVAILABLE — documented start lines wire-proven",
+        webhook: "AVAILABLE — CG-WH/1 receiver: HMAC + replay window + idempotency (npm run webhook)",
         adapter: `DRY_RUN — ${byState["DRY_RUN"] || 0} adapter(s), no live claim`,
         production: counter("productionDeployments") > 0 ? "LIVE" : "UNKNOWN",
       },
