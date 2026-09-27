@@ -19,6 +19,48 @@ https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
   a tribunal is a dark matter of unverifiable logs.
 - Security teams demand fail-closed: a single flipped byte must be *refused*,
   not *re-wrapped* — but most evidence pipelines silently re-wrap.
+- **The newest surface — agent-incident reviews** — shows the cost of that
+  gap in public: runaway-agent incidents are announced in hours, while their
+  reviews are announced in *months*, because the investigating party gathers
+  its own evidence and no outside party can replay the verdicts on the same
+  bytes. Months of review time are spent rebuilding ad-hoc tooling before the
+  investigation even starts.
+
+## 1a. The AIE-1 story — months of review collapse to one cold-clone replay
+
+CoreGuard ships the review surface the industry is missing, packaged as
+**AIE-1** (`docs/agent-incident-evidence.md`): **one endpoint, one evidence
+bundle, one report schema** — replayable from a cold clone by any reviewing
+party, internal or external.
+
+The mechanism, in four sentences:
+
+1. The reviewer stands up the same fail-closed gate from two documented
+   one-liners (pinned endpoint + bundle assembly — both executed by CI).
+2. The engine re-computes every sha256 pin **from the artifact bytes on every
+   run**; identity comes from the socket, never from forwarded headers.
+3. Deterministic replay is contract-tested: same bytes in → **byte-identical
+   verdict out** — so the reviewer's verdict *is* the investigator's verdict.
+4. Tamper fails closed and **names the exact flipped byte**
+   (`logo.svg: recorded 0x4323… != actual 0xc323…`) — no vague failures, and
+   a false predicate is never even consulted on a rejected bundle.
+
+The collapse, concretely: evidence assembly (days→seconds — the bundle is one
+documented command), tooling trust (weeks→zero — the reviewer inherits a
+CI-verified surface instead of building one), verdict acceptance (the longest
+phase→mechanical — byte-identical replay leaves nothing to negotiate).
+What remains is the actual investigation — the part that always needed humans.
+
+Try it in one click, no server, no clone — the live review page runs the real
+embedded engine: <https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html>
+(paste a bundle or click honest / tamper / structural-refusal). Spec with
+counts: `docs/aie1-adoption-map.md`; full protocol:
+`docs/mcit-aic-briefing-ar.md` (AR) / the spec itself
+(`docs/agent-incident-evidence.md`).
+
+> **Honesty flag:** the surface exists and is CI-verified (TRUE). Any named
+> party using it for a real incident review is **GATED** — none has been
+> contacted yet. The story above is about the mechanism, not customers.
 
 ## 2. The product and the proof (all real, all in-repo)
 
@@ -71,6 +113,11 @@ Monetizable services — the protocol stays MIT/open (that's the trust surface):
    integrity pre-checks).
 3. **Reference-tribunal tooling** — license the fail-closed simulator as a
    conformance reference.
+4. **AIE-1 incident-review subscriptions** — an org under a runaway-agent
+   incident licenses the review surface: reviewers inherit one endpoint + one
+   bundle schema + one verdict language, and replay instead of rebuilding.
+   The same rail serves internal audits and external oversight; the protocol
+   stays open, the engagement is the service.
 4. **Settlement-boundary SDK (v0.2+)** — refuses to execute a settlement
    without a verifying award signature + authority-bound credential; execution
    gated by governance, never holds keys.
@@ -85,6 +132,10 @@ integrator) → first external integration.
    integrator records a platform-confirmed live authority grant, an accepted
    `adjudication.prepare()`, and a replayed webhook stream. Funding covers
    engineering + the integrator engagement.
+1a. **M1a — one AIE-1 review engagement.** A single org (agent platform,
+    exchange, or public body) adopts the incident-review surface for one real
+    or tabletop review — the first external replay of a verdict from a cold
+    clone. The surface is already shipped; the engagement proves the market.
 2. **M2 — generic tribunal signing interface** (adapter-agnostic award
    ingestion + signature verification contract).
 3. **M3 — settlement-boundary SDK** for wallet/Firewall layers (mock execution

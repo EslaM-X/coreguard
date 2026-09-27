@@ -3,8 +3,8 @@
 Built from `docs/current-state-audit-2026-09-25.md`, NOT from the old
 v0.6.0-era plan. The starting truth is the pinned snapshot
 (`docs/state-snapshot.json`): 1176 tests (CI-enforced), boundary audit
-794 files / 0 violations on the committed tree, docs-node contract live, main 91
-commits ahead of v0.6.0. Positioning (owner-confirmed): CoreGuard is **evidence and
+831 files / 0 violations on the committed tree, docs-node contract live, main
+113 commits ahead of v0.6.0. Positioning (owner-confirmed): CoreGuard is **evidence and
 verification infrastructure for agentic dispute systems** — not a court, not a
 competitor of any tribunal, and never a "CoreGuard court". Every external act
 in this plan requires a separate owner sign-off; nothing auto-sends.
@@ -78,9 +78,27 @@ integration.)
 | B4 Agent-commerce infrastructure | x402 ecosystem, A2A, agent marketplaces/escrows | integration-surface map + adapter (DRY-RUN) | "Boundary record between agent evidence and escrow/arbitration surfaces" | live calls, stored credentials |
 | B5 Core ecosystem | CoreDAO support, Core Ventures (track B NOT ACTIVATED), `inquire@coredao.org` (SENT — status pending) | full dossier + funding one-pager | "Verification infrastructure for agentic commerce on Core" | any promise of chain funding |
 | B6 Accelerators / grants | application-focused programs for agent-infra/dispute infrastructure | publish pack + one-pager + dossier | "Offline-first verification rail with on-chain anchor on Core" | revenue projections, "traction" (there is none in that sense) |
+| B7 **Agent-incident reviews (AIE-1)** | OpenAI · Google/Gemini · Anthropic · DeepSeek · MCIT/AIC-Karnak (Egypt priority) | the live review page + the CI-executed spec (`docs/agent-incident-evidence.md`) + unsigned letters (`docs/outreach/`, B6-gated) | "Months of incident review collapse to one cold-clone replay: one endpoint, one bundle, one schema — byte-identical verdicts, tamper names the flipped byte" | any claim of contact, adoption, endorsement, or a filed patent (all GATED) |
 
 Sequence inside B (recommended): B1 and B2 first (the market is forming there
-fastest), B4 alongside, B3 later, B5/B6 as horizontal tracks.
+fastest), B4 alongside, B3 later, B5/B6 as horizontal tracks. **B7 runs as a
+horizontal overlay**: the AIE-1 story is the sharpest wedge every track's
+letter already carries — the industry's own headlines (runaway-agent leaks,
+platform compromises, months-long reviews) state the problem for us, and the
+live page states the answer in one click.
+
+## 4a. The B7 story in one paragraph (why this converts)
+
+An incident review at any lab or public body spends its months in three
+phases: assembling evidence, building trust in tooling, and negotiating the
+verdict's meaning. AIE-1 deletes the first two mechanically — the bundle is
+one documented command, the reviewer inherits a CI-verified surface instead of
+building one — and turns the third into arithmetic: deterministic replay from
+a cold clone yields a **byte-identical** verdict, and a single flipped byte is
+refused **by name**. The review time left is the actual investigation. That is
+the institutional pitch: not "trust us", but "your reviewers re-run us".
+Current truth: the surface is shipped and CI-verified; every named target is
+**GATED** until a recorded reply exists.
 
 ## 5. Metrics that count (honest KPI)
 
