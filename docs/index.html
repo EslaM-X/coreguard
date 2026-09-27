@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoreGuard — On-chain execution-provenance evidence for agent transactions</title>
+<meta name="description" content="On-chain execution-provenance evidence layer for agent transactions on Core DAO. Evidence over narrative — every PASS is reproducible from the committed tree.">
+<style>
+  :root{
+    --bg:#0b0f14; --bg2:#10161d; --panel:#141c24; --panel2:#18222c;
+    --line:#243240; --line2:#2e3f50;
+    --ink:#e8eef4; --muted:#8fa3b5; --faint:#5f7386;
+    --green:#2fbf71; --green2:#23a05c; --gold:#e0b64c; --blue:#4da3ff;
+    --radius:14px;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; font-family:"Segoe UI","Noto Sans",system-ui,-apple-system,sans-serif;
+    background:
+      radial-gradient(1100px 500px at 85% -10%, rgba(47,191,113,.09), transparent 60%),
+      radial-gradient(900px 420px at 0% 0%, rgba(77,163,255,.07), transparent 55%),
+      var(--bg);
+    color:var(--ink); line-height:1.65; min-height:100vh;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:1.2rem 1.3rem 4rem}
+
+  .top{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 0 1rem}
+  .brand{display:flex;align-items:center;gap:.65rem;font-weight:700;letter-spacing:.2px}
+  .brand .mark{
+    width:34px;height:34px;border-radius:9px;flex:0 0 auto;
+    background:linear-gradient(135deg,var(--green) 0%,#137a41 100%);
+    display:grid;place-items:center;color:#06130b;font-weight:800;font-size:1rem;
+    box-shadow:0 4px 14px rgba(47,191,113,.35);
+  }
+  .brand small{display:block;font-weight:400;color:var(--faint);font-size:.72rem;letter-spacing:.4px}
+  .lang{
+    display:flex;align-items:center;gap:.35rem;background:var(--panel);
+    border:1px solid var(--line);border-radius:999px;padding:.3rem;
+    cursor:pointer;user-select:none;transition:border-color .2s;
+  }
+  .lang:hover{border-color:var(--green2)}
+  .lang span{
+    padding:.28rem .8rem;border-radius:999px;font-size:.85rem;font-weight:600;
+    color:var(--muted);transition:all .2s;
+  }
+  .lang span.on{background:var(--green);color:#06130b;box-shadow:0 2px 10px rgba(47,191,113,.4)}
+
+  header.hero{
+    background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);
+    border:1px solid var(--line);border-radius:calc(var(--radius) + 4px);
+    padding:2.2rem 2rem 1.8rem;margin-top:.6rem;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  header.hero::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--green),var(--blue),var(--gold));
+  }
+  .kicker{
+    display:inline-flex;align-items:center;gap:.45rem;
+    font-size:.78rem;font-weight:600;letter-spacing:.6px;text-transform:uppercase;
+    color:var(--green);background:rgba(47,191,113,.08);
+    border:1px solid rgba(47,191,113,.25);border-radius:999px;
+    padding:.28rem .85rem;margin-bottom:1rem;
+  }
+  .kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2.2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  h1{margin:0 0 .55rem;font-size:clamp(1.55rem,3.6vw,2.25rem);line-height:1.25;letter-spacing:-.3px}
+  h1 em{font-style:normal;color:var(--green)}
+  .lede{color:var(--muted);max-width:62ch;font-size:1.02rem}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.3rem}
+  .btn{
+    display:inline-flex;align-items:center;gap:.5rem;
+    padding:.58rem 1.15rem;border-radius:10px;font-size:.92rem;font-weight:600;
+    text-decoration:none;transition:transform .15s, box-shadow .15s, border-color .15s;
+    border:1px solid var(--line2);color:var(--ink);background:var(--panel2);
+  }
+  .btn:hover{transform:translateY(-1px);border-color:var(--green2)}
+  .btn.primary{background:var(--green);border-color:var(--green);color:#06130b;box-shadow:0 6px 18px rgba(47,191,113,.3)}
+  .btn.primary:hover{background:#34cc79}
+  .badges{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.15rem;align-items:center}
+  .badges img{height:20px;border-radius:4px}
+
+  section{margin-top:2.5rem}
+  .sec-head{display:flex;align-items:baseline;gap:.8rem;margin-bottom:.4rem}
+  h2{margin:0;font-size:1.28rem;letter-spacing:-.2px}
+  h2 .n{
+    font-size:.8rem;color:var(--faint);font-weight:600;
+    border:1px solid var(--line);border-radius:6px;padding:.05rem .5rem;
+    font-variant-numeric:tabular-nums;
+  }
+  .sec-sub{color:var(--faint);font-size:.92rem;margin:0 0 1.1rem;max-width:70ch}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(285px,1fr));gap:.9rem}
+  .card{
+    background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:1.05rem 1.15rem;position:relative;overflow:hidden;
+    transition:transform .18s, border-color .18s, box-shadow .18s;
+  }
+  .card:hover{transform:translateY(-3px);border-color:var(--green2);box-shadow:var(--shadow)}
+  .card::after{
+    content:"";position:absolute;top:0;bottom:0;left:0;width:3px;
+    background:linear-gradient(180deg,var(--green),transparent);opacity:.55;
+  }
+  .card b{display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;font-size:1rem}
+  .card b .tag{
+    font-size:.66rem;font-weight:700;letter-spacing:.5px;color:var(--blue);
+    border:1px solid rgba(77,163,255,.3);background:rgba(77,163,255,.07);
+    padding:.1rem .5rem;border-radius:6px;
+  }
+  .card b .tag.live{color:var(--green);border-color:rgba(47,191,113,.35);background:rgba(47,191,113,.08)}
+  .card small{color:var(--muted);display:block;line-height:1.55}
+  .card a{color:inherit;text-decoration:none;display:block}
+  .card a:hover b{color:var(--green)}
+
+  .pill{counter-reset:p}
+  .pill .card::after{display:none}
+  .pillnum{
+    counter-increment:p;position:absolute;top:.7rem;left:1rem;
+    font-size:1.5rem;font-weight:800;color:transparent;
+    -webkit-text-stroke:1px var(--line2);font-variant-numeric:tabular-nums;
+  }
+  [dir="rtl"] .pillnum{left:auto;right:1rem}
+  .pill .card b{margin-top:.4rem}
+
+  .aie{
+    margin-top:1rem;border:1px solid rgba(224,182,76,.3);border-radius:var(--radius);
+    background:linear-gradient(90deg,rgba(224,182,76,.08),rgba(224,182,76,.02) 70%);
+    padding:1rem 1.2rem;display:flex;gap:1rem;align-items:flex-start;
+  }
+  .aie .ic{font-size:1.3rem;line-height:1.4}
+  .aie p{margin:0;font-size:.95rem}
+  .aie a{color:var(--gold);text-decoration:none;border-bottom:1px dotted rgba(224,182,76,.5)}
+  .aie a:hover{border-bottom-style:solid}
+  .aie .mirror{color:var(--muted);font-size:.85rem;margin:.35rem 0 0}
+
+  ul.gov{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+  ul.gov li{
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:.7rem 1rem;display:flex;gap:.7rem;align-items:flex-start;
+    transition:border-color .15s;
+  }
+  ul.gov li:hover{border-color:var(--line2)}
+  ul.gov .ic{color:var(--green);flex:0 0 auto;margin-top:.1rem}
+  ul.gov a{color:var(--ink);text-decoration:none;font-weight:600}
+  ul.gov a:hover{color:var(--green)}
+  ul.gov small{display:block;color:var(--muted);font-weight:400}
+
+  footer{
+    margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--line);
+    color:var(--faint);font-size:.85rem;
+  }
+  footer a{color:var(--muted);text-decoration:none}
+  footer a:hover{color:var(--green)}
+
+  [dir="rtl"] body,[dir="rtl"] .card,[dir="rtl"] ul.gov li{font-family:"Segoe UI","Noto Naskh Arabic","Noto Sans Arabic",system-ui,sans-serif}
+  [dir="rtl"] .brand small{letter-spacing:0}
+  [dir="rtl"] .card::after{left:auto;right:0}
+
+  [data-lang-text]{display:none !important}
+  html[data-active="en"] span[data-lang-text="en"].inline{display:inline !important}
+  html[data-active="ar"] span[data-lang-text="ar"].inline{display:inline !important}
+
+  @media (max-width:640px){
+    header.hero{padding:1.5rem 1.2rem 1.3rem}
+    h1{font-size:1.4rem}
+    .grid{grid-template-columns:1fr}
+    .top{flex-wrap:wrap}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="top">
+  <div class="brand">
+    <div class="mark">CG</div>
+    <div>CoreGuard<span data-lang-text="en" class="inline"> · evidence layer</span><span data-lang-text="ar" class="inline"> · طبقة الإثبات</span></div>
+  </div>
+  <div class="lang" id="langToggle" role="button" tabindex="0" aria-label="Switch language / تبديل اللغة">
+    <span id="lbtn-en" class="on">EN</span><span id="lbtn-ar">ع</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="kicker"><span class="dot"></span><span data-lang-text="en" class="inline">Core Mainnet · chainId 1116 · live</span><span data-lang-text="ar" class="inline">شبكة Core الرئيسية · chainId 1116 · حي</span></div>
+  <h1><span data-lang-text="en" class="inline">Evidence over narrative — <em>every PASS is reproducible</em> from the committed tree.</span><span data-lang-text="ar" class="inline">حقائق قبل السرد — <em>كل «ناجح» قابل لإعادة الإنتاج</em> من الشجرة الملتزمة.</span></h1>
+  <p class="lede"><span data-lang-text="en" class="inline">CoreGuard is the on-chain execution-provenance evidence layer for agent transactions on Core DAO: prior authorization → user-recaptured intent → policy match → execution certificate (L1-verified). Open source, fail-closed by construction, and every claim is mechanically checkable.</span><span data-lang-text="ar" class="inline">CoreGuard طبقة إثبات تنفيذ منفذة على السلسلة لتداولات الوكلاء على Core DAO: إذن مسبق → نية يسترجعها المستخدم → مطابقة السياسة → شهادة تنفيذ (L1-متحققة). مفتوح المصدر، فاشل-مغلق بالبناء، وكل ادعاء ميكانيكي التحقق.</span></p>
+  <div class="hero-cta">
+    <a class="btn primary" href="DDE-API-REFERENCE.html"><span data-lang-text="en" class="inline">▶ Try the live engine</span><span data-lang-text="ar" class="inline">▶ جرّب المحرك الحي</span></a>
+    <a class="btn" href="DDE-SDK-REFERENCE.html"><span data-lang-text="en" class="inline">SDK gate reference</span><span data-lang-text="ar" class="inline">مرجع بوابة SDK</span></a>
+    <a class="btn" href="https://github.com/EslaM-X/coreguard#readme"><span data-lang-text="en" class="inline">GitHub →</span><span data-lang-text="ar" class="inline">المستودع →</span></a>
+  </div>
+  <div class="badges">
+    <a href="DDE-API-REFERENCE.html"><img alt="docs: API reference live" src="https://img.shields.io/badge/docs-API%20reference%20live-0969DA.svg?logo=githubpages&logoColor=white"></a>
+    <a href="DDE-SDK-REFERENCE.html"><img alt="docs: SDK reference live" src="https://img.shields.io/badge/docs-SDK%20reference%20live-2EA043.svg?logo=githubpages&logoColor=white"></a>
+  </div>
+</header>
+
+<section id="surfaces">
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">Live surfaces</span><span data-lang-text="ar" class="inline">الواجهات الحية</span></h2><span class="n">5</span></div>
+  <p class="sec-sub"><span data-lang-text="en" class="inline">Each surface runs the real engine in your browser tab — no server, no clone. Deep links auto-run each scenario.</span><span data-lang-text="ar" class="inline">كل واجهة تشغّل المحرك الحقيقي في تبويبك — بلا خادم ولا استنساخ. الروابط العميقة تشغّل كل سيناريو تلقائيًا.</span></p>
+  <div class="grid">
+    <div class="card"><a href="DDE-API-REFERENCE.html"><b><span data-lang-text="en" class="inline">DDE-API-REFERENCE</span><span data-lang-text="ar" class="inline">مرجع API</span><span class="tag live" data-lang-text="en" class="inline">LIVE</span><span class="tag live" data-lang-text="ar" class="inline">حي</span></b><small><span data-lang-text="en" class="inline">The HTTP endpoint reference with the real DDE/1 handler embedded — every wire status captured live in-tab; the external probe box can point at any running endpoint.</span><span data-lang-text="ar" class="inline">مرجع نقطة النهاية HTTP بمحرك DDE/1 الحقيقي مضمّنًا — كل رموز الدفاع الملتقطة حيًا داخل الصفحة، وصندوق المسبار الخارجي يوجَّه لأي نقطة قيد التشغيل.</span></small></a></div>
+    <div class="card"><a href="DDE-SDK-REFERENCE.html"><b><span data-lang-text="en" class="inline">DDE-SDK-REFERENCE</span><span data-lang-text="ar" class="inline">مرجع SDK</span><span class="tag live" data-lang-text="en" class="inline">LIVE</span><span class="tag live" data-lang-text="ar" class="inline">حي</span></b><small><span data-lang-text="en" class="inline">The four-scenario release-law arc (HOLD · RELEASE · REFUSED · REFUSED) run by verifyFixture + releaseWhen inside the page.</span><span data-lang-text="ar" class="inline">قوس قانون الإفراج الرباعي (HOLD · RELEASE · REFUSED · REFUSED) بمحرك verifyFixture + releaseWhen داخل الصفحة.</span></small></a></div>
+    <div class="card"><a href="DELIVERY-DISPUTE-DEMO.html"><b><span data-lang-text="en" class="inline">Delivery-dispute demo</span><span data-lang-text="ar" class="inline">عرض النزاع</span></b><small><span data-lang-text="en" class="inline">The nine documented event walk: mutual acceptance, dispute freeze, post-closing record release.</span><span data-lang-text="ar" class="inline">السرد التسعة الموثق: القبول المتبادل، تجميد النزاع، تحرير السجل بعد الختام.</span></small></a></div>
+    <div class="card"><a href="GOVERNANCE-DASHBOARD.html"><b><span data-lang-text="en" class="inline">Governance dashboard</span><span data-lang-text="ar" class="inline">لوحة الحوكمة</span></b><small><span data-lang-text="en" class="inline">Bilingual governance board with the payment-gate section.</span><span data-lang-text="ar" class="inline">لوحة حوكمة ثنائية اللغة مع قسم بوابة الدفع.</span></small></a></div>
+    <div class="card"><a href="coreguard-gate41-visual-en.html"><b><span data-lang-text="en" class="inline">Gate 4.1 visual</span><span data-lang-text="ar" class="inline">بوابة 4.1 المرئية</span></b><small><span data-lang-text="en" class="inline">On-chain identity anchor (commitIntent) through the 4.1 evidence chain.</span><span data-lang-text="ar" class="inline">مرساة الهوية on-chain (commitIntent) عبر سلسلة إثبات التدقيق 4.1.</span></small></a></div>
+  </div>
+</section>
+
+<section id="trust">
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">Trust architecture</span><span data-lang-text="ar" class="inline">هندسة الثقة</span></h2><span class="n">4</span></div>
+  <p class="sec-sub"><span data-lang-text="en" class="inline">What a funder or an integrating company buys is not just code — it is verification discipline: every claim is mechanically checkable, and every check is drift-proof.</span><span data-lang-text="ar" class="inline">ما يشتريه المموّل أو الشركة المُدمِجة ليس كودًا فحسب، بل انضباط تحقق: كل ادعاء ميكانيكي التحقق، وكل فحص محصّن ضد الانجراف بين قناتين.</span></p>
+  <div class="grid pill">
+    <div class="card"><span class="pillnum">1</span><b><span data-lang-text="en" class="inline">Identity from the wire</span><span data-lang-text="ar" class="inline">الهوية من السلك</span></b><small><span data-lang-text="en" class="inline">A peer's identity is its socket address — forwarded headers are logging data, never identity. Forging even the allowlisted proxy's address verbatim yields 403; proven by an E2E test over a real proxy topology.</span><span data-lang-text="ar" class="inline">هوية النظير عنوان مقبسه — الترويسات المُحوَّلة بيانات تسجيل لا هوية. انتحال عنوان البروكسي المدرج حرفيًا يعطي 403؛ مثبت باختبار E2E على طوبولوجيا بروكسي حقيقية.</span></small></div>
+    <div class="card"><span class="pillnum">2</span><b><span data-lang-text="en" class="inline">Commit-anchored evidence</span><span data-lang-text="ar" class="inline">أدلة مثبتة بالالتزام</span></b><small><span data-lang-text="en" class="inline">Reports hash from git blobs, not disk — quoting a report quotes the boundary with it, and every claim reproduces from the committed tree.</span><span data-lang-text="ar" class="inline">التقارير تُهشّم من git blobs لا من القرص — ما يُقتبس يقتبس البانر معه، وما يُدّعى يُعاد إنتاجه من الشجرة الملتزمة.</span></small></div>
+    <div class="card"><span class="pillnum">3</span><b><span data-lang-text="en" class="inline">Verdicts bound to bytes</span><span data-lang-text="ar" class="inline">أحكام مربوطة بالبايتات</span></b><small><span data-lang-text="en" class="inline">A GREEN verdict binds exact bytes (pins), and every consumer re-runs the gate on the same tree it reads — no remembered GREEN crosses a step boundary.</span><span data-lang-text="ar" class="inline">الحكم الأخضر يلتزم بايتات محددة (pins)، وكل مستهلك يعيد تشغيل البوابة على الشجرة نفسها — لا «أخضر محفوظ» يُنقل عبر الخطوات.</span></small></div>
+    <div class="card"><span class="pillnum">4</span><b><span data-lang-text="en" class="inline">Contracts fail the push</span><span data-lang-text="ar" class="inline">العقود تفشل الدفع</span></b><small><span data-lang-text="en" class="inline">Prose cannot drift from code: the doc-curl contract executes every documented command, page contracts lock literal links — when the artifact lies, the push fails by name.</span><span data-lang-text="ar" class="inline">النثر لا ينفصل عن الكود: عقد doc-curl ينفّذ كل أمر موثق، وعقود الصفحات تقفل الروابط الحرفية — حين يكذب الأصل يفشل الدفع بالاسم.</span></small></div>
+  </div>
+  <div class="aie">
+    <span class="ic">⚖</span>
+    <div>
+      <p><span data-lang-text="en" class="inline"><strong>The agent-incident verification surface (AIE-1)</strong> — one endpoint, one evidence bundle, one report schema: any reviewing party replays it from a cold clone. Its claims are executed by CI, not trusted. <a href="https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md">Read the spec →</a></span><span data-lang-text="ar" class="inline"><strong>سطح تحقق حوادث الوكلاء (AIE-1)</strong> — نقطة تحقق واحدة، حزمة أدلة واحدة، مخطط تقرير واحد: أي جهة تحقيق تعيد تشغيله من استنساخ بارد؛ ادعاءاته تُنفَّذ آليًا لا تُصدَّق. <a href="https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md">المواصفة →</a></span></p>
+      <p class="mirror"><span data-lang-text="en" class="inline">Live example: a deploy race treated 15+ times as symptoms was root-caused (a registration gap in the Pages API) and closed by pinning every settle to the commit SHA whose build must finish — <a href="https://github.com/EslaM-X/coreguard/blob/main/AGENTS.md">[C26]/[C27] in AGENTS.md</a>.</span><span data-lang-text="ar" class="inline">مثال حي: سباق نشر Pages تكرر 15+ مرة كأعراض معالَجة حتى جُرّعت آليته الحقيقية (فجوة تسجيل في API) وأُغلق من الجذر بتثبيت كل تسوية على SHA الالتزام الذي يجب أن يكتمل بناؤه — <a href="https://github.com/EslaM-X/coreguard/blob/main/AGENTS.md">موثق كـ[C26]/[C27] في AGENTS.md</a>.</span></p>
+    </div>
+  </div>
+</section>
+
+<section id="start">
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">Start here</span><span data-lang-text="ar" class="inline">لتبدأ</span></h2><span class="n">4</span></div>
+  <ul class="gov">
+    <li><span class="ic">◆</span><div><a href="https://github.com/EslaM-X/coreguard#readme">README</a><small><span data-lang-text="en" class="inline">Overview, badges, visitor routing table, locked pricing.</span><span data-lang-text="ar" class="inline">لمحة، شارات، جدول التوجيه للزوار، والتسعير مقفل.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md">INTEGRATION.md</a><small><span data-lang-text="en" class="inline">The one-page shareable summary — every command in it executes in CI.</span><span data-lang-text="ar" class="inline">النسخة أحادية الصفحة الجاهزة للمشاركة؛ كل أمر فيها ينفَّذ في CI.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="https://github.com/EslaM-X/coreguard/blob/main/REVIEW-GUIDE.md">REVIEW-GUIDE.md</a><small><span data-lang-text="en" class="inline">Review a transformed asset in under 10 minutes.</span><span data-lang-text="ar" class="inline">مراجعة أصل محوّل في أقل من 10 دقائق.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="https://github.com/EslaM-X/coreguard/tree/main/examples/real-fixture-intake">real-fixture intake kit</a><small><span data-lang-text="en" class="inline">Signed disclosure scope + closure gate + one-word conversion to an externally reviewable file.</span><span data-lang-text="ar" class="inline">نطاق إفصاح موقّع + بوابة إغلاق + تحويل بكلمة واحدة لملف قابل للمراجعة الخارجية.</span></small></div></li>
+  </ul>
+</section>
+
+<section id="governance">
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">Governance &amp; truth</span><span data-lang-text="ar" class="inline">التوثيق المهم</span></h2><span class="n">3</span></div>
+  <ul class="gov">
+    <li><span class="ic">◆</span><div><a href="STATUS.md">docs/STATUS.md</a><small><span data-lang-text="en" class="inline">The single source of truth — every number measured, none estimated.</span><span data-lang-text="ar" class="inline">مصدر الحقيقة الواحد؛ كل رقم مقيس، لا تخمين.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="elizaos-thread-replies-record-2026-09-23.md"><span data-lang-text="en" class="inline">People's Court / Epistemic Labs thread record</span><span data-lang-text="ar" class="inline">سجلّ ردود النقاش العلني مع People's Court</span></a><small><span data-lang-text="en" class="inline">Facts only, no extra claims.</span><span data-lang-text="ar" class="inline">حقائق فقط، لا ادعاءات إضافية.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="https://github.com/EslaM-X/coreguard/blob/main/AGENTS.md">AGENTS.md</a><small><span data-lang-text="en" class="inline">Session lessons and binding governance commitments.</span><span data-lang-text="ar" class="inline">دروس الجلسات والتزامات الحوكمة الملزمة.</span></small></div></li>
+  </ul>
+</section>
+
+<footer>
+  <span data-lang-text="en" class="inline">Repo: <a href="https://github.com/EslaM-X/coreguard">EslaM-X/coreguard</a> · Chain: Core Mainnet (chainId 1116) · On-chain anchoring attested by two independent RPCs. Every claim on this page is traceable from the repository tree.</span>
+  <span data-lang-text="ar" class="inline">المستودع: <a href="https://github.com/EslaM-X/coreguard">EslaM-X/coreguard</a> · السلسلة: Core Mainnet (chainId 1116) · المرساة على السلسلة معتمدة من RPC مستقلين. كل ادعاء في هذه الصفحة متتبع من شجرة المستودع.</span>
+</footer>
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var enBtn = document.getElementById("lbtn-en");
+  var arBtn = document.getElementById("lbtn-ar");
+  var toggle = document.getElementById("langToggle");
+  var KEY = "cg-lang";
+
+  function apply(lang) {
+    var ar = lang === "ar";
+    root.setAttribute("data-active", ar ? "ar" : "en");
+    root.setAttribute("lang", ar ? "ar" : "en");
+    root.setAttribute("dir", ar ? "rtl" : "ltr");
+    enBtn.classList.toggle("on", !ar);
+    arBtn.classList.toggle("on", ar);
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+  }
+
+  function current() {
+    try {
+      var saved = localStorage.getItem(KEY);
+      if (saved === "ar" || saved === "en") return saved;
+    } catch (e) {}
+    return "en"; /* English is the default language */
+  }
+
+  function flip() { apply(current() === "ar" ? "en" : "ar"); }
+
+  toggle.addEventListener("click", flip);
+  toggle.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); }
+  });
+
+  apply(current());
+})();
+</script>
+</body>
+</html>
