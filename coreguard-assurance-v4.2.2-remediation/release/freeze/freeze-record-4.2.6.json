@@ -15,7 +15,8 @@
   "scopeGapsClosed": [
     "README.md added as the reviewer entry point (was unhashed)",
     "release/freeze/freeze-record-4.2.2.json brought under the freeze map (was orphaned)",
-    "H1-H8 packet 1.2.0: literal commands repaired for engine 2.1.2 (16 scenarios, manifest premises, 649 validator checks)"
+    "H1-H8 packet 1.2.0: literal commands repaired for engine 2.1.2 (16 scenarios, manifest premises, 649 validator checks)",
+    "4.2.5 reachability: two docs it pins (release/v4.2.5-closure/engine-semantics-contract.md, release/v4.2.5-closure/external-evidence-model.md) were removed in 5a89f2b, the same commit that introduced this record, so 4.2.5 can no longer be verified against the CURRENT tree. Both entries remain cryptographically verifiable: their recorded sha256 values still match the blobs at 5a89f2b~1, which is the recovery ref. AGENTS.md previously stated the stronger and incorrect claim that deletion makes 4.2.5 \"unverifiable for those entries\" — the entries are verifiable from history; what is lost is only tree-reachability. test/verifier-c/freeze-record-reachability.test.mjs now enforces exactly this: every pin in every record is either present in the current tree or hash-verifiable from a ref named here."
   ],
   "cycleEvidence": {
     "selftest": "21/21 PASS (exit 0) - re-run from the repository copy",
@@ -170,16 +171,16 @@
         "sha256": "0xe5fb2990f5055476fc9b2a4abd64491ae28cfd732a54b3e0002b65f321932c90",
         "bytes": 19874
       },
-    {
-      "file": "../docs/GOVERNANCE-DASHBOARD.html",
-      "sha256": "0x02335b3f1e3fbd4750186614d32581c15a2a4ad27062c7323bf4f38f2ea00e95",
-      "bytes": 76465
-    },
-    {
-      "file": "../docs/coreguard-gate41-visual.html",
-      "sha256": "0xdb756715318004100d88aaaafa867a48e947b28a0fca430d37596a63123aa49c",
-      "bytes": 145569
-    },
+      {
+        "file": "../docs/GOVERNANCE-DASHBOARD.html",
+        "sha256": "0x02335b3f1e3fbd4750186614d32581c15a2a4ad27062c7323bf4f38f2ea00e95",
+        "bytes": 76465
+      },
+      {
+        "file": "../docs/coreguard-gate41-visual.html",
+        "sha256": "0xdb756715318004100d88aaaafa867a48e947b28a0fca430d37596a63123aa49c",
+        "bytes": 145569
+      },
       {
         "file": "../docs/coreguard-gate41-visual-en.html",
         "sha256": "0x12b826918898dd693cc07f4420ab6f2ad146c45bab89c0565bf608e4db7686ee",

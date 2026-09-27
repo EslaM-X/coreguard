@@ -7,8 +7,8 @@
 //
 //   #  | input class                        | exit | output must contain
 //   ---+------------------------------------+------+------------------------------
-//   1  | current record (anchored)          |  0   | PASS (46/46 MATCH, anchored @
-//   2  | --commit prefix == anchor          |  0   | PASS (46/46 MATCH
+//   1  | current record (anchored)          |  0   | PASS (N/N MATCH, anchored @
+//   2  | --commit prefix == anchor          |  0   | PASS (N/N MATCH
 //   3  | --commit different tree            |  1   | refusing to verify a different tree
 //   4  | historical record (no gitCommit)   |  1   | COMMIT-UNANCHORED
 //   5  | no arguments                       |  2   | usage:
@@ -48,9 +48,9 @@ function anchorCommit() {
 }
 
 // pinned-entry count is read from the record itself so the contract tracks
-// the freeze as it grows (27+19=46 at the 4.2.6 baseline, 28+19=47 once the
-// dashboard joined) — a hardcoded literal here would break on every honest
-// re-pin that adds coverage.
+// the freeze as it grows — a hardcoded literal in this header already went
+// stale once (it said 46 while the record held 49), and would break on every
+// honest re-pin that adds coverage.
 function pinnedCount() {
   const rec = JSON.parse(readFileSync(join(repoRoot, CURRENT), "utf8"));
   return rec.sha256.releaseFiles.length + rec.sha256.quarantineFiles.length;
