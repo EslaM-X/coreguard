@@ -126,3 +126,6 @@ identity-from-the-socket, and deterministic replay proven E2E in this repo.
    matching the code — so the conversation starts from verified facts.
 3. **One language everywhere:** the named-reasons format the SDK returns is
    the same one the wire returns; a reviewer who read one report can read all.
+4. **The public post** for agent-safety communities is drafted under the same
+   gate: [`docs/outreach/public-post-agent-safety.md`](https://github.com/EslaM-X/coreguard/blob/main/docs/outreach/public-post-agent-safety.md)
+   — facts-only, ledger-carrying, owner-gated.

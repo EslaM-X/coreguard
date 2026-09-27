@@ -20,6 +20,7 @@ concrete (30 minutes, no commitment).
 | `google-gemini-en.md` | Google / Gemini | English | ☐ |
 | `anthropic-en.md` | Anthropic | English | ☐ |
 | `deepseek-en.md` | DeepSeek | English | ☐ |
+| `public-post-agent-safety.md` | agent-safety communities (public post) | English | ☐ |
 
 ## Channel notes (public, non-binding)
 
