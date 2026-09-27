@@ -63,6 +63,9 @@ A reviewer inherits, from a cold clone:
 2. the bundle (the documented assembly one-liner), and
 3. the verdict language (this report schema).
 
+Or none of the above — the [live review page](https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html)
+replays a bundle in-tab with no server and no clone.
+
 ## خلاصة للمستثمر — the investor one-liner
 
 > Incident reviews take months because evidence is gathered by the party under investigation and verdicts are not replayable. CoreGuard makes the review surface itself a product: one endpoint, one bundle, one schema — every claim on this page is executed by CI, and the doc that stops matching the code fails the push.

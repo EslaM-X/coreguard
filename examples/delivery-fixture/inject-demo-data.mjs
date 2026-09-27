@@ -36,9 +36,11 @@ const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const DEMO = join(REPO, "docs", "DELIVERY-DISPUTE-DEMO.html");
 const APIREF = join(REPO, "docs", "DDE-API-REFERENCE.html");
 const SDKREF = join(REPO, "docs", "DDE-SDK-REFERENCE.html");
+const AIEREF = join(REPO, "docs", "AIE-1-REVIEW.html");
 const MARKER = "/*__DDE_DATA__*/";
 const MARKER_API = "/*__DDE_API_DATA__*/";
 const MARKER_SDK = "/*__DDE_SDK_DATA__*/";
+const MARKER_AIE = "/*__DDE_AIE_DATA__*/";
 
 const NAMES = [
   "agreement", "acceptance-criteria", "authorization", "execution-attestation",
@@ -396,3 +398,30 @@ if (sdkLine.test(html3)) {
 }
 writeFileSync(SDKREF, html3, "utf8");
 console.log(`injected SDK payload into docs/DDE-SDK-REFERENCE.html (${sdkData.length} bytes)`);
+
+/* ---------------------------------------------------------------- page 4 */
+
+// docs/AIE-1-REVIEW.html — the incident-review surface (the AIE-1 spec made
+// clickable): same bundled SDK engine, same in-memory contract, plus a paste-
+// your-own-bundle box. The payload is IDENTICAL to the SDK page's (same
+// fixture, same sources, same shims) — one review surface, one evidence
+// bundle, one report schema. The marker/payload idempotency contract is the
+// same as pages 1–3.
+const aiePayload = {
+  fixture,
+  claims: sdkClaims,
+  sources: sdkPayload.sources,
+};
+const aieData = "window.__DDE_AIE_DATA__ = " + JSON.stringify(aiePayload) + ";";
+let html4 = readFileSync(AIEREF, "utf8");
+const aieLine = /^window\.__DDE_AIE_DATA__ = .*;$/m;
+if (aieLine.test(html4)) {
+  html4 = html4.replace(aieLine, aieData);
+} else if (html4.includes(MARKER_AIE)) {
+  html4 = html4.replace(MARKER_AIE, aieData);
+} else {
+  console.error("inject: __DDE_AIE_DATA__ marker/payload not found — AIE-1-REVIEW page structure changed?");
+  process.exit(1);
+}
+writeFileSync(AIEREF, html4, "utf8");
+console.log(`injected AIE-1 payload into docs/AIE-1-REVIEW.html (${aieData.length} bytes)`);

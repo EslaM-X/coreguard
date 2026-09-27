@@ -96,7 +96,8 @@ arc (HOLD, RELEASE, REFUSED, REFUSED) in your browser: [verify → HOLD](https:/
 **The agent-incident verification surface** — the same endpoint and bundle,
 packaged as the AIE-1 spec any outside reviewer can inherit from a cold clone:
 [docs/agent-incident-evidence.md](docs/agent-incident-evidence.md) (its claims
-are executed by CI, not trusted).
+are executed by CI, not trusted) — and the [live review page](https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html)
+replays a bundle in-tab with no server.
 
 ## People's Court intake projection
 
