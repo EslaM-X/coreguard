@@ -107,7 +107,6 @@ const DERIVED = [
     anchor: "- Bilingual dashboard pair",
   },
 ];
-
 for (const { name, derive, anchor } of DERIVED) {
   test(`AGENTS.md states the measured value for: ${name}`, () => {
     const expected = derive();
