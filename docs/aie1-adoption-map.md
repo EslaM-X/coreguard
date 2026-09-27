@@ -115,6 +115,9 @@ identity-from-the-socket, and deterministic replay proven E2E in this repo.
 
 ## How to use this map (the outreach motion)
 
+0. **B6 owner gate:** the per-target letters live as unsigned drafts in
+   [`docs/outreach/`](https://github.com/EslaM-X/coreguard/blob/main/docs/outreach/README.md)
+   — nothing is sent without the recorded owner sign-off on that letter.
 1. **Self-serve proof first:** every target can be sent exactly one link —
    the review page — and get a working verdict replay in one click with zero
    setup, zero servers, and zero trust assumptions.
