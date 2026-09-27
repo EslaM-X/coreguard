@@ -93,6 +93,11 @@ arc (HOLD, RELEASE, REFUSED, REFUSED) in your browser: [verify → HOLD](https:/
 [tamper → REFUSED](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html#run=tamper) ·
 [misuse → REFUSED](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html#run=misuse).
 
+**The agent-incident verification surface** — the same endpoint and bundle,
+packaged as the AIE-1 spec any outside reviewer can inherit from a cold clone:
+[docs/agent-incident-evidence.md](docs/agent-incident-evidence.md) (its claims
+are executed by CI, not trusted).
+
 ## People's Court intake projection
 
 ```bash

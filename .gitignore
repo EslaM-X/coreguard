@@ -17,3 +17,5 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+# scratch outputs from manual runs (a fixture dump, a .b64 payload, a server log) - never a deliverable
+.tmp-*

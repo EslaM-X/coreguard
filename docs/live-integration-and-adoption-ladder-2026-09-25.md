@@ -172,8 +172,9 @@ The platform that makes this ladder runnable offline is specified in
 `test/integrations/verification-platform.test.mjs`:
 
 - **L0–L4 machine** (`npm run verify:levels`): deterministic commitment; L1
-  requires a chain authority — a format-valid receipt with no confirmation is
-  UNKNOWN/NO_CHAIN_EVIDENCE and a contradicting chain is MISMATCH; L2 replay
+  requires a chain authority — no authority is UNKNOWN/NO_CHAIN_EVIDENCE, an authority that
+  does not know the txHash is MISMATCH/TX_NOT_FOUND, and a receipt too malformed to ask with is
+  UNKNOWN/EVIDENCE_INCONSISTENT; L2 replay
   never upgrades a partial pass; L3 merkle proofs available; L4 interface
   frozen, RESEARCH.
 - **Integration machine** (`npm run integration:states`): the 13 doorway states

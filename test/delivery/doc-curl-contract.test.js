@@ -54,6 +54,7 @@ const DOC_FILES = [
   "examples/delivery-fixture/README.md",
   "README.md",
   "INTEGRATION.md",
+  "docs/agent-incident-evidence.md",
 ];
 
 const EXPECTED_DECISION = "EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE";

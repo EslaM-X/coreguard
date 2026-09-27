@@ -7,7 +7,7 @@ UNKNOWN until a real counterparty provides real evidence.
 
 Measuring surfaces (CI-enforced; do not hand-edit):
 
-- docs/state-snapshot.json — testsTotal 1162 · filesScanned 818 · violations 0 · docsNode 93·54·19
+- docs/state-snapshot.json — testsTotal 1171 · filesScanned 821 · violations 0 · docsNode 94·55·20
 - docs/evidence-passport-v2.json — the portable verification identity
 - docs/adoption-dashboard.md — the control plane, derived numbers only
 - docs/reputation-registry.json — UNPROVEN / score 0 (zeros are the trust feature)
@@ -22,9 +22,10 @@ Measuring surfaces (CI-enforced; do not hand-edit):
 | L3 | merkleTree / merkleProof / verifyMerkle | real sha-256 tree; a third party proves one leaf without the bundle | AVAILABLE |
 | L4 | L4_BOUNDARY | RESEARCH; interface frozen (5 provider methods) | RESEARCH |
 
-The L1 chain rule is the honesty hinge added this cycle: a format-valid receipt
-is UNKNOWN (NO_CHAIN_EVIDENCE) until a chain confirms it, and a chain that
-contradicts it is MISMATCH. Structure alone never yields VERIFIED.
+The L1 chain rule is the honesty hinge added this cycle, and it has three
+outcomes, not two. The verdict turns on **whether anyone was asked**. No authority at all → `UNKNOWN/NO_CHAIN_EVIDENCE` (nobody was asked). An authority that does not know the `txHash` → `MISMATCH/TX_NOT_FOUND` (it was asked, and it contradicted you). A receipt too malformed to ask with → `UNKNOWN/EVIDENCE_INCONSISTENT`. Only the middle case is a contradiction; the two `UNKNOWN` cases are absent evidence, never absolution, and neither is `VERIFIED`.
+Structure alone never yields VERIFIED, and "no confirmation" is not one verdict: the
+difference between MISMATCH and UNKNOWN is whether a chain authority was asked at all.
 
 ## 2. Integration ladder (13 doorway states, machine records)
 
@@ -183,7 +184,10 @@ do the thing it cannot honestly do.
 ## 14. Binding honesty rules (restated so future work cannot drift)
 
 1. UNKNOWN is insufficient evidence. UNKNOWN is not FAILED and not VERIFIED.
-2. A format-valid receipt without a chain confirmation is UNKNOWN.
+2. A format-valid receipt is UNKNOWN/NO_CHAIN_EVIDENCE while no chain authority has
+   been asked; once one is asked and does not know the txHash it is
+   MISMATCH/TX_NOT_FOUND; a receipt too malformed to ask with is
+   UNKNOWN/EVIDENCE_INCONSISTENT. Structure alone never yields VERIFIED.
 3. execute() in DRY_RUN never claims execution.
 4. L4 is RESEARCH; no 'ZK supported' until a real circuit, prover, verifier,
    benchmark and conformance exist.
@@ -249,7 +253,9 @@ lowers the whole journey to `MISMATCH`.
 Replays a bundle through L0–L3 with no partial credit, and keeps the two
 failure shapes apart: a **well-formed** tx hash the chain does not know is
 `MISMATCH/TX_NOT_FOUND` (the authority was asked and answered), while a
-**malformed** hash is `UNKNOWN` (there was never enough evidence to ask with).
+**malformed** hash is `UNKNOWN/EVIDENCE_INCONSISTENT` (there was never enough
+evidence to ask with). That is the same three-way split as §1 above, and
+`test/integrations/verification-platform.test.mjs` pins every arm of it.
 
 ### 15.5 CG-RG/1 — the release gate
 

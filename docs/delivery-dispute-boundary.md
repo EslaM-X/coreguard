@@ -122,6 +122,11 @@ No terminal? Each command above runs in the published page with no server and no
 The two live pages cross-link each other: the same fixture runs through the SDK gate on the
 [SDK reference page](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html) (`#run=verify` → HOLD,
 `#run=accepted` → RELEASE, `#run=tamper` → REFUSED) — the engine is identical, only the transport differs.
+Building an agent-incident review on this surface? The AIE-1 spec wraps the
+same endpoint and bundle as the verification surface any outside reviewer can
+inherit from a cold clone:
+[docs/agent-incident-evidence.md](https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md)
+— its claims are executed, not trusted.
 
 Prefer to *see* the wire contract before running anything? The published
 [DDE-API-REFERENCE page](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html)

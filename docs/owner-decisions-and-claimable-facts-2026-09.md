@@ -14,9 +14,9 @@ until an explicit per-step owner sign-off exists (phase-3 plan §5, binding).
 
 | Capability | Where it lives | Proof (reproduces locally) |
 |---|---|---|
-| Evidence model + offline proof | whole repo | `npm test` → **1162 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
-| Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **818 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
-| Docs-node contract (executable docs stay runnable) | `test/ci/docs-node-contract.test.js` | 94 executed · 53 skip-listed · 19 docs covered |
+| Evidence model + offline proof | whole repo | `npm test` → **1171 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
+| Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **821 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
+| Docs-node contract (executable docs stay runnable) | `test/ci/docs-node-contract.test.js` | 94 executed · 55 skip-listed · 20 docs covered |
 | Live-submission harness (recorded feed, webhooks DRY-RUN, x402 DRY-RUN) | `packages/peoples-court-adapter/` | `npm run peoples-court:harness` → 11/11 |
 | Boundary enforcement (fail-closed) | `scripts/boundary-audit.mjs` + `test/ci/boundary-enforcement.test.js` | `npm run boundary:audit` → PASS |
 | CI green on every push (all 4 gates) | `.github/workflows/` | `gh run list --branch main` |
@@ -226,9 +226,11 @@ rewards.
    the Partner Sandbox, the Attack Lab, local observability, Evidence Passport
    v2 and the Control Plane are all implemented and enforced offline
    (`docs/verification-and-integration-platform-2026-09-26.md`).
-3. **L1 honesty hinge (binding)**: a format-valid receipt without a chain
-   confirmation is `UNKNOWN/NO_CHAIN_EVIDENCE`; a chain that contradicts it is
-   `MISMATCH`. Structure alone never yields VERIFIED.
+3. **L1 honesty hinge (binding)**: the verdict turns on whether anyone was asked. No
+   chain authority → `UNKNOWN/NO_CHAIN_EVIDENCE`. An authority that does not know the `txHash` → `MISMATCH/TX_NOT_FOUND`,
+   the one genuine contradiction. A receipt too malformed to ask with → `UNKNOWN/EVIDENCE_INCONSISTENT`.
+   Structure alone never yields VERIFIED, and "unconfirmed" is not a single verdict —
+   collapsing MISMATCH into UNKNOWN would under-report the strongest signal the system produces.
 4. **`UNKNOWN ≠ FAILED ≠ VERIFIED` is a platform rule**, not a slogan: every
    machine record, sandbox scenario and attack case carries a verdictCode, and
    no path upgrades a partial pass.
@@ -243,8 +245,8 @@ rewards.
    Plane prints no invented percentage at all.
 8. **A stale number in any document is a failing build.** Every count is
    machine-measured into `docs/state-snapshot.json` and enforced by
-   `scripts/run-tests.mjs`; the current sync is 1162/1162 tests, 818 committed
-   files, 0 violations, docs-node 81·53·18.
+   `scripts/run-tests.mjs`; the current sync is 1171/1171 tests, 821 committed
+   files, 0 violations, docs-node 94·55·20.
 9. **B1–B6 keep their gates; B6 is OWNER SIGN-OFF REQUIRED.** The platform
    build continues in parallel with the outreach tracks; no letter, no message
    and no follow-up leaves the repo without its recorded owner gate.

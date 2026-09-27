@@ -189,7 +189,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 1162 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard, verification-platform suite
+npm test              # 1171 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard, verification-platform suite
 git config core.hooksPath .githooks   # install the Pages settle pre-push guard — every main push waits for the Pages build
 npm run corpus        # deterministic 73-scenario adversarial corpus
 npm run benchmark     # 73/73 pass
@@ -244,8 +244,8 @@ npm run release:gate:independence   # the gate's self-audit alone — fast, no t
 
 Four rules that the machine enforces, not the prose:
 
-- **`VERIFIED` requires a chain authority.** A format-valid receipt nobody
-  confirmed is `UNKNOWN`, never `VERIFIED`.
+- **`VERIFIED` requires a chain authority; `MISMATCH` requires that someone was ASKED.**
+  The verdict turns on **whether anyone was asked**. No authority at all → `UNKNOWN/NO_CHAIN_EVIDENCE` (nobody was asked). An authority that does not know the `txHash` → `MISMATCH/TX_NOT_FOUND` (it was asked, and it contradicted you). A receipt too malformed to ask with → `UNKNOWN/EVIDENCE_INCONSISTENT`. Only the middle case is a contradiction; the two `UNKNOWN` cases are absent evidence, never absolution, and neither is `VERIFIED`.
 - **A clean partner journey is `MATCH`, not `VERIFIED`.** L2 is the weakest
   link, and inflating it would inflate the evidence.
 - **A badge's artwork is its proof.** Hand-edit one byte and `verifyBadge()`
