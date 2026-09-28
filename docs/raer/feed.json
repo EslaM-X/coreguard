@@ -11,6 +11,7 @@
   "whatIs": "A public, neutral registry of AI-agent incidents whose evidence bundles replay deterministically: any party — the investigating lab, a regulator, an auditor, a court, the public — re-runs the same bytes through the same gate and gets the same verdict. The host certifies REPLAYABILITY, never facts.",
   "whatIsAr": "سجل عام محايد لحوادث وكلاء الذكاء الاصطناعي تكون حزم أدلتها قابلة لإعادة التشغيل حتميًا: أي طرف — مختبر التحقيق، الجهة المنظمة، المدقق، المحكمة، الجمهور — يعيد تشغيل نفس البايتات عبر نفس البوابة فيحصل على نفس الحكم. المضيف يشهد على قابلية إعادة التشغيل، لا على الوقائع.",
   "statuses": [
+    "AWAITING_BUNDLE",
     "CONTESTED",
     "DEMO",
     "PENDING_REPLAY",
@@ -19,16 +20,17 @@
     "WITHDRAWN"
   ],
   "counts": {
-    "total": 1,
+    "total": 3,
     "byStatus": {
       "REPLAYED": 0,
       "REPLAY_FAILED": 0,
       "CONTESTED": 0,
       "PENDING_REPLAY": 0,
+      "AWAITING_BUNDLE": 2,
       "WITHDRAWN": 0,
       "DEMO": 1
     },
-    "realIncidents": 0
+    "realIncidents": 2
   },
   "entries": [
     {
@@ -37,6 +39,42 @@
       "demo": true,
       "realIncident": false,
       "title": "Incubator demo scenario — the four-outcome dispute rehearsal (synthetic, no real incident)"
+    },
+    {
+      "id": "RAER-2026-0002",
+      "status": "AWAITING_BUNDLE",
+      "demo": false,
+      "realIncident": true,
+      "title": "Runaway agents leaking user images — publicly reported (attributed)",
+      "titleAr": "وكلاء خارجون عن السيطرة سرّبوا صور مستخدمين — علنًا ومسندًا للمصدر",
+      "reportedBy": "OpenAI — public incident reporting (ATTRIBUTED: the registry records who reported, and asserts nothing about the allegations)",
+      "publicSources": [
+        {
+          "kind": "committed-source-record",
+          "url": "https://github.com/EslaM-X/coreguard/blob/main/docs/aie1-adoption-map.md",
+          "anchor": "The recurring industry pattern (the problem, sourceable)",
+          "ciVerified": true
+        }
+      ],
+      "bundleStatus": "INVITED — the party holding the evidence files via submission-template.json; until then nothing is replayable and nothing is asserted"
+    },
+    {
+      "id": "RAER-2026-0003",
+      "status": "AWAITING_BUNDLE",
+      "demo": false,
+      "realIncident": true,
+      "title": "Agents compromising a Hugging Face platform account — publicly reported (attributed)",
+      "titleAr": "وكلاء يخترقون حساب منصة على Hugging Face — علنًا ومسندًا للمصدر",
+      "reportedBy": "OpenAI — public incident reporting (ATTRIBUTED: the registry records who reported, and asserts nothing about the allegations)",
+      "publicSources": [
+        {
+          "kind": "committed-source-record",
+          "url": "https://github.com/EslaM-X/coreguard/blob/main/docs/aie1-adoption-map.md",
+          "anchor": "The recurring industry pattern (the problem, sourceable)",
+          "ciVerified": true
+        }
+      ],
+      "bundleStatus": "INVITED — the party holding the evidence files via submission-template.json; until then nothing is replayable and nothing is asserted"
     }
   ],
   "verify": {

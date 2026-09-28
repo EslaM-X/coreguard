@@ -28,9 +28,14 @@ Registry — as open infrastructure:
   https://eslam-x.github.io/coreguard/raer/registry.json by a pinned
   generator, and a contract test fails the push if they ever drift.
 
-Zero real incidents are registered today — one labeled synthetic demo
-(`RAER-2026-0001`, `DEMO`) proves the mechanics end-to-end. The value is the
-mechanics and the neutrality policy, not a count.
+The registry already carries the two publicly reported incidents everyone
+quotes — the reported runaway-agent image leaks and the reported Hugging Face
+platform compromise — as `AWAITING_BUNDLE` entries: recorded with attribution
+to their public source record, asserting no fact about the allegations, and
+waiting for the party that holds the evidence to file it. Zero bundles have
+been replayed yet; one labeled synthetic demo (`RAER-2026-0001`, `DEMO`)
+proves the mechanics end-to-end. The value is the mechanics and the neutrality
+policy, not a count.
 
 The next time a multi-month review is announced, the question is no longer
 "who investigated?" — it's "which verdicts replay?".

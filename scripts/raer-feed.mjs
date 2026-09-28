@@ -110,6 +110,17 @@ const feed = {
     status: e.status,
     demo: e.demo ?? false,
     realIncident: e.realIncident ?? false,
+    // AWAITING_BUNDLE surfaces: the registry records a publicly REPORTED
+    // incident and points at its committed source record — it asserts no
+    // fact and carries no bundle. Deep links to the publisher land only
+    // with the bundle (a 404 deep-link would be a second lie channel).
+    ...(e.status === "AWAITING_BUNDLE" ? {
+      title: e.title,
+      titleAr: e.titleAr,
+      reportedBy: e.reportedBy,
+      publicSources: e.publicSources ?? [],
+      bundleStatus: e.evidenceBundle?.submissionStatus ?? null,
+    } : {}),
     ...(e.id === r.incubatorDemoCase?.id ? { title: r.incubatorDemoCase.title } : {}),
   })),
   verify: {

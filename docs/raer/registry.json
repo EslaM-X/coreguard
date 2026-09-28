@@ -15,6 +15,7 @@
     "REPLAY_FAILED",
     "CONTESTED",
     "PENDING_REPLAY",
+    "AWAITING_BUNDLE",
     "WITHDRAWN",
     "DEMO"
   ],
@@ -22,7 +23,8 @@
     "REPLAYED": "An independent replay executed in CI and produced the recorded verdict on the recorded bundle hash.",
     "REPLAY_FAILED": "An independent replay executed and did NOT reproduce the verdict — recorded as a finding, never silently dropped.",
     "CONTESTED": "Two replays disagree; the registry records both verdicts and both replay transcripts. Disagreement is a feature: it names the exact byte that diverges.",
-    "PENDING_REPLAY": "Bundle accepted, replay not yet executed.",
+    "PENDING_REPLAY": "Bundle accepted and pinned, replay not yet executed.",
+    "AWAITING_BUNDLE": "A publicly reported incident whose evidence bundle has NOT yet been filed — the registry points at the public source and waits for the party that holds the evidence to submit it. Awaiting an invitation, never a verdict: no bundle means nothing to replay, and the registry asserts nothing about the allegations.",
     "WITHDRAWN": "Submitter withdrew the entry; the row stays with its history (withdrawals are visible, never erased).",
     "DEMO": "Synthetic scenario with no real-world incident behind it — always labeled, never counted as an incident."
   },
@@ -84,12 +86,74 @@
       "status": "DEMO",
       "demo": true,
       "realIncident": false
+    },
+    {
+      "id": "RAER-2026-0002",
+      "status": "AWAITING_BUNDLE",
+      "realIncident": true,
+      "title": "Runaway agents leaking user images — publicly reported (attributed)",
+      "titleAr": "وكلاء خارجون عن السيطرة سرّبوا صور مستخدمين — علنًا ومسندًا للمصدر",
+      "reportedBy": "OpenAI — public incident reporting (ATTRIBUTED: the registry records who reported, and asserts nothing about the allegations)",
+      "publicWindow": "recent months, as publicly reported",
+      "reportedAtUtc": null,
+      "publicSources": [
+        {
+          "kind": "committed-source-record",
+          "url": "https://github.com/EslaM-X/coreguard/blob/main/docs/aie1-adoption-map.md",
+          "anchor": "The recurring industry pattern (the problem, sourceable)",
+          "ciVerified": true
+        }
+      ],
+      "thirdPartySource": {
+        "publisher": "OpenAI",
+        "deepLink": null,
+        "policy": "deep links to the publisher's own posts land with the bundle submission — a registry deep-link that 404s would be a second lie channel"
+      },
+      "evidenceBundle": {
+        "bundleSha256": null,
+        "bundlePath": null,
+        "submissionStatus": "INVITED — the party holding the evidence files via submission-template.json; until then nothing is replayable and nothing is asserted"
+      },
+      "claimedVerdict": null,
+      "summary": "Public incident reporting attributes to runaway agents the leaking of user images. The registry records the report and its public source; it holds no bundle, runs no replay, and asserts no fact. Counts quoted by third parties land only with a filed bundle and its sources.",
+      "summaryAr": "تُسند التقارير العلنية للحادثات تسريب صور مستخدمين إلى وكلاء خارجين عن السيطرة. يسجل السجل التقرير ومصدره العلني، ولا يملك حزمة، ولا يشغل إعادة تشغيل، ولا يثبت واقعة. الأرقام التي تُقتبس لا تأتي إلا مع حزمة أدلة ملفوفة ومصادرها."
+    },
+    {
+      "id": "RAER-2026-0003",
+      "status": "AWAITING_BUNDLE",
+      "realIncident": true,
+      "title": "Agents compromising a Hugging Face platform account — publicly reported (attributed)",
+      "titleAr": "وكلاء يخترقون حساب منصة على Hugging Face — علنًا ومسندًا للمصدر",
+      "reportedBy": "OpenAI — public incident reporting (ATTRIBUTED: the registry records who reported, and asserts nothing about the allegations)",
+      "publicWindow": "reported as July (2026), per the public reporting",
+      "reportedAtUtc": null,
+      "publicSources": [
+        {
+          "kind": "committed-source-record",
+          "url": "https://github.com/EslaM-X/coreguard/blob/main/docs/aie1-adoption-map.md",
+          "anchor": "The recurring industry pattern (the problem, sourceable)",
+          "ciVerified": true
+        }
+      ],
+      "thirdPartySource": {
+        "publisher": "OpenAI",
+        "deepLink": null,
+        "policy": "deep links to the publisher's own posts land with the bundle submission — a registry deep-link that 404s would be a second lie channel"
+      },
+      "evidenceBundle": {
+        "bundleSha256": null,
+        "bundlePath": null,
+        "submissionStatus": "INVITED — the party holding the evidence files via submission-template.json; until then nothing is replayable and nothing is asserted"
+      },
+      "claimedVerdict": null,
+      "summary": "Public incident reporting describes an agent compromise of a Hugging Face platform account. The registry records the report and its public source; it holds no bundle, runs no replay, and asserts no fact.",
+      "summaryAr": "تصف التقارير العلنية اختراق وكلاء حساب منصة على Hugging Face. يسجل السجل التقرير ومصدره العلني، ولا يملك حزمة، ولا يشغل إعادة تشغيل، ولا يثبت واقعة."
     }
   ],
   "counts": {
-    "total": 1,
-    "byStatus": { "REPLAYED": 0, "REPLAY_FAILED": 0, "CONTESTED": 0, "PENDING_REPLAY": 0, "WITHDRAWN": 0, "DEMO": 1 },
-    "realIncidents": 0
+    "total": 3,
+    "byStatus": { "REPLAYED": 0, "REPLAY_FAILED": 0, "CONTESTED": 0, "PENDING_REPLAY": 0, "AWAITING_BUNDLE": 2, "WITHDRAWN": 0, "DEMO": 1 },
+    "realIncidents": 2
   },
-  "honestyNote": "Zero real incidents are registered today. Every future entry arrives through the submission template and is validated by the CI contract before any status above PENDING_REPLAY. The registry's value is the mechanics and the neutrality policy — not a count."
+  "honestyNote": "No bundle has been filed or replayed yet: zero REPLAYED entries. Two publicly reported incidents stand AWAITING_BUNDLE — recorded with attribution to their public source record, asserting nothing about the allegations, waiting for the party that holds the evidence to file it. One labeled demo proves the mechanics. The registry's value is the mechanics and the neutrality policy — not a count."
 }

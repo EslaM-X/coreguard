@@ -93,6 +93,47 @@ test("raer registry is valid JSON under schema CG-RAER/1 with coherent statuses 
   assert.equal(r.counts.realIncidents, r.entries.filter((e) => e.realIncident).length, "realIncidents count must match entries");
 });
 
+test("AWAITING_BUNDLE entries: publicly reported incidents recorded without asserting a single fact about them", () => {
+  const r = registry();
+  const awaiting = r.entries.filter((e) => e.status === "AWAITING_BUNDLE");
+  assert.ok(awaiting.length > 0, "the registry must carry the AWAITING_BUNDLE entries (the standing public invitation)");
+  for (const e of awaiting) {
+    assert.equal(e.realIncident, true, `${e.id}: a real reported incident`);
+    // The honesty spine: the registry records the report, never the facts.
+    assert.ok(e.reportedBy?.includes("ATTRIBUTED"), `${e.id}: reportedBy must carry the ATTRIBUTED marker`);
+    assert.equal(e.evidenceBundle?.bundleSha256 ?? null, null, `${e.id}: no bundle means no bundle hash — ever`);
+    assert.equal(e.claimedVerdict ?? null, null, `${e.id}: an unfiled incident carries no claimed verdict`);
+    assert.match(e.summary ?? "", /asserts no fact|asserts nothing/, `${e.id}: the summary must state the non-assertion policy`);
+    // Source discipline: at least one committed, CI-verifiable source record.
+    const sources = e.publicSources ?? [];
+    assert.ok(sources.length > 0, `${e.id}: at least one public source record is required`);
+    for (const s of sources) {
+      assert.equal(s.kind, "committed-source-record", `${e.id}: sources must be committed records (CI-checked), not bare URLs`);
+      assert.match(s.url ?? "", /^https:\/\//, `${e.id}: source url must be https`);
+      assert.equal(s.ciVerified, true, `${e.id}: the committed source must be CI-verified`);
+    }
+    // Deep links land WITH the bundle, never before (a 404 deep-link would
+    // be a second lie channel).
+    assert.equal(e.thirdPartySource?.deepLink ?? null, null, `${e.id}: third-party deep links are bundle-time, not registry-time`);
+    assert.match(e.thirdPartySource?.policy ?? "", /deep link/i, `${e.id}: the deep-link policy must be stated`);
+  }
+  // The demo must remain the only entry that is not a real incident.
+  assert.equal(r.entries.filter((e) => !e.realIncident).length, 1, "exactly one non-realIncident entry (the labeled demo)");
+});
+
+test("the AIE-1 adoption map carries the sourceable pattern the AWAITING_BUNDLE entries point at", () => {
+  const map = readFileSync(join(REPO, "docs", "aie1-adoption-map.md"), "utf8");
+  assert.match(map, /15\+ incidents/, "the adoption map must state the 15+ incident record");
+  assert.match(map, /leaking[\s\n]*user images/, "the adoption map must state the leaked-images report");
+  assert.match(map, /Hugging Face platform account/, "the adoption map must state the Hugging Face platform compromise");
+  const r = registry();
+  for (const e of r.entries.filter((x) => x.status === "AWAITING_BUNDLE")) {
+    const s = (e.publicSources ?? []).find((x) => (x.url ?? "").includes("aie1-adoption-map.md"));
+    assert.ok(s, `${e.id}: must point at the committed adoption-map source record`);
+    assert.ok(map.includes(s.anchor), `${e.id}: the recorded anchor must exist verbatim in the map`);
+  }
+});
+
 test("the incubator demo case stays honestly labeled and never upgrades itself", () => {
   const r = registry();
   assert.ok(r.incubatorDemoCase, "registry must carry the incubatorDemoCase block");
@@ -100,7 +141,7 @@ test("the incubator demo case stays honestly labeled and never upgrades itself",
   assert.equal(r.incubatorDemoCase.realIncident, false);
   assert.equal(r.incubatorDemoCase.verdict, "UNKNOWN", "a demo has no verdict to certify");
   assert.equal(r.incubatorDemoCase.evidenceBundleSha256, null, "a demo registers no evidence hash");
-  assert.match(r.honestyNote, /Zero real incidents/, "the registry must state its zero-incident truth in prose");
+  assert.match(r.honestyNote, /zero REPLAYED entries/i, "the registry must state its no-replay-yet truth in prose");
 });
 
 test("submission template validates structurally; an unparsable one records UNKNOWN, never a rejection", () => {
@@ -233,7 +274,8 @@ test("README neutrality claims match the registry's semantics (no cross-file dri
   const r = registry();
   for (const s of r.statuses) assert.ok(readme.includes(s), `README must name status ${s}`);
   assert.match(readme, /never deleted/i, "README must carry the never-destroyed rule");
-  assert.match(readme, /0 real incidents|zero real incidents/i, "README must state the zero-incident truth");
+  assert.match(readme, /zero replays/i, "README must state the zero-replay truth");
+  assert.match(readme, /AWAITING_BUNDLE/, "README must document the awaiting-bundle posture");
   assert.match(readme, /feed\.json/, "README must document the derived feed (the addressable surface)");
 });
 
