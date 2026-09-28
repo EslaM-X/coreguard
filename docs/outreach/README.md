@@ -21,6 +21,7 @@ concrete (30 minutes, no commitment).
 | `anthropic-en.md` | Anthropic | English | ☐ |
 | `deepseek-en.md` | DeepSeek | English | ☐ |
 | `public-post-agent-safety.md` | agent-safety communities (public post) | English | ☑ X approved 2026-09-28 (Codebuff, delegated B6 record in the file); LinkedIn/Reddit deferred by the same record |
+| `public-post-raer-launch.md` | RAER launch announcement (registry + feed) | English | ☑ X approved 2026-09-28 (Codebuff, delegated B6 record in the file); LinkedIn/Reddit deferred by the same record |
 
 ## Supporting infrastructure (linkable from any future send)
 
