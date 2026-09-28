@@ -22,6 +22,7 @@
 **الروابط:**
 - العرض الحي: https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
 - الموجز الكامل: https://github.com/EslaM-X/coreguard/blob/main/docs/mcit-aic-briefing-ar.md
+- ملف تقديم الحضانة (عند فتح باب المناقشة): https://github.com/EslaM-X/coreguard/blob/main/docs/aic-tiec-incubation-application-ar.md
 - المستودع: https://github.com/EslaM-X/coreguard
 
 إن نال العرض اهتمام الفريق الفني، يسعدني مشاركة مسار القنوات الرسمية (TIEC / ITIDA / مصر FWD) — والقرار كله لكم، بلا أي ضغط ولا التزام.
