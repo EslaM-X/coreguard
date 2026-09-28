@@ -22,6 +22,7 @@ concrete (30 minutes, no commitment).
 | `deepseek-en.md` | DeepSeek | English | ☐ |
 | `public-post-agent-safety.md` | agent-safety communities (public post) | English | ☑ X approved 2026-09-28 (Codebuff, delegated B6 record in the file); LinkedIn/Reddit deferred by the same record |
 | `public-post-raer-launch.md` | RAER launch announcement (registry + feed) | English | ☑ X approved 2026-09-28 (Codebuff, delegated B6 record in the file); LinkedIn/Reddit deferred by the same record |
+| `public-post-raer-launch-ar.md` | RAER launch announcement (registry + feed) | Arabic | ☐ unsigned — Arab-language channels, B6-gated like every letter |
 
 ## Supporting infrastructure (linkable from any future send)
 

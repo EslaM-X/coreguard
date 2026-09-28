@@ -135,6 +135,7 @@ test("hook: file is honest (shebang + main-only gate + settle call), tracked + e
   assert.match(body, /scripts\/pages-settle\.mjs/);
   assert.match(body, /PAGES_SETTLE_SKIP/);
   assert.match(body, /PAGES_SETTLE_SHA/, "the hook must pin the settle to the new main tip");
+  assert.match(body, /PAGES_SETTLE_SITE_REQUIRED=1/, "the hook must run the SAME fail-closed meaning as CI: a 404 is UNOBSERVABLE, never no-build-yet ([C34])");
   assert.match(body, /git config core\.hooksPath \.githooks/);
   const trackedHook = execFileSync("git", ["ls-files", "--", ".githooks/pre-push"], {
     cwd: REPO,

@@ -132,3 +132,28 @@ test("AIE-1 page: bilingual structure — EN default with a persistent AR toggle
   assert.ok(html.includes("data-lang-text=\"ar\""), "Arabic mirror text present");
   assert.ok(html.includes("localStorage"), "language choice persists");
 });
+
+test("AIE-1 page: the RAER section states the three entries and the neutrality policy, bilingual, chained to the registry", () => {
+  const html = readFileSync(PAGE, "utf8");
+  assert.ok(html.includes('id="raer"'), "the RAER section is present");
+  for (const id of ["RAER-2026-0001", "RAER-2026-0002", "RAER-2026-0003"]) {
+    assert.ok(html.includes(id), `the RAER section must list ${id}`);
+  }
+  for (const status of ["DEMO", "AWAITING_BUNDLE"]) {
+    assert.ok(html.includes(status), `the RAER section must name status ${status}`);
+  }
+  // The neutrality policy must appear in BOTH languages (EN asserts on
+  // replayability-never-facts; AR mirrors it), and both machine surfaces
+  // must be linked relative to this page.
+  assert.match(html, /replayability, never facts/);
+  assert.match(html, /قابلية إعادة التشغيل لا الوقائع/);
+  assert.ok(html.includes('href="raer/registry.json"'), "registry surface linked");
+  assert.ok(html.includes('href="raer/feed.json"'), "feed surface linked");
+  // Cross-file: the statuses the page names must exist in the live registry.
+  const reg = JSON.parse(readFileSync(join(dirname(PAGE), "raer", "registry.json"), "utf8"));
+  for (const e of reg.entries) assert.ok(html.includes(e.id), `registry entry ${e.id} must appear on the page`);
+  for (const lang of ["en", "ar"]) {
+    const spans = html.split(`data-lang-text="${lang}"`).length - 1;
+    assert.ok(spans >= 4, `the RAER section must carry ${lang} mirror text (found ${spans} spans page-wide)`);
+  }
+});
