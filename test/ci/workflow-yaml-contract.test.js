@@ -180,3 +180,52 @@ test("detector proof: a well-formed workflow with `${{ }}` expressions and block
   assert.deepEqual(workflowShapeErrors("ok.yml", doc), []);
   assert.equal(doc.jobs.j.steps[1].run.includes("a: b"), true, "block scalar content must survive verbatim");
 });
+
+// ---------------------------------------------------------------------------
+// Pages-settle guard contract: every workflow that invokes pages-settle.mjs
+// must be able to SEE the Pages builds API and must PIN every settle call.
+//
+// Root-caused 2026-09-27: dde.yml granted `contents: write` only, so the
+// workflow token got a bare 404 from the Pages builds API, which
+// pages-settle.mjs reads as "no build yet" → the guard ran BLIND every cycle
+// (`settled: true, reason: no-build-yet, waitedMs: 0` in the run log is the
+// signature) and the median push kept killing the content build. C26 had
+// given the guard a brain (the SHA pin) but the token left it without eyes.
+// A settle call without PAGES_SETTLE_SHA after a push is the OTHER face of
+// the same bug: with working eyes it sees the content build in flight and
+// defers the median every cycle — the trend history starves.
+// ---------------------------------------------------------------------------
+const PAGES_SETTLE_CONTRACT = {
+  // Only these workflows may invoke the guard — extend deliberately.
+  dde: ".github/workflows/dde.yml",
+};
+
+test("pages-settle contract: guard callers carry pages:read and pin EVERY settle call to a SHA", () => {
+  for (const [wf, rel] of Object.entries(PAGES_SETTLE_CONTRACT)) {
+    const raw = readFileSync(join(REPO, rel), "utf8");
+    const doc = parse(raw);
+    assert.deepEqual(
+      workflowShapeErrors(`${wf}.yml`, doc), [],
+      `${rel} must still parse clean under the workflow schema walk`,
+    );
+
+    // (1) The token must be able to READ the Pages builds API. Without the
+    // `pages: read` permission the API answers 404 and the guard reads the
+    // 404 as "no build yet" — a settle that cannot see is worse than none.
+    const perms = doc.permissions ?? {};
+    assert.equal(perms.pages, "read",
+      `${rel}: permissions.pages must be "read" — without it the Pages API 404s for the workflow token and pages-settle runs blind (no-build-yet at waitedMs:0 is the signature)`);
+    assert.equal(perms.contents, "write",
+      `${rel}: permissions.contents must stay "write" (the trend step pushes the median commit)`);
+
+    // (2) EVERY invocation must pin PAGES_SETTLE_SHA. One unpinned call
+    // after a push re-opens the race; the unpinned-call hazard is that the
+    // guard settles on identity-less age while the content build is alive.
+    const calls = [...raw.matchAll(/node scripts\/pages-settle\.mjs/g)];
+    assert.ok(calls.length >= 2,
+      `${rel}: expected the two settle calls (pre-commit + pre-push gate), found ${calls.length}`);
+    const pinned = [...raw.matchAll(/PAGES_SETTLE_SHA[^\n]*node scripts\/pages-settle\.mjs/g)];
+    assert.equal(pinned.length, calls.length,
+      `${rel}: every pages-settle invocation must carry an explicit PAGES_SETTLE_SHA pin (${calls.length - pinned.length} unpinned call(s) — an unpinned settle after a push authorizes cancelling the live content build)`);
+  }
+});

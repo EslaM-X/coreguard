@@ -23,7 +23,14 @@ on:
     - cron: "7 3 * * 6"
 
 permissions:
-  contents: write # trend tracking only: append perf-history.jsonl + push it (see the trend step)
+  # contents: write — trend tracking: append perf-history.jsonl + push it.
+  # pages: read — WITHOUT this the workflow token gets a bare 404 from the
+  # Pages builds API, which pages-settle.mjs reads as "no build yet" → the
+  # settle guard ran BLIND in every cycle ("no-build-yet" at waitedMs:0 in
+  # the run log is the signature) and the median push kept cancelling the
+  # content build (C26 root-caused the race; the token 404 re-opened it).
+  contents: write
+  pages: read
 
 jobs:
   dde:
@@ -133,14 +140,22 @@ jobs:
             fi
           fi
           if [ "$NEEDS_COMMIT" = "1" ]; then
-            # Pages-build race guard (pages-settle.mjs): the median commit
-            # lands seconds after the content push; pushing while GitHub is
-            # still building the content commit's Pages build cancels it
-            # ("Page build failed" on the content SHA). Settle first; if the
-            # build cannot settle in time, defer the median (the next push
-            # appends this point too — history is append-only evidence, and a
-            # deferred point joins the next commit harmlessly).
-            if node scripts/pages-settle.mjs; then
+            # Pages-build race guard (pages-settle.mjs), called TWICE and
+            # PINNED BOTH TIMES to the CONTENT commit (HEAD here — the median
+            # is created only later):
+            #   call 1  UNPINNED-CALL HAZARD: an unpinned settle after the
+            #          push sees the content build in flight → "settled:
+            #          false" → the trend defers EVERY cycle and the history
+            #          starves. Pinning call 1 to HEAD makes the guard wait
+            #          for the content build to register AND finish (its own
+            #          SHA, terminal, aged) before the median is even written
+            #          — so by the time call 2 re-checks, settling is a
+            #          confirmation, not a wait.
+            #   call 2  the push gate: identical pin (HEAD == the content
+            #          commit at this moment; HEAD~1 would be the PREVIOUS
+            #          cycle's commit, whose "not on branch" answer
+            #          short-circuits the guard — AGENTS.md [C27]).
+            if PAGES_SETTLE_SHA="$(git rev-parse HEAD)" node scripts/pages-settle.mjs; then
               git config user.name "coreguard-trend-bot"
               git config user.email "noreply@coreguard.local"
               git add benchmarks/perf-history.jsonl docs/badges
