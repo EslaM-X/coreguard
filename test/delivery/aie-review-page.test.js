@@ -156,4 +156,20 @@ test("AIE-1 page: the RAER section states the three entries and the neutrality p
     const spans = html.split(`data-lang-text="${lang}"`).length - 1;
     assert.ok(spans >= 4, `the RAER section must carry ${lang} mirror text (found ${spans} spans page-wide)`);
   }
+  // Table + quote structure: the registry table is a real 3-column table
+  // (Entry / Status / What it is) with a separated adoption-quote block —
+  // the dash-merged layout would read as one blob in either language.
+  const raerSection = html.split('id="raer"')[1].split("</section>")[0];
+  const theadCells = (raerSection.match(/<th>/g) || []).length;
+  assert.equal(theadCells, 3, `the RAER table must carry 3 header columns (Entry/Status/What-it-is; found ${theadCells})`);
+  // and every header column must be bilingual (EN+AR spans inside each th)
+  for (const row of raerSection.match(/<thead>.*<\/thead>/gs) || []) {
+    assert.equal((row.match(/data-lang-text="en"/g) || []).length, 3, "each header column must carry an EN label");
+    assert.equal((row.match(/data-lang-text="ar"/g) || []).length, 3, "each header column must carry an AR label");
+  }
+  const statusCells = (raerSection.match(/<td>(DEMO|AWAITING_BUNDLE)<\/td>/g) || []).length;
+  assert.equal(statusCells, 3, "each entry must carry its status as a SEPARATE cell (not dash-merged into the id column)");
+  assert.ok(raerSection.includes('class="raer-quote"'), "the adoption quote must be its own blockquote element");
+  assert.match(raerSection, /Don't ask "who investigated\?"/);
+  assert.match(raerSection, /لا تسأل «مَن حقّق\؟»/);
 });
