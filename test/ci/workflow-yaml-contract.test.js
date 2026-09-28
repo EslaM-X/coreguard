@@ -227,5 +227,12 @@ test("pages-settle contract: guard callers carry pages:read and pin EVERY settle
     const pinned = [...raw.matchAll(/PAGES_SETTLE_SHA[^\n]*node scripts\/pages-settle\.mjs/g)];
     assert.equal(pinned.length, calls.length,
       `${rel}: every pages-settle invocation must carry an explicit PAGES_SETTLE_SHA pin (${calls.length - pinned.length} unpinned call(s) — an unpinned settle after a push authorizes cancelling the live content build)`);
+    // (3) SITE_REQUIRED: the caller's repo demonstrably HAS a Pages site, so
+    // a 404 from the builds API must fail closed (unobservable ≠ empty) —
+    // the blind-guard recurrence (C26, 2026-09-28) shipped because a bare
+    // 404 was readable as "no build yet" even with pages:read granted.
+    const siteReq = [...raw.matchAll(/PAGES_SETTLE_SITE_REQUIRED=1[^\n]*node scripts\/pages-settle\.mjs/g)];
+    assert.equal(siteReq.length, calls.length,
+      `${rel}: every pages-settle invocation must set PAGES_SETTLE_SITE_REQUIRED=1 (a 404 must fail closed, never read as "no build yet" — the blind-guard recurrence)`);
   }
 });

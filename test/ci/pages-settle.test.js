@@ -151,3 +151,33 @@ test("usage: any CLI argument is rejected (exit 2) before any env/network read",
     });
   });
 });
+// -------------------------------------------------------------------------
+// [C26] second recurrence (root-caused 2026-09-28 while monitoring two
+// post-fix cycles): the workflow token got a bare 404 from the Pages API
+// even WITH `pages: read` granted (deployment-side gap), and readLatest
+// mapped that 404 to {none:true} — the guard settled "no-build-yet" at
+// waitedMs:0 every cycle and the median push killed the content build
+// for 12+ GREEN cycles. A token-read failure is an UNOBSERVABLE queue,
+// not an empty one: the guard must fail-closed (exit 1, api-unavailable-
+// no-read) so the caller defers instead of pushing blind. A truthful
+// empty read stays exit 0.
+// -------------------------------------------------------------------------
+test("token-read 404 → fail-closed api-unavailable-no-read (the blind-guard closure)", async () => {
+  const { dir, sim, cleanup } = sandbox();
+  writeFileSync(sim, "_auth404");
+  try {
+    const r = await runSettle({ PAGES_SETTLE_JSON: sim, PAGES_SETTLE_FALLBACK_MS: "0" });
+    assert.equal(r.code, 1, `expected exit 1, got ${r.code}: ${r.stdout}`);
+    assert.equal(JSON.parse(r.stdout).reason, "api-unavailable-no-read");
+  } finally { cleanup(); }
+});
+
+test("truthful empty list (200 + []) → settled no-build-yet stays exit 0", async () => {
+  const { dir, sim, cleanup } = sandbox();
+  writeFileSync(sim, JSON.stringify([]));
+  try {
+    const r = await runSettle({ PAGES_SETTLE_JSON: sim });
+    assert.equal(r.code, 0, `expected exit 0, got ${r.code}: ${r.stdout}`);
+    assert.equal(JSON.parse(r.stdout).reason, "no-build-yet");
+  } finally { cleanup(); }
+});

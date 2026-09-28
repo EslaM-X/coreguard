@@ -106,26 +106,43 @@ function classify(body) {
   return { tone: "active", status, createdAt: body.created_at ?? null };
 }
 
-async function readLatest({ repo, token, simFile }) {
+async function readLatest({ repo, token, simFile, siteRequired }) {
   if (simFile !== undefined) {
     const bytes = readFileSync(simFile, "utf8").trim();
     if (bytes === "" || bytes === "404") return { none: true };
+    if (bytes === "_auth404") throw new Error("Pages API 404: simulated auth failure (token cannot read Pages)");
     if (bytes.startsWith("{_error")) throw new Error("simulated API error");
-    return JSON.parse(bytes);
+    const parsed = JSON.parse(bytes);
+    if (Array.isArray(parsed)) return parsed.length === 0 ? { none: true } : parsed[0];
+    return parsed;
   }
-  const res = await fetch(`${API}/repos/${repo}/pages/builds/latest`, {
+  // The BUILDS LIST, not /latest: a 200 with an empty array is a TRUTHFUL
+  // "nothing registered yet", while /latest has no such state — "no builds
+  // at all" and "cannot see at all" are both a bare 404 there, which is
+  // exactly the ambiguity the blind guard (C26 second recurrence) fed on.
+  const res = await fetch(`${API}/repos/${repo}/pages/builds?per_page=1`, {
     headers: {
       Accept: "application/vnd.github+json",
       "User-Agent": `${repo} pages-settle`,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
-  if (res.status === 404) return { none: true };
+  if (res.status === 404) {
+    if (siteRequired) {
+      // The caller asserted this repo HAS a Pages site, so a 404 here is
+      // not "no site" — it is the token being unable to read a queue that
+      // exists. Fail-closed (caller defers); never read as "no build yet".
+      throw new Error("Pages API 404: builds list unreachable while a Pages site is required (PAGES_SETTLE_SITE_REQUIRED=1) — the queue is UNOBSERVABLE, not empty");
+    }
+    return { none: true };
+  }
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
     throw new Error(`Pages API ${res.status}: ${detail.slice(0, 200)}`);
   }
-  return res.json();
+  const list = await res.json();
+  if (Array.isArray(list)) return list.length === 0 ? { none: true } : list[0];
+  return list;
 }
 
 /**
@@ -165,6 +182,20 @@ async function shaOnSourceBranch({ repo, token, sha, simFile }) {
   }
 }
 
+/**
+ * True when the failure means the caller's token cannot READ the Pages
+ * builds API (auth/permission gating), as opposed to a network blip. The
+ * API answers a bare 404 to a token without WORKING Pages read — which a
+ * naive readLatest maps to {none:true} ("no build yet"), the blind guard
+ * that re-opened the C26 race for 12+ green cycles. A well-formed request
+ * that FAILS means we cannot see; only a real empty read is a truthful
+ * "nothing to wait for".
+ */
+function isTokenReadFailure(err) {
+  const msg = String((err && err.message) || err);
+  return /Pages API (401|403|404)\b/.test(msg);
+}
+
 async function main() {
   const args = process.argv.slice(2);
   if (args.length !== 0) {
@@ -186,6 +217,11 @@ async function main() {
   const maxWaitMs = envInt("PAGES_SETTLE_MAX_WAIT_MS", 180000);
   const fallbackMs = envInt("PAGES_SETTLE_FALLBACK_MS", 60000);
   const simFile = process.env.PAGES_SETTLE_JSON !== undefined ? process.env.PAGES_SETTLE_JSON : undefined;
+  // Set by callers whose repo demonstrably HAS a Pages site (CI callers):
+  // then a 404 from the builds API cannot mean "no site" — it means the
+  // token cannot read an existing queue, and the guard must fail-closed
+  // instead of settling blind.
+  const siteRequired = (process.env.PAGES_SETTLE_SITE_REQUIRED ?? "") === "1";
 
   const started = Date.now();
   let latestInfo;
@@ -193,9 +229,31 @@ async function main() {
   while (true) {
     let body;
     try {
-      body = await readLatest({ repo, token, simFile });
+      body = await readLatest({ repo, token, simFile, siteRequired });
     } catch (err) {
-      // Cannot observe the queue — wait out a typical build, then decide.
+      // AUTH-GAP TRAP ([C26] second recurrence, root-caused 2026-09-28): a
+      // token without WORKING Pages read gets a bare 404 here, and mapping
+      // that 404 to {none:true} reads an UNOBSERVABLE queue as an EMPTY
+      // one: settled in 0 ms while a content build is alive to cancel (the
+      // blind guard — `no-build-yet` at waitedMs:0 in 12+ green cycles).
+      // Token-read failures therefore take the same wait-out-the-window
+      // path as any other observability loss — and the caller then DEFERS
+      // instead of pushing blind.
+      if (isTokenReadFailure(err)) {
+        if (fallbackMs > 0) {
+          await sleep(fallbackMs);
+        }
+        report(false, {
+          reason: "api-unavailable-no-read",
+          error: err.message,
+          latest: latestInfo,
+          waitedMs: waitedMs + (fallbackMs > 0 ? fallbackMs : 0),
+        });
+        process.exitCode = 1;
+        return;
+      }
+      // Cannot observe the queue for another reason — wait out a typical
+      // build, then decide (legacy behavior, unchanged).
       if (fallbackMs > 0) {
         await sleep(fallbackMs);
         report(true, { reason: "api-unavailable-fallback", fallback: true, error: err.message, latest: latestInfo, waitedMs: waitedMs + fallbackMs });

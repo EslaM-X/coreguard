@@ -155,7 +155,7 @@ jobs:
             #          commit at this moment; HEAD~1 would be the PREVIOUS
             #          cycle's commit, whose "not on branch" answer
             #          short-circuits the guard — AGENTS.md [C27]).
-            if PAGES_SETTLE_SHA="$(git rev-parse HEAD)" node scripts/pages-settle.mjs; then
+            if PAGES_SETTLE_SHA="$(git rev-parse HEAD)" PAGES_SETTLE_SITE_REQUIRED=1 node scripts/pages-settle.mjs; then
               git config user.name "coreguard-trend-bot"
               git config user.email "noreply@coreguard.local"
               git add benchmarks/perf-history.jsonl docs/badges
@@ -167,7 +167,7 @@ jobs:
               # and re-opens the race (AGENTS.md [C27]: identity, verified
               # from the actual ref state, not from an assumption).
               CONTENT_SHA="$(git rev-parse HEAD)"
-              PAGES_SETTLE_SHA="$CONTENT_SHA" node scripts/pages-settle.mjs && git push || \
+              PAGES_SETTLE_SHA="$CONTENT_SHA" PAGES_SETTLE_SITE_REQUIRED=1 node scripts/pages-settle.mjs && git push || \
                 { echo "::warning::Content build for $(git rev-parse --short HEAD) not settled — deferring the median commit (self-heals on the next push)"; git reset --hard HEAD; }
             else
               echo "::warning::Pages build still in flight — deferring the median commit (self-heals on the next push)"
