@@ -1,0 +1,95 @@
+{
+  "schema": "CG-RAER/1",
+  "name": "Replayable Agent-Incident Evidence Registry",
+  "nameAr": "سجل أدلة حوادث الوكلاء القابل لإعادة التشغيل",
+  "purpose": "A public, neutral registry of AI-agent incidents whose evidence bundles are replayable by ANY party: the investigating lab, a national regulator, an auditor, a court, or the public. Not a replacement for any lab's internal review — the layer every review STARTS from, so no investigation ever begins from 'trust our private evidence'.",
+  "purposeAr": "سجل عام محايد لحوادث وكلاء الذكاء الاصطناعي تكون حزم أدلتها قابلة لإعادة التشغيل من أي طرف: مختبر التحقيق، الجهة المنظمة الوطنية، المدقق، المحكمة، أو الجمهور. لا يحل محل المراجعة الداخلية لأي مختبر — بل هو الطبقة التي يبدأ منها كل تحقيق، حتى لا يبدأ أي تحقيق من «وثقوا بأدلتنا الخاصة».",
+  "host": {
+    "repo": "https://github.com/EslaM-X/coreguard",
+    "path": "docs/raer/registry.json",
+    "maintainer": "CoreGuard project (open-source; the registry file is versioned and CI-contracted like every claim in this repo)",
+    "neutralityPolicy": "The host validates STRUCTURE (schema, byte-pins, replayability) and never FACTS. An entry means 'this bundle replays to the recorded verdict', never 'these allegations are true'. Facts stay with the incident owner; replayability is what the registry certifies."
+  },
+  "statuses": [
+    "REPLAYED",
+    "REPLAY_FAILED",
+    "CONTESTED",
+    "PENDING_REPLAY",
+    "WITHDRAWN",
+    "DEMO"
+  ],
+  "statusSemantics": {
+    "REPLAYED": "An independent replay executed in CI and produced the recorded verdict on the recorded bundle hash.",
+    "REPLAY_FAILED": "An independent replay executed and did NOT reproduce the verdict — recorded as a finding, never silently dropped.",
+    "CONTESTED": "Two replays disagree; the registry records both verdicts and both replay transcripts. Disagreement is a feature: it names the exact byte that diverges.",
+    "PENDING_REPLAY": "Bundle accepted, replay not yet executed.",
+    "WITHDRAWN": "Submitter withdrew the entry; the row stays with its history (withdrawals are visible, never erased).",
+    "DEMO": "Synthetic scenario with no real-world incident behind it — always labeled, never counted as an incident."
+  },
+  "validationMatrix": {
+    "description": "What a reviewer gets for every verdict x admissibility pair, before reading anything else. Verdict language is AIE-1's exact wire language (see docs/agent-incident-evidence.md).",
+    "matrix": [
+      { "verdict": "EXECUTION_EVIDENCE_ADMISSIBLE", "admissibility": "admissible", "onchainAnchor": "match", "reviewerOutcome": "Replay the bundle and read the report; conformity is NOT decided by the engine (CONFORMITY_UNDECIDED_BY_ENGINE), only by humans on top of replayable evidence.", "field": "human-decides" },
+      { "verdict": "EXECUTION_EVIDENCE_ADMISSIBLE", "admissibility": "admissible", "onchainAnchor": "mismatch-or-none", "reviewerOutcome": "The bundle parses and is internally admissible, but the on-chain anchor does not match the bundle hash (or is absent). The engine NAMES the anchor mismatch — the entry stays replayable but is flagged: admissible evidence with an unverified anchor is a question for the reviewer, never a silent pass.", "field": "anchor-fail-closed" },
+      { "verdict": "FIXTURE_REJECTED", "admissibility": "rejected", "onchainAnchor": "any", "reviewerOutcome": "The report names the exact flipped byte (recorded pin != recomputed pin). A tampered bundle is evidence OF tampering, with its provenance preserved.", "field": "fail-closed" },
+      { "verdict": "UNKNOWN", "admissibility": "none", "onchainAnchor": "none", "reviewerOutcome": "The bundle does not parse under the recorded schema — it is NOT counted as a rejection of the incident; it is not evidence of anything. Fail-closed: absence of a valid bundle never becomes a verdict.", "field": "fail-closed" }
+    ],
+    "neverDestroyed": "No entry is ever deleted. Withdrawals and failures stay in the registry with their history — a destroyed entry would be indistinguishable from a censored one."
+  },
+  "submissionTemplate": {
+    "file": "submission-template.json",
+    "contract": "Validates under this schema at CI time (test/ci/raer-registry.test.js). A submission that cannot parse records UNKNOWN — never a rejection."
+  },
+  "validateSubmission": {
+    "requiredPaths": [
+      "id",
+      "incident.title",
+      "incident.summary",
+      "incident.reportedBy",
+      "incident.reportedAtUtc",
+      "evidenceBundle.bundlePath",
+      "evidenceBundle.bundleSha256",
+      "verdict.claimedVerdict",
+      "verdict.claimedAdmissibility",
+      "replay.executedBy"
+    ],
+    "enumPaths": {
+      "verdict.claimedVerdict": ["EXECUTION_EVIDENCE_ADMISSIBLE", "FIXTURE_REJECTED", "UNKNOWN"],
+      "verdict.claimedAdmissibility": ["admissible", "rejected", "none"],
+      "verdict.onchainAnchor.chain": ["core-mainnet"],
+      "verdict.onchainAnchor.matchesBundle": ["match", "mismatch-or-none"],
+      "incident.realIncident": [true]
+    }
+  },
+  "incubatorDemoCase": {
+    "id": "RAER-2026-0001",
+    "title": "Incubator demo scenario — the four-outcome dispute rehearsal (synthetic, no real incident)",
+    "status": "DEMO",
+    "demo": true,
+    "reportedAtUtc": "2026-09-28T00:00:00Z",
+    "verdict": "UNKNOWN",
+    "admissibility": "none",
+    "onchainAnchor": { "chain": "core-mainnet", "txHash": null, "matchesBundle": null },
+    "evidenceBundleSha256": null,
+    "evidenceBundlePath": null,
+    "replay": { "executedInCi": false, "transcript": null },
+    "summary": "Not an incident: the standard four-outcome flow (honest bundle / single flipped byte / refusal path / UNKNOWN) as exercised by the gate-41 demo surfaces. Carried in the registry to prove the mechanics end-to-end while every external entry remains gated on real submissions.",
+    "summaryAr": "ليست حادثة: سيناريو الحضانة التجريبي للحالات الأربع (حزمة أمينة / بايت مقلوب واحد / مسار الرفض البنيوي / UNKNOWN) كما تمارسه أسطح العرض. مقيّم هنا لإثبات الميكانيكية كاملة بينما يبقى كل قيد خارجي معلقًا على إدخالات حقيقية.",
+    "realIncident": false,
+    "verdictNote": "Deliberately UNKNOWN: a demo has no verdict to certify. The registry never upgrades a demo to REPLAYED."
+  },
+  "entries": [
+    {
+      "id": "RAER-2026-0001",
+      "status": "DEMO",
+      "demo": true,
+      "realIncident": false
+    }
+  ],
+  "counts": {
+    "total": 1,
+    "byStatus": { "REPLAYED": 0, "REPLAY_FAILED": 0, "CONTESTED": 0, "PENDING_REPLAY": 0, "WITHDRAWN": 0, "DEMO": 1 },
+    "realIncidents": 0
+  },
+  "honestyNote": "Zero real incidents are registered today. Every future entry arrives through the submission template and is validated by the CI contract before any status above PENDING_REPLAY. The registry's value is the mechanics and the neutrality policy — not a count."
+}

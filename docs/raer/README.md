@@ -1,0 +1,68 @@
+# RAER — Replayable Agent-Incident Evidence Registry
+# سجل أدلة حوادث الوكلاء القابل لإعادة التشغيل
+
+**The public, neutral surface every AI-agent incident review can START from —
+instead of starting from "trust our private evidence."**
+
+> **B6 note:** this directory is *infrastructure*, not outreach. It registers
+> no claim about any company, any lab, or any real incident. It exists so that
+> when the industry's next runaway-agent review is announced, there is a
+> replayable surface it can inherit on day one — hosted in an open repo whose
+> every claim is CI-executed.
+
+## What the registry certifies (and what it never certifies)
+
+- **Certifies:** STRUCTURE and REPLAYABILITY — a bundle is registered under
+  schema CG-RAER-SUB/1, its bytes are pinned by sha256, and an independent
+  replay executed in CI reproduces the recorded verdict on those exact bytes.
+- **Never certifies:** FACTS. That allegations are true, that a party is
+  guilty, that an incident happened as described — the facts stay with the
+  incident owner. An entry means "this bundle replays", never "this happened".
+
+## Statuses (fail-closed; every transition is CI-visible)
+
+| Status | Meaning |
+|---|---|
+| `REPLAYED` | An independent CI-executed replay reproduced the recorded verdict on the recorded bundle hash. |
+| `REPLAY_FAILED` | An independent replay executed and did **not** reproduce the verdict — recorded as a finding, never silently dropped. |
+| `CONTESTED` | Two replays disagree; both verdicts and both transcripts are kept. Disagreement names the exact byte that diverges. |
+| `PENDING_REPLAY` | Bundle accepted, replay not yet executed. |
+| `WITHDRAWN` | Submitter withdrew the entry; the row stays with its history. |
+| `DEMO` | Synthetic scenario, no real incident — always labeled, never counted. |
+
+**Never deleted:** no entry is ever removed. A destroyed entry would be
+indistinguishable from a censored one — withdrawals and failures stay visible.
+
+## Why an investigating lab adopts this instead of ignoring it
+
+1. **It costs nothing to inherit:** one endpoint, one bundle, one schema —
+   the same surface as [AIE-1](../agent-incident-evidence.md), already proven
+   byte-identical across independent replays by contract tests in CI.
+2. **It shortens the review, not replaces it:** the months-long phase is
+   evidence gathering and ad-hoc tooling; RAER hands the reviewer a
+   replayable case file and keeps the verdict authority with the humans.
+3. **It protects the lab:** an independent replay that CONFIRMS the lab's
+   verdict is public, cryptographic-grade exculpatory evidence the lab can
+   cite. A review nobody can replay is a review everybody must doubt.
+4. **It protects the accused and the affected:** the same replayable bundle
+   serves both the exoneration and the indictment — whichever way the
+   bytes point.
+
+## Files
+
+- `registry.json` — schema CG-RAER/1, the validation matrix, the submission
+  contract, and the entries. **Truth today: 0 real incidents; 1 labeled demo
+  entry** (the incubator four-outcome rehearsal, `demo:true`,
+  `realIncident:false`) carried to prove the mechanics end-to-end.
+- `submission-template.json` — copy, fill, PR. A submission that cannot parse
+  records `UNKNOWN` — never a rejection of the incident (fail-closed).
+
+## The contract
+
+`test/ci/raer-registry.test.js` pins this file set the way every claim in
+this repo is pinned: schema/statuses/counts coherence, template self-validation
+(with negative controls), the fail-closed matrix chained to AIE-1's exact
+verdict language, and **the wire proof** — a bundle assembled by the
+documented AIE-1 one-liner replays byte-identically through the documented
+endpoint, twice, in CI. If the registry ever drifts from the wire, the push
+fails.

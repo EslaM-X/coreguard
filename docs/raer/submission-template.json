@@ -1,0 +1,34 @@
+{
+  "_comment": "RAER submission template — copy this file, rename it RAER-<year>-<seq>.json, fill every field, and open a PR. The shown enum fields carry one VALID example value each; the allowed sets are verdict.claimedVerdict ∈ {EXECUTION_EVIDENCE_ADMISSIBLE, FIXTURE_REJECTED, UNKNOWN}, claimedAdmissibility ∈ {admissible, rejected, none}, matchesBundle ∈ {match, mismatch-or-none}. The CI contract (test/ci/raer-registry.test.js) validates structure: a submission that cannot parse records UNKNOWN — it is never counted as a rejection of the incident (fail-closed, per registry.json#validationMatrix).",
+  "schema": "CG-RAER-SUB/1",
+  "id": "RAER-<year>-<seq>",
+  "incident": {
+    "title": "Short neutral title — what happened, no adjectives",
+    "summary": "2-5 sentences. Facts only. Allegations stay attributed ('the lab reported…'), never asserted by this registry.",
+    "summaryAr": "ملخص بالعربية عند توفره — نفس قواعد الحياد",
+    "reportedBy": "the party reporting (lab / regulator / auditor / affected party) — the registry records WHO, and validates nothing about their claim",
+    "reportedAtUtc": "<ISO-8601 timestamp>",
+    "incidentWindowUtc": { "from": null, "to": null },
+    "realIncident": true
+  },
+  "evidenceBundle": {
+    "bundlePath": "docs/raer/bundles/<id>/ — committed tree path holding the AIE-1 evidence bundle (commit-anchored: what is registered is what was committed)",
+    "bundleSha256": "<sha256 over the bundle bytes; the replay re-computes this and any mismatch is a named finding>",
+    "assembleHow": "the documented AIE-1 assembly one-liner (docs/agent-incident-evidence.md) — a reviewer reproduces the bundle from the same records"
+  },
+  "verdict": {
+    "claimedVerdict": "EXECUTION_EVIDENCE_ADMISSIBLE",
+    "claimedAdmissibility": "admissible",
+    "onchainAnchor": {
+      "chain": "core-mainnet",
+      "txHash": "<tx hash or null>",
+      "matchesBundle": "match"
+    },
+    "verdictNote": "why the submitter believes this verdict — the engine decides admissibility, never conformity"
+  },
+  "replay": {
+    "executedBy": "who ran the replay (maintainer CI / independent party) — an entry reaches REPLAYED only after a CI-executed replay reproduces the claimed verdict on the recorded bundleSha256",
+    "transcript": "path to the replay transcript committed beside the bundle (stdout of the verify run: same bytes in → byte-identical verdict out)",
+    "replayedAtUtc": null
+  }
+}
