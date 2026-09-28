@@ -69,3 +69,5 @@ Karnak Chat أثبت أن **النموذج** العربي يمكن أن يكون
 ---
 
 **المستودع**: https://github.com/EslaM-X/coreguard · **الصفحة الحية**: https://eslam-x.github.io/coreguard/ · **السلسلة**: Core Mainnet (chainId 1116) · كل ادعاء في هذا الموجز متتبع من شجرة المستودع.
+
+**ملف تقديم الحضانة** (AIC/TIEC — CoreGuard+RAER، مسار البراءة، خارطة 90 يومًا): [`docs/aic-tiec-incubation-application-ar.md`](https://github.com/EslaM-X/coreguard/blob/main/docs/aic-tiec-incubation-application-ar.md)
