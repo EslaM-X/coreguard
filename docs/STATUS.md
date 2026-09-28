@@ -8,7 +8,7 @@ machine-measured, not estimated. Last verified: **2026-09-26**.
 
 | Item | Value | How verified |
 |---|---|---|
-| Test suite | **1214 / 1214 pass** | `npm test` — the pass total is machine-pinned: `scripts/run-tests.mjs` enforces it against `docs/state-snapshot.json` after every green run (drift = red), and `test/ci/current-state.test.js` re-measures the fast fields (boundary audit, harness, docs-node) against the committed snapshot. CI-green across engines |
+| Test suite | **1216 / 1216 pass** | `npm test` — the pass total is machine-pinned: `scripts/run-tests.mjs` enforces it against `docs/state-snapshot.json` after every green run (drift = red), and `test/ci/current-state.test.js` re-measures the fast fields (boundary audit, harness, docs-node) against the committed snapshot. CI-green across engines |
 | Foundry contracts | **34 / 34 pass** | `forge test --match-path "test/contract/*"` (V2: 14 + EvidenceRegistryV3: 20) |
 | Adversarial corpus | **73 / 73 pass** | `npm run corpus && npm run benchmark` |
 | Execution Integrity Benchmark | **10,000 runs · False Accept 0 · False Reject 0** | `npm run benchmark:10k` |
