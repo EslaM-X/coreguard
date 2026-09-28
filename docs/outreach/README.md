@@ -20,7 +20,7 @@ concrete (30 minutes, no commitment).
 | `google-gemini-en.md` | Google / Gemini | English | ☐ |
 | `anthropic-en.md` | Anthropic | English | ☐ |
 | `deepseek-en.md` | DeepSeek | English | ☐ |
-| `public-post-agent-safety.md` | agent-safety communities (public post) | English | ☐ |
+| `public-post-agent-safety.md` | agent-safety communities (public post) | English | ☑ X approved 2026-09-28 (Codebuff, delegated B6 record in the file); LinkedIn/Reddit deferred by the same record |
 
 ## Channel notes (public, non-binding)
 

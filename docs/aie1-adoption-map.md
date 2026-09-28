@@ -128,4 +128,8 @@ identity-from-the-socket, and deterministic replay proven E2E in this repo.
    the same one the wire returns; a reviewer who read one report can read all.
 4. **The public post** for agent-safety communities is drafted under the same
    gate: [`docs/outreach/public-post-agent-safety.md`](https://github.com/EslaM-X/coreguard/blob/main/docs/outreach/public-post-agent-safety.md)
-   — facts-only, ledger-carrying, owner-gated.
+   — facts-only, ledger-carrying, owner-gated. **Gate record (2026-09-28):**
+   the delegated B6 decision approved **X only** for this cycle (LinkedIn and
+   Reddit deliberately deferred until the X thread's replies are worked under
+   the same ledger discipline); the approval is recorded in the file's
+   Owner gate record line.
