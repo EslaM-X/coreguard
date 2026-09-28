@@ -22,6 +22,16 @@ concrete (30 minutes, no commitment).
 | `deepseek-en.md` | DeepSeek | English | ☐ |
 | `public-post-agent-safety.md` | agent-safety communities (public post) | English | ☑ X approved 2026-09-28 (Codebuff, delegated B6 record in the file); LinkedIn/Reddit deferred by the same record |
 
+## Supporting infrastructure (linkable from any future send)
+
+- **RAER — the Replayable Agent-Incident Evidence Registry**
+  ([docs/raer/](../raer/README.md)): the neutral, replayable registry every
+  incident review can START from. Every letter above offers AIE-1 as a
+  surface; RAER is the standing institution around that surface — the answer
+  to "why would a lab depend on this?" is "because the next review that
+  cannot be replayed is the next review nobody believes." Zero real incidents
+  registered; one labeled demo entry; CI-contracted.
+
 ## Channel notes (public, non-binding)
 
 - **AIC/Karnak:** the center's public channels (aic.gov.eg contact routes,
