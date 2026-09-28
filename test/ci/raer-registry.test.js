@@ -119,9 +119,9 @@ test("submission template validates structurally; an unparsable one records UNKN
   assert.ok(errs2.some((e) => e.includes("invalid enum")), "an off-language verdict must fail validation");
 });
 
-test("every raer file is valid JSON and the directory carries exactly the registry and the template", () => {
+test("every raer file is valid JSON and the directory carries exactly the registry, the template, and the derived feed", () => {
   const files = readdirSync(RAER_DIR).filter((f) => f.endsWith(".json"));
-  assert.deepEqual([...files].sort(), ["registry.json", "submission-template.json"].sort(), "raer dir holds exactly the registry and the template");
+  assert.deepEqual([...files].sort(), ["feed.json", "registry.json", "submission-template.json"].sort(), "raer dir holds exactly the registry, the template, and the derived feed");
   for (const f of files) assert.doesNotThrow(() => JSON.parse(readFileSync(join(RAER_DIR, f), "utf8")), `${f} must parse`);
 });
 
@@ -234,4 +234,30 @@ test("README neutrality claims match the registry's semantics (no cross-file dri
   for (const s of r.statuses) assert.ok(readme.includes(s), `README must name status ${s}`);
   assert.match(readme, /never deleted/i, "README must carry the never-destroyed rule");
   assert.match(readme, /0 real incidents|zero real incidents/i, "README must state the zero-incident truth");
+  assert.match(readme, /feed\.json/, "README must document the derived feed (the addressable surface)");
+});
+
+test("the derived feed is byte-fresh: raer-feed.mjs --check regenerates it identically from the registry", () => {
+  const r = spawnSync(process.execPath, [join(REPO, "scripts", "raer-feed.mjs"), "--check"], { encoding: "utf8", cwd: REPO, timeout: 60_000 });
+  assert.equal(r.status, 0, `feed drifted from the registry (run: node scripts/raer-feed.mjs):\n${r.stdout}${r.stderr}`);
+  assert.match(r.stdout, /CHECK OK/);
+});
+
+test("the feed is addressable: bilingual citation, honest counts, sorted statuses, no timestamps", () => {
+  const feed = JSON.parse(readFileSync(join(RAER_DIR, "feed.json"), "utf8"));
+  const r = registry();
+  assert.equal(feed.schema, "CG-RAER-FEED/1");
+  assert.deepEqual(feed.statuses, [...r.statuses].sort(), "feed statuses must be the sorted registry statuses");
+  assert.deepEqual(feed.counts, r.counts, "feed counts must equal the registry counts verbatim");
+  for (const lang of ["en", "ar"]) {
+    assert.ok(feed.citation?.[lang]?.length > 80, `citation.${lang} must carry a real snippet`);
+    assert.ok(feed.citation[lang].includes("/raer/"), `citation.${lang} must carry the registry URL`);
+  }
+  assert.match(feed.citation.en, /replay/i, "the EN snippet must carry the replay question");
+  assert.match(feed.citation.ar, /إعادة تشغيل/, "the AR snippet must carry the replay question");
+  assert.equal(feed.verify.neverDeleted, true, "the feed must carry the never-destroyed rule");
+  // Determinism law: a derived feed has no measurement timestamps — two runs
+  // over the same registry are byte-identical (that is what --check pins); a
+  // timestamped field here would silently break byte-freshness.
+  assert.ok(!/measuredAt|generatedAt|timestamp/i.test(JSON.stringify(feed)), "the feed must not embed timestamps");
 });

@@ -1,0 +1,54 @@
+{
+  "schema": "CG-RAER-FEED/1",
+  "derivedFrom": {
+    "source": "https://eslam-x.github.io/coreguard/raer/registry.json",
+    "spec": "https://eslam-x.github.io/coreguard/raer/",
+    "contract": "test/ci/raer-registry.test.js",
+    "generator": "scripts/raer-feed.mjs"
+  },
+  "name": "Replayable Agent-Incident Evidence Registry",
+  "nameAr": "سجل أدلة حوادث الوكلاء القابل لإعادة التشغيل",
+  "whatIs": "A public, neutral registry of AI-agent incidents whose evidence bundles replay deterministically: any party — the investigating lab, a regulator, an auditor, a court, the public — re-runs the same bytes through the same gate and gets the same verdict. The host certifies REPLAYABILITY, never facts.",
+  "whatIsAr": "سجل عام محايد لحوادث وكلاء الذكاء الاصطناعي تكون حزم أدلتها قابلة لإعادة التشغيل حتميًا: أي طرف — مختبر التحقيق، الجهة المنظمة، المدقق، المحكمة، الجمهور — يعيد تشغيل نفس البايتات عبر نفس البوابة فيحصل على نفس الحكم. المضيف يشهد على قابلية إعادة التشغيل، لا على الوقائع.",
+  "statuses": [
+    "CONTESTED",
+    "DEMO",
+    "PENDING_REPLAY",
+    "REPLAYED",
+    "REPLAY_FAILED",
+    "WITHDRAWN"
+  ],
+  "counts": {
+    "total": 1,
+    "byStatus": {
+      "REPLAYED": 0,
+      "REPLAY_FAILED": 0,
+      "CONTESTED": 0,
+      "PENDING_REPLAY": 0,
+      "WITHDRAWN": 0,
+      "DEMO": 1
+    },
+    "realIncidents": 0
+  },
+  "entries": [
+    {
+      "id": "RAER-2026-0001",
+      "status": "DEMO",
+      "demo": true,
+      "realIncident": false,
+      "title": "Incubator demo scenario — the four-outcome dispute rehearsal (synthetic, no real incident)"
+    }
+  ],
+  "verify": {
+    "oneLiner": "one endpoint, one evidence bundle, one report schema — replayable from a cold clone by any reviewing party",
+    "oneLinerAr": "نقطة نهاية واحدة، حزمة أدلة واحدة، مخطط تقرير واحد — قابلة لإعادة التشغيل من استنساخ بارد من أي جهة مراجعة",
+    "specDoc": "https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md",
+    "reviewPage": "https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html",
+    "submitHow": "copy docs/raer/submission-template.json, fill every field, open a PR — a submission that cannot parse records UNKNOWN, never a rejection",
+    "neverDeleted": true
+  },
+  "citation": {
+    "en": "When the next AI-agent incident is announced, don't ask \"who investigated?\" — ask \"which verdicts replay?\" RAER accepts replayable evidence bundles from any party: one endpoint, one bundle, one schema. https://eslam-x.github.io/coreguard/raer/",
+    "ar": "عند إعلان الحادثة التالية لوكلاء الذكاء الاصطناعي: لا تسأل «من حقّق؟» — اسأل «أي الأحكام يمكن إعادة تشغيله؟». سجل RAER يقبل حزم أدلة قابلة لإعادة التشغيل من أي جهة: نقطة نهاية واحدة، حزمة واحدة، مخطط واحد. https://eslam-x.github.io/coreguard/raer/"
+  }
+}
