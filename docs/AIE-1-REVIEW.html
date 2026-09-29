@@ -25,7 +25,7 @@
     color:var(--ink); line-height:1.6; min-height:100vh;
   }
   .wrap{max-width:1000px;margin:0 auto;padding:1.2rem 1.3rem 4rem}
-  .top{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 0 1rem}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 0 1rem;position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--line)}
   .brand{display:flex;align-items:center;gap:.6rem;font-weight:700}
   .brand .mark{
     width:32px;height:32px;border-radius:9px;
@@ -115,6 +115,20 @@
   }
   .banner{margin-top:.7rem;color:var(--faint);font-size:.78rem;border-top:1px dashed var(--line);padding-top:.6rem}
 
+  /* UX/PERF upgrade: motion is reduced-motion-aware, state is always honest
+     (RUNNING… is a state, never a result), and performance is measured live
+     and stated — never claimed. */
+  .runprog{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--green),var(--blue));z-index:100;transition:width .25s ease}
+  .vbar.busy{border-left-color:var(--gold)}
+  .vstatus.busy{color:var(--gold)}
+  .perf{margin-top:.55rem;color:var(--faint);font-size:.78rem;font-variant-numeric:tabular-nums}
+  :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  button.xlink{font-family:inherit;cursor:pointer}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .sc,.btn,.xlink,.runprog{transition:none}
+  }
+
   .raer-entries{width:100%;border-collapse:collapse;margin:.6rem 0 .9rem;font-size:.86rem}
   .raer-entries th{border-bottom:1px solid var(--line);text-align:start;padding:.35rem .5rem;color:var(--muted)}
   .raer-entries td{border-bottom:1px solid var(--line);padding:.35rem .5rem}
@@ -133,6 +147,7 @@
 </head>
 <body>
 <div class="wrap">
+<div class="runprog" id="runprog" aria-hidden="true"></div>
 
 <div class="top">
   <div class="brand"><div class="mark">⚖</div><div>AIE-1 Review<span data-lang-text="en" class="inline"> · incident verification surface</span><span data-lang-text="ar" class="inline"> · سطح تحقق الحوادث</span></div></div>
@@ -147,6 +162,7 @@
     <a class="xlink" href="DDE-API-REFERENCE.html"><span data-lang-text="en" class="inline">↔ Wire surface (API reference)</span><span data-lang-text="ar" class="inline">↔ سطح السلك (مرجع API)</span></a>
     <a class="xlink" href="DDE-SDK-REFERENCE.html"><span data-lang-text="en" class="inline">↔ SDK gate surface</span><span data-lang-text="ar" class="inline">↔ سطح بوابة SDK</span></a>
     <a class="xlink" href="https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md"><span data-lang-text="en" class="inline">📄 AIE-1 spec (claims executed by CI)</span><span data-lang-text="ar" class="inline">📄 مواصفة AIE-1 (ادعاءاتها تُنفَّذ آليًا)</span></a>
+  <button class="xlink" id="heroRun"><span data-lang-text="en" class="inline">▶ Try the live demo</span><span data-lang-text="ar" class="inline">▶ جرّب العرض الحي</span></button>
   </div>
 </header>
 
@@ -181,6 +197,7 @@
       <button class="btn primary" id="runPaste"><span data-lang-text="en" class="inline">▶ Verify pasted bundle</span><span data-lang-text="ar" class="inline">▶ تحقّق من الحزمة الملصوقة</span></button>
       <button class="btn" id="loadHonest"><span data-lang-text="en" class="inline">Load the honest bundle</span><span data-lang-text="ar" class="inline">حمّل الحزمة الأمينة</span></button>
       <span class="note"><span data-lang-text="en" class="inline">Engine: verifyFixture + releaseWhen · DDE/1 · boundary banner on every report</span><span data-lang-text="ar" class="inline">المحرك: verifyFixture + releaseWhen · DDE/1 · البانر على كل تقرير</span></span>
+      <span class="note" id="bootms"></span>
     </div>
     <div class="verdict" id="verdict" hidden>
       <div class="vbar" id="vbar">
@@ -189,6 +206,7 @@
       </div>
       <pre class="out" id="vpre"></pre>
       <div class="banner" id="vbanner"></div>
+      <div class="perf" id="vperf" hidden></div>
     </div>
   </div>
 </section>
@@ -238,6 +256,7 @@ window.__DDE_AIE_DATA__ = {"fixture":{"agreement":{"origin":"SYNTHETIC","recordI
    the in-memory fixture path. LESSON [C24] applied: the deep-link block
    runs AFTER the boot's final re-render, never inside main() before it. */
 const ENGINE_READY = (async () => {
+  const t0 = performance.now();
   const D = window.__DDE_AIE_DATA__;
   if (!D || !D.sources) throw new Error("injected payload missing (run inject-demo-data.mjs)");
   const mods = {};
@@ -263,7 +282,7 @@ const ENGINE_READY = (async () => {
   define("__delivery__", rewrite(D.sources["packages/delivery/index.js"]));
   const sdkUrl = define("__sdk__", rewrite(D.sources["packages/delivery/sdk.js"]));
   const mod = await import(sdkUrl);
-  return { verifyFixture: mod.verifyFixture, releaseWhen: mod.releaseWhen };
+  return { verifyFixture: mod.verifyFixture, releaseWhen: mod.releaseWhen, bootMs: Math.round(performance.now() - t0) };
 })();
 
 let SDK = null;
@@ -282,7 +301,21 @@ function chipClass(kind) {
   return kind === "RELEASE" ? "chip release" : kind === "REFUSED" ? "chip refused" : "chip hold";
 }
 
-function showVerdict(report, gate) {
+function prog(pct) {
+  document.getElementById("runprog").style.width = pct + "%";
+}
+
+function showBusy() {
+  document.getElementById("verdict").hidden = false;
+  document.getElementById("vbar").className = "vbar busy";
+  const st = document.getElementById("vstatus");
+  st.className = "vstatus busy";
+  st.textContent = "RUNNING…";
+  document.getElementById("vd").textContent = "";
+  document.getElementById("vperf").hidden = true;
+}
+
+function showVerdict(report, gate, ms) {
   const box = document.getElementById("verdict");
   const bar = document.getElementById("vbar");
   const st = document.getElementById("vstatus");
@@ -298,13 +331,24 @@ function showVerdict(report, gate) {
   dd.textContent = report ? (report.decision || report.error || "") : "";
   pre.textContent = JSON.stringify({ report, gate }, null, 2);
   bn.textContent = (report && report.boundary) || "";
+  const perf = document.getElementById("vperf");
+  if (ms != null) {
+    perf.hidden = false;
+    perf.textContent = (report && report.summary ? report.summary.total : "?") + " checks · " + ms + " ms in-tab";
+  }
 }
 
 async function runFixture(fixture, label) {
+  showBusy();
+  prog(15);
+  const t0 = performance.now();
   const report = await SDK.verifyFixture({ fixture: fixture || undefined, peoplesCourt: !!(fixture && fixture.acceptanceRecord) });
+  prog(70);
   const gate = SDK.releaseWhen(report, (r) => r.status === "VERIFIED" &&
     r.peoplesCourt && r.peoplesCourt.items.some((i) => i.kind === "ACCEPTANCE_RECORD" && i.ref === "ACCEPTED"));
-  showVerdict(report, gate);
+  showVerdict(report, gate, Math.max(1, Math.round(performance.now() - t0)));
+  prog(100);
+  setTimeout(() => prog(0), 600);
   return { report, gate };
 }
 
@@ -341,7 +385,10 @@ async function main() {
   FD = window.__DDE_AIE_DATA__.fixture;
   document.getElementById("loadHonest").addEventListener("click", () => {
     document.getElementById("bundle").value = JSON.stringify(FD, null, 2);
+    document.getElementById("bundle").focus();
   });
+  if (SDK.bootMs != null) document.getElementById("bootms").textContent = "engine boot: " + SDK.bootMs + " ms";
+  document.getElementById("heroRun").addEventListener("click", () => runScenario("honest"));
   document.getElementById("runPaste").addEventListener("click", async () => {
     const raw = document.getElementById("bundle").value.trim();
     if (!raw) { runFixture(null); return; }
@@ -354,8 +401,15 @@ async function main() {
     await runFixture(fixture);
   });
   document.querySelectorAll(".sc").forEach((el) => {
+    el.setAttribute("role", "button");
     el.addEventListener("click", () => runScenario(el.dataset.sc));
     el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); runScenario(el.dataset.sc); } });
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+    if (e.key === "1") runScenario("honest");
+    else if (e.key === "2") runScenario("tamper");
+    else if (e.key === "3") runScenario("empty");
   });
 }
 
