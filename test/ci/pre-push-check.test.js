@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync, cpSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, renameSync, readFileSync, cpSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -77,6 +77,11 @@ function makeSandbox({ broken = false, skipToken = false } = {}) {
   run(["init", "-q", "-b", "main"]);
   run(["config", "user.email", "t@t"]);
   run(["config", "user.name", "t"]);
+  // No detached background writer inside the sandbox: `git gc --auto`
+  // (detach-by-default) writing packs into .git while the recursive rmdir
+  // is enumerating it is one of the two classic producers of the
+  // ENOTEMPTY flake on the cleanup below. Layer 1 of 3.
+  run(["config", "gc.auto", "0"]);
 
   // Slim, dependency-light sandbox: real script + real yaml copied from the
   // repo's node_modules (yaml has zero deps, so a plain copy resolves).
@@ -103,6 +108,38 @@ function makeSandbox({ broken = false, skipToken = false } = {}) {
   return { tmp, gitDir, originDir, run, runIn };
 }
 
+// ---------- sandbox cleanup: the ENOTEMPTY root fix ----------
+// The flake: `ENOTEMPTY: directory not empty, rmdir .../repo/.git` — a file
+// materializes between the recursive delete's enumeration and the rmdir
+// itself (a detached `git gc --auto` finishing a pack, an indexer/AV
+// handle, overlayfs entry caching on the CI runner). Deleting the live
+// directory races whatever touched it last. Three layers, fail-visible:
+//   1. gc.auto=0 in every sandbox (see makeSandbox — no detached writer)
+//   2. rename-aside BEFORE the delete: the tree is moved to a fresh name
+//      nobody else knows, so any late path-based write lands on a vacuum
+//      (the doomed background process's problem, not ours) and the rmdir
+//      walks a quiescent tree
+//   3. a bounded retry with backoff on the transient rmdir codes
+//      (ENOTEMPTY/EBUSY/EPERM/EACCES) — anything else still throws
+const sandboxSleep = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+
+function rmSandbox(tmp) {
+  const aside = `${tmp}.rm-${process.pid}-${Date.now()}`;
+  let renamed = false;
+  try { renameSync(tmp, aside); renamed = true; } catch { /* already gone or locked — fall through */ }
+  const target = renamed ? aside : tmp;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      rmSync(target, { recursive: true, force: true });
+      return;
+    } catch (err) {
+      const transient = ["ENOTEMPTY", "EBUSY", "EPERM", "EACCES"].includes(err?.code);
+      if (!transient || attempt >= 4) throw err;
+      sandboxSleep(50 * (attempt + 1));
+    }
+  }
+}
+
 // ---------- fail-closed proofs ----------
 test("fail-closed: an unparseable workflow fails workflows-parse, file named [C1]", () => {
   const { gitDir, tmp } = makeSandbox({ broken: true });
@@ -110,7 +147,7 @@ test("fail-closed: an unparseable workflow fails workflows-parse, file named [C1
   assert.equal(code, 1);
   assert.equal(named(parsed, "workflows-parse").status, "FAIL");
   assert.match(named(parsed, "workflows-parse").detail, /workflows.*ci\.yml/);
-  rmSync(tmp, { recursive: true, force: true });
+  rmSandbox(tmp);
 });
 
 test("fail-closed: a skip token mid-message fails no-skip-ci, honored from ANY position", () => {
@@ -123,7 +160,7 @@ test("fail-closed: a skip token mid-message fails no-skip-ci, honored from ANY p
   const c = named(parsed, "no-skip-ci");
   assert.equal(c.status, "FAIL");
   assert.match(c.detail, /\[skip ci\]/);
-  rmSync(tmp, { recursive: true, force: true });
+  rmSandbox(tmp);
 });
 
 test("fail-closed: a re-pin ref rewritten off main fails repin-reachable", () => {
@@ -152,7 +189,7 @@ test("fail-closed: a re-pin ref rewritten off main fails repin-reachable", () =>
   assert.equal(c.status, "FAIL");
   assert.match(c.detail, /BAD\.html/);
   assert.doesNotMatch(c.detail, /GOOD\.html/);
-  rmSync(tmp, { recursive: true, force: true });
+  rmSandbox(tmp);
 });
 
 test("fail-closed: a raced remote fails remote-fresh with the autostash remedy", () => {
@@ -178,5 +215,5 @@ test("fail-closed: a raced remote fails remote-fresh with the autostash remedy",
   const c = named(parsed, "remote-fresh");
   assert.equal(c.status, "FAIL");
   assert.match(c.detail, /autostash/);
-  rmSync(tmp, { recursive: true, force: true });
+  rmSandbox(tmp);
 });
