@@ -135,6 +135,7 @@ test("hook: file is honest (shebang + main-only gate + settle call), tracked + e
   assert.match(body, /scripts\/pages-settle\.mjs/);
   assert.match(body, /PAGES_SETTLE_SKIP/);
   assert.match(body, /PAGES_SETTLE_SHA/, "the hook must pin the settle to the new main tip");
+  assert.match(body, /PAGES_SETTLE_SHA="\$new_sha"/, "the pin must carry the NEW tip verbatim and non-empty — an empty pin (`PAGES_SETTLE_SHA=\"\"`) silently disables the commit match and re-opens the registration gap");
   assert.match(body, /PAGES_SETTLE_SITE_REQUIRED=1/, "the hook must run the SAME fail-closed meaning as CI: a 404 is UNOBSERVABLE, never no-build-yet ([C34])");
   assert.match(body, /git config core\.hooksPath \.githooks/);
   const trackedHook = execFileSync("git", ["ls-files", "--", ".githooks/pre-push"], {
@@ -237,6 +238,35 @@ test("settle: pre-push semantics — SHA not on the remote branch yet settles im
       },
     });
     assert.match(out, /sha-not-on-source-branch/, "pre-push calls settle without waiting for their own future build");
+  } finally {
+    s.cleanup();
+  }
+});
+
+test("hook: the settle pin is load-bearing end-to-end — new-tip SHA in, guard checks it, an other-commit build aborts the push", async () => {
+  // The two-clause contract: (1) the hook must hand the guard the EXACT new
+  // main tip as PAGES_SETTLE_SHA, and (2) the guard must actually CHECK that
+  // pin. Scenario: the push has landed on the remote (tip == the new SHA,
+  // the bot side of [C18]) but its Pages build has not registered yet — the
+  // only visible build is terminal, aged, and belongs to a DIFFERENT commit.
+  // Correctly pinned, this push MUST abort (waiting-for-sha-build); if either
+  // clause regresses — an empty pin, a wrong-source pin (e.g. the local HEAD),
+  // or the guard ignoring the pin — the stale build settles the push (exit 0)
+  // and the push cancels the content build the moment it registers.
+  const s = sandbox();
+  try {
+    const newSha = "b".repeat(40);
+    s.writeSim(JSON.stringify({ status: "built", commit: "e".repeat(40), created_at: oldIso() }));
+    s.writeBranch(JSON.stringify({ commit: { commit: { sha: newSha } } }));
+    const r = await runHook([`refs/heads/main ${"0".repeat(40)} refs/heads/main ${newSha}`], {
+      PAGES_SETTLE_JSON: s.simPath,
+      PAGES_SETTLE_BRANCH_JSON: s.branchPath,
+      PAGES_SETTLE_MAX_WAIT_MS: "300",
+      PAGES_SETTLE_POLL_MS: "50",
+    });
+    assert.equal(r.code, 1, `the push must abort while only another commit's build is visible — stderr: ${r.stderr}`);
+    assert.match(r.stderr, /waiting-for-sha-build/, "the guard must be waiting for the NEW tip's own build, not settling on the stale one");
+    assert.match(r.stderr, /ABORTED/);
   } finally {
     s.cleanup();
   }
