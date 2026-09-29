@@ -36,7 +36,9 @@
  *   - Fixed request ceiling (MAX_BODY_BYTES) — oversized bodies are rejected
  *     with 413 before parsing. Fail-closed.
  *   - Malformed JSON → 400 with a REJECTED status, not a 5xx: a bad fixture
- *     is a rejected submission, not a server failure.
+ *     is a rejected submission, not a server failure. Every guard rejection
+ *     (400/403/404/413/429) carries the same named-reasons language, and the
+ *     contract test refuses any REJECTED body that loses it.
  *   - Rate limiting keyed on the direct peer address; no X-Forwarded-For
  *     trust is added — a spoofable header would let callers forge identity
  *     (fail-closed identity). Memory is bounded: buckets expire on window
@@ -268,6 +270,7 @@ export function createDeliveryRequestHandler({ evm = undefined, rateLimit, allow
       return send(404, {
         status: "REJECTED",
         error: "not found — POST /verify or POST /peoples-court with a fixture JSON body",
+        reasons: ["unknown route — send POST to /verify or /peoples-court with a fixture JSON body (fail-closed)"],
         ddeVersion: DDE_VERSION,
         boundary: BOUNDARY_BANNER.statement,
       });
@@ -293,6 +296,7 @@ export function createDeliveryRequestHandler({ evm = undefined, rateLimit, allow
       return send(400, {
         status: "REJECTED",
         error: "request body is not valid JSON — a malformed fixture is a rejected submission, not a server failure",
+        reasons: ["request body is not valid JSON — a malformed fixture is a rejected submission, not a server failure; resend well-formed JSON (fail-closed)"],
         ddeVersion: DDE_VERSION,
         boundary: BOUNDARY_BANNER.statement,
       });

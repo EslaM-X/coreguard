@@ -89,6 +89,9 @@ test("POST /verify: malformed JSON → 400 REJECTED, never a 5xx", async () => {
     assert.equal(code, 400);
     assert.equal(body.status, "REJECTED");
     assert.match(body.error, /not valid JSON/);
+    assert.ok(Array.isArray(body.reasons) && body.reasons.length === 1, "400 must speak the named-reasons language");
+    assert.match(body.reasons[0], /not valid JSON/);
+    assert.match(body.reasons[0], /fail-closed/);
   });
 });
 
@@ -125,8 +128,10 @@ test("GET /health and unknown routes carry the banner; version header present", 
     assert.equal(n.status, 404);
     assert.equal(nb.status, "REJECTED");
     assert.match(nb.boundary, /does not decide delivery conformity/);
+    assert.ok(Array.isArray(nb.reasons) && nb.reasons.length === 1, "404 must speak the named-reasons language");
+    assert.match(nb.reasons[0], /POST to \/verify or \/peoples-court/);
   });
-});
+});;
 
 test("no EVM adapter injected: E5 reports NOT_RUN and no outbound calls are made", async () => {
   await withServer(async ({ post }) => {
@@ -316,6 +321,50 @@ test("endpoint: declared content-length over the cap is refused before reading t
     assert.equal(b.status, "REJECTED");
     assert.match(b.error, /exceeds 1048576 bytes/);
     assert.equal(r.headers.get("x-dde-boundary"), "DDE-BOUNDARY");
+  });
+});
+
+test("contract: every guard rejection speaks ONE named-reasons language (200/422 excluded)", async () => {
+  // The releaseWhen-style named-reasons language is the wire's rejection
+  // vocabulary: the SDK gate and the 429/413/403 guards already speak it, and
+  // 400/404 joined with this change. A future guard (or a refactor of an old
+  // one) that ships a REJECTED body without `reasons` silently introduces a
+  // SECOND rejection language — this lock refuses the push and names the
+  // offending code.
+  await withServer(async ({ base, post }) => {
+    const verdicts = [];
+    // 400 — malformed JSON
+    const bad = await post("/verify", "{not json");
+    verdicts.push([400, bad.body]);
+    // 404 — unknown route
+    const unknown = await fetch(base + "/nope", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+    verdicts.push([404, await unknown.json()]);
+    // 403 — non-listed peer (second endpoint pinned to a foreign allowlist)
+    const s403 = await startDeliveryEndpoint({ port: 0, allowAddresses: ["198.51.100.9"] });
+    try {
+      const p403 = s403.address().port;
+      const r403 = await fetch(`http://127.0.0.1:${p403}/health`);
+      verdicts.push([403, await r403.json()]);
+    } finally { await new Promise((res) => s403.close(res)); }
+    // 413 — declared size over the cap
+    const bloated = JSON.stringify({ padding: "x".repeat(MAX_BODY_BYTES + 1) });
+    const r413 = await fetch(base + "/verify", { method: "POST", headers: { "content-type": "application/json" }, body: bloated });
+    verdicts.push([413, await r413.json()]);
+    // 429 — fill the fixed window until the guard refuses
+    for (let i = 0; i < 121; i++) {
+      const r = await post("/verify", loadFixture());
+      if (r.code === 429) { verdicts.push([429, r.body]); break; }
+      assert.equal(r.code, 200, "the flood must reach the rate limit for the 429 leg");
+    }
+    const flat = verdicts.filter(([, b]) =>
+      !b || !Array.isArray(b.reasons) || b.reasons.length === 0 ||
+      b.reasons.some((x) => typeof x !== "string" || x.trim() === "")
+    );
+    assert.deepEqual(
+      flat.map(([c]) => c),
+      [],
+      `guard rejection(s) without named reasons: ${flat.map(([c]) => c).join(", ")} — every REJECTED body must carry the one shared rejection language`
+    );
   });
 });
 
