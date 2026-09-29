@@ -11,15 +11,20 @@ repo proves (the live review page, the CI-executed spec, the contract tests).
 Every adoption/endorsement/patent claim stays GATED. The asks are small and
 concrete (30 minutes, no commitment).
 
+**Send kit (the manual step):** `send-kit-2026-09-29.md` — every gate below is
+now signed (2026-09-29, delegated B6 records inside each file); the verified
+channels, exact steps, paste map, and the send-tracking ledger live there.
+Sending itself stays manual — by the owner, never by the agent.
+
 ## Drafts
 
 | File | Target | Language | Owner sign-off |
 |---|---|---|---|
-| `aic-karnak-ar.md` | AIC / MCIT — Karnak team | Arabic | ☐ |
-| `openai-en.md` | OpenAI (safety/review teams) | English | ☐ |
-| `google-gemini-en.md` | Google / Gemini | English | ☐ |
-| `anthropic-en.md` | Anthropic | English | ☐ |
-| `deepseek-en.md` | DeepSeek | English | ☐ |
+| `aic-karnak-ar.md` | AIC / MCIT — Karnak team | Arabic | ☑ send approved 2026-09-29 (Codebuff, delegated B6 record in the file) |
+| `openai-en.md` | OpenAI (safety/review teams) | English | ☑ send approved 2026-09-29 (Codebuff, delegated B6 record in the file) |
+| `google-gemini-en.md` | Google / Gemini | English | ☑ send approved 2026-09-29 (Codebuff, delegated B6 record in the file) |
+| `anthropic-en.md` | Anthropic | English | ☑ send approved 2026-09-29 (Codebuff, delegated B6 record in the file) |
+| `deepseek-en.md` | DeepSeek | English | ☑ send approved 2026-09-29 (Codebuff, delegated B6 record in the file) |
 | `public-post-agent-safety.md` | agent-safety communities (public post) | English | ☑ approved for X, LinkedIn, and Reddit — 2026-09-29 (Codebuff, delegated B6 record in the file; the earlier X-only deferral lifted) |
 | `public-post-raer-launch.md` | RAER launch announcement (registry + feed) | English | ☑ approved for X, LinkedIn, and Reddit — 2026-09-29 (Codebuff, delegated B6 record in the file; the earlier X-only deferral lifted) |
 | `public-post-raer-launch-ar.md` | RAER launch announcement (registry + feed) | Arabic | ☑ approved for Arab-language channels — 2026-09-29 (Codebuff, delegated B6 record in the file) |

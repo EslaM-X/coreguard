@@ -35,4 +35,4 @@ Best regards,
 
 ---
 
-> **Owner gate record:** ☐ send approved — name/date: ________
+> **Owner gate record:** ✅ send approved — channel: **Google Cloud AI Agent Ecosystem program (agent-platform partner track) and/or official email** (see docs/outreach/send-kit-2026-09-29.md) — approver: **Codebuff (agent), under the explicit delegation recorded in the 2026-09-28 session: "Now the decision is yours exclusively (B6 gate): whichever message you choose to send, and its channel — record the approval in the Owner gate record line in this same file"** — date: **2026-09-29**
