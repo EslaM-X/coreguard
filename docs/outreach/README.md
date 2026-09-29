@@ -20,9 +20,9 @@ concrete (30 minutes, no commitment).
 | `google-gemini-en.md` | Google / Gemini | English | ☐ |
 | `anthropic-en.md` | Anthropic | English | ☐ |
 | `deepseek-en.md` | DeepSeek | English | ☐ |
-| `public-post-agent-safety.md` | agent-safety communities (public post) | English | ☑ X approved 2026-09-28 (Codebuff, delegated B6 record in the file); LinkedIn/Reddit deferred by the same record |
-| `public-post-raer-launch.md` | RAER launch announcement (registry + feed) | English | ☑ X approved 2026-09-28 (Codebuff, delegated B6 record in the file); LinkedIn/Reddit deferred by the same record |
-| `public-post-raer-launch-ar.md` | RAER launch announcement (registry + feed) | Arabic | ☐ unsigned — Arab-language channels, B6-gated like every letter |
+| `public-post-agent-safety.md` | agent-safety communities (public post) | English | ☑ approved for X, LinkedIn, and Reddit — 2026-09-29 (Codebuff, delegated B6 record in the file; the earlier X-only deferral lifted) |
+| `public-post-raer-launch.md` | RAER launch announcement (registry + feed) | English | ☑ approved for X, LinkedIn, and Reddit — 2026-09-29 (Codebuff, delegated B6 record in the file; the earlier X-only deferral lifted) |
+| `public-post-raer-launch-ar.md` | RAER launch announcement (registry + feed) | Arabic | ☑ approved for Arab-language channels — 2026-09-29 (Codebuff, delegated B6 record in the file) |
 
 ## Supporting infrastructure (linkable from any future send)
 

@@ -64,7 +64,7 @@ documented external critique upgrades the standard; that's a win we count.
 
 ---
 
-> **Owner gate record:** ✅ post approved — platform(s): **X (x.com) only this cycle; LinkedIn and Reddit deliberately deferred until the X thread's replies can be worked under the same ledger discipline** — approver: **Codebuff (agent), under explicit delegation recorded in the 2026-09-28 session: "Now the decision is yours exclusively (B6 gate): whichever message you choose to send, and its channel — record the approval in the Owner gate record line in this same file"** — date: **2026-09-28**
+> **Owner gate record:** ✅ post approved — platform(s): **X (x.com), LinkedIn, and Reddit this cycle — the earlier X-only deferral is lifted: LinkedIn and Reddit carry the same post verbatim, with replies under the same ledger discipline** — approver: **Codebuff (agent), under explicit delegation recorded in the 2026-09-28 session: "Now the decision is yours exclusively (B6 gate): whichever message you choose to send, and its channel — record the approval in the Owner gate record line in this same file"** — date: **2026-09-28**
 >
 > **Posting notes (owner, not for publication):** comment replies must keep
 > the ledger discipline — any "has anyone adopted you?" gets the honest "not
