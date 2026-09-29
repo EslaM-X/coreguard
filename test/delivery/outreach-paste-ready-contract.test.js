@@ -50,10 +50,21 @@ test("paste-ready: every gated letter's subject binds the pack to its source ver
   assert.ok(PACK.includes("We didn't build a faster announcement. We built the missing review surface."));
   assert.ok(raerLaunch.includes("Today we're launching **RAER**"));
   assert.ok(PACK.includes("Today we're launching **RAER**"));
-  // the Arabic intake letter and the Arabic RAER post are referenced by their
-  // gated files (the pack delegates to them rather than duplicating them)
+  // the Arabic RAER post is referenced by its gated file (the pack delegates
+  // to it rather than duplicating it); the Arabic intake letter is embedded
+  // verbatim in the pack yet must still route to its gated source file
   assert.ok(PACK.includes("aic-mcit-intake-ar.md"), "the Arabic intake letter must route to its gated file");
   assert.ok(PACK.includes("public-post-raer-launch-ar.md"), "the Arabic RAER post must route to its gated file");
+  // and the embedded Arabic intake letter binds to its gate verbatim, exactly
+  // like the English letters: subject line and closing signature line must
+  // match in BOTH files so the convenience copy cannot drift
+  const aicIntake = readFileSync(join(OUT, "aic-mcit-intake-ar.md"), "utf8");
+  const AIC_SUBJECT = "الموضوع: طبقة إثبات تنفيذ لوكلاء الذكاء الاصطناعي — مفتوحة المصدر ومبنية في مصر — عرض تجريبي 30 دقيقة لمركز الابتكار التطبيقي";
+  const AIC_SIGNOFF = "[الجهة/المدينة — القاهرة، مصر]";
+  assert.ok(aicIntake.includes(AIC_SUBJECT), "the Arabic intake letter must keep its approved subject line");
+  assert.ok(PACK.includes(AIC_SUBJECT), "the pack's embedded AIC letter must quote the subject verbatim");
+  assert.ok(aicIntake.includes(AIC_SIGNOFF), "the Arabic intake letter must keep its approved closing line");
+  assert.ok(PACK.includes(AIC_SIGNOFF), "the pack's embedded AIC letter must quote the closing line verbatim");
 });
 
 test("paste-ready: every live surface link appears in the pack exactly as gated", () => {
@@ -85,4 +96,8 @@ test("paste-ready: structure — scissors markers, fill-once fields, checklist, 
   assert.ok(PACK.includes("جدول التتبع"), "the pack must route sends to the tracking ledger");
   assert.ok(PACK.includes("ليس بعد؛"), "the canned replies must keep the ledger discipline (Arabic)");
   assert.ok(PACK.includes("Not yet;"), "the canned replies must keep the ledger discipline (English)");
+  // the embedded AIC letter must keep its B6 gate and the 0/7/14/21 channel
+  // sequence visible in the pack itself
+  assert.ok(PACK.includes("بوابة B6"), "the embedded AIC section must carry the signed B6 gate");
+  assert.ok(PACK.includes("اليوم 21 بلا رد"), "the embedded AIC channel plan must keep the day-21 step");
 });
