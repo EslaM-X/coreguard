@@ -8,7 +8,7 @@ machine-measured, not estimated. Last verified: **2026-09-26**.
 
 | Item | Value | How verified |
 |---|---|---|
-| Test suite | **1225 / 1225 pass** (suite unchanged; +1 docs file tracked) | `npm test` — the pass total is machine-pinned: `scripts/run-tests.mjs` enforces it against `docs/state-snapshot.json` after every green run (drift = red), and `test/ci/current-state.test.js` re-measures the fast fields (boundary audit, harness, docs-node) against the committed snapshot. CI-green across engines |
+| Test suite | **1228 / 1228 pass** (+3 x-thread-packs contract tests) | `npm test` — the pass total is machine-pinned: `scripts/run-tests.mjs` enforces it against `docs/state-snapshot.json` after every green run (drift = red), and `test/ci/current-state.test.js` re-measures the fast fields (boundary audit, harness, docs-node) against the committed snapshot. CI-green across engines |
 | Foundry contracts | **34 / 34 pass** | `forge test --match-path "test/contract/*"` (V2: 14 + EvidenceRegistryV3: 20) |
 | Adversarial corpus | **73 / 73 pass** | `npm run corpus && npm run benchmark` |
 | Execution Integrity Benchmark | **10,000 runs · False Accept 0 · False Reject 0** | `npm run benchmark:10k` |
@@ -21,7 +21,7 @@ machine-measured, not estimated. Last verified: **2026-09-26**.
 | Rust/WASM/independent parity | PASS | `test/independent-verifier/` |
 | C verifier | PASS | `test/verifier-c/` (frozen reference, untouched) |
 | Frozen evidence/canonical hashes | UNCHANGED | conformance suite `test/conformance/` |
-| Boundary audit (committed tree) | **854 files · 0 violations · (+1 committee-training file) PASS** | `npm run boundary:audit` — counted from `git ls-files` (the count a clean clone reproduces, not this dev disk), machine-pinned as `docs/state-snapshot.json#boundaryAudit` and re-measured by `test/ci/current-state.test.js` |
+| Boundary audit (committed tree) | **855 files · 0 violations · (+1 x-thread-packs contract) PASS** | `npm run boundary:audit` — counted from `git ls-files` (the count a clean clone reproduces, not this dev disk), machine-pinned as `docs/state-snapshot.json#boundaryAudit` and re-measured by `test/ci/current-state.test.js` |
 | Docs-node contract | **94 executed · 55 skip-listed · 20 docs covered** | `test/ci/docs-node-contract.test.js` — every documented `node`/`npm` command is EXECUTED or skip-listed with a named reason; pinned as `docs/state-snapshot.json#docsNode` |
 | Claim registry CG-CL/1 | **28 claims · 16 VERIFIED · 12 not · 0 violations** | `npm run claims:audit` — `docs/claims-registry.json`; 11 of 28 depend on an external outcome and sit at GATED/UNKNOWN/NOT_PERFORMED. `VERIFIED` is unreachable without evidence, and the audit verdict travels INSIDE the artifact |
 | Badge system CG-BDG/1 | **2 specimens · issuerCount 0 · NOT ISSUED** | `npm run badge:verify` — `verifyBadge()` re-derives every digest from its record byte for byte, so a hand-edited SVG fails; `brand` is non-enumerable so a specimen cannot be laundered into an issued badge |
