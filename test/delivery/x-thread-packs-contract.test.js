@@ -33,11 +33,14 @@ const RAER_LAUNCH = readFileSync(join(OUT, "public-post-raer-launch.md"), "utf8"
 const X_URL_WEIGHT = 23;
 const X_POST_LIMIT = 280;
 
-/** One entry per **A#/##** or **B#/##** marker, tolerant of CRLF. */
+/**
+ * One entry per **A#/##**, **B#/##** or **B#-AR/##** marker (the Arabic
+ * mirror thread), tolerant of CRLF.
+ */
 function posts(md) {
   const out = [];
   for (const section of md.split(/## Thread /).slice(1)) {
-    for (const m of section.matchAll(/\*\*([AB]\d+\/\d+)\*\*\r?\n([\s\S]*?)(?=\r?\n\*\*[AB]\d+\/\d+\*\*|\r?\n---|$)/g)) {
+    for (const m of section.matchAll(/\*\*([AB]\d+(?:-AR)?\/\d+)\*\*\r?\n([\s\S]*?)(?=\r?\n\*\*[AB]\d+(?:-AR)?\/\d+\*\*|\r?\n---|$)/g)) {
       out.push({ tag: m[1], text: m[2].trim() });
     }
   }
@@ -52,7 +55,7 @@ function xWeightedLength(text) {
 
 test("every X-thread post stays within the 280-character X-weighted limit — measured on every push", () => {
   const list = posts(PACKS);
-  assert.ok(list.length >= 22, `expected the full A+B thread packs, found ${list.length} posts`);
+  assert.ok(list.length >= 33, `expected the full A+B thread packs plus the Arabic mirror, found ${list.length} posts`);
   const over = list
     .map(({ tag, text }) => ({ tag, weighted: xWeightedLength(text) }))
     .filter((p) => p.weighted > X_POST_LIMIT)
@@ -84,4 +87,35 @@ test("thread packs bind to their gated sources and keep the honesty rules", () =
   assert.ok(!PACKS.includes("أعلنت OpenAI"));
   assert.ok(!PACKS.includes("أعلنت جوجل"));
   assert.ok(!PACKS.includes("أعلنت Google"));
+});
+
+test("the Arabic mirror thread (B-AR) corresponds 1:1 with thread B — same tags, same totals", () => {
+  // the Arabic mirror is a VERBATIM translation of thread B, gated by the
+  // same B6 records — so it must never gain, lose, or renumber a post on one
+  // side only. Every B#/11 tag must have its B#-AR/11 twin, and nothing else.
+  const all = posts(PACKS);
+  const en = all.filter((p) => !p.tag.includes("-AR"));
+  const ar = all.filter((p) => p.tag.includes("-AR"));
+  assert.equal(en.length, 22, `expected 22 English posts (A1-A11, B1-B11), found ${en.length}`);
+  assert.equal(ar.length, 11, `expected 11 Arabic mirror posts (B1-AR to B11-AR), found ${ar.length}`);
+  assert.ok(ar.every((p) => p.tag.startsWith("B")), `the Arabic thread must mirror B only, found: ${ar.map((p) => p.tag).join(", ")}`);
+  const missing = [];
+  for (const p of en) {
+    const m = p.tag.match(/^B(\d+)\/(\d+)$/);
+    if (m && !ar.some((a) => a.tag === `B${m[1]}-AR/${m[2]}`)) missing.push(`B${m[1]}-AR/${m[2]}`);
+  }
+  assert.deepEqual(missing, [], `Arabic mirror posts missing: ${missing.join(", ")}`);
+  // numbering integrity (both threads): exactly 11 posts, positions 1..11 in
+  // order, every total /11 — the stale mixed totals (/8, /9, /10) once
+  // shipped here and no tool measured them
+  for (const [name, re] of [["A", /^A(\d+)\/(\d+)$/], ["B", /^B(\d+)\/(\d+)$/]]) {
+    const tags = en.map((p) => p.tag.match(re)).filter(Boolean).map((m) => ({ pos: Number(m[1]), total: Number(m[2]) }));
+    assert.equal(tags.length, 11, `thread ${name} must carry 11 posts, found ${tags.length}`);
+    assert.deepEqual(tags.map((t) => t.pos), Array.from({ length: 11 }, (_, i) => i + 1), `thread ${name} positions must be 1..11 in order`);
+    assert.ok(tags.every((t) => t.total === 11), `thread ${name} totals must all be /11 (stale mixed totals found)`);
+  }
+  // the mirror carries the same live surfaces so Arabic readers land on the
+  // same verifiable evidence, and the honesty markers survive translation
+  assert.ok(PACKS.includes("سجل أدلة حوادث الوكلاء القابل لإعادة التشغيل"), "the Arabic mirror must name RAER's replayable-registry nature");
+  assert.ok(PACKS.includes("لا تؤكدان أي واقعة"), "the Arabic mirror must keep the no-facts-asserted honesty line");
 });
