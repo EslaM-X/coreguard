@@ -21,6 +21,7 @@ Sending itself stays manual — by the owner, never by the agent.
 | File | Target | Language | Owner sign-off |
 |---|---|---|---|
 | `aic-karnak-ar.md` | AIC / MCIT — Karnak team | Arabic | ☑ send approved 2026-09-29 (Codebuff, delegated B6 record in the file) |
+| `aic-mcit-intake-ar.md` | AIC / MCIT — formal intake letter + backup-channel plan | Arabic | ☑ send approved 2026-09-29 (Codebuff, delegated B6 record in the file; channel sequencing inside) |
 | `openai-en.md` | OpenAI (safety/review teams) | English | ☑ send approved 2026-09-29 (Codebuff, delegated B6 record in the file) |
 | `google-gemini-en.md` | Google / Gemini | English | ☑ send approved 2026-09-29 (Codebuff, delegated B6 record in the file) |
 | `anthropic-en.md` | Anthropic | English | ☑ send approved 2026-09-29 (Codebuff, delegated B6 record in the file) |
