@@ -194,6 +194,24 @@ Hardening for a deliberate public bind (three fail-closed guards, all tested):
 - **Two-layer size gate** — a declared `content-length` over the cap is
   refused before any body byte is read; the 1 MiB streaming cap remains the
   truth for absent or lying declarations.
+- **Trusted-forwarder classification (OPTIONAL, off by default)** —
+  `trustedForwarders: ["127.0.0.1", …]` names the proxies whose
+  `X-Forwarded-For` claims may be CLASSIFIED. With a list configured, every
+  response carries `x-dde-client-class`: `forwarder-claimed` (the peer IS a
+  listed forwarder and it supplied an XFF claim — the proxy vouches; the wire
+  identity every guard keys on is still the proxy), `forwarder-no-xff`
+  (listed forwarder, no claim), `self-claimed` (an unlisted peer sent an XFF
+  header — an unverified client-supplied claim, exactly the forged-header
+  posture the default rejects trusting), or `direct` (no forwarder
+  infrastructure; the peer address is the client identity). The classes are
+  an observability and policy-adjacent surface: allowlist and rate-limit
+  decisions still key on the direct peer alone in every configuration.
+  Absent or empty → the header is never read at all: the zero-trust default
+  is the default, not a mode you fall out of by omission.
+- **Forwarded-header rule (unchanged)** — forwarded headers are LOGGING data
+  and, with `trustedForwarders` configured, CLASSIFICATION input — never
+  identity. No configuration makes a header open the allowlist, alter the
+  rate bucket, or replace the socket peer in any decision.
 
 ### Wire-level integration — a copy-ready payout gate
 
@@ -329,6 +347,22 @@ default of 1m); adapt names to your proxy if it is not nginx.
    private network, list the proxy hosts' addresses. (They all share one
    verdict: the proxy is the front door by design.)
 
+3b. **OPTIONAL: classify forwarded-client claims with `trustedForwarders`.**
+   Passing the same proxy addresses to `trustedForwarders` arms the
+   client-class gate WITHOUT moving any decision off the socket: responses
+   then carry `x-dde-client-class` — `forwarder-claimed` when the proxy (a
+   listed forwarder) supplied an `X-Forwarded-For` claim (the proxy vouches;
+   every guard still keys on the proxy's socket), `forwarder-no-xff`,
+   `self-claimed` when an UNLISTED peer sends the header (an unverified
+   client-supplied claim — exactly what the zero-trust default refuses to
+   trust), or `direct`. The classes feed YOUR logging, metrics, or
+   downstream policy — the allowlist, the rate buckets, and the boundary
+   never read the header. Leave the option off and nothing changes at all:
+   the header is not even parsed. (A listed forwarder on a private network
+   is the only posture where this mode says anything; on loopback with a
+   same-host proxy it distinguishes proxied traffic from direct
+   probes — useful, still zero-decision.)
+
 4. **The in-process rate limiter becomes a backstop, not the primary limiter.**
    Size it above the proxy's per-client ceiling (e.g. `rateLimit: {
    windowMs: 60_000, max: 600 }` for a 10 r/s edge limit) so it only fires on
@@ -347,6 +381,7 @@ default of 1m); adapt names to your proxy if it is not nginx.
 | `host` | `127.0.0.1` | `127.0.0.1` (proxy on same host) or a private interface — never `0.0.0.0` |
 | `rateLimit` | `120/min` per real client | backstop per proxy, sized **above** the proxy's per-client ceiling (e.g. 600/min); primary limiting at the edge |
 | `allowAddresses` | omit — the loopback bind *is* the guard | pin the proxy's source address(es) — containment for a misexposed port |
+| `trustedForwarders` | omit — XFF is never read (zero-trust default) | optionally the proxy's address(es) — adds `x-dde-client-class` labels (`forwarder-claimed` / `self-claimed` / `direct`); no decision ever reads the header |
 | body cap | 1 MiB (two layers) | 1 MiB, with the edge cap ≤ 1 MiB so oversize dies at the proxy |
 | TLS | out of scope (loopback) | terminated at the proxy; the app speaks plain HTTP over loopback/private net |
 
@@ -362,7 +397,16 @@ The limiter keys on the proxy (the direct peer), so its `x-ratelimit-*`
 headers read as the backstop budget — `x-ratelimit-limit: 600` on every
 response is the proof the posture took. Per-client limiting lives at the
 edge (`limit_req`), the app ignores forwarded headers by contract, and the
-allowlist is the containment layer for a misexposed port.
+allowlist is the containment layer for a misexposed port. Add the same
+address to `trustedForwarders` to additionally label every response with
+`x-dde-client-class` (`forwarder-claimed` / `forwarder-no-xff` /
+`self-claimed` / `direct`) — classification for your ops, never identity
+for the guards.
+
+```bash
+# the optional classification arm of the same posture (adds the header only):
+node --input-type=module -e "import { startDeliveryEndpoint } from './packages/delivery/http.js'; const server = await startDeliveryEndpoint({ port: 8787, allowAddresses: ['127.0.0.1'], trustedForwarders: ['127.0.0.1'], rateLimit: { windowMs: 60000, max: 600 } }); console.log('DDE endpoint (proxy posture, client-class labels on) on :8787 —', server.address());"
+```
 
 **Backups and recovery.** The endpoint is stateless by design: no database, no
 persisted fixtures, rate-limit state is per-process memory. There is nothing

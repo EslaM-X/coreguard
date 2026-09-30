@@ -467,16 +467,16 @@ test("doc curl examples execute against a live documented endpoint and match the
       (n, f) => n + logicalCommands(f).filter((c) => c.includes("startDeliveryEndpoint") && !c.trimStart().startsWith("#")).length,
       0,
     );
-    // [C25]+[C32] exactness: the pin is the MEASURED set (7 start lines:
-    // delivery-dispute-boundary ×3, examples README, README, INTEGRATION,
-    // agent-incident-evidence — the hardening line joined the count only after
-    // the comment-inert tokenizer fix made it visible). A line LOST fails here
-    // by name; a line ADDED must update this pin in the same commit AND
-    // inherit the per-line proof above — which is the point: a start line
-    // never ships unproven again, in either direction.
+    // [C25]+[C32] exactness: the pin is the MEASURED set (8 start lines:
+    // delivery-dispute-boundary ×4 — base, hardening, production, and the
+    // optional trustedForwarders classification arm — examples README, README,
+    // INTEGRATION, agent-incident-evidence). A line LOST fails here by name;
+    // a line ADDED must update this pin in the same commit AND inherit the
+    // per-line proof above — which is the point: a start line never ships
+    // unproven again, in either direction.
     assert.equal(
-      totalStartCmds, 7,
-      `documented start-line set moved: found ${totalStartCmds}, pin is 7 — a line was lost (restore/prove it) or added (update the pin in the same commit and confirm the per-line proof above ran for it)`,
+      totalStartCmds, 8,
+      `documented start-line set moved: found ${totalStartCmds}, pin is 8 — a line was lost (restore/prove it) or added (update the pin in the same commit and confirm the per-line proof above ran for it)`,
     );
     assert.equal(
       provenStarts.length, totalStartCmds,

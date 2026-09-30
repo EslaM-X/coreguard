@@ -140,6 +140,48 @@ export function createAddressGate(addresses) {
 }
 
 /**
+ * Client-class gate for the OPTIONAL trusted-forwarder mode (proxy-pinned
+ * X-Forwarded-For classification). Only meaningful when the operator hands
+ * the endpoint a list of trusted forwarder addresses; it labels every
+ * request with a CLASS, never decides by itself:
+ *   A — the direct peer IS a trusted forwarder: the client-ish XFF claim is
+ *       labeled ("forwarder-claimed"), i.e. the proxy VOUCHES, but the wire
+ *       identity that every guard keys on remains the proxy.
+ *   B — direct peer is NOT a forwarder: any XFF header is an unverified
+ *       CLIENT-supplied claim, labeled "self-claimed".
+ *   direct — no forwarder infrastructure: no XFF header may be present
+ *       (present+direct = a forged-header attempt), and the peer address is
+ *       the client identity itself.
+ * The DEFAULT posture is and stays zero-trust: with no list configured the
+ * gate is inert, no header is ever read for any decision, and nothing is
+ * labeled. Exported for direct unit tests with injectable headers.
+ */
+export function createClientClassGate(trustedForwarders) {
+  const trusted = new Set((trustedForwarders ?? []).map((a) => {
+    if (typeof a !== "string" || a.trim() === "") throw new Error("trustedForwarders entries must be non-empty strings");
+    return normalizeRemoteAddress(a.trim());
+  }));
+  if (trusted.size === 0) return { enabled: false, classify: () => null };
+  return {
+    enabled: true,
+    /** @returns {{clientClass: string, clientClaim: string|null}} */
+    classify(headers, rawPeer) {
+      // Same normalization the allowlist gate applies — a dual-stack listener
+      // reporting "::ffff:10.9.9.9" must classify as the listed IPv4 form.
+      const peer = normalizeRemoteAddress(rawPeer ?? "");
+      const xff = headers?.["x-forwarded-for"];
+      const claim = typeof xff === "string" && xff.trim() !== "" ? xff.trim() : null;
+      if (trusted.has(peer)) {
+        if (claim === null) return { clientClass: "forwarder-no-xff", clientClaim: null };
+        return { clientClass: "forwarder-claimed", clientClaim: claim };
+      }
+      if (claim !== null) return { clientClass: "self-claimed", clientClaim: claim };
+      return { clientClass: "direct", clientClaim: null };
+    },
+  };
+}
+
+/**
  * resets after `windowMs`; memory stays bounded because expired buckets are
  * dropped lazily on hit and swept when the map crosses `pruneAt` entries.
  * Exported for direct unit tests with an injected clock.
@@ -201,11 +243,16 @@ export function createRateLimiter({
  * @param {string[]} [opts.allowAddresses] optional closed allowlist of peer
  *        socket addresses; every other address is rejected with 403 before
  *        the rate limiter (and `/health` is gated too). Absent → no filtering.
+ * @param {string[]} [opts.trustedForwarders] OPTIONAL list of proxy/forwarder
+ *        socket addresses whose X-Forwarded-For claims may be classified
+ *        (never silently trusted). Absent/empty → the header is never read:
+ *        the zero-trust default is untouched. See createClientClassGate.
  * @returns {(req: import("node:http").IncomingMessage, res: import("node:http").ServerResponse) => Promise<void>}
  */
-export function createDeliveryRequestHandler({ evm = undefined, rateLimit, allowAddresses } = {}) {
+export function createDeliveryRequestHandler({ evm = undefined, rateLimit, allowAddresses, trustedForwarders } = {}) {
   const limiter = rateLimit === false ? null : createRateLimiter(rateLimit ?? {});
   const addressGate = createAddressGate(allowAddresses);
+  const clientClassGate = createClientClassGate(trustedForwarders);
   return async function handle(req, res) {
     const send = (code, payload, extraHeaders = {}) => {
       const body = JSON.stringify(payload, null, 2) + "\n";
@@ -226,6 +273,19 @@ export function createDeliveryRequestHandler({ evm = undefined, rateLimit, allow
     const peerVerdict = addressGate.check(req.socket?.remoteAddress);
     if (!peerVerdict.allowed) {
       return send(403, notAllowedBody());
+    }
+
+    // OPTIONAL trusted-forwarder classification (proxy-pinned XFF). Only when
+    // the operator passed `trustedForwarders` does the XFF header get READ at
+    // all — and even then it is labeled, never trusted: Class A means the
+    // proxy (a pinned forwarder) vouches for the client-ish claim, and the
+    // wire identity every guard keys on remains the proxy; Class B marks a
+    // client-supplied XFF as an unverified self-claim. The default posture
+    // never reads the header (zero-trust, unchanged). The classification is
+    // surfaced for ops via `x-dde-client-class` on responses.
+    const ccGate = clientClassGate.classify(req.headers, peerVerdict.peer);
+    if (ccGate !== null) {
+      res.setHeader("x-dde-client-class", ccGate.clientClass);
     }
 
     // Rate limit — every endpoint except /health. Keyed on the direct peer
@@ -329,10 +389,13 @@ export function createDeliveryRequestHandler({ evm = undefined, rateLimit, allow
  *        tunes the per-address fixed window (default 120/min)
  * @param {string[]} [opts.allowAddresses] closed allowlist of peer socket
  *        addresses (see createDeliveryRequestHandler)
+ * @param {string[]} [opts.trustedForwarders] OPTIONAL proxy-pinned forwarder
+ *        addresses (see createDeliveryRequestHandler / createClientClassGate).
+ *        Absent → zero-trust default: XFF is never read for anything.
  * @returns {Promise<import("node:http").Server>}
  */
-export async function startDeliveryEndpoint({ port = 8787, host = "127.0.0.1", evm = undefined, rateLimit, allowAddresses } = {}) {
-  const server = createServer(createDeliveryRequestHandler({ evm, rateLimit, allowAddresses }));
+export async function startDeliveryEndpoint({ port = 8787, host = "127.0.0.1", evm = undefined, rateLimit, allowAddresses, trustedForwarders } = {}) {
+  const server = createServer(createDeliveryRequestHandler({ evm, rateLimit, allowAddresses, trustedForwarders }));
   await new Promise((resolve, reject) => {
     server.once("error", reject);
     server.listen(port, host, resolve);

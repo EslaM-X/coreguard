@@ -142,6 +142,131 @@ test("no EVM adapter injected: E5 reports NOT_RUN and no outbound calls are made
   });
 });
 
+// ---------------------------------------------------------------------------
+// trustedForwarders — OPTIONAL proxy-pinned XFF classification. The signed
+// guard this option ships with: the DEFAULT posture never reads XFF at all,
+// and even the configured posture LABELS the claim without ever keying a
+// decision (allowlist, rate bucket, boundary) on it.
+// ---------------------------------------------------------------------------
+
+test("client-class gate unit: inert without a list, Class A/B/direct with one", async () => {
+  const { createClientClassGate } = await import("../../packages/delivery/http.js");
+  // Default posture: no list → the gate is INERT (enabled:false, classify null).
+  const off = createClientClassGate(undefined);
+  const offEmpty = createClientClassGate([]);
+  assert.equal(off.enabled, false, "absent trustedForwarders must leave the gate inert");
+  assert.equal(offEmpty.enabled, false, "an empty trustedForwarders list must leave the gate inert");
+  assert.equal(off.classify({}, "10.9.9.9"), null, "the inert gate must not classify anything");
+
+  const gate = createClientClassGate(["10.9.9.9"]);
+  assert.equal(gate.enabled, true);
+  // Class A — the peer IS a listed forwarder that supplied an XFF claim:
+  // the proxy VOUCHES; the claim is recorded, never trusted.
+  assert.deepEqual(
+    gate.classify({ "x-forwarded-for": "198.51.100.7" }, "10.9.9.9"),
+    { clientClass: "forwarder-claimed", clientClaim: "198.51.100.7" },
+  );
+  // A listed forwarder with no XFF claim: still labeled, nothing claimed.
+  assert.deepEqual(gate.classify({}, "10.9.9.9"), { clientClass: "forwarder-no-xff", clientClaim: null });
+  // Class B — an UNLISTED peer sending XFF: an unverified self-claim (the
+  // exact forged-header posture the zero-trust default refuses to trust).
+  assert.deepEqual(
+    gate.classify({ "x-forwarded-for": "10.9.9.9" }, "203.0.113.7"),
+    { clientClass: "self-claimed", clientClaim: "10.9.9.9" },
+    "a spoofed XFF claiming the forwarder's own identity must label self-claimed, never forwarder-claimed",
+  );
+  // Direct traffic (no forwarder infra in play): the peer is the client.
+  assert.deepEqual(gate.classify({}, "203.0.113.7"), { clientClass: "direct", clientClaim: null });
+  // IPv4-mapped IPv6 forwarder spelling normalizes like the allowlist.
+  assert.equal(gate.classify({ "x-forwarded-for": "x" }, "::ffff:10.9.9.9").clientClass, "forwarder-claimed");
+  // A configured empty entry fails at construction, like allowAddresses.
+  assert.throws(() => createClientClassGate([" "]), /non-empty strings/);
+});
+
+test("wire: with trustedForwarders configured, /verify carries x-dde-client-class and verdicts are unchanged", async () => {
+  const { createDeliveryRequestHandler } = await import("../../packages/delivery/http.js");
+  const handler = createDeliveryRequestHandler({
+    allowAddresses: ["10.9.9.9"],
+    trustedForwarders: ["10.9.9.9"],
+  });
+  const enc = new TextEncoder();
+  const run = async (headers, peer) => {
+    const out = { code: 0, headers: new Map(), raw: "" };
+    const req = {
+      method: "POST", url: "/verify", headers,
+      socket: { remoteAddress: peer },
+      async *[Symbol.asyncIterator]() { yield enc.encode("{}"); },
+    };
+    await handler(req, {
+      writeHead(c, h) { out.code = c; for (const [k, v] of Object.entries(h ?? {})) out.headers.set(k.toLowerCase(), v); return this; },
+      setHeader(k, v) { out.headers.set(k.toLowerCase(), v); },
+      end(b) { out.raw = b ?? ""; },
+    });
+    return out;
+  };
+  // The proxy (a listed forwarder) vouching for a client claim: Class A.
+  const viaProxy = await run(
+    { "content-type": "application/json", "x-forwarded-for": "198.51.100.7" },
+    "10.9.9.9",
+  );
+  assert.equal(viaProxy.headers.get("x-dde-client-class"), "forwarder-claimed");
+  assert.equal(viaProxy.code, 422, "a labeled Class-A request is still gated by the engine, never admitted by the label");
+  // An unlisted peer spoofing the forwarder's identity in XFF: the ALLOWLIST
+  // refuses it at Guard 0 — before the classifier runs — so no class header
+  // is set at all (the peer never reaches classification; the boundary banner
+  // is the only header on that rejection).
+  const spoof = await run(
+    { "content-type": "application/json", "x-forwarded-for": "10.9.9.9" },
+    "203.0.113.7",
+  );
+  assert.equal(spoof.headers.get("x-dde-client-class"), undefined, "a 403'd stranger is refused before classification — no label on the rejection");
+  assert.equal(spoof.code, 403, "the classification must not soften the allowlist: a stranger peer stays refused");
+  // Direct traffic to a GATE-OPEN endpoint (no allowAddresses configured):
+  // labeled 'direct', and the request flows to the engine verdict normally.
+  const openHandler = createDeliveryRequestHandler({ trustedForwarders: ["10.9.9.9"] });
+  const direct = { code: 0, headers: new Map(), raw: "" };
+  await openHandler(
+    {
+      method: "POST", url: "/verify", headers: { "content-type": "application/json" },
+      socket: { remoteAddress: "203.0.113.7" },
+      async *[Symbol.asyncIterator]() { yield enc.encode("{}"); },
+    },
+    {
+      writeHead(c, h) { direct.code = c; for (const [k, v] of Object.entries(h ?? {})) direct.headers.set(k.toLowerCase(), v); return this; },
+      setHeader(k, v) { direct.headers.set(k.toLowerCase(), v); },
+      end(b) { direct.raw = b ?? ""; },
+    },
+  );
+  assert.equal(direct.headers.get("x-dde-client-class"), "direct");
+  assert.equal(direct.code, 422, "direct traffic to the open gate is classified and then gated by the engine as usual");
+});
+
+test("wire: the DEFAULT posture never reads XFF — no header, no label, byte-identical rejections", async () => {
+  const { createDeliveryRequestHandler } = await import("../../packages/delivery/http.js");
+  const handler = createDeliveryRequestHandler();
+  const enc = new TextEncoder();
+  const run = async (headers) => {
+    const out = { code: 0, headers: new Map(), raw: "" };
+    const req = {
+      method: "POST", url: "/verify", headers,
+      socket: { remoteAddress: "203.0.113.7" },
+      async *[Symbol.asyncIterator]() { yield enc.encode("{}"); },
+    };
+    await handler(req, {
+      writeHead(c, h) { out.code = c; for (const [k, v] of Object.entries(h ?? {})) out.headers.set(k.toLowerCase(), v); return this; },
+      setHeader(k, v) { out.headers.set(k.toLowerCase(), v); },
+      end(b) { out.raw = b ?? ""; },
+    });
+    return out;
+  };
+  // The forged-XFF probe from the zero-trust contract above: an x-dde-client-class
+  // header here would prove the option leaked into the default posture.
+  const r = await run({ "content-type": "application/json", "x-forwarded-for": "10.9.9.9" });
+  assert.equal(r.headers.get("x-dde-client-class"), undefined, "the default posture must never emit the classification header");
+  // And the boundary banner is still the only new header a response carries.
+  assert.equal(r.headers.get("x-dde-boundary"), "DDE-BOUNDARY");
+});
+
 test("default bind is loopback — never a public interface by accident", async () => {
   const { createServer } = await import("node:http");
   const { createDeliveryRequestHandler } = await import("../../packages/delivery/http.js");
