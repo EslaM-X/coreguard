@@ -40,7 +40,7 @@ function tableIds() {
 /** `- [C24] **…**` lesson tags from the detail list, in document order. */
 function lessonIds() {
   if (LESSONS_START < 0) return [];
-  return [...SECTION.slice(LESSONS_START).matchAll(/^- \[(C\d+)\] \*\*/gm)].map((m) => m[1]);
+  return [...SECTION.slice(LESSONS_START).matchAll(/^-\s*\[(C\d+)\]\s*\*\*/gm)].map((m) => m[1]);
 }
 
 function duplicates(ids) {
@@ -80,4 +80,31 @@ test("agents index: both lists stay cost-ranked (C1 = costliest, ascending tag o
     "index table must stay ascending by tag (C1 = highest session cost first)");
   assert.deepEqual(l, [...l].sort((a, b) => a - b),
     "detailed lessons must stay ascending by tag — append new lessons at the end, never between existing ones");
+});
+
+test("agents index: the tag sequence has no gaps — a missing number is a destroyed lesson, not a renumbering style", () => {
+  // The measured failure this closes: a merge edit swallowed the whole [C33]
+  // bullet into the tail of [C34]'s line — same push, same file, invisible to
+  // the pairing tests above, because a bijection between the survivors proves
+  // that they agree with each OTHER, never that the sequence is complete:
+  // duplicates are asserted away, an unnumbered gap is not a pair, and the
+  // ranking test sorts instead of requiring density. Rule: C1..Cmax must ALL
+  // be present; a superseded lesson reuses its tag, it is never retired.
+  const all = [...tableIds(), ...lessonIds()].map((id) => Number(id.slice(1)));
+  assert.ok(all.length > 0, "empty index — structure changed?");
+  const max = Math.max(...all);
+  const missing = [];
+  for (let n = 1; n <= max; n++) if (!all.includes(n)) missing.push("C" + n);
+  assert.deepEqual(missing, [],
+    "tag sequence has gaps: " + missing.join(", ") + " — a numbered lesson was destroyed or renamed; restore it under its own tag (measured case: [C35])");
+});
+
+test("agents index: every detailed lesson title is bolded — the ** marker is how the extractor tells a lesson from prose", () => {
+  // lessonIds() only recognizes "- [C#] **…"; a title that loses its bold
+  // markers stops being a lesson to this contract and would surface as a
+  // missing-row failure in the pairing test — but the actual defect is style
+  // drift, and it deserves to be named as what it is.
+  const unbolded = [...SECTION.slice(LESSONS_START).matchAll(/^- \[(C\d+)\](?!\s*\*\*)/gm)].map((m) => m[1]);
+  assert.deepEqual(unbolded, [],
+    "lesson entries without the bolded (**…**) title the contract keys on: " + unbolded.join(", "));
 });
