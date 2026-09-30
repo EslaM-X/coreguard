@@ -46,6 +46,14 @@ import { fileURLToPath, pathToFileURL } from "node:url";
  * Drift this catches: a rewritten response shape, a renamed decision string,
  * a broken assembly or start one-liner, a changed default port, a renamed
  * status field — anything that makes the docs lie about the wire.
+ *
+ * [C25] START-PER-LINE: every documented start line — not just the first per
+ * document — is executed verbatim against its OWN live child and its claims
+ * are asserted on that child's wire (allowlist admits the loopback it pins;
+ * a documented limiter sizing reads back verbatim as x-ratelimit-limit,
+ * tri-pinned to the prose promise so a corrupted line cannot fabricate its
+ * own confirming server). An exact pin over the measured start-line set (7)
+ * fails the push when a line is lost or left unproven, in either direction.
  */
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -100,6 +108,18 @@ function logicalCommands(script) {
   let quote = null; // null | '"' | "'"
   for (const raw of script.split("\n")) {
     const line = raw.replace(/\r$/, "");
+    // A line whose first non-blank char is '#' is a bash COMMENT: quotes
+    // inside it are inert (real bash never parses them there). Measured bug
+    // this closes: the apostrophe in a comment's "proxy's" opened a
+    // single-quote state that swallowed the NEXT line — the §hardening start
+    // line rode the whole harness invisible (its fence's two comments carried
+    // odd apostrophe parity) until the foreign-allowlist negative control
+    // refused to bite and the fences were dumped member by member [C35].
+    if (quote === null && line.trimStart().startsWith("#")) {
+      if (cur.length) { cmds.push(cur.join("\n")); cur = []; }
+      cmds.push(line);
+      continue;
+    }
     cur.push(line);
     if (quote === null && line.endsWith("\\")) continue; // continuation
     for (const ch of line) {
@@ -156,6 +176,7 @@ test("doc curl examples execute against a live documented endpoint and match the
   try {
     const importBase = pathToFileURL(REPO).href;
     let sawDocumentedStart = false;
+    const provenStarts = []; // [C25] every start line proven verbatim, as {doc, fence}
 
     // Stage the fixture records into the tmp dir. The live examples/ dir is
     // concurrently regenerated in place by the determinism contract test
@@ -183,16 +204,29 @@ test("doc curl examples execute against a live documented endpoint and match the
 
     for (const rel of DOC_FILES) {
       const md = readFileSync(join(REPO, rel), "utf8").replaceAll("\r\n", "\n");
-      const fences = extractBashFences(md).filter((f) => /curl /.test(f));
-      assert.ok(fences.length > 0, `${rel} must still document curl examples`);
+      // [C25] NO curl-filter here: filtering first is how the second and third
+      // start lines rode CI unproven — a fence holding only a documented start
+      // line IS a wire claim and must reach the loop below (the negative
+      // control that caught this: corrupting the production line's rateLimit
+      // sizing stayed green while the filter was in place).
+      const fences = extractBashFences(md);
+      assert.ok(fences.length > 0, `${rel} must still document bash examples`);
 
-      for (const fence of fences) {
+      for (let fenceIndex = 0; fenceIndex < fences.length; fenceIndex++) {
+        const fence = fences[fenceIndex];
         const commands = logicalCommands(fence);
+
+        // Fences that neither curl nor document a start line carry no wire
+        // claim of their own (clone hints, prose installs) — skip them BEFORE
+        // port allocation, whose assertion presumes a wire-targeting fence.
+        const isCommand = (c) => !c.trimStart().startsWith("#");
+        const fenceHasStart = commands.some((c) => c.includes("startDeliveryEndpoint") && isCommand(c));
+        const fenceHasCurl = commands.some((c) => c.startsWith("curl"));
+        if (!fenceHasStart && !fenceHasCurl) continue;
 
         // The documented default port is part of the contract — asserted on
         // the original text before any rewrite. Comment lines (e.g. the
         // installed-package import hint) are not commands.
-        const isCommand = (c) => !c.trimStart().startsWith("#");
         const startCmds = commands.filter((c) => c.includes("startDeliveryEndpoint") && isCommand(c));
         for (const c of startCmds) {
           assert.match(c, /port:\s*8787/, `${rel}: server start must document the default port explicitly`);
@@ -236,15 +270,25 @@ test("doc curl examples execute against a live documented endpoint and match the
         // The documented start line runs as the live child server (once) —
         // never inside the blocking setup, and the harness asserts it starts.
         const startCmd = cmdList.find((c) => c.includes("startDeliveryEndpoint") && isCommand(c));
-        if (startCmd && startedServers.length === 0) {
+        if (startCmd) {
+          // [C25] per-line proof: the previous fence's server is killed here
+          // (before this line's own child is spawned) — every documented
+          // claim is proven against the posture THIS line establishes, and no
+          // two documented lines ever share a process.
+          for (const prev of startedServers) killTree(prev);
+          startedServers.length = 0;
           // Template = the documented start line with its original
           // `port: 8787` AND the import transform applied (the raw command
           // would resolve './packages/…' against the tmp cwd and die).
           // Every attempt derives its own child from it, so a retry can move
           // the listen port (a no-op replaceAll on a ported string would not).
+          // [C25] per-line proof: the template is derived from THIS fence's
+          // own start line and proven verbatim against its claim — a second
+          // documented line never rides on the first one's server.
           const startTemplate = commands
             .find((c) => c.includes("startDeliveryEndpoint") && isCommand(c))
             ?.replaceAll("'./packages/", `'${importBase}/packages/`);
+          provenStarts.push({ doc: rel, fence: fenceIndex });
           // Port-race hardening: node --test runs files in parallel, and a
           // sibling test could grab the released ephemeral port between our
           // probe bind and the child's listen. On EADDRINUSE the child dies
@@ -267,6 +311,29 @@ test("doc curl examples execute against a live documented endpoint and match the
               req.on("error", () => resolve(false));
             });
           };
+          // [C25] claim probes: status by host (allowlist half) and a response
+          // header by name (limiter sizing). All resolve (never throw) so a
+          // dead child surfaces as an assertion, not a crash.
+          const probeStatus = (p, host) => new Promise((resolve) => {
+            const req = http.get({ host, port: p, path: "/health", timeout: 2000 }, (res) => {
+              res.resume();
+              resolve(res.statusCode);
+            });
+            req.on("timeout", () => { req.destroy(); resolve(0); });
+            req.on("error", () => resolve(0));
+          });
+          const probeHeader = (p, name) => new Promise((resolve) => {
+            // A non-/health path: the limiter (and its x-ratelimit headers)
+            // deliberately skips /health, so the sizing proof must ride a
+            // limiter-covered route — headers are set before route dispatch,
+            // so the status of this probe is irrelevant, only the header.
+            const req = http.get({ host: "127.0.0.1", port: p, path: "/verify", timeout: 2000 }, (res) => {
+              res.resume();
+              resolve(String(res.headers[name] ?? ""));
+            });
+            req.on("timeout", () => { req.destroy(); resolve(""); });
+            req.on("error", () => resolve(""));
+          });
           let child = null, childErr = "", childOut = "", up = false;
           for (let attempt = 0; attempt < 5 && !up; attempt++) {
             if (child) killTree(child);
@@ -309,6 +376,38 @@ test("doc curl examples execute against a live documented endpoint and match the
               + `  childStderr: ${childErr.slice(0, 400)}\n`
               + `  childStdout: ${childOut.slice(0, 200)}`,
           );
+
+          // [C25] the line's OWN claims, asserted on the live child's wire:
+          // a line that pins an allowlist must ADMIT the loopback it pins
+          // (corrupting the pinned addresses flips this to 403), and a
+          // documented limiter sizing shows up verbatim as x-ratelimit-limit.
+          // Note the default bind is IPv4 loopback, so the ::1 entry is a
+          // statement about the LIST (mapped-v6 collapse), not a bind promise
+          // — the wire proof is the pinned v4 member answering 200.
+          if (/allowAddresses/.test(startCmd)) {
+            const cfg = startCmd.match(/allowAddresses:\s*\[([^\]]*)\]/)[1];
+            const allowed = (cfg.match(/'([^']+)'/g) || []).map((s) => s.slice(1, -1));
+            assert.ok(allowed.includes("127.0.0.1"), `${rel}: the documented start line pins an allowlist — it must admit the loopback it documents, got [${allowed.join(", ")}]`);
+            const v4 = await probeStatus(port, "127.0.0.1");
+            assert.equal(v4, 200, `${rel}: the documented start line allowlists [${allowed.join(", ")}] — the pinned loopback must answer 200 (never read this proof from a foreign-allowlist posture)`);
+          }
+          const rl = startCmd.match(/rateLimit:\s*\{([^}]*)\}/);
+          if (rl && /max:\s*(\d+)/.test(rl[1])) {
+            // [C32] tri-pin (prose ↔ line ↔ wire): the wire proof ALONE is
+            // circular — corrupting the documented line fabricates its own
+            // confirming server, so the probe reads back the corruption as a
+            // match. The prose promise in the boundary doc is the independent
+            // leg: line and prose must agree BEFORE the wire reading counts.
+            const PROSE_WINDOW = "windowMs: 60_000, max: 600";
+            const boundaryProse = readFileSync(join(REPO, "docs", "delivery-dispute-boundary.md"), "utf8").replaceAll("\r\n", "\n");
+            assert.ok(boundaryProse.includes(PROSE_WINDOW),
+              "the boundary doc's prose backstop sizing drifted from the pin (windowMs: 60_000, max: 600) — update the tri-pin WITH the doc, never after");
+            assert.match(startCmd, /windowMs:\s*60000,\s*max:\s*600/,
+              "the documented production start line's limiter sizing drifted from the prose pin (windowMs 60000, max 600) — line and prose must move in the same commit");
+            const claimed = Number(rl[1].match(/max:\s*(\d+)/)[1]);
+            const h = await probeHeader(port, "x-ratelimit-limit");
+            assert.equal(h, String(claimed), `${rel}: the documented start line claims rateLimit.max ${claimed} — the wire must size the backstop to exactly that`);
+          }
         }
 
         cmdList = cmdList
@@ -358,6 +457,31 @@ test("doc curl examples execute against a live documented endpoint and match the
     }
 
     assert.ok(sawDocumentedStart, "the documented server-start one-liner must be executed, not just documented");
+
+    // [C25] per-line closure: EVERY documented start line was executed and
+    // proven verbatim. The old harness proved the first per file and let the
+    // rest ride on session discipline — two shipped lines rode CI unproven.
+    const totalStartCmds = DOC_FILES.flatMap((rel) =>
+      extractBashFences(readFileSync(join(REPO, rel), "utf8").replaceAll("\r\n", "\n")),
+    ).reduce(
+      (n, f) => n + logicalCommands(f).filter((c) => c.includes("startDeliveryEndpoint") && !c.trimStart().startsWith("#")).length,
+      0,
+    );
+    // [C25]+[C32] exactness: the pin is the MEASURED set (7 start lines:
+    // delivery-dispute-boundary ×3, examples README, README, INTEGRATION,
+    // agent-incident-evidence — the hardening line joined the count only after
+    // the comment-inert tokenizer fix made it visible). A line LOST fails here
+    // by name; a line ADDED must update this pin in the same commit AND
+    // inherit the per-line proof above — which is the point: a start line
+    // never ships unproven again, in either direction.
+    assert.equal(
+      totalStartCmds, 7,
+      `documented start-line set moved: found ${totalStartCmds}, pin is 7 — a line was lost (restore/prove it) or added (update the pin in the same commit and confirm the per-line proof above ran for it)`,
+    );
+    assert.equal(
+      provenStarts.length, totalStartCmds,
+      `start-line proof gap: ${totalStartCmds - provenStarts.length} documented start line(s) rode CI unproven — proven: [${provenStarts.map((p) => `${p.doc}#${p.fence}`).join(", ")}])`,
+    );
   } finally {
     for (const child of startedServers) killTree(child);
     try { rmSync(tmp, { recursive: true, force: true }); } catch { /* temp dir; OS cleans */ }
