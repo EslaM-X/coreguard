@@ -427,6 +427,101 @@ publish the app's port alongside the proxy's · point untrusted third parties
 at the app behind the proxy: the proxy **is** the front door, and every app
 side guard assumes the door is the proxy.
 
+### Running behind Caddy — the same posture, Caddy's syntax
+
+The nginx rules above are the contract; Caddy changes the mechanism, not one
+rule. The differences that matter:
+
+1. **Rate limiting needs a conscious choice.** Caddy's standard build ships
+   no rate-limit directive — pretending otherwise is a claim with no surface.
+   Either build Caddy with a rate-limit module and key it on the client, or
+   accept honestly that per-client limiting moves back to the app — where it
+   degenerates into ONE shared budget (the classic mistake this posture
+   exists to prevent: one heavy client locks everyone out). If per-client
+   limits are a requirement, the module build or Traefik below are the honest
+   paths; Caddy without the module still gives TLS, body caps, and the
+   loopback boundary, with the app limiter as a global backstop.
+2. **Loopback upstream, app on its default bind.** `reverse_proxy` targets
+   the app the documented start line already serves — never widen the app's
+   bind to make the proxy "simpler".
+3. **Body cap at the edge.** `request_body max_size` keeps the edge cap ≤
+   the app's 1 MiB so oversize dies at the proxy.
+4. **TLS is automatic or pinned — never assumed.** A public hostname gets
+   ACME automatically; an internal deployment uses `tls internal`; a pinned
+   pair uses the certificate files. The app speaks plain HTTP over loopback
+   either way.
+5. **`X-Forwarded-For` arrives automatically and stays logging-only.** The
+   app never reads it (contract-tested); add the proxy's address to
+   `trustedForwarders` on the start line if you want the classification
+   labels.
+
+```caddyfile
+# the same posture in Caddy's syntax (rules 2-4; rule 1 is a build choice)
+https://<your-hostname> {
+    tls /etc/ssl/dde.crt /etc/ssl/dde.key    # or `tls internal`
+    request_body {
+        max_size 1MB
+    }
+    reverse_proxy 127.0.0.1:8787
+}
+```
+
+**Never do (Caddy edition):** ship the standard build and claim per-client
+limits · widen the app's bind so Caddy "reaches" it · let automatic HTTPS
+become the assumption instead of the configuration.
+
+### Running behind Traefik — the same posture, Traefik's syntax
+
+Traefik has the builtin middlewares the nginx posture needs, so all five
+rules translate directly:
+
+1. **Per-client rate limit at the edge.** The `rateLimit` middleware keyed on
+   the connection (average 10 / burst 20 mirrors the nginx fence above); the
+   app's limiter stays the backstop sized ABOVE it.
+2. **Loopback upstream.** The service points at the documented start line's
+   bind — the app's host/port live in packages/delivery and are never
+   retyped into a proxy config.
+3. **Body cap.** The `buffering` middleware with `maxRequestBodyBytes`
+   1048576 (1 MiB) keeps oversize dying at the edge; buffering holds the
+   body in memory, which is acceptable at this cap precisely because the cap
+   is small.
+4. **TLS terminates at the entry point.** `tls` on the router with your
+   resolver; the app stays plain HTTP on loopback.
+5. **Forwarded headers stay logging-only.** The same contract as every proxy
+   here: the app never trusts XFF; `trustedForwarders` only adds labels.
+
+```yaml
+entryPoints:
+  websecure:
+    address: ":443"
+http:
+  routers:
+    dde:
+      rule: "PathPrefix(`/`)"
+      entryPoints: [websecure]
+      middlewares: [dde-rate, dde-body]
+      service: dde-app
+      tls:
+        certResolver: myresolver
+  middlewares:
+    dde-rate:
+      rateLimit:
+        average: 10
+        burst: 20
+    dde-body:
+      buffering:
+        maxRequestBodyBytes: 1048576
+  services:
+    dde-app:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:8787"
+```
+
+**Never do (Traefik edition):** publish the app as its own router beside the
+edge · raise `maxRequestBodyBytes` past the app's cap · let the entry
+point's rate limit replace the app's backstop instead of sitting above it.
+
 ### Running in containers — the same posture for Docker and Kubernetes
 
 The proxy posture above is one *process model*: nginx and the app on one host.
