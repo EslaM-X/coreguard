@@ -1,0 +1,38 @@
+# =============================================================================
+# deploy/k8s/dde-netpol.yaml -- reference NetworkPolicy for the CoreGuard DDE
+# endpoint pod (deploy/k8s/dde-pod.yaml).
+#
+# READY-TO-USE posture for "Running in containers" as documented in
+# docs/delivery-dispute-boundary.md -- and CONTRACT-BOUND to it:
+#   test/ci/container-posture-contract.test.js
+#
+# What this policy encodes (the doc's container posture, rule 4):
+#   - NetworkPolicy is DENY-BY-DEFAULT: no rule admits, nothing reaches the
+#     pod. This artifact IS the allowlist the app cannot see.
+#   - ingress ONLY: no egress section at all. The endpoint verifies nothing
+#     on chain; an egress grant "in case" is the hole this file refuses.
+#   - clients reach the edge's 8443 (the documented edge's 443, inside the
+#     pod network) from the namespace's ingress path; the app has no
+#     reachable port to protect (no containerPort is declared for it).
+#
+# Loosening this policy is a deliberate edit to THIS artifact -- never a
+# second, more open policy deployed beside it.
+# =============================================================================
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dde-endpoint-allowlist
+  namespace: dde
+spec:
+  podSelector:
+    matchLabels:
+      app: dde-edge
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8443

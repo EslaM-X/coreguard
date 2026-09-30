@@ -86,7 +86,11 @@ function measureDocsNode() {
   const r = run(process.execPath, ["--test", "--test-concurrency=1", DOCSNODE], { env });
   const m = r.stdout.match(/(\d+) executed · (\d+) skip-listed · (\d+) docs covered/);
   if (r.status !== 0 || !m) {
-    throw new Error(`docs-node contract did not pass: ${r.stdout.slice(0, 400)}${r.stderr}`);
+    // TAIL, not head: the runner prints the failing subtest and its TAP
+    // summary at the END, so a head-slice hides the one thing triage needs
+    // (the 2026-09-30 CI flake shipped `did not pass: TAP version 13` — the
+    // header — while `not ok …`/`# fail …` sat past byte 400, unread).
+    throw new Error(`docs-node contract did not pass:\n[r.stdout tail]\n${r.stdout.slice(-1500)}\n[r.stderr]\n${r.stderr}`);
   }
   return { executed: Number(m[1]), skipListed: Number(m[2]), docsCovered: Number(m[3]) };
 }

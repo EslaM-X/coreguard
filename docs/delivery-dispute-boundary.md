@@ -427,6 +427,67 @@ publish the app's port alongside the proxy's · point untrusted third parties
 at the app behind the proxy: the proxy **is** the front door, and every app
 side guard assumes the door is the proxy.
 
+### Running in containers — the same posture for Docker and Kubernetes
+
+The proxy posture above is one *process model*: nginx and the app on one host.
+Containers split that host across pod boundaries, and each structural claim of
+the posture needs its container-native mechanism. The rules do not change;
+the mechanism becomes declared configuration, and it is contract-bound:
+`test/ci/container-posture-contract.test.js` holds the reference artifacts
+(`deploy/k8s/dde-pod.yaml`, `deploy/k8s/dde-netpol.yaml`) to this section and
+this section to them, in both directions — the same drift rule that binds
+`deploy/nginx.conf`.
+
+1. **The app keeps the loopback bind, and the pod declares no port for it.**
+   `startDeliveryEndpoint` still binds `127.0.0.1` inside the container — a
+   pod's loopback is the pod's own network namespace, so only same-pod
+   processes (the proxy sidecar) can reach the app. The app container declares
+   no `containerPort` and no `hostPort`, and the Service publishes the edge's
+   443 only: a port exposed "for debugging" is the misexposed port the proxy
+   posture exists to contain. In the reference pod (`deploy/k8s/dde-pod.yaml`)
+   the edge listens on `8443` — the edge's 443 on an unprivileged port inside
+   the pod network — and it is the only declared port in the pod.
+
+2. **`/health` is the one endpoint a probe may know.** It is exempt from the
+   rate limiter and answers with the boundary banner, so probes are honest and
+   never consume client budget (the exemption is per-endpoint: `/health` free
+   does not mean `/verify` free). The sidecar's upstream checks, the pod's
+   readiness and liveness probes — every probe targets `/health`, through the
+   edge, over TLS. A probe pointed at `/verify` is a client that happens to
+   run on the platform.
+
+3. **The edge limits real clients and terminates TLS; limiters stack from the
+   client inward.** The sidecar carries the per-client ceiling (the 10 r/s
+   posture of `deploy/nginx.conf`) and the TLS certificate. A platform edge
+   (Ingress/Gateway) sits in front and is sized at-or-below the sidecar's
+   ceiling; the app's `rateLimit` stays the backstop sized above it — the
+   "sized above" rule of the proxy posture, one layer up. Body caps chain the
+   same way: platform edge ≤ sidecar ≤ the app's 1 MiB.
+
+4. **NetworkPolicy is the allowlist the app cannot see.** With the app on
+   loopback there is no second peer for `allowAddresses` to gate, so
+   containment moves to the network layer — and a `NetworkPolicy` is
+   deny-by-default: no rule admits, nothing reaches the pod. The reference
+   policy states `Ingress` only (no egress section at all — the endpoint
+   verifies nothing on chain, and an egress grant "in case" is the hole the
+   file exists to refuse), admits clients to the edge's 443 from the
+   namespace's ingress path, and that is all. Loosening it means editing the
+   artifact consciously, never adding a second open policy beside it.
+
+5. **The container artifacts drift like every other surface: never silently.**
+   The pinned semantics — the `/health`-only probe rule, ports at-or-below the
+   edge's 443, the deny-by-default policy shape, the loopback start line —
+   are machine-checked against this section and against the app's live
+   constants; the failure names the artifact and the rule. Delete the section
+   and the contract fails; mutate an artifact away from it and the same
+   contract fails — by name.
+
+**Never do (containers edition):** declare the app's `containerPort` alongside
+the edge's 443 · point a probe at `/verify` · bind `0.0.0.0` inside the pod
+because "the Service only exposes the proxy" · put an `egress` section on the
+endpoint's policy · let a platform limiter sit above the sidecar's ceiling and
+call the app the primary limiter.
+
 ## 7. What this design deliberately does not do
 
 - It does not judge who is right. Both positions survive verbatim.

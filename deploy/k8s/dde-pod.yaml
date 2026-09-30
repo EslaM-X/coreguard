@@ -1,0 +1,65 @@
+# =============================================================================
+# deploy/k8s/dde-pod.yaml -- reference Kubernetes pod for the CoreGuard DDE
+# endpoint (sidecar edge + loopback app).
+#
+# READY-TO-USE posture for "Running in containers" as documented in
+# docs/delivery-dispute-boundary.md -- and CONTRACT-BOUND to it: a structural
+# test fails the push when this file drifts from the documented rules (or the
+# doc from these artifacts), in either direction:
+#   test/ci/container-posture-contract.test.js
+#
+# What this manifest encodes (all rules from the doc's container posture):
+#   - the app KEEPS its loopback bind (127.0.0.1) inside the pod's network
+#     namespace: only the same-pod sidecar can reach it
+#   - the app container declares NO containerPort and NO hostPort; the edge
+#     sidecar publishes 8443 (the documented edge's 443, inside the pod)
+#   - every probe is an httpGet on /health through the edge over TLS --
+#     /health is the one endpoint a probe may know (limiter-exempt; /verify
+#     would make the platform itself a rate-consuming client)
+#   - the app's own rate limiter stays armed as the backstop; the per-client
+#     ceiling lives on the edge (see deploy/nginx.conf for its sizing)
+#
+# Copy-ready: point image + certificates at your own, keep the shape.
+# =============================================================================
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dde-endpoint
+  namespace: dde
+  labels:
+    app: dde-edge
+spec:
+  containers:
+    - name: dde-delivery
+      image: ghcr.io/eslam-x/coreguard-dde:1.0.0
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: DDE_START
+          value: "node --input-type=module -e \"import { startDeliveryEndpoint } from './packages/delivery/http.js'; const server = await startDeliveryEndpoint({ port: 8787, allowAddresses: ['127.0.0.1'], rateLimit: { windowMs: 60000, max: 600 } }); console.log('DDE endpoint (container posture) on :8787', server.address());\""
+        - name: DDE_EDGE_PORT
+          value: "8443"
+      # probes ride the edge's TLS and hit /health ONLY -- the one endpoint a
+      # probe may know (see the boundary doc, container posture rule 2)
+      readinessProbe:
+        httpGet:
+          path: /health
+          port: $(DDE_EDGE_PORT)
+          scheme: HTTPS
+      livenessProbe:
+        httpGet:
+          path: /health
+          port: $(DDE_EDGE_PORT)
+          scheme: HTTPS
+    - name: edge
+      image: nginx:1.27-alpine
+      imagePullPolicy: IfNotPresent
+      # the ONLY declared port in the pod: the edge's 443-terminated listener
+      # (the documented edge's 8443 inside the pod network)
+      ports:
+        - containerPort: 8443
+          name: https
+      # upstream health checks target the app's /health (limiter-exempt);
+      # the platform's own probes (readiness/liveness above) go through HERE,
+      # not around it -- a probe pointed at /verify is a client that happens
+      # to run on the platform.
