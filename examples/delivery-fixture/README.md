@@ -40,10 +40,12 @@ enforce itself. `--json` for machines.
 node examples/delivery-fixture/adversarial-runner.mjs
 ```
 
-Applies exactly one named mutation per fail-closed check (F0–F3, E3–E5,
-B1–B3) against a clean control, and demands each be caught by its own
-check. Exit `0` = all 10 mutations caught; any survivor or wrong-check
-catch exits `1` and names the hole. `--json` for machines.
+Applies exactly one named mutation per fail-closed check (F0–F4, E3–E5,
+B1–B3 — the F4 envelope-identity series forges the authorization
+envelope's headers: a shed signer certificate, a re-bound subject) against
+a clean control, and demands each be caught by its own check. Exit `0` =
+all 15 mutations caught; any survivor or wrong-check catch exits `1` and
+names the hole. `--json` for machines.
 
 ### Compound attacks — a hostile author does not send one defect at a time
 
@@ -61,8 +63,8 @@ class of gate hole single-mutation coverage cannot see by construction.
 | X4 | verdict forgery: ACCEPTED on payment grounds + zero evaluations + off-vocabulary remedy | B1 + B2 + B3 |
 | X5 | kitchen sink: record deletion + forged grounds + tampered bytes + broken chain + forged verdict | F0 + F1 + E3 + E4 + B2 |
 
-Fuzz mode — seed-deterministic random stacks (size 1–10, PRNG-ordered) of
-the ten mutations, one centering report per round; same seed replays
+Fuzz mode — seed-deterministic random stacks (size 1–15, PRNG-ordered) of
+the fifteen mutations, one centering report per round; same seed replays
 byte-identical rounds:
 
 ```bash
@@ -89,12 +91,12 @@ runs, and the exit is 1 if ANY run has a survivor.
 |---|---|---|
 | `verify-fixture.mjs` | records are byte-exact vs pins + full gate holds | `VERIFIED (10 PASS)` — decision: `CONFORMITY_UNDECIDED_BY_ENGINE` |
 | `verify-fixture.mjs --tamper logo.svg` | one flipped byte fails closed | exit `1` with the E3 mismatch named (expected!) |
-| `adversarial-runner.mjs` | every check catches its own single mutation — incl. the F3 closure-chain series (closure before its opening, closure without an opening, closure declared but never recorded) | `mutations: 13 · caught: 13 · survived: 0` |
-| `adversarial-runner.mjs` (same run) | stacked defects never blind each other | `compound : 5 batteries · caught: 5 · survived: 0` |
+| `adversarial-runner.mjs` | every check catches its own single mutation — incl. the F3 closure-chain series (closure before its opening, closure without an opening, closure declared but never recorded) and the F4 envelope-identity series (shed signer certificate, re-bound subject) | `mutations: 15 · caught: 15 · survived: 0` |
+| `adversarial-runner.mjs` (same run) | stacked defects never blind each other | `compound : 6 batteries · caught: 6 · survived: 0` |
 | `adversarial-runner.mjs --fuzz 50` | random seed-deterministic stacks hold too | `fuzz     : seed 424242 · 50 stacks · survived: 0` |
 | `adversarial-runner.mjs --fuzz 25 --seed <commit-derived>` | CI explores a new deterministic combination on every push (seed = first 8 hex of the pushed commit, modulo 2³¹−1 — replayable by re-running with the seed the log prints) | `fuzz     : seed <N> · 25 stacks · survived: 0` |
 | `adversarial-runner.mjs --fuzz 50 --seeds <s1,s2,…>` | wider discovery in one command: every seed gets a full labeled run (`run i/N — seed s`), replayable per seed, exit 1 if any run has a survivor | `fuzz xN   : 50 stacks/seed over seeds […] · survived total: 0` |
-| `adversarial-runner.mjs --fuzz 50 --budget-ms 250` | per-cycle time budget: engine slowdown under combinational load surfaces as named `PERF WARNING`s and a summary count — without ever touching the correctness verdict | `perf     : 69 gate cycles · budget 250ms/cycle · max <max-ms>ms · total <total-ms>ms · over budget: 0` |
+| `adversarial-runner.mjs --fuzz 50 --budget-ms 250` | per-cycle time budget: engine slowdown under combinational load surfaces as named `PERF WARNING`s and a summary count — without ever touching the correctness verdict | `perf     : 72 gate cycles · budget 250ms/cycle · max <max-ms>ms · total <total-ms>ms · over budget: 0` |
 | `make-fixture.mjs` | the evidence factory is deterministic | `git diff` empty — byte-identical regeneration |
 
 | `node --test test/delivery/doc-curl-contract.test.js` | the docs cannot drift from the wire: every documented bash fence (incl. every `INTEGRATION.md` one) is executed against a live documented endpoint — a rewritten response shape or renamed decision string goes red by name | 1 pass · fences match the wire |

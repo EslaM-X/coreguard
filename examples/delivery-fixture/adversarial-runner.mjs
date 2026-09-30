@@ -298,6 +298,26 @@ const MUTATIONS = [
     hits: ["F3"],
     mutate: (x) => { x.lifecycleState = "RECORD_CLOSED"; },
   },
+
+  // ---- envelope-identity mutations (who actually authorized the envelope)
+  // Measured, live-proved before being added: the honest gate passes these
+  // rows, and each is caught by the ONLY check that owns it — E4 reads the
+  // authorization's own claims (EIP-191 signer certificate, subject) against
+  // the agreement it authorizes, with no hash dependency whatsoever, and E5
+  // (signature replay) reports NOT_RUN without the adapter, so this class can
+  // never ride a cryptographic check that silently no-ops.
+  {
+    id: "F4a",
+    label: "authorization envelope names a different signer than the agreement's client-side agent (EIP-191 certificate deleted)",
+    hits: ["E4"],
+    mutate: (x) => { delete x.authorization.signer; },
+  },
+  {
+    id: "F4b",
+    label: "authorization.subject re-bound to a stranger agent (envelope header claims an authority that was never granted)",
+    hits: ["E4"],
+    mutate: (x) => { x.authorization.subject = "0x" + "de".repeat(20); },
+  },
 ];
 
 // ------------------------------------------------------ compound attacks
@@ -335,6 +355,11 @@ const COMPOUND_BATTERIES = [
     id: "X5",
     label: "kitchen sink: record deletion + forged grounds + tampered bytes + broken chain + forged verdict",
     members: ["F0", "F1", "E3", "E4", "B2"],
+  },
+  {
+    id: "X6",
+    label: "envelope-identity attack: certificate-less authorization envelope + stranger re-bound subject",
+    members: ["F4a", "F4b"],
   },
 ];
 

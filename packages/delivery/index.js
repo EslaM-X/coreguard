@@ -258,6 +258,30 @@ export function checkAuthorizationBinding(fixture) {
       String(z.subject).toLowerCase() !== String(a.client.agentAddress).toLowerCase()) {
     reasons.push("authorization.subject != agreement.client.agentAddress");
   }
+  // Envelope-identity consistency (fail-closed): an authorization envelope
+  // carries its OWN claims about who authorized it — the subject line and the
+  // signer certificate (`scheme` says how the certificate verifies: EIP-712
+  // intent replay via E5, EIP-191 intent-signature verification, …). When
+  // both are present they must name the SAME key: an envelope whose
+  // certificate names one key while its subject claims another is a forged
+  // header, and an envelope that SHEDS its certificate while keeping its
+  // subject line is the same forgery with the evidence removed (measured: the
+  // runner's F4a mutation exploited exactly that hole — a certificate-less
+  // envelope passed E4). Key-to-key comparison only: the certificate is the
+  // record's own address field, never an attacker-suppliable display header;
+  // cryptographic verification of the certificate belongs to E5, which stays
+  // honestly NOT_RUN without an adapter.
+  // An envelope whose certificate was REMOVED entirely is the same forgery
+  // with the evidence shredded — a subject line with no certificate behind it
+  // is a claim about identity that nothing in the envelope supports.
+  const cert = typeof z.signer === "string" ? z.signer : z.signer && z.signer.address;
+  if (z.subject && !cert) {
+    reasons.push("authorization envelope carries a subject line but no signer certificate — identity asserted without evidence (envelope shed its certificate)");
+  } else if (z.subject && cert &&
+      String(cert).toLowerCase() !== String(z.subject).toLowerCase()) {
+    reasons.push("authorization envelope inconsistent: signer certificate names " + cert +
+      " while the subject line claims " + z.subject);
+  }
   if (!z.intentHash || !/^0x[0-9a-f]{64}$/.test(z.intentHash)) {
     reasons.push("authorization.intentHash missing or malformed");
   }

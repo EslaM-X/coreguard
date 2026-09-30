@@ -13,8 +13,8 @@
  * Drift this catches: a reworded or re-spaced summary line, a changed
  * default (rounds/budget/cycle count), a broken placeholder, a renamed
  * field — the table goes stale, this goes red naming the row. The table is
- * the expectation; the runner is the truth; the cycle-count literal (66 =
- * 1 control + 10 mutations + 5 batteries + 50 fuzz rounds) is structural
+ * the expectation; the runner is the truth; the cycle-count literal (72 =
+ * 1 control + 15 mutations + 6 batteries + 50 fuzz rounds) is structural
  * and MUST stay literal so an added mutation forces an honest table update.
  */
 
