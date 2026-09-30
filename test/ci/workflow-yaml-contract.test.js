@@ -236,3 +236,153 @@ test("pages-settle contract: guard callers carry pages:read and pin EVERY settle
       `${rel}: every pages-settle invocation must set PAGES_SETTLE_SITE_REQUIRED=1 (a 404 must fail closed, never read as "no build yet" — the blind-guard recurrence)`);
   }
 });
+
+// ---------------------------------------------------------------------------
+// Runner-report artifacts contract (dde.yml): the SDK + wire perf reports
+// upload as run artifacts with a PINNED 30-day retention. An artifact the
+// workflow forgets to upload, uploads empty, or uploads with a drifted
+// retention is evidence lost — and none of those failures shows in the run's
+// exit code, so they need a contract of their own.
+// ---------------------------------------------------------------------------
+
+test("dde runner-report artifacts: SDK + wire reports upload with pinned retention and fail-closed emptiness", () => {
+  const raw = readFileSync(join(REPO, ".github/workflows/dde.yml"), "utf8");
+  assert.deepEqual(artifactContractViolations(raw), [],
+    "dde.yml runner-report artifact contract drifted:\n  " + artifactContractViolations(raw).join("\n  "));
+});
+
+/** The artifact contract as a pure violations-collector over the raw YAML
+ *  text, so the negative-control battery below can bite on mutated copies. */
+function artifactContractViolations(raw) {
+  const v = [];
+  let doc;
+  try {
+    doc = parse(raw);
+  } catch (e) {
+    return [`dde.yml no longer parses as YAML: ${e.message}`];
+  }
+  const steps = doc.jobs?.dde?.steps ?? [];
+  if (steps.length === 0) return ["dde.yml lost its dde job steps"];
+
+  const uploads = steps.filter((s) => typeof s.uses === "string" && s.uses.startsWith("actions/upload-artifact@"));
+  if (uploads.length !== 1) {
+    v.push(`dde.yml must carry exactly one artifact-upload step (found ${uploads.length}) — a second uploader splits the evidence surface without a contract, and zero means the evidence never leaves the runner`);
+    return v;
+  }
+  const up = uploads[0];
+  const with_ = up.with ?? {};
+
+  // Both runner reports ride ONE artifact — the run's evidence bundle.
+  if (!(with_.path ?? "").includes("/tmp/bench-sdk.json")) {
+    v.push("the upload's path must include the SDK report (/tmp/bench-sdk.json)");
+  }
+  if (!(with_.path ?? "").includes("/tmp/bench-wire.json")) {
+    v.push("the upload's path must include the wire report (/tmp/bench-wire.json)");
+  }
+
+  // Retention is PINNED (30): unpinned, it silently defaults and drifts.
+  if (String(with_["retention-days"]) !== "30") {
+    v.push(`the upload must pin retention-days: 30 (found "${with_["retention-days"]}") — an unpinned retention silently defaults and the evidence window drifts without a diff`);
+  }
+
+  // Evidence is fail-closed: a green-shaped run whose reports went missing
+  // must go red, not upload an empty artifact nobody notices.
+  if (with_["if-no-files-found"] !== "error") {
+    v.push(`the upload must set if-no-files-found: error (found "${with_["if-no-files-found"]}") — missing reports are a failure, not an empty artifact`);
+  }
+
+  // The action stays major-pinned like every other action in the repo.
+  if (!/^actions\/upload-artifact@v\d+$/.test(up.uses)) {
+    v.push(`the upload action must be major-pinned (uses: "${up.uses}")`);
+  }
+
+  // Ordering: AFTER both benchmarks ran (the files exist) and BEFORE the
+  // trend step's first pages-settle call — the evidence must land even when
+  // the gate defers or goes red.
+  const idx = (pred, what) => {
+    const i = steps.findIndex(pred);
+    if (i < 0) v.push(`dde.yml lost the step ${what} — the artifact ordering contract cannot hold`);
+    return i;
+  };
+  const sdkAt = idx((s) => typeof s.run === "string" && s.run.includes("benchmark-dde.mjs"), "running the SDK benchmark");
+  const wireAt = idx((s) => typeof s.run === "string" && s.run.includes("benchmark-dde-http.mjs"), "running the wire benchmark");
+  const upAt = steps.indexOf(up);
+  const settleAt = idx((s) => typeof s.run === "string" && s.run.includes("pages-settle.mjs"), "calling pages-settle (the trend gate)");
+  if (sdkAt >= 0 && wireAt >= 0 && upAt <= sdkAt) {
+    v.push("the upload step must sit after the SDK benchmark step — artifacts cannot upload files that do not exist yet");
+  }
+  if (wireAt >= 0 && upAt <= wireAt) {
+    v.push("the upload step must sit after the wire benchmark step — artifacts cannot upload files that do not exist yet");
+  }
+  if (settleAt >= 0 && upAt > settleAt) {
+    v.push("the upload step must sit before the trend gate — evidence lands even when the gate defers or goes red");
+  }
+
+  // The bundle names both runners, so a reviewer pulling one artifact gets
+  // the whole story (SDK and wire medians together).
+  for (const marker of ["sdk", "wire"]) {
+    if (!(up.name ?? "").toLowerCase().includes(marker)) {
+      v.push(`the upload step name "${up.name}" must mention "${marker}" — the artifact names its contents`);
+    }
+  }
+  return v;
+}
+
+// Negative controls — mutated dde.yml copies, applied-and-bites ([C32]):
+// each staleness of the evidence surface must fail the contract BY NAME.
+test("dde artifact contract negative controls: each mutation applies AND bites, by name", () => {
+  // CRLF-normalized ([C3]): the raw checkout is CRLF on Windows, so
+  // newline-terminated `from` needles would silently never apply — a
+  // control that never lands is a control that proves nothing.
+  const raw = readFileSync(join(REPO, ".github/workflows/dde.yml"), "utf8").replaceAll("\r\n", "\n");
+  const cases = [
+    {
+      label: "retention silently drifts off 30",
+      from: "retention-days: 30",
+      to: "retention-days: 5",
+      expect: /retention-days: 30/,
+    },
+    {
+      label: "the retention pin is removed entirely",
+      from: "          retention-days: 30\n",
+      to: "",
+      expect: /retention-days: 30/,
+    },
+    {
+      label: "emptiness stops failing closed",
+      from: "          if-no-files-found: error\n",
+      to: "",
+      expect: /if-no-files-found: error/,
+    },
+    {
+      label: "the wire report drops off the bundle",
+      from: "            /tmp/bench-wire.json\n",
+      to: "",
+      expect: /must include the wire report/,
+    },
+    {
+      label: "the SDK benchmark step is renamed away",
+      from: "benchmark-dde.mjs",
+      to: "benchmark-dde-renamed.mjs",
+      expect: /lost the step running the SDK benchmark/,
+    },
+    {
+      label: "the uploader loses its version pin",
+      from: "actions/upload-artifact@v4",
+      to: "actions/upload-artifact",
+      expect: /exactly one artifact-upload step/,
+    },
+  ];
+  let applied = 0;
+  for (const c of cases) {
+    if (!raw.includes(c.from)) continue;
+    applied++;
+    const out = raw.replaceAll(c.from, c.to);
+    const violations = artifactContractViolations(out);
+    assert.ok(violations.length > 0,
+      `negative control did not bite: "${c.label}" — the artifact contract stayed green over a corrupted evidence surface`);
+    assert.match(violations.join("\n"), c.expect,
+      `negative control "${c.label}" bit with the wrong message: ${violations.join(" | ")}`);
+  }
+  assert.ok(applied >= 6, `expected all 6 artifact controls to apply, only ${applied} did — the battery is not testing what it thinks`);
+});

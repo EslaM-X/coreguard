@@ -108,6 +108,23 @@ jobs:
         run: node scripts/benchmark-dde.mjs --json > /tmp/bench-sdk.json
       - name: DDE wire perf — full loopback /verify round trip (median < 150ms, engine split)
         run: node scripts/benchmark-dde-http.mjs --json > /tmp/bench-wire.json
+      # Evidence artifacts: the two runner reports (--json medians) upload as
+      # run artifacts so a reviewer can pull the FILES after the run — a log
+      # line scrolls, an artifact is evidence. 30-day retention is PINNED (an
+      # unpinned retention silently defaults and drifts). The upload sits
+      # BEFORE the trend step (which gates and may defer) so the evidence
+      # lands even when the gate goes red, and if-no-files-found: error fails
+      # a green-shaped run whose reports silently went missing — evidence is
+      # fail-closed, not best-effort.
+      - name: Upload runner reports (SDK + wire) as run artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dde-runner-reports
+          path: |
+            /tmp/bench-sdk.json
+            /tmp/bench-wire.json
+          retention-days: 30
+          if-no-files-found: error
       # Performance trend tracking: append this push's medians to the history
       # file and gate against the trailing 5-run baseline (drift beyond 2x =
       # red). The file is committed back so the next push baselines against
