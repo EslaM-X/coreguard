@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoreGuard DDE — لوحة الأداء الحية · Live perf</title>
+<style>
+  :root { color-scheme: dark; --bg:#0d1117; --card:#161b22; --line:#21262d; --fg:#e6edf3; --dim:#8b949e; --ok:#3fb950; --bad:#f85149; --accent:#1b998b; --warn:#d29922; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: "Segoe UI", system-ui, -apple-system, sans-serif; margin: 0; padding: 2rem 1rem; }
+  main { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+  h2 { font-size: 1.1rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; margin-top: 2rem; }
+  .sub { color: var(--dim); font-size: .9rem; margin-bottom: 1.25rem; }
+  .switcher button { background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: .25rem .8rem; cursor: pointer; margin-inline-start: .3rem; }
+  .switcher button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  html[lang="en"] [data-lang-text="ar"], html[lang="ar"] [data-lang-text="en"] { display: none; }
+  [data-lang-text] { display: inline; }
+  .feeds { display: flex; flex-wrap: wrap; gap: .5rem; margin: .75rem 0 1.5rem; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: .15rem .7rem; font-size: .78rem; color: var(--dim); }
+  .chip.ok { border-color: var(--ok); color: var(--ok); }
+  .chip.bad { border-color: var(--bad); color: var(--bad); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; }
+  .card h3 { margin: 0 0 .15rem; font-size: 1rem; }
+  .big { font-size: 2rem; font-weight: 700; margin: .35rem 0; direction: ltr; }
+  .big small { font-size: .9rem; color: var(--dim); font-weight: 400; }
+  .bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; direction: ltr; }
+  .bar > span { display: block; height: 100%; background: var(--ok); }
+  .bar > span.warn { background: var(--warn); }
+  .bar > span.bad { background: var(--bad); }
+  .row { display: flex; justify-content: space-between; gap: .5rem; font-size: .82rem; color: var(--dim); margin-top: .35rem; direction: ltr; }
+  .gate { font-weight: 700; }
+  .gate.ok { color: var(--ok); }
+  .gate.bad { color: var(--bad); }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th, td { text-align: start; padding: .4rem .55rem; border-bottom: 1px solid var(--line); }
+  th { color: var(--dim); font-weight: 600; }
+  .err { border: 1px solid var(--bad); color: var(--bad); border-radius: 10px; padding: .75rem 1rem; margin: .5rem 0; font-size: .88rem; }
+  footer { margin-top: 2.5rem; color: var(--dim); font-size: .8rem; line-height: 1.7; border-top: 1px solid var(--line); padding-top: 1rem; }
+  code { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3rem; direction: ltr; unicode-bidi: embed; }
+  a { color: var(--accent); }
+  img.badge { margin-inline-end: .5rem; }
+  .spark { margin-top: .5rem; direction: ltr; }
+</style>
+</head>
+<body>
+<main>
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem;">
+    <div>
+      <h1><span data-lang-text="ar">لوحة أداء DDE الحية</span><span data-lang-text="en">DDE live performance</span></h1>
+      <p class="sub">
+        <span data-lang-text="ar">آخر ما قاسته CI فعليًا: تقارير عدّاءَي SDK وwire وميزانيتيهما واتجاههما — تُجلب من API عام وسجل الأداء الملتزم، بلا توكن ولا خادم ولا استنساخ. الأرقام مقاييس مُسجَّلة لا وعود.</span>
+        <span data-lang-text="en">What CI actually measured last: the SDK and wire runner reports, their budgets and trend — fetched from the public API and the committed perf history, no token, no server, no clone. These are recorded measurements, not promises.</span>
+      </p>
+    </div>
+    <div class="switcher">
+      <button id="btn-ar" aria-pressed="true">عربي</button>
+      <button id="btn-en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+
+  <div class="feeds" id="feeds">
+    <span class="chip" id="chip-api">ci-api: …</span>
+    <span class="chip" id="chip-jsonl">perf-history: …</span>
+    <span class="chip" id="chip-budget">budgets: …</span>
+  </div>
+
+  <div id="run-banner" class="card" style="display:none">
+    <h3><span data-lang-text="ar">آخر تشغيل DDE ناجح</span><span data-lang-text="en">Latest successful DDE run</span></h3>
+    <div class="row" style="margin-top:.5rem"><span id="run-id"></span><span id="run-sha"></span></div>
+    <div class="row"><span id="run-date"></span><span id="run-concl"></span></div>
+  </div>
+
+  <h2><span data-lang-text="ar">الميزانيتان (مشتقتان حيًّا من وحدة الاتجاه)</span><span data-lang-text="en">The budgets (derived live from the trend module)</span></h2>
+  <div class="cards" id="budget-cards"></div>
+  <div id="feed-errors"></div>
+
+  <h2><span data-lang-text="ar">الاتجاه (آخر القياسات لكل سلسلة)</span><span data-lang-text="en">Trend (latest measurements per series)</span></h2>
+  <div class="cards" id="trend-cards"></div>
+
+  <h2><span data-lang-text="ar">شارات CI الملتزمة</span><span data-lang-text="en">Committed CI badges</span></h2>
+  <p class="sub">
+    <span data-lang-text="ar">تُعاد توليدها من سجل الأداء في كل دورة CI — نفس المصدر الذي تقرأه هذه الصفحة.</span>
+    <span data-lang-text="en">Regenerated from the perf history every CI cycle — the same source this page reads.</span>
+  </p>
+  <div>
+    <img class="badge" src="badges/perf-sdk.svg" alt="perf sdk badge">
+    <img class="badge" src="badges/perf-wire.svg" alt="perf wire badge">
+    <img class="badge" src="badges/perf-engine.svg" alt="perf engine badge">
+  </div>
+
+  <h2><span data-lang-text="ar">أدلة التشغيل (artifacts)</span><span data-lang-text="en">Run artifacts</span></h2>
+  <div id="artifacts"></div>
+
+  <footer>
+    <span data-lang-text="ar">
+      مصادر الصفحة، كلها عامة وبلا توكن: <code>api.github.com</code> (آخر تشغيل ناجح لـ<code>dde.yml</code> وأدلته) · <code>raw.githubusercontent.com</code> لملف <code>benchmarks/perf-history.jsonl</code> (المقاييس التي يلحقها DDE Evidence Cycle وتلتزم كل دورة) · <code>raw.githubusercontent.com</code> لوحدة <code>scripts/benchmark-trend.mjs</code> (جدول الميزانيات: السلسلة ← الميزانية الوسيطة). الميزانيات والسلاسل مشتقة من ذلك الجدول لحظة العرض — لا رقم ميزانية معاد كتابته هنا، والتقارير الكاملة تُرفع كـartifact باسم <code>dde-runner-reports</code> لكل تشغيل مع احتفاظ 30 يومًا. إن تعذّر مصدر فتظهر الشارة حمراء باسمه: الصفحة لا تعرض صمتًا ولا رقمًا قديمًا باسم حاضر.
+    </span>
+    <span data-lang-text="en">
+      Sources, all public and token-free: <code>api.github.com</code> (latest successful <code>dde.yml</code> run + its artifacts) · <code>raw.githubusercontent.com</code> for <code>benchmarks/perf-history.jsonl</code> (the medians the DDE Evidence Cycle appends and commits every cycle) · <code>raw.githubusercontent.com</code> for the <code>scripts/benchmark-trend.mjs</code> budget table (series → median budget). Budgets and series are derived from that table at render time — no retyped budget number here; the full reports upload as a <code>dde-runner-reports</code> artifact per run with 30-day retention. A dead feed renders its own red chip: this page never shows silence, nor an old number wearing a live name.
+    </span>
+    <br><a href="index.html"><span data-lang-text="ar">← صفحة المستودع</span><span data-lang-text="en">← Repo page</span></a>
+  </footer>
+</main>
+
+<script>
+"use strict";
+
+/* Derived-live discipline ([C25]): this page retypes NO budget, NO series
+ * name, and NO artifact name it can derive. Budgets + series come from the
+ * trend module's badge table (raw fetch + parse), the artifact name matches
+ * dde.yml's upload step (asserted by test/delivery/dde-perf-page.test.js
+ * against the workflow file), and every measurement comes from the committed
+ * perf history — the exact bytes the DDE cycle appended. */
+
+const OWNER_REPO = "EslaM-X/coreguard";
+const ARTIFACT_NAME = "dde-runner-reports";
+const API_RUNS = "https://api.github.com/repos/" + OWNER_REPO + "/actions/workflows/dde.yml/runs?branch=main&status=success&per_page=1";
+const RAW_TREND = "https://raw.githubusercontent.com/" + OWNER_REPO + "/main/scripts/benchmark-trend.mjs";
+const RAW_JSONL = "https://raw.githubusercontent.com/" + OWNER_REPO + "/main/benchmarks/perf-history.jsonl";
+
+function chip(id, ok, text) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.classList.remove("ok", "bad");
+  el.classList.add(ok ? "ok" : "bad");
+}
+
+function feedError(msg) {
+  const div = document.createElement("div");
+  div.className = "err";
+  div.textContent = msg;
+  document.getElementById("feed-errors").appendChild(div);
+}
+
+async function getJson(url) {
+  const r = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
+  if (!r.ok) throw new Error("HTTP " + r.status + " — " + url);
+  return r.json();
+}
+async function getText(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error("HTTP " + r.status + " — " + url);
+  return r.text();
+}
+
+/* The live budget table: series → median budget, parsed from the trend
+ * module's BADGES entries. Throws when the table is unreadable — refusing to
+ * derive zero budgets ([C30]) beats rendering confident nothing. */
+function parseBudgets(src) {
+  const rows = [];
+  for (const m of src.matchAll(/series:\s*"([^"]+)",\s*label:\s*"([^"]+)",\s*budget:\s*(\d+)/g)) {
+    rows.push({ series: m[1], label: m[2], budget: Number(m[3]) });
+  }
+  if (rows.length === 0) throw new Error("no series/budget rows derivable from benchmark-trend.mjs");
+  return rows;
+}
+
+function latestBySeries(lines) {
+  const latest = new Map();
+  for (const line of lines) {
+    let e;
+    try { e = JSON.parse(line); } catch { continue; }
+    if (e && typeof e.benchmark === "string" && e.stats) latest.set(e.benchmark, e);
+  }
+  return latest;
+}
+
+function ratioClass(r) { return r >= 0.8 ? "bad" : r >= 0.5 ? "warn" : ""; }
+
+/* SVG sparkline of the last N medians with the budget drawn as a line. */
+function sparkline(values, budget) {
+  const w = 280, h = 56, pad = 2;
+  const pts = values.slice(-60);
+  const max = Math.max(budget, ...pts) * 1.15 || 1;
+  const x = (i) => pad + (i * (w - 2 * pad)) / Math.max(pts.length - 1, 1);
+  const y = (v) => h - pad - (v / max) * (h - 2 * pad);
+  const path = pts.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ");
+  const budgetY = y(budget).toFixed(1);
+  const over = pts.length > 0 && pts[pts.length - 1] > budget;
+  return '<svg class="spark" width="' + w + '" height="' + h + '" role="img">' +
+    '<line x1="' + pad + '" y1="' + budgetY + '" x2="' + (w - pad) + '" y2="' + budgetY +
+    '" stroke="' + (over ? "#f85149" : "#3fb950") + '" stroke-dasharray="4 3" stroke-width="1"/>' +
+    '<path d="' + path + '" fill="none" stroke="#1b998b" stroke-width="1.6"/></svg>';
+}
+
+function budgetCard(row, entry) {
+  const s = entry.stats;
+  const r = s.median / row.budget;
+  const pct = Math.min(100, r * 100).toFixed(1);
+  return '<div class="card"><h3>' + row.label + '</h3>' +
+    '<div class="big">' + s.median + ' <small>ms / ' + row.budget + ' ms</small></div>' +
+    '<div class="bar"><span class="' + ratioClass(r) + '" style="width:' + pct + '%"></span></div>' +
+    '<div class="row"><span>median ' + pct + '% of budget</span><span>p95 ' + s.p95 + ' ms</span></div>' +
+    '<div class="row"><span>' + (entry.utc || "").replace("T", " ").replace(/\.\d+Z$/, "Z") + '</span>' +
+    '<span class="gate ' + (entry.gate === "PASS" ? "ok" : "bad") + '">' + (entry.gate || "UNKNOWN") + '</span></div>' +
+    '<div class="row"><span>' + (entry.runner || "") + '</span><span>' + (s.min + ' – ' + s.max + ' ms') + '</span></div>' +
+    '</div>';
+}
+
+function trendCard(row, entries) {
+  const values = entries.filter((e) => e.benchmark === row.series).map((e) => e.stats.median);
+  return '<div class="card"><h3>' + row.label + '</h3>' + sparkline(values, row.budget) +
+    '<div class="row"><span>' + values.length + ' recorded runs</span><span>budget ' + row.budget + ' ms (dashed)</span></div></div>';
+}
+
+async function main() {
+  let budgets = null, entries = [], latest = null, artifacts = [];
+
+  const [trendRes, jsonlRes, apiRes] = await Promise.allSettled([
+    getText(RAW_TREND).then(parseBudgets),
+    getText(RAW_JSONL).then((t) => {
+      const lines = t.split("\n").filter((l) => l.trim());
+      const parsed = lines.map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+      return { lines, parsed };
+    }),
+    getJson(API_RUNS),
+  ]);
+
+  if (trendRes.status === "fulfilled") {
+    budgets = trendRes.value;
+    chip("chip-budget", true, "budgets: " + budgets.length + " series (live table)");
+  } else {
+    chip("chip-budget", false, "budgets: FAIL");
+    feedError("budget feed failed: " + (trendRes.reason && trendRes.reason.message));
+  }
+
+  if (jsonlRes.status === "fulfilled") {
+    entries = jsonlRes.value.parsed;
+    latest = latestBySeries(jsonlRes.value.lines);
+    const n = entries.length;
+    const any = latest.size > 0;
+    chip("chip-jsonl", any, "perf-history: " + n + " entries · " + latest.size + " series");
+  } else {
+    chip("chip-jsonl", false, "perf-history: FAIL");
+    feedError("perf-history feed failed: " + (jsonlRes.reason && jsonlRes.reason.message));
+  }
+
+  if (apiRes.status === "fulfilled" && apiRes.value.workflow_runs && apiRes.value.workflow_runs.length > 0) {
+    const run = apiRes.value.workflow_runs[0];
+    latest = latest || new Map();
+    chip("chip-api", true, "ci-api: run " + run.id);
+    document.getElementById("run-banner").style.display = "";
+    document.getElementById("run-id").textContent = "#" + run.run_number + " · " + run.id;
+    document.getElementById("run-sha").textContent = (run.head_sha || "").slice(0, 8);
+    document.getElementById("run-date").textContent = (run.created_at || "").replace("T", " ").replace("Z", "Z");
+    const concl = document.getElementById("run-concl");
+    concl.textContent = run.conclusion || "";
+    concl.className = run.conclusion === "success" ? "gate ok" : "gate bad";
+    const a = await getJson("https://api.github.com/repos/" + OWNER_REPO + "/actions/runs/" + run.id + "/artifacts").then((d) => d.artifacts || []).catch(() => []);
+    artifacts = a;
+    const el = document.getElementById("artifacts");
+    if (artifacts.length === 0) {
+      el.innerHTML = '<p class="sub"><span data-lang-text="ar">لا artifacts معلنة لهذا التشغيل.</span><span data-lang-text="en">No artifacts published for this run.</span></p>';
+    } else {
+      el.innerHTML = "<table><thead><tr><th>name</th><th>size</th><th>created</th><th>expires</th></tr></thead><tbody>" +
+        artifacts.map((x) => "<tr><td>" + x.name + "</td><td>" + x.size_in_bytes + " B</td><td>" + (x.created_at || "").replace("T", " ").replace("Z", "Z") + "</td><td>" + (x.expires_at || "").replace("T", " ").replace("Z", "Z") + "</td></tr>").join("") +
+        "</tbody></table>";
+    }
+  } else {
+    chip("chip-api", false, "ci-api: FAIL");
+    feedError("ci-api feed failed: " + (apiRes.reason && apiRes.reason.message));
+  }
+
+  if (budgets && latest) {
+    document.getElementById("budget-cards").innerHTML = budgets
+      .filter((row) => latest.has(row.series))
+      .map((row) => budgetCard(row, latest.get(row.series))).join("") ||
+      '<p class="sub"><span data-lang-text="ar">لا تقاطع بعد بين سلاسل الميزانية وسجل الأداء.</span><span data-lang-text="en">No overlap yet between budget series and the perf history.</span></p>';
+    document.getElementById("trend-cards").innerHTML = budgets
+      .filter((row) => entries.some((e) => e.benchmark === row.series))
+      .map((row) => trendCard(row, entries)).join("");
+  }
+}
+
+document.getElementById("btn-ar").addEventListener("click", () => setLang("ar"));
+document.getElementById("btn-en").addEventListener("click", () => setLang("en"));
+function setLang(l) {
+  document.documentElement.lang = l;
+  document.documentElement.dir = l === "ar" ? "rtl" : "ltr";
+  document.getElementById("btn-ar").setAttribute("aria-pressed", l === "ar" ? "true" : "false");
+  document.getElementById("btn-en").setAttribute("aria-pressed", l === "en" ? "true" : "false");
+}
+
+main().catch((e) => feedError("page failed: " + (e && e.message)));
+</script>
+</body>
+</html>
