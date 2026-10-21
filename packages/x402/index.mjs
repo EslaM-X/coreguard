@@ -26,6 +26,7 @@
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { canonicalize } from "../canonical/index.js";
+import { createBudgetLedger } from "../budget/ledger.mjs";
 
 export const X402_VERSION = "X402/1";
 export const X402_SCHEME = "exact";
@@ -40,6 +41,7 @@ export const X402_STATES = Object.freeze([
   "NOT_PERFORMED",
   "SETTLED",
   "REJECTED",
+  "REFUSED",
 ]);
 
 function canonicalBytes(value) {
@@ -126,16 +128,26 @@ export function quoteFor({ quote } = {}) {
  *                                       REQUIRED for any settlement claim
  * @param {object}  [opts.clock]        () => epoch seconds (injected, deterministic)
  * @param {string}  [opts.mode]         DRY_RUN (default) | LIVE
+ * @param {object}  [opts.budget]       { ledger, jobId, scopeId? } — a CG-BUD/1
+ *                                       ledger. When present, a cost is
+ *                                       RESERVED against the job's ceiling
+ *                                       before the challenge is signed, and a
+ *                                       cost that does not fit is REFUSED
+ *                                       with no signature produced.
  */
-export function createX402Harness({ secret = null, settler = null, clock = () => Math.floor(Date.now() / 1000), mode = "DRY_RUN" } = {}) {
+export function createX402Harness({ secret = null, settler = null, clock = () => Math.floor(Date.now() / 1000), mode = "DRY_RUN", budget = null } = {}) {
   if (mode !== "DRY_RUN" && mode !== "LIVE") {
     throw new TypeError("createX402Harness: mode must be DRY_RUN or LIVE");
   }
   if (mode === "LIVE" && typeof settler !== "function") {
     throw new TypeError("createX402Harness: LIVE mode requires a settler adapter — there is no built-in settlement path");
   }
+  if (budget !== null && (typeof budget !== "object" || !budget.ledger || typeof budget.ledger.reserve !== "function" || typeof budget.jobId !== "string")) {
+    throw new TypeError("createX402Harness: budget must be { ledger, jobId } — a CG-BUD/1 ledger and the job it bounds");
+  }
 
-  const metrics = { challenges: 0, signed: 0, settled: 0, settledCents: 0, rejected: 0 };
+  const metrics = { challenges: 0, signed: 0, settled: 0, settledCents: 0, rejected: 0, refused: 0 };
+  const reservations = new Map();
 
   function challengeFor({ resource, quote, reason, expiresInSeconds } = {}) {
     const gate = quoteFor({ quote });
@@ -154,6 +166,16 @@ export function createX402Harness({ secret = null, settler = null, clock = () =>
     return { state: "CHALLENGE_BUILT", code: null, detail: gate.detail, priceStatus: gate.priceStatus, challenge, metrics: { ...metrics } };
   }
 
+  /**
+   * sign — the reserve-before-sign step.
+   *
+   * With a budget configured, the challenge's amount is RESERVED against the
+   * job's ceiling BEFORE a signature exists. A cost that does not fit is
+   * REFUSED and no signature is produced, so a caller can never hold a signed
+   * payment the ledger never authorised. Signing the same challenge twice is
+   * REFUSED as well: two signatures for one challenge is one payment too
+   * many.
+   */
   function sign(challenge) {
     if (!challenge || typeof challenge.id !== "string") {
       return { state: "REJECTED", code: "NO_CHALLENGE", signature: null };
@@ -161,12 +183,66 @@ export function createX402Harness({ secret = null, settler = null, clock = () =>
     if (secret === null) {
       return { state: "REJECTED", code: "NO_SIGNING_SECRET", signature: null, detail: "an unsigned challenge is not an offer" };
     }
+    let reservationId = null;
+    if (budget) {
+      if (reservations.has(challenge.id)) {
+        metrics.refused += 1;
+        return {
+          state: "REFUSED",
+          code: "CHALLENGE_ALREADY_RESERVED",
+          signature: null,
+          reservationId: reservations.get(challenge.id),
+          detail: "this challenge already holds a reservation; a second signature would be a second payment for one challenge",
+          metrics: { ...metrics },
+        };
+      }
+      const held = budget.ledger.reserve({
+        jobId: budget.jobId,
+        scopeId: budget.scopeId === undefined ? null : budget.scopeId,
+        amountCents: challenge.amountCents,
+        source: "SETTLEMENT",
+        reason: `x402 ${challenge.id}`,
+      });
+      if (!held.ok) {
+        metrics.refused += 1;
+        return {
+          state: "REFUSED",
+          code: held.code,
+          signature: null,
+          detail: held.detail,
+          availableCents: held.availableCents === undefined ? null : held.availableCents,
+          metrics: { ...metrics },
+        };
+      }
+      reservationId = held.reservationId;
+      reservations.set(challenge.id, reservationId);
+    }
     metrics.signed += 1;
-    return { state: "SIGNED", code: null, signature: signChallenge({ secret, challenge }), challengeId: challenge.id };
+    return {
+      state: "SIGNED",
+      code: null,
+      signature: signChallenge({ secret, challenge }),
+      challengeId: challenge.id,
+      reservationId,
+      metrics: { ...metrics },
+    };
+  }
+
+  function settleReservation(challengeId, action) {
+    if (!budget || typeof challengeId !== "string") return null;
+    const reservationId = reservations.get(challengeId);
+    if (!reservationId) return null;
+    const out = action === "commit"
+      ? budget.ledger.commit({ jobId: budget.jobId, reservationId })
+      : budget.ledger.release({ jobId: budget.jobId, reservationId });
+    if (out.ok) reservations.delete(challengeId);
+    return out;
   }
 
   function settle({ challenge, envelope } = {}) {
+    const challengeId = challenge && typeof challenge.id === "string" ? challenge.id : null;
     if (mode === "DRY_RUN") {
+      settleReservation(challengeId, "release");
       return { state: "NOT_PERFORMED", code: null, detail: "DRY_RUN: no settlement was attempted, no funds moved, no revenue recorded", settlementId: null, metrics: { ...metrics } };
     }
     if (!challenge || typeof challenge.id !== "string") {
@@ -176,6 +252,7 @@ export function createX402Harness({ secret = null, settler = null, clock = () =>
       const provided = envelope.signature;
       if (!verifyChallengeSignature({ secret, challenge, signature: provided })) {
         metrics.rejected += 1;
+        settleReservation(challengeId, "release");
         return { state: "REJECTED", code: "BAD_ENVELOPE_SIGNATURE", settlementId: null, metrics: { ...metrics } };
       }
     }
@@ -183,13 +260,16 @@ export function createX402Harness({ secret = null, settler = null, clock = () =>
     try {
       result = settler({ challenge, envelope: envelope ?? null });
     } catch (error) {
+      settleReservation(challengeId, "release");
       return { state: "UNKNOWN", code: "SETTLER_THREW", settlementId: null, detail: error && error.message ? String(error.message) : "settler threw", metrics: { ...metrics } };
     }
     if (!result || typeof result.settlementId !== "string" || result.settlementId.length === 0) {
+      settleReservation(challengeId, "release");
       return { state: "UNKNOWN", code: "NO_SETTLEMENT_ID", settlementId: null, detail: "a settler that cannot name a settlement has not settled", metrics: { ...metrics } };
     }
     metrics.settled += 1;
     metrics.settledCents += challenge.amountCents;
+    settleReservation(challengeId, "commit");
     return { state: "SETTLED", code: null, settlementId: result.settlementId, settledCents: challenge.amountCents, metrics: { ...metrics } };
   }
 
@@ -202,6 +282,7 @@ export function createX402Harness({ secret = null, settler = null, clock = () =>
     sign,
     settle,
     metrics: () => ({ ...metrics }),
+    budget: () => (budget ? budget.ledger.snapshot({ jobId: budget.jobId }) : null),
   });
 }
 
@@ -235,6 +316,25 @@ export function selfCheck() {
   const forged = createX402Harness({ mode: "LIVE", secret: "harness-secret-not-a-real-key", settler: ({ challenge: c }) => ({ settlementId: "SETTLED-" + c.id.slice(0, 8) }) })
     .settle({ challenge: built.challenge, envelope: { signature: "0".repeat(64) } });
   cases.push(["a forged envelope is REJECTED before the settler runs", forged.state === "REJECTED" && forged.code === "BAD_ENVELOPE_SIGNATURE"]);
+
+  /* the budget gate: a cost that does not fit is refused BEFORE a signature */
+  const bLedger = createBudgetLedger();
+  bLedger.openJob({ jobId: "job-x", ceilingCents: 100 });
+  const bGated = createX402Harness({ secret: "harness-secret-not-a-real-key", budget: { ledger: bLedger, jobId: "job-x" } });
+  const bPrice = { amountCents: 500, lockedByOwner: true, provenance: "owner decision" };
+  const bSmall = bGated.challengeFor({ resource: "/v1/verify", quote: bPrice });
+  const bTooBig = bGated.sign(bSmall.challenge);
+  cases.push(["a cost that does not fit the job ceiling is REFUSED with no signature", bTooBig.state === "REFUSED" && bTooBig.signature === null && bTooBig.code === "EXCEEDS_JOB_CEILING"]);
+  cases.push(["the refused signature cost the job nothing", bLedger.snapshot({ jobId: "job-x" }).reservedCents === 0]);
+  const bAffordable = createX402Harness({ secret: "harness-secret-not-a-real-key", budget: { ledger: bLedger, jobId: "job-x" } });
+  const bFits = bAffordable.challengeFor({ resource: "/v1/verify", quote: { amountCents: 50, lockedByOwner: true, provenance: "owner decision" } });
+  const bSigned = bAffordable.sign(bFits.challenge);
+  cases.push(["a cost that fits is reserved and signed", bSigned.state === "SIGNED" && typeof bSigned.reservationId === "string"]);
+  cases.push(["the reservation is visible on the job", bLedger.snapshot({ jobId: "job-x" }).reservedCents === 50]);
+  const bAgain = bAffordable.sign(bFits.challenge);
+  cases.push(["a second signature for one challenge is REFUSED", bAgain.state === "REFUSED" && bAgain.code === "CHALLENGE_ALREADY_RESERVED"]);
+  bAffordable.settle({ challenge: bFits.challenge });
+  cases.push(["a DRY_RUN settlement releases the reservation, because no money moved", bLedger.snapshot({ jobId: "job-x" }).reservedCents === 0 && bLedger.snapshot({ jobId: "job-x" }).committedCents === 0]);
 
   const ok = cases.every(([, pass]) => pass);
   return { ok, cases };

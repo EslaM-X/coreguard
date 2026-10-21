@@ -414,6 +414,24 @@ export const CLAIMS = Object.freeze([
 
 /* ------------------------------------------------------------- the build */
 
+function commitHash() {
+  try {
+    const r = spawnSync("git", ["rev-parse", "HEAD"], { cwd: REPO, encoding: "utf8" });
+    if (r.status === 0 && r.stdout) return r.stdout.trim();
+  } catch {}
+  return null;
+}
+
+function readCommitted(path) {
+  const p = path.replace(/\\/g, "/");
+  try {
+    const r = spawnSync("git", ["show", `HEAD:${p}`], { cwd: REPO, shell: false, windowsHide: true });
+    if (r.status === 0 && Buffer.isBuffer(r.stdout) && r.stdout.length > 0) return r.stdout.toString("utf8");
+    if (r.status === 0 && typeof r.stdout === "string" && r.stdout.length > 0) return r.stdout;
+  } catch {}
+  return null;
+}
+
 export function buildRegistry() {
   const src = {
     snapshot: read(join(REPO, "docs", "state-snapshot.json"), null),
@@ -424,6 +442,7 @@ export function buildRegistry() {
     milestones: read(join(REPO, "docs", "adoption-milestones.json"), null),
     badge: read(join(REPO, "docs", "badge-registry.json"), null),
   };
+  src.committedRegistryHead = readCommitted("docs/claims-registry.json") ? JSON.parse(readCommitted("docs/claims-registry.json")) : null;
 
   const claims = CLAIMS.map((c) => {
     let derived = null;
@@ -491,6 +510,33 @@ export function buildRegistry() {
 
 /* ------------------------------------------------------------- the audit */
 
+export function auditCommittedRegistry() {
+  const committedText = readCommitted("docs/claims-registry.json");
+  if (!committedText) {
+    /* fallback: read the file on disk — if someone forgot to regenerate after
+       a code change the working tree copy is what would be committed */
+    try {
+      const disk = readFileSync(join(REPO, "docs", "claims-registry.json"), "utf8");
+      if (disk && disk.length > 0) {
+        let committedDisk;
+        try { committedDisk = JSON.parse(disk); } catch (e) { return { ok: false, violations: [{ kind: "COMMITTED_REGISTRY_NOT_JSON", detail: e && e.message }] }; }
+        if (!committedDisk || !Array.isArray(committedDisk.claims)) return { ok: false, violations: [{ kind: "COMMITTED_REGISTRY_SHAPE" }] };
+        const fresh = buildRegistry();
+        const violations = [];
+        for (const c of fresh.claims) {
+          const old = committedDisk.claims.find((x) => x && x.id === c.id);
+          if (!old) { violations.push({ id: c.id, kind: "CLAIM_MISSING_FROM_COMMITTED" }); continue; }
+          if (JSON.stringify(old.derived) !== JSON.stringify(c.derived)) violations.push({ id: c.id, kind: "COMMITTED_DERIVED_DRIFT", detail: `committed ${JSON.stringify(old.derived)} vs fresh ${JSON.stringify(c.derived)}` });
+          if (old.status !== c.status) violations.push({ id: c.id, kind: "COMMITTED_STATUS_DRIFT", detail: `committed ${old.status} vs fresh ${c.status}` });
+        }
+        for (const old of committedDisk.claims) if (!fresh.claims.find((c) => c.id === old.id)) violations.push({ id: old.id, kind: "CLAIM_REMOVED_FROM_FRESH" });
+        return { ok: violations.length === 0, violations, total: fresh.claims.length, source: "disk" };
+      }
+    } catch {}
+    return { ok: false, violations: [{ kind: "COMMITTED_REGISTRY_UNREADABLE", detail: "git show HEAD:docs/claims-registry.json returned nothing" }] };
+  }
+
+}
 export function auditRegistry(registry = buildRegistry()) {
   const violations = [];
   const seen = new Set();
@@ -533,18 +579,17 @@ export function main() {
   const registry = buildRegistry();
   if (args.includes("--audit")) {
     const result = auditRegistry(registry);
+    const committed = auditCommittedRegistry();
+    const violations = [...result.violations, ...(committed.ok ? [] : committed.violations)];
     if (args.includes("--json")) {
-      console.log(JSON.stringify({ ...result, counts: registry.counts }, null, 2));
+      console.log(JSON.stringify({ ...result, violations, counts: registry.counts, committed: { ok: committed.ok, violations: committed.violations } }, null, 2));
     } else {
       console.log(`CLAIM REGISTRY AUDIT (${registry.schema}) — ${registry.counts.total} claims`);
-      /* byStatus is the keyed map; counts.<lowercase> only exists for the five
-         legacy fields, so reading the wrong one printed "NOT_PERFORMED
-         undefined" on a registry that was in fact complete. */
       console.log(`  counts: ${CLAIM_STATUSES.map((s) => `${s} ${registry.counts.byStatus[s] ?? 0}`).join(" · ")}`);
-      for (const v of result.violations) console.log(`  VIOLATION ${v.kind} ${v.id}${v.detail ? " :: " + v.detail : ""}`);
-      console.log(`\nCLAIM-AUDIT: ${result.ok ? "PASS" : "FAIL (" + result.violations.length + " violation(s))"}`);
+      for (const v of violations) console.log(`  VIOLATION ${v.kind} ${v.id || ""}${v.detail ? " :: " + v.detail : ""}`);
+      console.log(`\nCLAIM-AUDIT: ${result.ok && committed.ok ? "PASS" : "FAIL (" + violations.length + " violation(s))"}`);
     }
-    if (!result.ok) process.exitCode = 1;
+    if (!(result.ok && committed.ok)) process.exitCode = 1;
     return;
   }
   if (args.includes("--write")) {
