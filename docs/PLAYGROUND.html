@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoreGuard Playground — دورة الاقتصاد الوظيفية حية · Live job-economy cycle</title>
+<style>
+  :root { color-scheme: dark; --bg:#0d1117; --card:#161b22; --line:#21262d; --fg:#e6edf3; --dim:#8b949e; --ok:#3fb950; --bad:#f85149; --accent:#1b998b; --warn:#d29922; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: "Segoe UI", system-ui, -apple-system, sans-serif; margin: 0; padding: 2rem 1rem; }
+  main { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+  h2 { font-size: 1.1rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; margin-top: 2rem; }
+  .sub { color: var(--dim); font-size: .9rem; margin-bottom: 1.25rem; }
+  .switcher button { background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: .25rem .8rem; cursor: pointer; margin-inline-start: .3rem; }
+  .switcher button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  html[lang="en"] [data-lang-text="ar"], html[lang="ar"] [data-lang-text="en"] { display: none; }
+  .feeds { display: flex; flex-wrap: wrap; gap: .5rem; margin: .75rem 0 1.5rem; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: .15rem .7rem; font-size: .78rem; color: var(--dim); direction: ltr; }
+  .chip.ok { border-color: var(--ok); color: var(--ok); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; }
+  .card h3 { margin: 0 0 .4rem; font-size: 1rem; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .6rem 1rem; }
+  .field { display: flex; flex-direction: column; gap: .15rem; }
+  .field label { font-size: .75rem; color: var(--dim); }
+  input, select, button { font: inherit; }
+  input, select { background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: .3rem .55rem; }
+  button { background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: .35rem .9rem; cursor: pointer; margin-top: .5rem; }
+  button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  th, td { text-align: start; padding: .3rem .5rem; border-bottom: 1px solid var(--line); direction: ltr; }
+  th { color: var(--dim); font-weight: 600; }
+  .money { font-variant-numeric: tabular-nums; }
+  .verdict-ok { color: var(--ok); font-weight: 700; }
+  .verdict-bad { color: var(--bad); font-weight: 700; }
+  .verdict-warn { color: var(--warn); font-weight: 700; }
+  .log { margin-top: 1rem; border: 1px solid var(--line); border-radius: 10px; max-height: 340px; overflow-y: auto; font-size: .8rem; }
+  .log-entry { padding: .4rem .6rem; border-bottom: 1px solid var(--line); direction: ltr; unicode-bidi: embed; }
+  .log-time { color: var(--dim); margin-inline-end: .5rem; font-variant-numeric: tabular-nums; }
+  .log-tag { font-weight: 700; margin-inline-end: .5rem; }
+  .log-code { color: var(--bad); font-weight: 600; }
+  .log-detail { color: var(--dim); display: block; margin-top: .15rem; word-break: break-all; }
+  footer { margin-top: 2.5rem; color: var(--dim); font-size: .8rem; line-height: 1.7; border-top: 1px solid var(--line); padding-top: 1rem; }
+  code { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3rem; direction: ltr; unicode-bidi: embed; }
+  a { color: var(--accent); }
+  .helpline { color: var(--dim); font-size: .75rem; margin-top: .45rem; margin-bottom: 0; }
+</style>
+</head>
+<body>
+<main>
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem;">
+    <div>
+      <h1><span data-lang-text="ar">ملعب CoreGuard — دورة الاقتصاد الوظيفية</span><span data-lang-text="en">CoreGuard Playground — the job-economy cycle</span></h1>
+      <p class="sub">
+        <span data-lang-text="ar">افتح وظيفة بسقف، أقفل الميزانية عند النشر، اقتطع حصص الوكلاء الفرعيين، تنافس على آخر دولار في نفس الخطوة المتزامنة، مرّر بوابة الدفع قبل التوقيع، سلّم عمل، وشاهد ما يفعله الحكم بالمال — كل ذلك على وحدات المحرك الحقيقية الملتزمة تعمل في تبويبك. لا مفتاح، لا شبكة، لا مال: DRY-RUN.</span>
+        <span data-lang-text="en">Open a job with a ceiling, lock the budget at publish, carve sub-agent shares, race for the last dollar in the same synchronous step, pass the payment gate before any signature exists, deliver work, and watch what the verdict does to the money — all on the real committed engine modules, running in your tab. No key, no network, no money: DRY-RUN.</span>
+      </p>
+    </div>
+    <div class="switcher">
+      <button id="btn-ar" aria-pressed="true">عربي</button>
+      <button id="btn-en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+
+  <div class="feeds" id="engine-chips">
+    <span class="chip">engine: …</span>
+    <span class="chip">flow: idle</span>
+    <span class="chip">money: —</span>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3><span data-lang-text="ar">١ · افتح الوظيفة</span><span data-lang-text="en">1 · Open the job</span></h3>
+      <div class="field"><label><span data-lang-text="ar">معرّف الوظيفة</span><span data-lang-text="en">job id</span></label><input id="job-id" value="job-1" spellcheck="false"></div>
+      <div class="field"><label><span data-lang-text="ar">سقف الوظيفة (دولار)</span><span data-lang-text="en">job ceiling (dollars)</span></label><input id="job-ceiling" value="5" inputmode="decimal"></div>
+      <div class="field"><label><span data-lang-text="ar">المبلغ المقفل عند النشر (دولار، 0 = بلا قفل)</span><span data-lang-text="en">locked at publish (dollars, 0 = no lock)</span></label><input id="job-hold" value="5" inputmode="decimal"></div>
+      <button id="btn-open"><span data-lang-text="ar">افتح</span><span data-lang-text="en">Open</span></button>
+      <p class="helpline"><span data-lang-text="ar">سقف واحد يخدم التسوية ومكالمات العدّاد معًا — نفس التعويض الذي يفشل مع سقف المحفظة.</span><span data-lang-text="en">One ceiling serves settlements and metered cost alike — the thing per-wallet caps cannot do.</span></p>
+    </div>
+
+    <div class="card">
+      <h3><span data-lang-text="ar">٢ · اقتطع حصة وكيل فرعي</span><span data-lang-text="en">2 · Carve a sub-agent share</span></h3>
+      <div class="grid2">
+        <div class="field"><label><span data-lang-text="ar">معرّف النطاق</span><span data-lang-text="en">scope id</span></label><input id="scope-id" value="research" spellcheck="false"></div>
+        <div class="field"><label><span data-lang-text="ar">الحصة (دولار)</span><span data-lang-text="en">share (dollars)</span></label><input id="scope-share" value="2" inputmode="decimal"></div>
+      </div>
+      <button id="btn-carve"><span data-lang-text="ar">اقتطع</span><span data-lang-text="en">Carve</span></button>
+      <p class="helpline"><span data-lang-text="ar">الحصة تُخصم من المتبقي الفعلي في لحظة الافتتاح — لا يوجد مسار من نطاق إلى متبقٍ غير مقتطع، ولا إلى وظيفة أخرى.</span><span data-lang-text="en">The share is debited from the true remainder at open time — no path from a scope to the unallocated remainder, and none to another job.</span></p>
+    </div>
+
+    <div class="card">
+      <h3><span data-lang-text="ar">عدّاد النموذج</span><span data-lang-text="en">The metered spigot</span></h3>
+      <div class="grid2">
+        <div class="field"><label><span data-lang-text="ar">النطاق</span><span data-lang-text="en">scope</span></label><select id="meter-scope"></select></div>
+        <div class="field"><label><span data-lang-text="ar">سنت لكل نداء</span><span data-lang-text="en">cents per call</span></label><input id="meter-amount" value="3" inputmode="numeric"></div>
+      </div>
+      <button id="btn-meter"><span data-lang-text="ar">نداء نموذج (احتساب فوري)</span><span data-lang-text="en">Meter one model call</span></button>
+      <p class="helpline"><span data-lang-text="ar">مكالمات API المدفوعة بمفتاح لا تُحصى لدى سقف المحفظة — هنا كل سنت يُحتسب على السقف نفسه فور وقوعه.</span><span data-lang-text="en">API-key model calls never counted against a wallet cap — here every metered cent commits onto the same ceiling as it happens.</span></p>
+    </div>
+  </div>
+
+  <h2><span data-lang-text="ar">٣ · السباق على آخر دولار — المرونة الذرية أمام عينيك</span><span data-lang-text="en">3 · The last-dollar race — atomicity, visibly</span></h2>
+  <div class="cards">
+    <div class="card">
+      <h3><span data-lang-text="ar">سباق A و B</span><span data-lang-text="en">Race A &amp; B</span></h3>
+      <div class="grid2">
+        <div class="field"><label><span data-lang-text="ar">A</span><span data-lang-text="en">A</span></label><select id="race-scope-a"></select></div>
+        <div class="field"><label><span data-lang-text="ar">B</span><span data-lang-text="en">B</span></label><select id="race-scope-b"></select></div>
+        <div class="field"><label><span data-lang-text="ar">المبلغ (سنت)</span><span data-lang-text="en">amount (cents)</span></label><input id="race-amount" value="100" inputmode="numeric"></div>
+      </div>
+      <button id="btn-race"><span data-lang-text="ar">سباق في نفس النظرة</span><span data-lang-text="en">Race in the same tick</span></button>
+      <p class="helpline"><span data-lang-text="ar">كلا الحجز في نفس الخطوة المتزامنة — بلا مهلة ولا رد اتصال بين «هل يتسع؟» و«خُذ». الفائز يأخذ، والآخر يُرفض برمز مسمّى وبلا أثر.</span><span data-lang-text="en">Both reserves execute in one synchronous step — no await, no callback between "does it fit" and "take it". One wins; the other is REFUSED with a named code and zero trace left behind.</span></p>
+    </div>
+
+    <div class="card">
+      <h3><span data-lang-text="ar">شريط الوظيفة</span><span data-lang-text="en">The job waterfall</span></h3>
+      <table><thead><tr><th>scope</th><th>share</th><th>reserved</th><th>committed</th><th>avail</th><th>state</th></tr></thead><tbody id="scope-rows"><tr><td colspan="6">—</td></tr></tbody></table>
+      <table style="margin-top:.6rem"><tbody id="waterfall-rows"></tbody></table>
+    </div>
+  </div>
+
+  <h2><span data-lang-text="ar">٤ · بوابة الدفع: ما لا يتسع يُرفض قبل وجود أي توقيع (X402/1)</span><span data-lang-text="en">4 · The payment gate: a cost that does not fit is refused BEFORE a signature exists (X402/1)</span></h2>
+  <div class="cards">
+    <div class="card">
+      <h3><span data-lang-text="ar">سعر مقفول من المالك</span><span data-lang-text="en">An owner-locked price</span></h3>
+      <div class="grid2">
+        <div class="field"><label><span data-lang-text="ar">المورد</span><span data-lang-text="en">resource</span></label><input id="x402-resource" value="/v1/verify" spellcheck="false"></div>
+        <div class="field"><label><span data-lang-text="ar">المبلغ (سنت)</span><span data-lang-text="en">amount (cents)</span></label><input id="x402-amount" value="100" inputmode="numeric"></div>
+      </div>
+      <button id="btn-challenge"><span data-lang-text="ar">ابنِ التحدي</span><span data-lang-text="en">Build challenge</span></button>
+      <button id="btn-sign"><span data-lang-text="ar">وقّع (حجز أولًا)</span><span data-lang-text="en">Sign (reserved first)</span></button>
+      <button id="btn-sign-again"><span data-lang-text="ar">وقّع التحدي نفسه مرتين</span><span data-lang-text="en">Sign the same challenge twice</span></button>
+      <button id="btn-settle"><span data-lang-text="ar">أغلق (DRY-RUN)</span><span data-lang-text="en">Settle (DRY-RUN)</span></button>
+      <p class="helpline"><span data-lang-text="ar">توقيعان لتحدٍّ واحد = دفعتان لعملية واحدة → <code>CHALLENGE_ALREADY_RESERVED</code>. وما لم يُحجز لا يُوقَّع، وما يُوقَّع يحمل معرّف حجز.</span><span data-lang-text="en">Two signatures for one challenge = two payments for one → <code>CHALLENGE_ALREADY_RESERVED</code>. What cannot be reserved carries no signature; what is signed carries a reservation id.</span></p>
+    </div>
+
+    <div class="card">
+      <h3><span data-lang-text="ar">عداد البوابة</span><span data-lang-text="en">Gate metrics</span></h3>
+      <table><tbody id="x402-metrics"><tr><td>—</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <h2><span data-lang-text="ar">٥ · التسليم والقبول (CG-ACC/1) — وما يفعله UNKNOWN بالمال</span><span data-lang-text="en">5 · Delivery &amp; acceptance (CG-ACC/1) — and what UNKNOWN does to the money</span></h2>
+  <div class="cards">
+    <div class="card">
+      <h3><span data-lang-text="ar">اعقد المواصفة وسلّم</span><span data-lang-text="en">Build the spec and deliver</span></h3>
+      <div class="field"><label><span data-lang-text="ar">بصمة العمل المتوقعة (DIGEST_MATCH)</span><span data-lang-text="en">expected work digest (DIGEST_MATCH)</span></label><input id="spec-digest" value="abc" spellcheck="false"></div>
+      <div style="display:flex; flex-direction:column; gap:.35rem; margin-top:.5rem; font-size:.85rem;">
+        <label style="display:flex; gap:.4rem; align-items:center;"><input type="checkbox" id="ck-digest" checked> <span data-lang-text="ar">فحص البصمة (حتمي)</span><span data-lang-text="en">digest check (mechanical)</span></label>
+        <label style="display:flex; gap:.4rem; align-items:center;"><input type="checkbox" id="ck-publisher"> <span data-lang-text="ar">موافقة الناشر (حكم)</span><span data-lang-text="en">publisher approval (judgment)</span></label>
+        <label style="display:flex; gap:.4rem; align-items:center;"><input type="checkbox" id="ck-human"> <span data-lang-text="ar">حكم بشري (يبقي UNKNOWN حتى النهاية)</span><span data-lang-text="en">human judgment (stays UNKNOWN by construction)</span></label>
+      </div>
+      <button id="btn-deliver"><span data-lang-text="ar">سلّم (بصمة مطابقة)</span><span data-lang-text="en">Deliver (matching digest)</span></button>
+      <button id="btn-deliver-bad"><span data-lang-text="ar">سلّم (بصمة خاطئة)</span><span data-lang-text="en">Deliver (wrong digest)</span></button>
+      <button id="btn-deliver-none"><span data-lang-text="ar">سلّم (بلا برهان)</span><span data-lang-text="en">Deliver (no evidence)</span></button>
+      <p class="helpline"><span data-lang-text="ar">أي FAIL يرفض · كل PASS يقبل · غير ذلك UNKNOWN. لا يوجد مسار من «أغلب الفحوص مرت» إلى ACCEPTED، ولا من UNKNOWN إلى شيء آخر. UNKNOWN: المال يبقى مقفلًا ويُسجَّل مقفلًا.</span><span data-lang-text="en">any FAIL rejects · every PASS accepts · anything else is UNKNOWN. There is no path from "most checks passed" to ACCEPTED, and no path from UNKNOWN anywhere else. UNKNOWN: the money stays locked, and stays recorded as locked.</span></p>
+    </div>
+
+    <div class="card">
+      <h3><span data-lang-text="ar">ما فعله الحكم بالمال</span><span data-lang-text="en">What the verdict did to the money</span></h3>
+      <table><tbody id="verdict-rows"><tr><td>—</td></tr></tbody></table>
+      <p class="helpline" id="held-note"></p>
+    </div>
+  </div>
+
+  <h2><span data-lang-text="ar">سجل الأحداث — لا صمت، كل رفض برمز مسمّى</span><span data-lang-text="en">Event log — never silent, every refusal by name</span></h2>
+  <div class="log" id="log"></div>
+
+  <footer>
+    <p><span data-lang-text="ar"><strong>ما هي هذه الصفحة فعليًا:</strong> محركها هو بايتات الوحدات الحقيقية الملتزمة في <code>packages/</code>، تنسخها <code>scripts/build-playground.mjs</code> إلى <code>playground/</code> حرفيًا — والتعديلات الوحيدة ميكانيكية ومحدودة: استيراد <code>node:crypto</code> يصبح <code>crypto-shim.js</code> (sha256/hmac متزامن بجافاسكربت صريف يجتاز فيشرات FIPS)، والاستيرادات النسبية تُسطح إلى ملفات شقيقة، وحارس دخول الـCLI يسبقه فحص <code>typeof process !== "undefined"</code> كي لا يقيّم المتصفح <code>process</code> عند التحميل. عقود الصفحة في <code>test/delivery/playground-page.test.js</code> تنفّذ المحرك بلا رأس وتقارن سلوكه بالوحدات الحقيقية، وتعضّ على أي تحريف. لا يوجد هنا مفتاح ولا شبكة ولا مال؛ البوابة تأخذ سعرًا مقفولًا محليًا تحاكي قرار مالك.</span>
+    <span data-lang-text="en"><strong>What this page actually is:</strong> its engine is the real committed module bytes from <code>packages/</code>, copied verbatim by <code>scripts/build-playground.mjs</code> into <code>playground/</code> — the only edits are mechanical and bounded: the <code>node:crypto</code> import becomes <code>crypto-shim.js</code> (a synchronous pure-JS sha256/hmac passing the FIPS vectors), package-relative imports flatten to sibling files, and the CLI entry guard is prefixed with <code>typeof process !== "undefined"</code> so a browser never evaluates <code>process</code> at load. The page contract in <code>test/delivery/playground-page.test.js</code> executes the engine headlessly, compares its behavior against the real modules, and bites on tampering. No key, no network, no money; the gate takes a locally simulated owner-locked price.</span></p>
+    <p><span data-lang-text="ar"><strong>الحدود مدلّجة بحقيقة:</strong> بهذا يتبقى الحد المتفق عليه في النقاش العام — x402 يحل قنوات الدفع، و«هل الوعم جيد» يبقى حكمًا بشريًا؛ إجابتنا هي عدم تقريب الحكم الحتمي إلى مال، وترك UNKNOWN مرئيًا: المال مقفل.</span>
+    <span data-lang-text="en"><strong>The honest limitation, stated:</strong> this remains the boundary the public thread argued — per-call payments solve the plumbing, while "was the work good" stays a judgment question. Our answer: never converge judgment into money, and keep UNKNOWN visible as money that is HELD.</span></p>
+    <p><a href="index.html">← <span data-lang-text="ar">إلى الوجرة الأم</span><span data-lang-text="en">the main index</span></a> · <a href="STATUS.md">STATUS.md</a></p>
+  </footer>
+
+  <script type="module">
+    import { INTEGRATION_VERSION, createJobFlow, budgetWaterfall } from "./playground/job-integration.js";
+    import { BUDGET_VERSION } from "./playground/ledger.js";
+    import { ACCEPTANCE_VERSION } from "./playground/acceptance.js";
+    import { X402_VERSION, createX402Harness } from "./playground/x402.js";
+
+    const $ = (id) => document.getElementById(id);
+    const state = { flow: null, harness: null, challenge: null, log: [] };
+
+    /* ---------- bilingual switcher (the repo pattern) ---------- */
+    function setLang(lang) {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+      $("btn-ar").setAttribute("aria-pressed", String(lang === "ar"));
+      $("btn-en").setAttribute("aria-pressed", String(lang === "en"));
+    }
+    $("btn-ar").addEventListener("click", () => setLang("ar"));
+    $("btn-en").addEventListener("click", () => setLang("en"));
+
+    /* ---------- event log: every outcome carries its state and code ---------- */
+    function log2(action, result) {
+      state.log.unshift({ t: new Date(), action, result });
+      renderLog();
+    }
+    function esc(s) { return String(s == null ? "" : s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;"); }
+    function logClass(r) {
+      if (r && r.ok === true) return "verdict-ok";
+      if (r && r.ok === false) return "verdict-bad";
+      if (r && r.state === "UNKNOWN") return "verdict-warn";
+      return "";
+    }
+    function renderLog() {
+      // never silent: the log shows time, outcome color, named state, code, and detail
+      $("log").innerHTML = state.log.slice(0, 80).map((e) => `
+        <div class="log-entry">
+          <span class="log-time">${e.t.toLocaleTimeString()}</span>
+          <span class="log-tag ${logClass(e.result)}">&#x${e.result && e.result.state === "UNKNOWN" ? "26A0" : e.result && e.result.ok === false ? "2717" : "2713"};</span>
+          <span>${esc(e.action)}</span>${e.result && e.result.state ? ` · <span class="log-tag ${logClass(e.result)}">${esc(e.result.state)}</span>` : ""}
+          ${e.result && e.result.code ? ` · <span class="log-code">${esc(e.result.code)}</span>` : ""}
+          ${e.result && e.result.detail ? `<span class="log-detail">${esc(e.result.detail)}</span>` : ""}
+        </div>`).join("");
+    }
+
+    /* ---------- chips from the engine's own constants ---------- */
+    document.querySelector(".feeds").innerHTML = `
+      <span class="chip ok">engine: ${BUDGET_VERSION} · ${ACCEPTANCE_VERSION} · ${INTEGRATION_VERSION} · ${X402_VERSION} (real bytes)</span>
+      <span class="chip">flow: idle</span>
+      <span class="chip">money: —</span>`;
+
+    /* ---------- rendering ---------- */
+    const chips = () => document.querySelectorAll(".feeds .chip");
+    function renderAll() {
+      const flow = state.flow;
+      const [cEngine, cFlow, cMoney] = [chips()[0], chips()[1], chips()[2]];
+      cFlow.textContent = flow ? `flow: ${flow.jobId} · ${(flow.snapshot().ceilingCents / 100).toFixed(2)}$ ceiling · ${flow.version}` : "flow: idle";
+      cMoney.textContent = flow ? `money: held ${flow.snapshot().heldCents}¢ · released ${flow.snapshot().releasedCents}¢ · refunded ${flow.snapshot().refundedCents}¢` : "money: —";
+      cFlow.classList.toggle("ok", !!flow);
+      cMoney.classList.toggle("ok", !!flow);
+
+      // scope selects
+      for (const elId of ["meter-scope", "race-scope-a", "race-scope-b"]) {
+        const el = $(elId);
+        const prev = el.value;
+        el.innerHTML = "";
+        const names = flow ? flow.snapshot().scopes.map((s) => s.scopeId) : [];
+        for (const n of names) {
+          const o = document.createElement("option");
+          o.value = n; o.textContent = n;
+          el.appendChild(o);
+        }
+        el.disabled = names.length === 0;
+        if (names.includes(prev)) el.value = prev;
+      }
+
+      // scope table
+      const s = flow ? flow.snapshot() : null;
+      $("scope-rows").innerHTML = !s || s.scopes.length === 0
+        ? `<tr><td colspan="6">—</td></tr>`
+        : s.scopes.map((sc) => `
+          <tr><td>${esc(sc.scopeId)}</td><td>${sc.shareCents}</td>
+          <td>${sc.reservedCents}</td><td>${sc.committedCents}</td><td>${sc.availableCents}</td>
+          <td class="${sc.state === "OPEN" ? "verdict-ok" : "verdict-bad"}">${esc(sc.state)}</td></tr>`).join("");
+
+      // waterfall
+      $("waterfall-rows").innerHTML = !flow ? "" : (() => {
+        const wf = budgetWaterfall({ ledger: flow.ledger, jobId: flow.jobId });
+        if (!wf.ok) return "";
+        return wf.rows.map((r) => {
+          const ceil = r.level === "job" ? r.ceilingCents : r.shareCents;
+          const spent = r.committedCents + r.reservedCents;
+          const pct = ceil > 0 ? Math.round((spent / ceil) * 100) : 0;
+          return `<tr><th>${r.level === "job" ? "JOB " : "→ "}${esc(r.id)}</th>
+            <td class="money">${spent}/${ceil}¢ · ${pct}%</td>
+            <td class="money">${r.heldCents === undefined ? "—" : r.heldCents + "¢ held"}</td>
+            <td class="money">${r.availableCents}¢ left</td></tr>`;
+        }).join("");
+      })();
+    }
+
+    function renderX402Metrics(m) {
+      $("x402-metrics").innerHTML = !m ? `<tr><td>—</td></tr>` : [
+        ["challenges", m.challenges], ["signed", m.signed], ["settled", m.settled],
+        ["settled cents", m.settledCents], ["rejected", m.rejected], ["refused (no signature issued)", m.refused],
+      ].map(([k, v]) => `<tr><th>${esc(k)}</th><td class="money">${v}</td></tr>`).join("");
+    }
+
+    function hasFlow() {
+      return state.flow !== null;
+    }
+    function need(action) {
+      if (!hasFlow()) log2(action, { ok: false, state: "REFUSED", code: "NO_JOB", detail: "open the job first (step 1)" });
+      return hasFlow();
+    }
+
+    /* ---------- 1 · open ---------- */
+    $("btn-open").addEventListener("click", () => {
+      const jobId = $("job-id").value.trim();
+      const ceiling = Math.round((Number($("job-ceiling").value) || 0) * 100);
+      const hold = Math.round((Number($("job-hold").value) || 0) * 100);
+      if (!jobId || ceiling <= 0) {
+        log2("open (input)", { ok: false, state: "REFUSED", code: "INPUT", detail: "a job id and a positive ceiling are required" });
+        return;
+      }
+      try {
+        state.flow = createJobFlow({ jobId, ceilingCents: ceiling, holdAmountCents: hold > 0 ? hold : null });
+        log2(`job '${jobId}' opened · ceiling ${ceiling}¢` + (hold > 0 ? ` · ${hold}¢ locked at publish` : ""), { ok: true, state: hold > 0 ? "HELD" : "OPEN", detail: state.flow.version });
+      } catch (e) {
+        log2(`job '${jobId}' open failed`, { ok: false, state: "REFUSED", code: "INPUT", detail: String(e.message || e) });
+      }
+      renderAll();
+    });
+
+    /* ---------- 2 · carve ---------- */
+    $("btn-carve").addEventListener("click", () => {
+      if (!need("carve (no job)")) return;
+      const scopeId = $("scope-id").value.trim();
+      const share = Math.round((Number($("scope-share").value) || 0) * 100);
+      if (!scopeId || share <= 0) {
+        log2("carve (input)", { ok: false, state: "REFUSED", code: "INPUT", detail: "a scope id and a positive share are required" });
+        return;
+      }
+      const res = state.flow.openScope({ scopeId, shareCents: share });
+      log2(`carve '${scopeId}' for ${share}¢`, res);
+      renderAll();
+    });
+
+    /* ---------- 3 · meter ---------- */
+    $("btn-meter").addEventListener("click", () => {
+      if (!need("meter (no job)")) return;
+      const scopeId = $("meter-scope").value;
+      const amt = Math.round(Number($("meter-amount").value) || 0);
+      if (!scopeId || amt <= 0) {
+        log2("meter (input)", { ok: false, state: "REFUSED", code: "INPUT", detail: "pick a scope and a positive amount" });
+        return;
+      }
+      const res = state.flow.meter({ scopeId, amountCents: amt, source: "METERED", reason: "playground model call" });
+      log2(`model call on '${scopeId}' for ${amt}¢`, res);
+      renderAll();
+    });
+
+    /* ---------- 3 · race ---------- */
+    $("btn-race").addEventListener("click", () => {
+      if (!need("race (no job)")) return;
+      const a = $("race-scope-a").value;
+      const b = $("race-scope-b").value;
+      const amt = Math.round(Number($("race-amount").value) || 0);
+      if (!a || !b || amt <= 0) {
+        log2("race (input)", { ok: false, state: "REFUSED", code: "INPUT", detail: "two scopes and a positive amount are required" });
+        return;
+      }
+      // Same synchronous tick for both reserves: exactly the atomic window CG-BUD/1
+      // is built on. There is deliberately no protection above reserve()'s own
+      // check-and-take — the ledger's synchronous loop IS the protection.
+      const first = state.flow.reserve({ scopeId: a, amountCents: amt, source: "SETTLEMENT" });
+      const second = state.flow.reserve({ scopeId: b, amountCents: amt, source: "SETTLEMENT" });
+      log2(`RACE · ${a} draws ${amt}¢ first`, first);
+      log2(`RACE · ${b} draws ${amt}¢ at the same instant`, second);
+      renderAll();
+    });
+
+    /* ---------- 4 · x402 guard ---------- */
+    $("btn-challenge").addEventListener("click", () => {
+      if (!need("challenge (no job)")) return;
+      state.harness = createX402Harness({
+        secret: "playground-tab-secret-not-a-real-key",
+        budget: { ledger: state.flow.ledger, jobId: state.flow.jobId, scopeId: null },
+      });
+      const amt = Math.round(Number($("x402-amount").value) || 0);
+      const resource = $("x402-resource").value.trim() || "/v1/verify";
+      if (amt <= 0 || !resource) {
+        log2("challenge (input)", { ok: false, state: "GATED", code: "INPUT", detail: "a positive amount and a resource are required" });
+        return;
+      }
+      const res = state.harness.challengeFor({
+        resource,
+        quote: { amountCents: amt, lockedByOwner: true, provenance: "playground tab simulates an owner-locked price" },
+      });
+      state.challenge = res.challenge;
+      log2(`challenge '${resource}' for ${amt}¢`, res);
+      renderX402Metrics(res.metrics);
+    });
+    $("btn-sign").addEventListener("click", () => {
+      if (!need("sign (no job)")) return;
+      if (!state.challenge) { log2("sign (no challenge)", { ok: false, state: "REJECTED", code: "NO_CHALLENGE", detail: "build the challenge first" }); return; }
+      const res = state.harness.sign(state.challenge);
+      const note = res.reservationId ? ` · reservation ${res.reservationId}` : "";
+      const sig = res.signature ? ` · sig ${res.signature.slice(0, 12)}…(HMAC over the canonical challenge)` : "";
+      log2("sign (reserve-before-signature)", { ...res, detail: (res.detail || "") + note + sig });
+      renderX402Metrics(res.metrics);
+      renderAll();
+    });
+
+    $("btn-sign-again").addEventListener("click", () => {
+      if (!need("sign-again (no job)")) return;
+      if (!state.challenge) { log2("sign-again (no challenge)", { ok: false, state: "REJECTED", code: "NO_CHALLENGE", detail: "build the challenge first" }); return; }
+      const res = state.harness.sign(state.challenge);
+      log2("sign the SAME challenge again (one payment per challenge)", res);
+      renderX402Metrics(res.metrics);
+      renderAll();
+    });
+
+    $("btn-settle").addEventListener("click", () => {
+      if (!need("settle (no job)")) return;
+      if (!state.challenge) { log2("settle (no challenge)", { ok: false, state: "REJECTED", code: "NO_CHALLENGE", detail: "build the challenge first" }); return; }
+      const res = state.harness.settle({ challenge: state.challenge, envelope: null });
+      log2("settle (DRY_RUN mode: no money exists anywhere in this tab)", res);
+      renderX402Metrics(res.metrics || (state.harness ? state.harness.metrics() : null));
+      renderAll();
+    });
+
+    /* ---------- 5 · acceptance ---------- */
+    function deliverWith(evidenceDigest) {
+      if (!need("deliver (no job)")) return;
+      const checks = [];
+      if ($("ck-digest").checked) checks.push({ kind: "DIGEST_MATCH", args: { digest: $("spec-digest").value.trim() || "abc" } });
+      if ($("ck-publisher").checked) checks.push({ kind: "PUBLISHER_APPROVAL" });
+      if ($("ck-human").checked) checks.push({ kind: "HUMAN_JUDGMENT" });
+      if (checks.length === 0) {
+        log2("deliver (no checks)", { ok: false, state: "REFUSED", code: "INPUT", detail: "tick at least one check to build a spec" });
+        return;
+      }
+      const built = state.flow.buildSpec(checks);
+      const evidence = { artifactSha256: evidenceDigest }; // null / absent only when passing none — unproven claims are UNKNOWN, never PASS
+      const verdict = state.flow.deliver({ spec: built.spec, evidence });
+      log2(`deliver · ${checks.length} check(s) · basis ${built.spec.basis}`, { ok: verdict.state === "ACCEPTED", state: verdict.state, code: verdict.code || null, detail: verdict.detail || "the verdict is recorded — see the money card" });
+      renderVerdict(built.spec, verdict);
+      renderAll();
+    }
+    $("btn-deliver").addEventListener("click", () => deliverWith($("spec-digest").value.trim() || "abc")); // the matching digest
+    $("btn-deliver-bad").addEventListener("click", () => deliverWith("deadbeef")); // a different digest = FAIL → REJECTED
+    $("btn-deliver-none").addEventListener("click", () => deliverWith(null)); // no evidence at all = UNKNOWN (money stays HELD)
+
+    function ar() { return document.documentElement.lang === "ar"; }
+    function renderVerdict(spec, verdict) {
+      const s = state.flow.snapshot();
+      const v = verdict.state;
+      $("verdict-rows").innerHTML = [
+        ["basis", esc(spec.basis)],
+        ["checks", esc(spec.checks.length)],
+        ["verdict", `<span class="${v === "ACCEPTED" ? "verdict-ok" : v === "REJECTED" ? "verdict-bad" : "verdict-warn"}">${esc(v)}</span>`],
+        ["held", esc(s.heldCents) + "&cent;"],
+        ["released", esc(s.releasedCents) + "&cent;"],
+        ["refunded", esc(s.refundedCents) + "&cent;"],
+      ].map(([k, val]) => `<tr><th>${k}</th><td>${val}</td></tr>`).join("");
+      $("held-note").textContent = v !== "UNKNOWN" ? "" :
+        ar()
+          ? "المال بقي مقفلًا — لا دفع ولا استرجاع، ولا مسار يحوّل UNKNOWN إلى شيء آخر. الحفظ هو الجواب الثالث الصادق، ويبقى مسجلًا في الدفتر."
+          : "the money stays locked — neither paid out nor refunded. UNKNOWN has no mechanical oracle; holding is the honest third answer, and it stays recorded in the ledger.";
+    }
+
+    renderAll();
+    renderLog();
+  </script>
+</main>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "generator": "scripts/build-playground.mjs",
+  "marker": "CG-ENGINE-PROVENANCE",
+  "modules": {
+    "canonical.js": "packages/canonical/index.js",
+    "uint-shim.js": "packages/canonical/uint.js",
+    "ledger.js": "packages/budget/ledger.mjs",
+    "acceptance.js": "packages/acceptance/index.mjs",
+    "x402.js": "packages/x402/index.mjs",
+    "job-integration.js": "packages/job-integration/index.mjs",
+    "crypto-shim.js": "packages/crypto-shim-playground.js"
+  },
+  "note": "every engine file is the real package bytes with import lines rewritten; nothing else"
+}
