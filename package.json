@@ -13,6 +13,7 @@
     "benchmark:10k": "node scripts/benchmark-10k.mjs",
     "benchmark:dde": "node scripts/benchmark-dde.mjs",
     "benchmark:dde-http": "node scripts/benchmark-dde-http.mjs",
+    "benchmark:dde-load": "node scripts/benchmark-dde-load.mjs",
     "publish:check": "node scripts/publish-check.mjs",
     "prepush": "node scripts/pre-push-check.mjs",
     "release:dry": "node scripts/release-please.mjs --dry-run",
