@@ -50,8 +50,8 @@
     <div>
       <h1><span data-lang-text="ar">لوحة أداء DDE الحية</span><span data-lang-text="en">DDE live performance</span></h1>
       <p class="sub">
-        <span data-lang-text="ar">آخر ما قاسته CI فعليًا: تقارير عدّاءَي SDK وwire وميزانيتيهما واتجاههما — تُجلب من API عام وسجل الأداء الملتزم، بلا توكن ولا خادم ولا استنساخ. الأرقام مقاييس مُسجَّلة لا وعود.</span>
-        <span data-lang-text="en">What CI actually measured last: the SDK and wire runner reports, their budgets and trend — fetched from the public API and the committed perf history, no token, no server, no clone. These are recorded measurements, not promises.</span>
+        <span data-lang-text="ar">آخر ما قاسته CI فعليًا: تقارير عدّاءات SDK وwire والحمل وميزانيتها واتجاهها — تُجلب من API عام وسجل الأداء الملتزم، بلا توكن ولا خادم ولا استنساخ. الأرقام مقاييس مُسجَّلة لا وعود.</span>
+        <span data-lang-text="en">What CI actually measured last: the SDK, wire and load runner reports, their budgets and trend — fetched from the public API and the committed perf history, no token, no server, no clone. These are recorded measurements, not promises.</span>
       </p>
     </div>
     <div class="switcher">
@@ -74,6 +74,13 @@
 
   <h2><span data-lang-text="ar">الميزانيتان (مشتقتان حيًّا من وحدة الاتجاه)</span><span data-lang-text="en">The budgets (derived live from the trend module)</span></h2>
   <div class="cards" id="budget-cards"></div>
+
+  <h2><span data-lang-text="ar">التسلسلي مقابل التزامن — نفس الكود، عمقان مختلفان</span><span data-lang-text="en">Sequential vs concurrent — same code, two depths</span></h2>
+  <p class="sub">
+    <span data-lang-text="ar">الرقمان يأتيان من قياسين حقيقيين لنفس نقطة النهاية: الوسيط التسلسلي (طلب واحد في كل مرة) وذيل p95 تحت 50 طلبًا في الطيران معًا. الفرق بينهما queueing على حلقة الأحداث المشتركة، لا انحدارًا في المحرك — عدّاء الحمل يثبت التداخل بحد أدنى 2× (مجموع الوقت مقابل الزمن الجداري)، فحلقة for…await المتتابعة تعطي ≈1 مهما كان الخادم سريعًا. ميزانية الذيل (600ms) تشرف على الصفالة تحت هذا العمق، لا على الوسيط المتسلسل — الأول 150ms والثاني 50ms.</span>
+    <span data-lang-text="en">Both numbers are real measurements of the same endpoint: the sequential median (one request at a time) and the p95 tail with 50 requests in flight together. The gap between them is queueing on the shared event loop, not engine regression — the load runner proves overlap with a minimum 2× factor (summed latency over wall time); a sequential for…await loop scores ≈1 no matter how fast the server. The 600ms tail budget supervises solidity at this depth, not the sequential median — that one has its own 150ms, and the inline budget its 50ms.</span>
+  </p>
+  <div id="load-pair"></div>
   <div id="feed-errors"></div>
 
   <h2><span data-lang-text="ar">الاتجاه (آخر القياسات لكل سلسلة)</span><span data-lang-text="en">Trend (latest measurements per series)</span></h2>
@@ -150,8 +157,8 @@ async function getText(url) {
  * derive zero budgets ([C30]) beats rendering confident nothing. */
 function parseBudgets(src) {
   const rows = [];
-  for (const m of src.matchAll(/series:\s*"([^"]+)",\s*label:\s*"([^"]+)",\s*budget:\s*(\d+)/g)) {
-    rows.push({ series: m[1], label: m[2], budget: Number(m[3]) });
+  for (const m of src.matchAll(/series:\s*"([^"]+)",\s*label:\s*"([^"]+)",\s*budget:\s*(\d+)(?:,\s*metric:\s*"([a-z0-9]+)")?/g)) {
+    rows.push({ series: m[1], label: m[2], budget: Number(m[3]), metric: m[4] ?? null });
   }
   if (rows.length === 0) throw new Error("no series/budget rows derivable from benchmark-trend.mjs");
   return rows;
@@ -168,6 +175,48 @@ function latestBySeries(lines) {
 }
 
 function ratioClass(r) { return r >= 0.8 ? "bad" : r >= 0.5 ? "warn" : ""; }
+
+/* The depth pair, derived — no retyped series names: the concurrent series
+ * is the row the module declares with metric "p95", the sequential sibling
+ * is the largest-budget median-series row. Both render from recorded
+ * history only; an unrecorded load series shows an honest "not yet" note,
+ * never a zero and never a silent skip. */
+function pickPair(rows) {
+  const load = rows.find((r) => r.metric === "p95") || null;
+  const sequential = rows.filter((r) => !r.metric || r.metric === "median")
+    .sort((a, b) => b.budget - a.budget)[0] || null;
+  return { sequential, load };
+}
+
+function pairCard(pair, latest) {
+  const seq = pair.sequential && latest ? latest.get(pair.sequential.series) : null;
+  const ld = pair.load && latest ? latest.get(pair.load.series) : null;
+  const side = (row, entry, tag) => {
+    const v = entry ? (entry.stats[row.metric || "median"]) : null;
+    const m = row.metric || "median";
+    return '<div style="flex:1; min-width:140px; text-align:center">' +
+      '<div style="font-size:.78rem; color:var(--dim)">' + tag + '</div>' +
+      '<div style="font-size:1.6rem; font-weight:700; direction:ltr">' + (v === null ? "—" : v) +
+      ' <small style="font-size:.8rem; color:var(--dim)">' + (v === null ? "" : "ms " + m) + '</small></div>' +
+      '<div style="font-size:.72rem; color:var(--dim); direction:ltr">' + (row ? row.label : "") + '</div>' +
+      '</div>';
+  };
+  const note = ld
+    ? '<div class="row" style="justify-content:center"><span>' +
+      '<span data-lang-text="ar">الفرق بين الرقمين queueing على حلقة الأحداث المشتركة — لا انحدارًا.</span>' +
+      '<span data-lang-text="en">The gap is queueing on the shared event loop — not regression.</span>' +
+      '</span></div>'
+    : '<div class="row" style="justify-content:center"><span>' +
+      '<span data-lang-text="ar">لا نقطة حمل مسجلة بعد — تظهر تلقائيًا مع أول تسجيل ليلي.</span>' +
+      '<span data-lang-text="en">No recorded load point yet — appears automatically with the first nightly entry.</span>' +
+      '</span></div>';
+  return '<div class="card">' +
+    '<div style="display:flex; align-items:center; gap:.75rem">' +
+    side(pair.sequential, seq, '<span data-lang-text="ar">وسيط تسلسلي</span><span data-lang-text="en">sequential median</span>') +
+    '<div style="font-size:1.4rem; color:var(--dim); direction:ltr">→</div>' +
+    side(pair.load, ld, '<span data-lang-text="ar">p95 تحت التزامن</span><span data-lang-text="en">p95 under concurrency</span>') +
+    '</div>' + note + '</div>';
+}
 
 /* SVG sparkline of the last N medians with the budget drawn as a line. */
 function sparkline(values, budget) {
@@ -187,12 +236,14 @@ function sparkline(values, budget) {
 
 function budgetCard(row, entry) {
   const s = entry.stats;
-  const r = s.median / row.budget;
+  const metric = row.metric || "median";
+  const r = s[metric] / row.budget;
   const pct = Math.min(100, r * 100).toFixed(1);
+  const other = metric === "median" ? ["p95", s.p95] : ["median", s.median];
   return '<div class="card"><h3>' + row.label + '</h3>' +
-    '<div class="big">' + s.median + ' <small>ms / ' + row.budget + ' ms</small></div>' +
+    '<div class="big">' + s[metric] + ' <small>ms ' + metric + ' / ' + row.budget + ' ms</small></div>' +
     '<div class="bar"><span class="' + ratioClass(r) + '" style="width:' + pct + '%"></span></div>' +
-    '<div class="row"><span>median ' + pct + '% of budget</span><span>p95 ' + s.p95 + ' ms</span></div>' +
+    '<div class="row"><span>' + metric + ' ' + pct + '% of budget</span><span>' + other[0] + ' ' + other[1] + ' ms</span></div>' +
     '<div class="row"><span>' + (entry.utc || "").replace("T", " ").replace(/\.\d+Z$/, "Z") + '</span>' +
     '<span class="gate ' + (entry.gate === "PASS" ? "ok" : "bad") + '">' + (entry.gate || "UNKNOWN") + '</span></div>' +
     '<div class="row"><span>' + (entry.runner || "") + '</span><span>' + (s.min + ' – ' + s.max + ' ms') + '</span></div>' +
@@ -200,9 +251,10 @@ function budgetCard(row, entry) {
 }
 
 function trendCard(row, entries) {
-  const values = entries.filter((e) => e.benchmark === row.series).map((e) => e.stats.median);
+  const metric = row.metric || "median";
+  const values = entries.filter((e) => e.benchmark === row.series).map((e) => e.stats[metric]);
   return '<div class="card"><h3>' + row.label + '</h3>' + sparkline(values, row.budget) +
-    '<div class="row"><span>' + values.length + ' recorded runs</span><span>budget ' + row.budget + ' ms (dashed)</span></div></div>';
+    '<div class="row"><span>' + values.length + ' recorded ' + metric + 's</span><span>budget ' + row.budget + ' ms (dashed)</span></div></div>';
 }
 
 async function main() {
@@ -271,6 +323,7 @@ async function main() {
     document.getElementById("trend-cards").innerHTML = budgets
       .filter((row) => entries.some((e) => e.benchmark === row.series))
       .map((row) => trendCard(row, entries)).join("");
+    document.getElementById("load-pair").innerHTML = pairCard(pickPair(budgets), latest);
   }
 }
 

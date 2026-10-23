@@ -2,10 +2,19 @@
 /**
  * benchmark-trend.mjs — performance trend tracking across pushes.
  *
- * Appends this run's benchmark medians to benchmarks/perf-history.jsonl
- * (one JSON object per line) and fails when a median drifts more than 2x
- * from the trailing five-entry baseline for its series. Cold CI runners
- * are noisy, so 2x is the regression bar — not a tuning target.
+ * Appends this run's benchmark series points to benchmarks/perf-history.jsonl
+ * (one JSON object per line) and fails when a series' tracked metric drifts
+ * more than 2x from the trailing five-entry baseline for its series. Cold CI
+ * runners are noisy, so 2x is the regression bar — not a tuning target.
+ *
+ * Every series tracks ONE metric, declared in SERIES_METRIC below: the
+ * sequential SDK/one-request-at-a-time series track `median` (the stable
+ * per-request number), and the concurrent load series tracks `p95` — the
+ * tail you actually feel when 50 requests share one event loop. The two
+ * numbers describe the same code path at two different depths; the tail
+ * under concurrency is queueing on the shared loop, not engine regression,
+ * and their budgets (50ms sequential, 600ms concurrent tail) are enforced
+ * separately in each runner.
  *
  *   node scripts/benchmark-trend.mjs --file <report.json>   # append + gate
  *   node scripts/benchmark-trend.mjs --status               # gate only, no append
@@ -13,23 +22,30 @@
  *
  * Badge mode (used by the trend-recording CI step): reads the LATEST entry
  * of each tracked series and writes deterministic flat-style SVG badges to
- * docs/badges/ so the repo page always shows the last CI-measured median.
+ * docs/badges/ so the repo page always shows the last CI-measured median
+ * (or p95 for the concurrency series).
  * Fail-closed: a series with no history, or whose latest entry is not a
  * PASS record, aborts badge generation entirely — a stale or lying badge
- * is worse than none.
+ * is worse than none. EXCEPTION — dde-http-load-perf is the REMOVED nightly
+ * depth: it waits for its first recorded point (a notice, not an error) so
+ * the three always-on badges keep regenerating before any nightly run
+ * happens or lands.
  *
- * Report contract (the --json output of both benchmark runners):
+ * Report contract (the --json output of the benchmark runners):
  *   { benchmark: string, stats: { median: number, ... }, gate: "PASS"|"FAIL", ... }
  *   benchmark-dde-http.mjs uses per-layer stat blocks instead of a single
  *   `stats` (engine = the shared 50ms-budget series, wire = the wire series);
  *   both are tracked as separate series under the same report file.
+ *   benchmark-dde-load.mjs's report is tracked as-is (single stats block,
+ *   SERIES_METRIC picks its p95 field for badge + drift; its median is still
+ *   recorded — the comparison card needs the sequential sibling).
  *
  * Gates (fail-closed, exit 1):
  *   - the report's own gate must be PASS (never record a failing run as a
  *     trend point)
  *   - each tracked series (benchmark name) with >= 5 history entries must
- *     have median <= 2x the median-of-medians of its last 5 entries;
- *     the offender names baseline, current, and ratio
+ *     have its tracked metric <= 2x the median-of-tracked-metric of its
+ *     last 5 entries; the offender names baseline, current, and ratio
  *   - the history file must stay parseable: torn/truncated lines are
  *     reported and skipped, never silently re-written
  *
@@ -50,13 +66,24 @@ const BADGES_DIR = join(REPO, "docs", "badges");
 const BASELINE_WINDOW = 5;
 const DRIFT_FACTOR = 2;
 
-// The README badge set: file → series → display label → the same median
-// budget the runner enforces (engine 50ms, wire 150ms, SDK 50ms).
+// The README badge set: file → series → display label → budget → the ONE
+// metric that series is tracked and badged on (all but the load series are
+// `median`, so only load declares an explicit metric). This shape is
+// page-bound: the live perf page parses `series … budget … metric` lines
+// from this module as its budget table — the row shape here IS the page's
+// source of truth, and a change here must move the page in the same push.
+// `nightly: true` marks the depth whose badge generation tolerates absence
+// until its first recorded point (a notice, not an error) — the always-on
+// three keep regenerating before any nightly run happens or lands.
 const BADGE_SERIES = [
   { file: "perf-engine.svg", series: "dde-http-wire-perf:engine", label: "perf·engine", budget: 50 },
   { file: "perf-wire.svg", series: "dde-http-wire-perf:wire", label: "perf·wire", budget: 150 },
   { file: "perf-sdk.svg", series: "dde-sdk-verify-perf", label: "perf·sdk", budget: 50 },
+  // The concurrent tail: 50 requests in flight share one event loop —
+  // its decision number is the tail, not the median.
+  { file: "perf-load.svg", series: "dde-http-load-perf", label: "perf·load", budget: 600, metric: "p95", nightly: true },
 ];
+const METRIC = (series) => BADGE_SERIES.find((b) => b.series === series)?.metric ?? "median";
 
 function parseHistory() {
   if (!existsSync(HISTORY)) return { entries: [], torn: 0 };
@@ -106,17 +133,25 @@ function badgeSvg(label, value, color) {
   );
 }
 
-// Regenerate all badges from the latest recorded medians — atomically:
-// every configured series must resolve to a PASS entry or NOTHING is
-// written (a half-updated badge row would contradict itself).
+// Regenerate all badges from the latest recorded tracked-metric values —
+// atomically: every configured series must resolve to a PASS entry or
+// NOTHING is written (a half-updated badge row would contradict itself).
+// The load series is the removed nightly depth: an absent history is a
+// notice, not a gate failure, so the always-on badges survive until the
+// nightly recorder fires for the first time.
 function writePerfBadges() {
   const { entries } = parseHistory();
   const svgs = [];
   const errors = [];
+  const notes = [];
   for (const b of BADGE_SERIES) {
     const series = entries.filter((e) => e.benchmark === b.series);
     const latest = series[series.length - 1];
     if (!latest) {
+      if (b.nightly) {
+        notes.push(`${b.series} has no history yet — nightly depth; badge waits for the first recorded point`);
+        continue;
+      }
       errors.push(`no history entries for ${b.series} — refusing to emit a stale badge`);
       continue;
     }
@@ -124,14 +159,15 @@ function writePerfBadges() {
       errors.push(`latest ${b.series} entry has gate ${latest.gate} — a failing run never becomes a badge`);
       continue;
     }
-    const median = latest.stats.median;
-    const value = `${Number(median.toFixed(3))}ms`;
-    svgs.push({ file: b.file, svg: badgeSvg(b.label, value, badgeColor(median, b.budget)) });
+    const metric = METRIC(b.series);
+    const value = latest.stats[metric];
+    svgs.push({ file: b.file, svg: badgeSvg(b.label, `${Number(value.toFixed(3))}ms`, badgeColor(value, b.budget)) });
   }
   if (errors.length > 0) {
     for (const e of errors) console.error(`benchmark-trend: ${e}`);
     process.exit(1);
   }
+  for (const n of notes) console.error(`benchmark-trend: note — ${n}`);
   mkdirSync(BADGES_DIR, { recursive: true });
   for (const s of svgs) writeFileSync(join(BADGES_DIR, s.file), s.svg);
   console.log(JSON.stringify({ badges: svgs.map((s) => `docs/badges/${s.file}`), source: "benchmarks/perf-history.jsonl" }, null, 2));
@@ -163,8 +199,10 @@ if (fileArg > -1) {
     process.exit(2);
   }
   // Single-series shape (benchmark-dde.mjs): { stats: { median } }.
+  // benchmark-dde-load.mjs: same shape, but the drift gate + badge track
+  // p95 (SERIES_METRIC) — a concurrent burst's decision number is its tail.
   if (raw.stats && typeof raw.stats.median === "number") {
-    reports.push({ benchmark: raw.benchmark, gate: raw.gate, stats: raw.stats });
+    reports.push({ benchmark: raw.benchmark, gate: raw.gate, stats: raw.stats, metric: METRIC(raw.benchmark) });
   }
   // Dual-series shape (benchmark-dde-http.mjs): { engine: {...}, wire: {...} } —
   // each block becomes its own trend series (engine <name>, wire <name>).
@@ -175,6 +213,7 @@ if (fileArg > -1) {
         benchmark: `${raw.benchmark}:${layer}`,
         gate: raw.gate,
         stats: block,
+        metric: METRIC(`${raw.benchmark}:${layer}`),
       });
     }
   }
@@ -195,12 +234,12 @@ for (const rep of reports) {
   seriesEntries[rep.benchmark] = series.length;
   const baseline = series.slice(-BASELINE_WINDOW);
   if (baseline.length >= BASELINE_WINDOW) {
-    const baseMedian = medianOf(baseline.map((e) => e.stats.median));
-    const ratio = rep.stats.median / baseMedian;
+    const baseMetric = medianOf(baseline.map((e) => e.stats[rep.metric]));
+    const ratio = rep.stats[rep.metric] / baseMetric;
     if (ratio > DRIFT_FACTOR) {
       failures.push(
-        `median ${rep.stats.median}ms is ${ratio.toFixed(2)}x the ${BASELINE_WINDOW}-run baseline ` +
-        `(${baseMedian}ms) — drift beyond the ${DRIFT_FACTOR}x regression bar for ${rep.benchmark}`
+        `${rep.metric} ${rep.stats[rep.metric]}ms is ${ratio.toFixed(2)}x the ${BASELINE_WINDOW}-run baseline ` +
+        `(${baseMetric}ms) — drift beyond the ${DRIFT_FACTOR}x regression bar for ${rep.benchmark}`
       );
     }
   }
@@ -216,6 +255,9 @@ for (const rep of reports) {
     runner: process.env.RUNNER_OS ?? process.platform,
     stats: rep.stats,
     gate: rep.gate,
+    // recorded only when non-default: an explicit metric on a median series
+    // would be redundant, but a p95-tracked series must say so in its own row
+    ...(rep.metric !== "median" ? { metric: rep.metric } : {}),
   });
 }
 
@@ -234,6 +276,7 @@ const status = {
   series: reports.map((r) => ({
     benchmark: r.benchmark,
     historyEntries: seriesEntries[r.benchmark] ?? undefined,
+    metric: r.metric,
     median: r.stats.median,
   })),
   tornLines: torn,

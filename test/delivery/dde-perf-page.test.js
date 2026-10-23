@@ -13,10 +13,11 @@ import vm from "node:vm";
  *      dde.yml's upload step actually publishes (exactly one uploader).
  *   2. page → budgets  : the page derives budgets LIVE from the trend
  *      module's badge table (raw fetch + parse); the contract proves the
- *      page's parser against the REAL module bytes, and cross-checks the
- *      snapshot's budget figures (50/50/150) against that same table — a
- *      budget change in the module fails BOTH the snapshot-stale guard and
- *      this page by name; a page that stops parsing the module fails here.
+ *      page's parser against the REAL module bytes, cross-checks the
+ *      snapshot's budget figures (50/50/150/600) against that same table, and
+ *      binds the tracked metric per series — only the load row may declare
+ *      metric "p95" (the concurrency tail), everything else stays median;
+ *      a page that stops parsing the module fails here.
  *   3. page → history  : the page's history source must be the committed
  *      benchmarks/perf-history.jsonl (the bytes the DDE cycle appends).
  *   4. page → index    : docs/index.html must carry a card linking to
@@ -69,7 +70,7 @@ function runPageFn(fnName, ...args) {
   return ctx.result;
 }
 
-const PAGE_FNS = { parseBudgets: null, latestBySeries: null, sparkline: null };
+const PAGE_FNS = { parseBudgets: null, latestBySeries: null, sparkline: null, pickPair: null, pairCard: null };
 for (const fn of Object.keys(PAGE_FNS)) {
   PAGE_FNS[fn] = (...args) => runPageFn(fn, args[0], args[1]);
 }
@@ -89,17 +90,28 @@ function deriveLive() {
   const artifact = nameM[1];
 
   // The trend module's budget table (the page's live budget source).
-  const rows = [...trend.matchAll(/series:\s*"([^"]+)",\s*label:\s*"([^"]+)",\s*budget:\s*(\d+)/g)]
-    .map((m) => ({ series: m[1], label: m[2], budget: Number(m[3]) }));
-  assert.ok(rows.length >= 3, `expected the 3-series badge table in ${TREND}, found ${rows.length}`);
+  const rows = [...trend.matchAll(/series:\s*"([^"]+)",\s*label:\s*"([^"]+)",\s*budget:\s*(\d+)(?:,\s*metric:\s*"([a-z0-9]+)")?/g)]
+    .map((m) => ({ series: m[1], label: m[2], budget: Number(m[3]), metric: m[4] ?? null }));
+  assert.ok(rows.length >= 4, `expected the 4-series badge table in ${TREND}, found ${rows.length}`);
   assert.ok(trend.includes("badges"), `${TREND} lost its badges section — the page's budget source is gone`);
   const table = Object.fromEntries(rows.map((r) => [r.series, r.budget]));
 
-  // The page must derive budgets from the module, not retype them.
-  const violations = pageBindingViolations(page, artifact);
-  assert.deepEqual(violations, [], "the page's source bindings drifted:\n  " + violations.join("\n  "));
+  // The depth-pair binding: exactly ONE p95-tracked series (the concurrency
+  // tail) and the sequential sibling must exist, by the same rule the page
+  // itself applies — derived from the module, never retyped on the page.
+  const load = rows.filter((r) => r.metric === "p95");
+  assert.equal(load.length, 1, `exactly one p95-tracked series expected, found ${load.length}`);
+  assert.equal(load[0].series, "dde-http-load-perf", "the load runner must be the p95-tracked series");
+  assert.equal(load[0].budget, 600, `the load budget must be the runner's 600ms tail budget, got ${load[0].budget}`);
+  const sequential = rows.filter((r) => !r.metric).sort((a, b) => b.budget - a.budget)[0];
+  assert.ok(sequential, "the sequential sibling (largest-budget median series) must exist");
+  assert.equal(sequential.series, "dde-http-wire-perf:wire", "the wire series is the sequential median the pair compares against");
 
-  return { artifact, rows, table };
+  // The page must derive budgets from the module, not retype them.
+  const violations = [...pageBindingViolations(page, artifact), ...pageHonestyViolations(page)];
+  assert.deepEqual(violations, [], "the page's source bindings or honesty drifted:\n  " + violations.join("\n  "));
+
+  return { artifact, rows, table, loadRow: load[0], sequentialRow: sequential };
 }
 
 /** The page-side bindings as a pure violations-collector over the page text,
@@ -124,6 +136,28 @@ function pageBindingViolations(page, artifact) {
   return v;
 }
 
+/** The depth pair's honesty, beyond its data: the page must present the
+ *  sequential-median-vs-concurrent-p95 gap as queueing on the shared event
+ *  loop (with the overlap proof), never frame regression, and state the
+ *  honest absence of a yet-unrecorded load point — no zero wearing a live name. */
+function pageHonestyViolations(page) {
+  const v = [];
+  const script = (page.match(/<script>([\s\S]*?)<\/script>/) || [])[1] || "";
+  if (!script.includes("queueing on the shared event loop — not regression")) {
+    v.push("the pair card must name the gap queueing on the shared event loop — not engine regression");
+  }
+  if (!script.includes('r.metric === "p95"') || !script.includes("sort((a, b) => b.budget - a.budget)")) {
+    v.push("pickPair() must derive both sides from the module rows (p95-declared series + largest-budget median series), never retype names");
+  }
+  if (!script.includes("No recorded load point yet")) {
+    v.push("an unrecorded load point must render the honest absence note, not a zero and not silence");
+  }
+  if (!/الفرق بين الرقمين queueing على حلقة الأحداث المشتركة/.test(page)) {
+    v.push("the AR prose must carry the same queueing-not-regression framing as the EN card copy");
+  }
+  return v;
+}
+
 const LIVE = deriveLive();
 
 /* ---- tests ---- */
@@ -138,9 +172,12 @@ test("perf page: artifact name equals the one dde.yml actually uploads", () => {
 
 test("perf page: budget derivation is proven against the real trend module", () => {
   const parsed = PAGE_FNS.parseBudgets(read(TREND));
-  assert.ok(Array.isArray(parsed) && parsed.length >= 3, "parseBudgets() must derive the real budget rows from the module bytes");
+  assert.ok(Array.isArray(parsed) && parsed.length >= 4, "parseBudgets() must derive the real budget rows from the module bytes");
   for (const r of parsed) {
     assert.ok(LIVE.table[r.series] === r.budget, `parseBudgets() drifted on "${r.series}"`);
+    const live = LIVE.rows.find((x) => x.series === r.series);
+    assert.equal(r.metric ?? null, live.metric ?? null,
+      `parseBudgets() must track the same metric the module declares for "${r.series}"`);
   }
 });
 
@@ -148,7 +185,10 @@ test("perf page: latestBySeries + sparkline run against recorded history lines",
   const lines = read(HIST).split("\n").filter((l) => l.trim());
   assert.ok(lines.length > 100, "the committed perf history must stay substantial for the logic proof");
   const latest = PAGE_FNS.latestBySeries(lines);
-  assert.equal(latest.size, 3, "latestBySeries() must see all three recorded series");
+  assert.ok(latest.size >= 3, `latestBySeries() must see at least the three core series, saw ${latest.size}`);
+  for (const core of ["dde-http-wire-perf:engine", "dde-http-wire-perf:wire", "dde-sdk-verify-perf"]) {
+    assert.ok(latest.has(core), `the core series ${core} must stay recorded — the page and badges depend on it`);
+  }
   for (const e of latest.values()) {
     assert.equal(typeof e.stats.median, "number", "recorded entries must carry numeric medians");
   }
@@ -156,6 +196,30 @@ test("perf page: latestBySeries + sparkline run against recorded history lines",
   const svg = PAGE_FNS.sparkline([engine.stats.median * 0.8, engine.stats.median, engine.stats.median * 1.1], LIVE.table["dde-http-wire-perf:engine"]);
   assert.ok(svg.startsWith("<svg"), "sparkline() must emit an SVG");
   assert.ok(svg.includes('stroke-dasharray'), "sparkline() must draw the budget as a dashed line");
+});
+
+test("perf page: the depth pair card derives both sides from module rows and runs on real history", () => {
+  const pair = PAGE_FNS.pickPair(LIVE.rows);
+  assert.equal(pair.sequential.series, LIVE.sequentialRow.series, "pickPair() must pick the wire series as the sequential side");
+  assert.equal(pair.load.series, LIVE.loadRow.series, "pickPair() must pick the load series as the concurrent side");
+
+  // Executed against the committed history: the sequential side renders its
+  // recorded median; the load side renders the honest absence state (no load
+  // entry has been recorded yet — the nightly cycle has not run).
+  const lines = read(HIST).split("\n").filter((l) => l.trim());
+  const latest = PAGE_FNS.latestBySeries(lines);
+  const html = PAGE_FNS.pairCard(pair, latest);
+  assert.ok(html.includes(LIVE.sequentialRow.label), "the sequential side must render its real label");
+  assert.ok(html.includes("—"), "an unrecorded load point must render as an em dash, never a fabricated number");
+  assert.match(html, /No recorded load point yet/, "absence must state itself, not wear the queueing line");
+
+  // And with a load entry present, the pair renders both real numbers.
+  const withLoad = new Map(latest);
+  withLoad.set(LIVE.loadRow.series, { stats: { median: 1, p95: 71.2 }, gate: "PASS", utc: "" });
+  const both = PAGE_FNS.pairCard(pair, withLoad);
+  assert.ok(both.includes("71.2"), "the p95 side must render the recorded p95, not the median");
+  assert.ok(!both.includes("No recorded load point yet"), "a recorded point must replace the absence note with the queueing framing");
+  assert.match(both, /queueing on the shared event loop — not regression/);
 });
 
 test("perf page: docs/index.html links the page from its cards", () => {
@@ -197,19 +261,31 @@ test("perf page negative controls: each page mutation applies AND bites, by name
       to: '" + OWNER_REPO + "/actions/runs/" + run.id + "/artifacts/zip"',
       expect: /must not reference artifact zip decoding/,
     },
+    {
+      label: "the page reframes the gap as engine regression",
+      from: 'queueing on the shared event loop — not regression',
+      to: 'engine regression surfaced by load',
+      expect: /must name the gap queueing on the shared event loop — not engine regression/,
+    },
+    {
+      label: "the page hides the unrecorded load point",
+      from: 'No recorded load point yet — appears automatically with the first nightly entry.',
+      to: '',
+      expect: /must render the honest absence note/,
+    },
   ];
   let applied = 0;
   for (const c of cases) {
     const m = mutated(page, c.from, c.to);
     if (!m.applied) continue;
     applied++;
-    const violations = pageBindingViolations(m.out, LIVE.artifact);
+    const violations = [...pageBindingViolations(m.out, LIVE.artifact), ...pageHonestyViolations(m.out)];
     assert.ok(violations.length > 0,
       `negative control did not bite: "${c.label}" — the page contract stayed green over a corrupted binding`);
     assert.match(violations.join("\n"), c.expect,
       `negative control "${c.label}" bit with the wrong message: ${violations.join(" | ")}`);
   }
-  assert.ok(applied >= 4, `expected all 4 page controls to apply, only ${applied} did — the battery is not testing what it thinks`);
+  assert.ok(applied >= 6, `expected all 6 page controls to apply, only ${applied} did — the battery is not testing what it thinks`);
 });
 
 test("perf page module-side control: the page's runtime budgets re-derive from the module, so a module bump changes the page's truth in the same push", () => {

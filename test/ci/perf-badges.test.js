@@ -23,8 +23,8 @@ const REPO = join(fileURLToPath(new URL("../..", import.meta.url)));
 const SCRIPT = join(REPO, "scripts", "benchmark-trend.mjs");
 const README = readFileSync(join(REPO, "README.md"), "utf8");
 
-const PASS_ENTRY = (benchmark, median, gate = "PASS") =>
-  JSON.stringify({ benchmark, utc: "2026-09-21T00:00:00Z", runner: "Linux", stats: { median }, gate });
+const PASS_ENTRY = (benchmark, median, gate = "PASS", extraStats = {}) =>
+  JSON.stringify({ benchmark, utc: "2026-09-21T00:00:00Z", runner: "Linux", stats: { median, ...extraStats }, gate });
 
 const FULL_HISTORY = [
   PASS_ENTRY("dde-http-wire-perf:engine", 0.226),
@@ -128,6 +128,41 @@ test("badge color encodes the budget state: green ≤1x, yellow ≤2x, red beyon
     assert.match(badge(s.dir, "perf-engine.svg"), /fill="#dfb317"/, "between 1x and 2x → yellow");
     runBadges(s.dir, history(120));
     assert.match(badge(s.dir, "perf-engine.svg"), /fill="#e05d44"/, "beyond 2x → red");
+  } finally {
+    s.cleanup();
+  }
+});
+
+/* The load series: the concurrency tail badge. Before the first nightly
+ * run it must WAIT (notice, exit 0, three badges still generated); once a
+ * p95 entry exists it must render the tail against the 600ms budget. */
+test("load series absent: --badges waits for the nightly first point instead of failing", () => {
+  const s = sandbox();
+  try {
+    const out = runBadges(s.dir, FULL_HISTORY); // exit 0 — the load row's absence is a notice
+    assert.ok(existsSync(join(s.dir, "docs", "badges", "perf-engine.svg")), "the always-on badges must survive the absent load series");
+    assert.equal(existsSync(join(s.dir, "docs", "badges", "perf-load.svg")), false, "no load badge must appear without history");
+    assert.ok(out.includes("perf-engine.svg") && !out.includes("perf-load.svg"),
+      "the generation summary must list the three written badges without a phantom load row");
+  } finally {
+    s.cleanup();
+  }
+});
+
+test("load series recorded: badge shows the tracked p95 and colors by the 600ms tail budget", () => {
+  const s = sandbox();
+  try {
+    const history = (p95) => [
+      ...FULL_HISTORY,
+      PASS_ENTRY("dde-http-load-perf", 0.4, "PASS", { p95, p99: p95 + 1, min: 0.2, max: p95 + 2 }),
+    ];
+    runBadges(s.dir, history(600));
+    assert.match(badge(s.dir, "perf-load.svg"), /perf·load<\/text><text [^>]*>600ms</, "the badge must show p95, explicitly labeled in the value");
+    assert.match(badge(s.dir, "perf-load.svg"), /fill="#4c1"/, "at the 600ms budget → green");
+    runBadges(s.dir, history(750));
+    assert.match(badge(s.dir, "perf-load.svg"), /fill="#dfb317"/, "within the 2x tail bar → yellow");
+    runBadges(s.dir, history(1300));
+    assert.match(badge(s.dir, "perf-load.svg"), /fill="#e05d44"/, "beyond the 2x tail bar → red");
   } finally {
     s.cleanup();
   }

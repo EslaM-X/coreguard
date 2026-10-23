@@ -30,6 +30,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { mkdtempSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -96,4 +98,35 @@ test("load runner: the shipped default is a real 50-way burst (the ask, not a sm
   const src = readFileSync(RUNNER, "utf8");
   assert.match(src, /const DEFAULT_CONCURRENCY = 50;/, "the default burst depth must be 50 requests in flight");
   assert.match(src, /const DEFAULT_REQUESTS = 200;/, "200 requests gives p95 a 10-sample tail at 50-way");
+});
+
+test("load runner: its report feeds the trend recorder — the recorded row carries metric p95", () => {
+  // The real chain, end to end: the runner's own --json report is handed to
+  // benchmark-trend.mjs in a sandbox, and the appended history row must say
+  // (a) this is the dde-http-load-perf series, (b) the number being tracked
+  // is p95 — not the sequential median wearing the load label.
+  const { json } = run(["--requests", "8", "--concurrency", "4", "--json"]);
+  assert.ok(json && json.gate === "PASS", "the feeding run must be a real passing burst");
+
+  const dir = mkdtempSync(join(tmpdir(), "load-trend-"));
+  try {
+    writeFileSync(join(dir, "report.json"), JSON.stringify(json));
+    const r = spawnSync(process.execPath, [join(REPO, "scripts", "benchmark-trend.mjs"), "--file", join(dir, "report.json")], {
+      cwd: REPO, encoding: "utf8", maxBuffer: 16 * 1024 * 1024,
+      env: { ...process.env, PERF_TREND_REPO: dir },
+    });
+    assert.equal(r.status, 0, `trend recording failed:${r.stderr}`);
+    const status = JSON.parse(r.stdout);
+    assert.equal(status.recorded, 1, "the report must record exactly its own series point");
+    assert.equal(status.series[0].benchmark, "dde-http-load-perf");
+    assert.equal(status.series[0].metric, "p95", "the recorded metric must be p95 — the tail, not the median");
+
+    const row = JSON.parse(readFileSync(join(dir, "benchmarks", "perf-history.jsonl"), "utf8").trim());
+    assert.equal(row.benchmark, "dde-http-load-perf");
+    assert.equal(row.metric, "p95", "the history row must declare its metric so badges and pages never guess");
+    assert.equal(row.stats.p95, json.stats.p95, "the recorded tail must be the run's own measured p95, byte-for-byte");
+    assert.ok(Number.isFinite(row.stats.median), "the median stays recorded too — the comparison card needs the sequential sibling");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
