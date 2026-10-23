@@ -49,6 +49,21 @@ Real code, not slides:
 [`packages/job-integration/index.mjs`](packages/job-integration/index.mjs) ·
 [`packages/refusal-audit/index.mjs`](packages/refusal-audit/index.mjs)
 
+## Products & services — the complete catalog
+
+Every protocol, SDK, dispute layer, job-economy primitive, integration surface
+and service that exists in this repository, with its honest status (SHIPPED /
+LIVE / DRY_RUN / GATED / RESEARCH), is listed in one place:
+
+- **[docs/PRODUCTS.md](docs/PRODUCTS.md)** — the complete text catalog, each row
+  mapped to a committed path or an executed command.
+- **[docs/PRODUCTS.html](https://eslam-x.github.io/coreguard/PRODUCTS.html)** —
+  the bilingual (AR/EN) catalog page.
+
+Nothing in that catalog claims revenue, customers, partners, funding, a price, a
+badge issuance, a live external integration or a third-party audit. Those stay
+`UNKNOWN` / `GATED` until a named event with evidence exists.
+
 ## Protocol ecosystem
 
 CoreGuard is now a **stack of sealed protocols**: each layer consumes the
@@ -209,7 +224,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 1176 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard, verification-platform suite
+npm test              # 1304 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard, verification-platform suite
 git config core.hooksPath .githooks   # install the Pages settle pre-push guard — every main push waits for the Pages build
 npm run corpus        # deterministic 73-scenario adversarial corpus
 npm run benchmark     # 73/73 pass

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoreGuard — On-chain execution-provenance evidence for agent transactions</title>
+<meta name="description" content="On-chain execution-provenance evidence layer for agent transactions on Core DAO. Evidence over narrative — every PASS is reproducible from the committed tree.">
+<style>
+  :root{
+    --bg:#0b0f14; --bg2:#10161d; --panel:#141c24; --panel2:#18222c;
+    --line:#243240; --line2:#2e3f50;
+    --ink:#e8eef4; --muted:#8fa3b5; --faint:#5f7386;
+    --green:#2fbf71; --green2:#23a05c; --gold:#e0b64c; --blue:#4da3ff;
+    --radius:14px;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; font-family:"Segoe UI","Noto Sans",system-ui,-apple-system,sans-serif;
+    background:
+      radial-gradient(1100px 500px at 85% -10%, rgba(47,191,113,.09), transparent 60%),
+      radial-gradient(900px 420px at 0% 0%, rgba(77,163,255,.07), transparent 55%),
+      var(--bg);
+    color:var(--ink); line-height:1.65; min-height:100vh;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:1.2rem 1.3rem 4rem}
+
+  .top{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 0 1rem}
+  .brand{display:flex;align-items:center;gap:.65rem;font-weight:700;letter-spacing:.2px}
+  .brand .mark{
+    width:34px;height:34px;border-radius:9px;flex:0 0 auto;
+    background:linear-gradient(135deg,var(--green) 0%,#137a41 100%);
+    display:grid;place-items:center;color:#06130b;font-weight:800;font-size:1rem;
+    box-shadow:0 4px 14px rgba(47,191,113,.35);
+  }
+  .brand small{display:block;font-weight:400;color:var(--faint);font-size:.72rem;letter-spacing:.4px}
+  .lang{
+    display:flex;align-items:center;gap:.35rem;background:var(--panel);
+    border:1px solid var(--line);border-radius:999px;padding:.3rem;
+    cursor:pointer;user-select:none;transition:border-color .2s;
+  }
+  .lang:hover{border-color:var(--green2)}
+  .lang span{
+    padding:.28rem .8rem;border-radius:999px;font-size:.85rem;font-weight:600;
+    color:var(--muted);transition:all .2s;
+  }
+  .lang span.on{background:var(--green);color:#06130b;box-shadow:0 2px 10px rgba(47,191,113,.4)}
+
+  header.hero{
+    background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);
+    border:1px solid var(--line);border-radius:calc(var(--radius) + 4px);
+    padding:2.2rem 2rem 1.8rem;margin-top:.6rem;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  header.hero::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--green),var(--blue),var(--gold));
+  }
+  .kicker{
+    display:inline-flex;align-items:center;gap:.45rem;
+    font-size:.78rem;font-weight:600;letter-spacing:.6px;text-transform:uppercase;
+    color:var(--green);background:rgba(47,191,113,.08);
+    border:1px solid rgba(47,191,113,.25);border-radius:999px;
+    padding:.28rem .85rem;margin-bottom:1rem;
+  }
+  .kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2.2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  h1{margin:0 0 .55rem;font-size:clamp(1.55rem,3.6vw,2.25rem);line-height:1.25;letter-spacing:-.3px}
+  h1 em{font-style:normal;color:var(--green)}
+  .lede{color:var(--muted);max-width:62ch;font-size:1.02rem}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.3rem}
+  .btn{
+    display:inline-flex;align-items:center;gap:.5rem;
+    padding:.58rem 1.15rem;border-radius:10px;font-size:.92rem;font-weight:600;
+    text-decoration:none;transition:transform .15s, box-shadow .15s, border-color .15s;
+    border:1px solid var(--line2);color:var(--ink);background:var(--panel2);
+  }
+  .btn:hover{transform:translateY(-1px);border-color:var(--green2)}
+  .btn.primary{background:var(--green);border-color:var(--green);color:#06130b;box-shadow:0 6px 18px rgba(47,191,113,.3)}
+  .btn.primary:hover{background:#34cc79}
+  .badges{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.15rem;align-items:center}
+  .badges img{height:20px;border-radius:4px}
+
+  section{margin-top:2.5rem}
+  .sec-head{display:flex;align-items:baseline;gap:.8rem;margin-bottom:.4rem}
+  h2{margin:0;font-size:1.28rem;letter-spacing:-.2px}
+  h2 .n{
+    font-size:.8rem;color:var(--faint);font-weight:600;
+    border:1px solid var(--line);border-radius:6px;padding:.05rem .5rem;
+    font-variant-numeric:tabular-nums;
+  }
+  .sec-sub{color:var(--faint);font-size:.92rem;margin:0 0 1.1rem;max-width:70ch}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(285px,1fr));gap:.9rem}
+  .card{
+    background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:1.05rem 1.15rem;position:relative;overflow:hidden;
+    transition:transform .18s, border-color .18s, box-shadow .18s;
+  }
+  .card:hover{transform:translateY(-3px);border-color:var(--green2);box-shadow:var(--shadow)}
+  .card::after{
+    content:"";position:absolute;top:0;bottom:0;left:0;width:3px;
+    background:linear-gradient(180deg,var(--green),transparent);opacity:.55;
+  }
+  .card b{display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;font-size:1rem}
+  .card b .tag{
+    font-size:.66rem;font-weight:700;letter-spacing:.5px;color:var(--blue);
+    border:1px solid rgba(77,163,255,.3);background:rgba(77,163,255,.07);
+    padding:.1rem .5rem;border-radius:6px;
+  }
+  .card b .tag.live{color:var(--green);border-color:rgba(47,191,113,.35);background:rgba(47,191,113,.08)}
+  .card small{color:var(--muted);display:block;line-height:1.55}
+  .card a{color:inherit;text-decoration:none;display:block}
+  .card a:hover b{color:var(--green)}
+
+  .pill{counter-reset:p}
+  .pill .card::after{display:none}
+  .pillnum{
+    counter-increment:p;position:absolute;top:.7rem;left:1rem;
+    font-size:1.5rem;font-weight:800;color:transparent;
+    -webkit-text-stroke:1px var(--line2);font-variant-numeric:tabular-nums;
+  }
+  [dir="rtl"] .pillnum{left:auto;right:1rem}
+  .pill .card b{margin-top:.4rem}
+
+  .aie{
+    margin-top:1rem;border:1px solid rgba(224,182,76,.3);border-radius:var(--radius);
+    background:linear-gradient(90deg,rgba(224,182,76,.08),rgba(224,182,76,.02) 70%);
+    padding:1rem 1.2rem;display:flex;gap:1rem;align-items:flex-start;
+  }
+  .aie .ic{font-size:1.3rem;line-height:1.4}
+  .aie p{margin:0;font-size:.95rem}
+  .aie a{color:var(--gold);text-decoration:none;border-bottom:1px dotted rgba(224,182,76,.5)}
+  .aie a:hover{border-bottom-style:solid}
+  .aie .mirror{color:var(--muted);font-size:.85rem;margin:.35rem 0 0}
+
+  ul.gov{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+  ul.gov li{
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:.7rem 1rem;display:flex;gap:.7rem;align-items:flex-start;
+    transition:border-color .15s;
+  }
+  ul.gov li:hover{border-color:var(--line2)}
+  ul.gov .ic{color:var(--green);flex:0 0 auto;margin-top:.1rem}
+  ul.gov a{color:var(--ink);text-decoration:none;font-weight:600}
+  ul.gov a:hover{color:var(--green)}
+  ul.gov small{display:block;color:var(--muted);font-weight:400}
+
+  footer{
+    margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--line);
+    color:var(--faint);font-size:.85rem;
+  }
+  footer a{color:var(--muted);text-decoration:none}
+  footer a:hover{color:var(--green)}
+
+  [dir="rtl"] body,[dir="rtl"] .card,[dir="rtl"] ul.gov li{font-family:"Segoe UI","Noto Naskh Arabic","Noto Sans Arabic",system-ui,sans-serif}
+  [dir="rtl"] .brand small{letter-spacing:0}
+  [dir="rtl"] .card::after{left:auto;right:0}
+
+  [data-lang-text]{display:none !important}
+  html[data-active="en"] span[data-lang-text="en"].inline{display:inline !important}
+  html[data-active="ar"] span[data-lang-text="ar"].inline{display:inline !important}
+
+  @media (max-width:640px){
+    header.hero{padding:1.5rem 1.2rem 1.3rem}
+    h1{font-size:1.4rem}
+    .grid{grid-template-columns:1fr}
+    .top{flex-wrap:wrap}
+  }
+</style>
+</head>
+<body>
+<style>
+  .card b{flex-wrap:wrap}
+  .card b .tag.dry{color:var(--gold);border-color:rgba(224,182,76,.35);background:rgba(224,182,76,.08)}
+  .card b .tag.gated{color:#e07b7b;border-color:rgba(224,123,123,.35);background:rgba(224,123,123,.08)}
+  .card b .tag.research{color:var(--faint);border-color:var(--line2);background:rgba(95,115,134,.08)}
+  .card code{font-family:ui-monospace,Consolas,monospace;font-size:.82em;color:var(--gold)}
+  ul.gov code{font-family:ui-monospace,Consolas,monospace;font-size:.85em;color:var(--gold)}
+  .warn{border-color:rgba(224,182,76,.35)!important}
+  .warn .ic{color:var(--gold)}
+</style>
+
+<div class="wrap">
+
+<div class="top">
+  <div class="brand">
+    <div class="mark">CG</div>
+    <div>CoreGuard<span data-lang-text="en" class="inline"> · product catalog</span><span data-lang-text="ar" class="inline"> · كتالوج المنتجات</span></div>
+  </div>
+  <div class="lang" id="langToggle" role="button" tabindex="0" aria-label="Switch language / تبديل اللغة">
+    <span id="lbtn-en" class="on">EN</span><span id="lbtn-ar">ع</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="kicker"><span class="dot"></span><span data-lang-text="en" class="inline">Complete catalog · every surface · measured status</span><span data-lang-text="ar" class="inline">كتالوج كامل · كل الواجهات · حالة مقاسة</span></div>
+  <h1><span data-lang-text="en" class="inline">Everything CoreGuard ships — <em>in one honest catalog</em>.</span><span data-lang-text="ar" class="inline">كل ما يقدمه CoreGuard — <em>في كتالوج واحد صادق</em>.</span></h1>
+  <p class="lede"><span data-lang-text="en" class="inline">The execution-truth protocol, the execution firewall and SDK, the delivery &amp; dispute layer, the job-economy primitives, the integration platform, and the honesty layer that binds every claim. A row is SHIPPED only when committed code runs offline and the suite exercises it. No revenue, customer, partner, price or live external integration is claimed.</span><span data-lang-text="ar" class="inline">بروتوكول حقيقة التنفيذ، جدار الحماية وSDK، طبقة التسليم والنزاع، بدائيات اقتصاد الوظائف، منصة التكامل، وطبقة الصدق التي تربط كل ادعاء. الصف يُعدّ «مُنجزًا» فقط حين يعمل الكود الملتزم بلا شبكة ويختبره الجناح. لا ادعاء بإيراد أو عميل أو شريك أو سعر أو تكامل خارجي حي.</span></p>
+  <div class="hero-cta">
+    <a class="btn primary" href="PLAYGROUND.html"><span data-lang-text="en" class="inline">▶ Live playground</span><span data-lang-text="ar" class="inline">▶ الملعب الحي</span></a>
+    <a class="btn" href="PRODUCTS.md"><span data-lang-text="en" class="inline">Text catalog →</span><span data-lang-text="ar" class="inline">الكتالوج النصي →</span></a>
+    <a class="btn" href="https://github.com/EslaM-X/coreguard#readme"><span data-lang-text="en" class="inline">GitHub →</span><span data-lang-text="ar" class="inline">المستودع →</span></a>
+  </div>
+  <div class="badges">
+    <a href="STATUS.md"><img alt="measured state" src="https://img.shields.io/badge/claims-28%20%C2%B7%20audited-2EA043.svg?logo=checkmarx&logoColor=white"></a>
+    <a href="https://github.com/EslaM-X/coreguard/releases/tag/v1.0.0"><img alt="release v1.0.0" src="https://img.shields.io/badge/release-v1.0.0-0969DA.svg?logo=github&logoColor=white"></a>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">1 · Core verification protocol</span><span data-lang-text="ar" class="inline">1 · بروتوكول التحقق الأساسي</span></h2><span class="n">7</span></div>
+  <p class="sec-sub"><span data-lang-text="en" class="inline">Declared intent + policy → committed hash → observed execution → independently re-verifiable receipt → Core anchor.</span><span data-lang-text="ar" class="inline">نية وسياسة معلنة → هاش ملتزم → تنفيذ مرصود → إيصال قابل للتحقق المستقل → مرساة على Core.</span></p>
+  <div class="grid">
+    <div class="card"><b><span data-lang-text="en" class="inline">CGEP/1 Execution Receipt</span><span data-lang-text="ar" class="inline">إيصال التنفيذ CGEP/1</span><span class="tag inline inline" data-lang-text="en">SHIPPED · DRAFT</span><span class="tag inline inline" data-lang-text="ar">مُنجز · مسودة</span></b><small><span data-lang-text="en" class="inline">The protocol: intent/policy commitment before execution, chain evidence after, one receipt anyone can recompute. Draft spec for open discussion — not a standard. <code>npm&nbsp;test</code> · <code>npm&nbsp;run&nbsp;corpus</code>.</span><span data-lang-text="ar" class="inline">البروتوكول: التزام النية/السياسة قبل التنفيذ، دليل السلسلة بعده، وإيصال واحد يعيد أي طرف حسابه. مسودة للمناقشة لا معيار. <code>npm&nbsp;test</code> · <code>npm&nbsp;run&nbsp;corpus</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Canonical + intent + policy</span><span data-lang-text="ar" class="inline">الترميز القانوني والنية والسياسة</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Byte-identical canonicalization; evaluation-free rules (value, target, recipient, selector, deadline, slippage, oracle bound). No heuristics in verification.</span><span data-lang-text="ar" class="inline">ترميز متطابق بايتًا؛ قواعد بلا تقدير بشري (القيمة، الهدف، المستلم، المحدد، الموعد، الانزلاق، حد الأوراكل). لا استدلال في التحقق.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Trace + evidence engine</span><span data-lang-text="ar" class="inline">محرك التتبع والأدلة</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Raw RPC → canonical execution model → evidence bundle + commitment. Deterministic replay (L2) re-derives the structural rule book offline.</span><span data-lang-text="ar" class="inline">RPC خام → نموذج تنفيذ قانوني → حزمة أدلة + التزام. إعادة التشغيل الحتمية (L2) تعيد اشتقاق دفتر القواعد البنيوي بلا شبكة.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Three independent verifiers</span><span data-lang-text="ar" class="inline">ثلاثة مدققين مستقلين</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Verifier A (JS) · Verifier B (Rust/WASM) · Verifier C (Python stdlib), combined fail-closed with no majority rule. Zero trust in the issuer.</span><span data-lang-text="ar" class="inline">المدقق A (JS) · B (Rust/WASM) · C (Python قياسي)، يُدمجون فاشل-مغلق بلا قاعدة أغلبية. صفر ثقة بالمُصدر.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Identity, mandate, disclosure, recovery</span><span data-lang-text="ar" class="inline">الهوية والتفويض والإفصاح والاستعادة</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">WebCrypto signer auth · five-layer capability chain (authorization ≠ execution proof) · Merkle selective disclosure · crash-safe write-ahead recovery journal.</span><span data-lang-text="ar" class="inline">توثيق الموقّع بـWebCrypto · سلسلة قدرات خمسية (الإذن ≠ دليل تنفيذ) · إفصاح انتقائي Merkle · دفتر استعادة آمن من الانهيار.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">EvidenceRegistry + live Mainnet anchor</span><span data-lang-text="ar" class="inline">سجل الأدلة + مرساة Mainnet حية</span><span class="tag live inline inline" data-lang-text="en">LIVE · READ-ONLY</span><span class="tag live inline inline" data-lang-text="ar">حي · للقراءة</span></b><small><span data-lang-text="en" class="inline">Single contract storing commitments only — no custody, no oracles. Frozen Mainnet anchor re-derived independently: <code>0x037dF08F2d43c5D03759279Fe35664f6AFf9EA6E</code>.</span><span data-lang-text="ar" class="inline">عقد واحد يخزّن الالتزامات فقط — بلا حفظ أصول ولا أوراكل. مرساة Mainnet مجمّدة أُعيد اشتقاقها باستقلال: <code>0x037dF08F2d43c5D03759279Fe35664f6AFf9EA6E</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">AgentProof — actor provenance</span><span data-lang-text="ar" class="inline">AgentProof — إثبات هوية الفاعل</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Per-check fail-closed report over commitment, manifest signature and declared-vs-detected identity. Declared, never detected.</span><span data-lang-text="ar" class="inline">تقرير فاشل-مغلق لكل فحص: الالتزام، توقيع البيان، والهوية المعلنة مقابل المرصودة. مُعلن لا مُستنتج.</span></small></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">2 · Execution firewall + developer kit</span><span data-lang-text="ar" class="inline">2 · جدار الحماية وعدة المطوّر</span></h2><span class="n">5</span></div>
+  <div class="grid">
+    <div class="card"><b><span data-lang-text="en" class="inline">Execution firewall + attack lab</span><span data-lang-text="ar" class="inline">جدار الحماية + مختبر الهجوم</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">PRE-only <code>ALLOW</code> / <code>DENY</code> / <code>REQUIRE_REVIEW</code>, fail-closed on unmodeled context. Ten tamper cases: tampered → FAIL, unknown → UNKNOWN, valid → VERIFIED. <code>npm run attack-lab</code>.</span><span data-lang-text="ar" class="inline">قرار قبلي فقط <code>ALLOW</code> / <code>DENY</code> / <code>REQUIRE_REVIEW</code> فاشل-مغلق. عشر حالات عبث: العبث → FAIL، المجهول → UNKNOWN، الصالح → VERIFIED. <code>npm run attack-lab</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">@coreguard/sdk guard</span><span data-lang-text="ar" class="inline">واجهة guard في SDK</span><span class="tag inline inline" data-lang-text="en">SHIPPED LOCAL</span><span class="tag gated inline inline" data-lang-text="en">NPM GATED</span><span class="tag inline inline" data-lang-text="ar">محلي · النشر مقفل</span></b><small><span data-lang-text="en" class="inline"><code>authorize</code> (PRE, fail-closed) · <code>verify</code> (recomputes every receipt id) · <code>anchor</code> (offline commitment plan). The npm package is not published — install from the repo.</span><span data-lang-text="ar" class="inline"><code>authorize</code> (قبلي، فاشل-مغلق) · <code>verify</code> (يعيد حساب كل معرّف) · <code>anchor</code> (خطة التزام بلا شبكة). الحزمة غير منشورة على npm — ثبّتها من المستودع.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">CLI + verify-run</span><span data-lang-text="ar" class="inline">أداة الطرفية + verify-run</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline"><code>analyze</code> · <code>verify</code> · <code>verify-run</code> · <code>verify-provenance</code> · <code>report</code> · <code>demo</code>. Exit codes: 0 VERIFIED · 2 INVALID · 3 UNVERIFIED · 4 INCONCLUSIVE. Read-only RPC.</span><span data-lang-text="ar" class="inline"><code>analyze</code> · <code>verify</code> · <code>verify-run</code> · <code>verify-provenance</code> · <code>report</code> · <code>demo</code>. رموز الخروج: 0 متحقق · 2 غير صالح · 3 غير متحقق · 4 غير حاسم. RPC للقراءة فقط.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Scaffold + template</span><span data-lang-text="ar" class="inline">قالب إنشاء تكامل</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline"><code>npm run create:integration -- my-dapp</code> writes intent, policy, verifier and tests. Reference consumer integration included.</span><span data-lang-text="ar" class="inline"><code>npm run create:integration -- my-dapp</code> يكتب النية والسياسة والمدقق والاختبارات. مثال مستهلك مرجعي مرفق.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Reference Vault ladder</span><span data-lang-text="ar" class="inline">سلّم الخزنة المرجعي</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Deposit <code>ALLOW</code> → <code>VERIFIED</code> → anchor plan; six attacks blocked and the post-state <code>INVALID</code>. <code>npm run demo:vault</code> / <code>demo:attack</code>.</span><span data-lang-text="ar" class="inline">إيداع <code>ALLOW</code> → <code>VERIFIED</code> → خطة مرساة؛ ست هجمات محجوبة والحالة اللاحقة <code>INVALID</code>. <code>npm run demo:vault</code> / <code>demo:attack</code>.</span></small></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">3 · Delivery &amp; dispute evidence</span><span data-lang-text="ar" class="inline">3 · دليل التسليم والنزاع</span></h2><span class="n">6</span></div>
+  <p class="sec-sub"><span data-lang-text="en" class="inline">Binding rule, enforced by code: execution verification never decides delivery conformity. Payment settled never implies delivery accepted.</span><span data-lang-text="ar" class="inline">قاعدة ملزمة ينفّذها الكود: التحقق من التنفيذ لا يقرّر مطابقة التسليم. سداد الدفع لا يعني أبدًا قبول التسليم.</span></p>
+  <div class="grid">
+    <div class="card"><b><span data-lang-text="en" class="inline">DDE/1 engine + HTTP endpoint</span><span data-lang-text="ar" class="inline">محرك DDE/1 ونقطة HTTP</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Consent state <code>FULL</code> / <code>PARTIAL</code> / <code>UNKNOWN</code>; acceptance; release law. Socket identity, allowlist before rate limit. <a href="DDE-API-REFERENCE.html">Live API reference →</a></span><span data-lang-text="ar" class="inline">حالة الموافقة <code>FULL</code> / <code>PARTIAL</code> / <code>UNKNOWN</code>؛ القبول؛ قانون الإفراج. الهوية من المقبس، والقائمة قبل حد المعدل. <a href="DDE-API-REFERENCE.html">مرجع API الحي →</a></span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">SDK release gate</span><span data-lang-text="ar" class="inline">بوابة الإفراج في SDK</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline"><code>verifyFixture</code> + <code>releaseWhen</code> produce <code>HOLD</code> · <code>RELEASE</code> · <code>REFUSED</code>, fail-closed. <a href="DDE-SDK-REFERENCE.html">Four-scenario page →</a></span><span data-lang-text="ar" class="inline"><code>verifyFixture</code> + <code>releaseWhen</code> ينتجان <code>HOLD</code> · <code>RELEASE</code> · <code>REFUSED</code> فاشل-مغلق. <a href="DDE-SDK-REFERENCE.html">صفحة السيناريوهات الأربعة →</a></span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">EVP/1 + ADAL/1 packages</span><span data-lang-text="ar" class="inline">حزم EVP/1 وADAL/1</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Hash-pinned evidence package standard and deterministic dispute package for an external tribunal. <code>npm run evidence-package</code> / <code>dispute-package</code>.</span><span data-lang-text="ar" class="inline">معيار حزمة أدلة مثبتة بالهاش وحزمة نزاع حتمية لمحكمة خارجية. <code>npm run evidence-package</code> / <code>dispute-package</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">People's Court adapter</span><span data-lang-text="ar" class="inline">محوّل People's Court</span><span class="tag dry inline inline" data-lang-text="en">DRY_RUN</span><span class="tag gated inline inline" data-lang-text="en">EXTERNAL NOT BUILT</span><span class="tag dry inline inline" data-lang-text="ar">تجريبي · الخارج غير مبني</span></b><small><span data-lang-text="en" class="inline">ADAL/1 → uploaded-surface dry-run mapper, offline and credential-free. No external integration exists; this is a structural adapter.</span><span data-lang-text="ar" class="inline">محوّل ADAL/1 إلى سطح مرفوع، تجريبي وبلا بيانات اعتماد. لا يوجد تكامل خارجي؛ هذا محوّل بنيوي فقط.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">AEA/1 escrow boundary + reference tribunal</span><span data-lang-text="ar" class="inline">حد الضمان AEA/1 والمحكمة المرجعية</span><span class="tag dry inline inline" data-lang-text="en">REFERENCE ONLY</span><span class="tag dry inline inline" data-lang-text="ar">مرجعي فقط</span></b><small><span data-lang-text="en" class="inline">Verifies an ADAL/1 package, emits escrow interface + tribunal template, re-verifies its own output. <code>deployed:false</code>; synthetic adjudicator, explicitly not People's Court.</span><span data-lang-text="ar" class="inline">يتحقق من حزمة ADAL/1، يصدر واجهة ضمان وقالب محكمة، ثم يعيد التحقق من مخرجه. <code>deployed:false</code>؛ محكّم صناعي وليس People's Court.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">AIE-1 incident review</span><span data-lang-text="ar" class="inline">مراجعة حوادث AIE-1</span><span class="tag live inline inline" data-lang-text="en">LIVE PAGE</span><span class="tag gated inline inline" data-lang-text="en">ENGAGEMENT GATED</span><span class="tag live inline inline" data-lang-text="ar">صفحة حية · الالتزام مقفل</span></b><small><span data-lang-text="en" class="inline">One endpoint, one bundle, one report schema; replay from a cold clone, fail-closed tamper naming the exact flipped byte. <a href="AIE-1-REVIEW.html">Try it in-page →</a></span><span data-lang-text="ar" class="inline">نقطة واحدة وحزمة واحدة ومخطط تقرير واحد؛ إعادة تشغيل من استنساخ بارد، ورفض فاشل-مغلق يسمّي البايت المقلوب. <a href="AIE-1-REVIEW.html">جرّبها داخل الصفحة →</a></span></small></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">4 · Agent-economy primitives</span><span data-lang-text="ar" class="inline">4 · بدائيات اقتصاد الوظائف</span></h2><span class="n">6</span></div>
+  <p class="sec-sub"><span data-lang-text="en" class="inline">A job posting that becomes money which cannot move without evidence. Reserve before sign. UNKNOWN stays HELD — never auto-pay, never auto-refund.</span><span data-lang-text="ar" class="inline">إعلان وظيفة يتحول إلى مال لا يتحرك بلا دليل. احجز قبل التوقيع. UNKNOWN يبقى معلّقًا — لا دفع تلقائي ولا استرداد تلقائي.</span></p>
+  <div class="grid">
+    <div class="card"><b><span data-lang-text="en" class="inline">CG-BUD/1 budget ledger</span><span data-lang-text="ar" class="inline">دفتر الميزانية CG-BUD/1</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Budget locked at publish; sub-agent shares carved; race for the last dollar; never overspends; deterministic to the cent.</span><span data-lang-text="ar" class="inline">الميزانية مقفلة عند النشر؛ حصص الوكلاء الفرعيين تُقتطع؛ تنافس على آخر دولار؛ لا تجاوز أبدًا؛ حتمية إلى السنت.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">CG-ACC/1 acceptance</span><span data-lang-text="ar" class="inline">القبول CG-ACC/1</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Signed acceptance criteria and disposition. An unknown outcome never becomes acceptance.</span><span data-lang-text="ar" class="inline">معايير قبول موقّعة وقرار. النتيجة المجهولة لا تصبح قبولًا أبدًا.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">X402/1 payment gate</span><span data-lang-text="ar" class="inline">بوابة الدفع X402/1</span><span class="tag inline inline" data-lang-text="en">SHIPPED HARNESS</span><span class="tag gated inline inline" data-lang-text="en">LIVE PAYMENTS GATED</span><span class="tag inline inline" data-lang-text="ar">محاكي · المدفوعات الحية مقفلة</span></b><small><span data-lang-text="en" class="inline">Canonical 402 challenge; `reserve before sign`; no price — none, zero or unlocked — opens the gate; <code>settle()</code> books <code>$0</code>.</span><span data-lang-text="ar" class="inline">تحدي 402 قانوني؛ «احجز قبل التوقيع»؛ لا سعر — لا شيء أو صفر أو مقفل — يفتح البوابة؛ <code>settle()</code> يسجّل <code>$0</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">CG-INT/1 job integration</span><span data-lang-text="ar" class="inline">تكامل الوظيفة CG-INT/1</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Wires budget + acceptance + gate into one lifecycle: publish → accept → deliver → verify → release or refuse.</span><span data-lang-text="ar" class="inline">يربط الميزانية والقبول والبوابة في دورة واحدة: نشر → قبول → تسليم → تحقق → إفراج أو رفض.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">CG-RA/1 refusal audit</span><span data-lang-text="ar" class="inline">سجل الرفض CG-RA/1</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Deterministic refusal log with digests and no secrets — the audit trail of why money did not move.</span><span data-lang-text="ar" class="inline">سجل رفض حتمي بالملخصات وبلا أسرار — أثر تدقيق سبب عدم تحرك المال.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Playground + terminal demo</span><span data-lang-text="ar" class="inline">الملعب والعرض الطرفي</span><span class="tag live inline inline" data-lang-text="en">LIVE</span><span class="tag live inline inline" data-lang-text="ar">حي</span></b><small><span data-lang-text="en" class="inline">The full cycle in your tab with the real committed engine, plus <code>node demo.mjs</code> in one command. No key, no network, no money.</span><span data-lang-text="ar" class="inline">الدورة كاملة في تبويبك بالمحرك الحقيقي، و<code>node demo.mjs</code> بأمر واحد. بلا مفتاح ولا شبكة ولا مال.</span></small></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">5 · Verification &amp; integration platform</span><span data-lang-text="ar" class="inline">5 · منصة التحقق والتكامل</span></h2><span class="n">8</span></div>
+  <div class="grid">
+    <div class="card"><b><span data-lang-text="en" class="inline">L0–L4 + 13-state machine</span><span data-lang-text="ar" class="inline">مستويات L0–L4 وآلة 13 حالة</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline"><code>verify:levels</code> requires a chain confirmation for L1; structure alone is UNKNOWN. <code>integration:states</code> emits doorway records with no silent pass. <code>npm run verify:levels</code> · <code>npm run integration:states</code>.</span><span data-lang-text="ar" class="inline"><code>verify:levels</code> يطلب تأكيد سلسلة لـL1؛ البنية وحدها UNKNOWN. <code>integration:states</code> يصدر سجلات بوابة بلا مرور صامت. <code>npm run verify:levels</code> · <code>npm run integration:states</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Adapters + partner sandbox</span><span data-lang-text="ar" class="inline">المحوّلات وصندوق الشريك</span><span class="tag dry inline inline" data-lang-text="en">DRY_RUN</span><span class="tag dry inline" data-lang-text="ar" inline">DRY_RUN</span></b><small><span data-lang-text="en" class="inline">Six-method adapter contract, four provider stubs all DRY_RUN, and 8 offline partner scenarios over a mock chain. <code>npm run adapters:status</code> · <code>npm run partner:sandbox</code>.</span><span data-lang-text="ar" class="inline">عقد محوّل بستة أساليب، أربع واجهات مزوّد كلها DRY_RUN، و8 سيناريوهات شريك بلا شبكة على سلسلة وهمية. <code>npm run adapters:status</code> · <code>npm run partner:sandbox</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Evidence Passport v2</span><span data-lang-text="ar" class="inline">جواز الأدلة v2</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Portable deterministic passport object derived from committed state. <code>npm run passport:v2</code>.</span><span data-lang-text="ar" class="inline">كائن جواز حتمي محمول مشتق من الحالة الملتزمة. <code>npm run passport:v2</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">CG-WH/1 webhook</span><span data-lang-text="ar" class="inline">ويب هوك CG-WH/1</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Domain-separated HMAC over exact bytes; stale and future-dated replay rejected; mandatory idempotency key; no keyless mode; DRY_RUN never performs. <code>npm run webhook</code>.</span><span data-lang-text="ar" class="inline">HMAC مفصول النطاق على البايتات الدقيقة؛ رفض إعادة التشغيل القديمة والمستقبلية؛ مفتاح تكرار إلزامي؛ لا وضع بلا مفتاح؛ DRY_RUN لا ينفّذ. <code>npm run webhook</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">CG-CS/1 conformance + CG-CR/1 report</span><span data-lang-text="ar" class="inline">المطابقة CG-CS/1 والتقرير CG-CR/1</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Machine-readable conformance report; <code>badgeIssuers: 0</code>. <code>npm run ladder:conformance</code> · <code>npm run conformance:report</code>.</span><span data-lang-text="ar" class="inline">تقرير مطابقة قابل للقراءة آليًا؛ <code>badgeIssuers: 0</code>. <code>npm run ladder:conformance</code> · <code>npm run conformance:report</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">CG-IR/1 + CG-PJ/1</span><span data-lang-text="ar" class="inline">مختبر الإعادة ورحلة الشريك</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Replay a bundle through L0–L3 with no partial credit; ten integration legs over one bundle. A clean journey is <code>MATCH</code>, not <code>VERIFIED</code>. <code>npm run integration:replay</code> · <code>npm run partner:journey</code>.</span><span data-lang-text="ar" class="inline">إعادة حزمة عبر L0–L3 بلا ائتمان جزئي؛ عشر خطوات تكامل على حزمة واحدة. الرحلة النظيفة <code>MATCH</code> لا <code>VERIFIED</code>. <code>npm run integration:replay</code> · <code>npm run partner:journey</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">CG-RG/1 release gate</span><span data-lang-text="ar" class="inline">بوابة الإصدار CG-RG/1</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">18 legs; the gate audits its own source; a leg that proves nothing is FAIL. <code>npm run release:gate</code> · <code>release:gate:independence</code>.</span><span data-lang-text="ar" class="inline">18 خطوة؛ البوابة تدقّق مصدرها؛ الخطوة التي لا تثبت شيئًا FAIL. <code>npm run release:gate</code> · <code>release:gate:independence</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">CG-BDG/1 badges + CG-CL/1 claims</span><span data-lang-text="ar" class="inline">الشارات والادعاءات</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag gated inline inline" data-lang-text="en">ISSUANCE 0</span><span class="tag inline inline" data-lang-text="ar">مُنجز · الإصدار صفر</span></b><small><span data-lang-text="en" class="inline">Badge digests re-derived byte-for-byte (two NOT ISSUED specimens, issuerCount 0); 28 claims each bound to a committed source; <code>claims:audit</code> fails on an unsupported VERIFIED. <code>npm run badge:verify</code> · <code>npm run claims:audit</code>.</span><span data-lang-text="ar" class="inline">ملخصات الشارات تُعاد بايتًا ببايت (نموذجان NOT ISSUED، issuerCount 0)؛ 28 ادعاءً كل منها مربوط بمصدر ملتزم؛ <code>claims:audit</code> يفشل على VERIFIED بلا دليل. <code>npm run badge:verify</code> · <code>npm run claims:audit</code>.</span></small></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">6 · Trust &amp; release discipline</span><span data-lang-text="ar" class="inline">6 · انضباط الثقة والإصدار</span></h2><span class="n">6</span></div>
+  <div class="grid">
+    <div class="card"><b><span data-lang-text="en" class="inline">Boundary audit</span><span data-lang-text="ar" class="inline">تدقيق الحدود</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Fails the build on prohibited claim and credential patterns, naming file and line. <code>npm run boundary:audit</code>.</span><span data-lang-text="ar" class="inline">يفشل البناء على أنماط الادعاء والاعتماد المحظورة، ويسمّي الملف والسطر. <code>npm run boundary:audit</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Canonical measured state</span><span data-lang-text="ar" class="inline">الحالة المقاسة القانونية</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">One snapshot, re-measured from the committed tree; the suite total is enforced against it. <code>node scripts/current-state.mjs --check</code>.</span><span data-lang-text="ar" class="inline">لقطة واحدة تُعاد قياسها من الشجرة الملتزمة؛ إجمالي الجناح يُفرض عليها. <code>node scripts/current-state.mjs --check</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">STATUS.md</span><span data-lang-text="ar" class="inline">STATUS.md</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">The reviewer's single source of truth, row-bound to the committed artifacts by a test with 12 negative controls.</span><span data-lang-text="ar" class="inline">مصدر الحقيقة الواحد للمراجع، مربوط صفًّا بالصف بالآثار الملتزمة عبر اختبار بـ12 ضابطًا سلبيًا.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Commit-anchored freeze records</span><span data-lang-text="ar" class="inline">سجلات تجميد مثبتة بالالتزام</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Per-file SHA-256 hashed from git blobs, with reachability and re-pin discipline. Disk mode is triage, not evidence.</span><span data-lang-text="ar" class="inline">SHA-256 لكل ملف من blobs git، مع انضباط الوصول وإعادة التثبيت. وضع القرص للفرز لا دليل.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Surface liveness</span><span data-lang-text="ar" class="inline">حيوية الأسطح</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Proves every public surface answers before it is cited. <code>node scripts/surface-liveness.mjs --self-check</code>.</span><span data-lang-text="ar" class="inline">يثبت أن كل سطح عام يستجيب قبل الاستشهاد به. <code>node scripts/surface-liveness.mjs --self-check</code>.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Pages settle guard</span><span data-lang-text="ar" class="inline">حارس تسوية Pages</span><span class="tag inline inline" data-lang-text="en">SHIPPED</span><span class="tag inline inline" data-lang-text="ar">مُنجز</span></b><small><span data-lang-text="en" class="inline">Push-time guard pinned to the commit SHA whose Pages build must finish — identity, not age.</span><span data-lang-text="ar" class="inline">حارس عند الدفع مثبت على SHA الالتزام الذي يجب أن يكتمل بناؤه — هوية لا عمر.</span></small></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">7 · Live pages &amp; demos</span><span data-lang-text="ar" class="inline">7 · الصفحات والعروض الحية</span></h2><span class="n">10</span></div>
+  <ul class="gov">
+    <li><span class="ic">◆</span><div><a href="PLAYGROUND.html">Playground — job-economy cycle</a><small><span data-lang-text="en" class="inline">Open a job, lock budget, carve shares, race the last dollar, pass the gate before any signature.</span><span data-lang-text="ar" class="inline">افتح وظيفة، اقفل الميزانية، اقتطع الحصص، تنافس على آخر دولار، ومرّر البوابة قبل أي توقيع.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="AIE-1-REVIEW.html">AIE-1 incident review</a><small><span data-lang-text="en" class="inline">Paste a bundle or click honest / tamper / structural-refusal.</span><span data-lang-text="ar" class="inline">الصق حزمة أو اختر صادق / عبث / رفض بنيوي.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="DDE-API-REFERENCE.html">DDE API reference</a><small><span data-lang-text="en" class="inline">The real DDE/1 handler embedded; every wire status captured live.</span><span data-lang-text="ar" class="inline">محرك DDE/1 الحقيقي مضمّن؛ كل رموز السلك ملتقطة حيًا.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="DDE-SDK-REFERENCE.html">DDE SDK reference</a><small><span data-lang-text="en" class="inline">The four-scenario release-law arc in-page.</span><span data-lang-text="ar" class="inline">قوس قانون الإفراج الرباعي داخل الصفحة.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="DELIVERY-DISPUTE-DEMO.html">Delivery-dispute demo</a><small><span data-lang-text="en" class="inline">Nine documented events: mutual acceptance, freeze, post-closing release.</span><span data-lang-text="ar" class="inline">تسعة أحداث موثقة: قبول متبادل، تجميد، تحرير بعد الختام.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="GOVERNANCE-DASHBOARD.html">Governance dashboard</a><small><span data-lang-text="en" class="inline">Bilingual board with the payment-gate section.</span><span data-lang-text="ar" class="inline">لوحة ثنائية اللغة مع قسم بوابة الدفع.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="DDE-PERF.html">DDE perf — live</a> · <a href="DDE-TREND.html">trend</a><small><span data-lang-text="en" class="inline">CI-measured budgets and medians; append-only history.</span><span data-lang-text="ar" class="inline">ميزانيات ووسيطات مقاسة في CI؛ سجل ملحق فقط.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="coreguard-gate41-visual.html">Gate 4.1 visual</a> · <a href="coreguard-gate41-visual-en.html">EN</a><small><span data-lang-text="en" class="inline">On-chain identity anchor through the evidence chain.</span><span data-lang-text="ar" class="inline">مرساة الهوية على السلسلة عبر سلسلة الأدلة.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="coreguard-dapp-core.html">Core DApp surface</a><small><span data-lang-text="en" class="inline">Identity, plans, treasury, on-Core view.</span><span data-lang-text="ar" class="inline">الهوية والخطط والخزينة والعرض على Core.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="index.html">Site index</a><small><span data-lang-text="en" class="inline">Entry point to every live surface.</span><span data-lang-text="ar" class="inline">نقطة الدخول إلى كل الواجهات الحية.</span></small></div></li>
+  </ul>
+</section>
+
+<section>
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">8 · Services — defined, not sold</span><span data-lang-text="ar" class="inline">8 · الخدمات — محددة لا مبيعة</span></h2><span class="n">5</span></div>
+  <p class="sec-sub"><span data-lang-text="en" class="inline">The protocol is MIT. The services below are buildable, but none has been sold, priced or delivered. Revenue $0.</span><span data-lang-text="ar" class="inline">البروتوكول MIT. الخدمات أدناه قابلة للبناء، لكن لم تُبع أو تُسعّر أو تُسلّم. الإيراد $0.</span></p>
+  <div class="grid">
+    <div class="card"><b><span data-lang-text="en" class="inline">Verification run</span><span data-lang-text="ar" class="inline">تشغيل تحقق</span><span class="tag gated inline inline" data-lang-text="en">NOT SOLD</span><span class="tag gated inline inline" data-lang-text="ar">غير مبيع</span></b><small><span data-lang-text="en" class="inline">One delivery verified against pinned acceptance criteria → ADAL/1 dispute-ready record. No price committed.</span><span data-lang-text="ar" class="inline">تسليم واحد يُتحقق مقابل معايير قبول مثبتة → سجل ADAL/1 جاهز للنزاع. لا سعر ملتزم.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Adapter maintenance</span><span data-lang-text="ar" class="inline">صيانة المحوّلات</span><span class="tag gated inline inline" data-lang-text="en">NOT SOLD</span><span class="tag gated inline inline" data-lang-text="ar">غير مبيع</span></b><small><span data-lang-text="en" class="inline">Keep an external surface mapping current: schema updates, webhook consumer, packet pre-checks.</span><span data-lang-text="ar" class="inline">إبقاء ربط سطح خارجي محدّثًا: المخططات، مستهلك الويب هوك، فحوص الحزمة.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Reference-tribunal tooling</span><span data-lang-text="ar" class="inline">أدوات المحكمة المرجعية</span><span class="tag gated inline inline" data-lang-text="en">NOT SOLD</span><span class="tag gated inline inline" data-lang-text="ar">غير مبيع</span></b><small><span data-lang-text="en" class="inline">License the fail-closed simulator as a conformance reference.</span><span data-lang-text="ar" class="inline">ترخيص المحاكي الفاشل-مغلق كمرجع مطابقة.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">AIE-1 review engagement</span><span data-lang-text="ar" class="inline">التزام مراجعة AIE-1</span><span class="tag gated inline inline" data-lang-text="en">NOT SOLD</span><span class="tag gated inline inline" data-lang-text="ar">غير مبيع</span></b><small><span data-lang-text="en" class="inline">One org adopts the surface for one real or tabletop review; reviewers replay from a cold clone.</span><span data-lang-text="ar" class="inline">منظمة تتبنى السطح لمراجعة حقيقية أو تدريبية؛ المراجعون يعيدون التشغيل من استنساخ بارد.</span></small></div>
+    <div class="card"><b><span data-lang-text="en" class="inline">Settlement-boundary SDK</span><span data-lang-text="ar" class="inline">SDK حد التسوية</span><span class="tag research inline inline" data-lang-text="en">NOT BUILT</span><span class="tag research inline inline" data-lang-text="ar">غير مبني</span></b><small><span data-lang-text="en" class="inline">Refuse settlement without a verifying award signature + authority-bound credential; never holds keys.</span><span data-lang-text="ar" class="inline">يرفض التسوية بلا توقيع حكم متحقق واعتماد مرتبط بالسلطة؛ لا يحمل مفاتيح.</span></small></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">9 · Explicitly gated / not built</span><span data-lang-text="ar" class="inline">9 · مقفل صراحة / غير مبني</span></h2><span class="n">8</span></div>
+  <ul class="gov">
+    <li class="warn"><span class="ic">▲</span><div><b><span data-lang-text="en" class="inline">Testnet2 live campaign</span><span data-lang-text="ar" class="inline">حملة Testnet2 الحية</span></b><small><span data-lang-text="en" class="inline">PREPARED / FUNDING-BLOCKED. Operator wallet holds 0 tCORE2; no broadcast made.</span><span data-lang-text="ar" class="inline">مُجهّز / محجوب بالتمويل. محفظة المشغّل 0 tCORE2؛ لا بث.</span></small></div></li>
+    <li class="warn"><span class="ic">▲</span><div><b><span data-lang-text="en" class="inline">npm publishing (13-package closure)</span><span data-lang-text="ar" class="inline">النشر على npm (إغلاق 13 حزمة)</span></b><small><span data-lang-text="en" class="inline">GATED. Not on the public registry (E404); local install and tests work.</span><span data-lang-text="ar" class="inline">مقفل. ليس على السجل العام (E404)؛ التثبيت المحلي والاختبارات تعمل.</span></small></div></li>
+    <li class="warn"><span class="ic">▲</span><div><b><span data-lang-text="en" class="inline">Published pricing</span><span data-lang-text="ar" class="inline">التسعير المنشور</span></b><small><span data-lang-text="en" class="inline">LOCKED behind the Decision Gate. Every output stamps gated: true and never bills.</span><span data-lang-text="ar" class="inline">مقفل خلف بوابة القرار. كل مخرج يطبع gated: true ولا يفوتر.</span></small></div></li>
+    <li class="warn"><span class="ic">▲</span><div><b><span data-lang-text="en" class="inline">Live external integration</span><span data-lang-text="ar" class="inline">التكامل الخارجي الحي</span></b><small><span data-lang-text="en" class="inline">NONE. Adapters are DRY_RUN until a recorded confirmation exists.</span><span data-lang-text="ar" class="inline">لا يوجد. المحوّلات DRY_RUN حتى يوجد تأكيد مسجّل.</span></small></div></li>
+    <li class="warn"><span class="ic">▲</span><div><b><span data-lang-text="en" class="inline">Badge issuance</span><span data-lang-text="ar" class="inline">إصدار الشارات</span></b><small><span data-lang-text="en" class="inline">NOT PERFORMED. issuerCount 0; two NOT ISSUED specimens only.</span><span data-lang-text="ar" class="inline">غير منفّذ. issuerCount 0؛ نموذجان NOT ISSUED فقط.</span></small></div></li>
+    <li class="warn"><span class="ic">▲</span><div><b><span data-lang-text="en" class="inline">Settlement / escrow / custody</span><span data-lang-text="ar" class="inline">التسوية / الضمان / الحفظ</span></b><small><span data-lang-text="en" class="inline">NOT AUTHORIZED. Reference only, deployed:false; no keys held.</span><span data-lang-text="ar" class="inline">غير مصرّح. مرجعي فقط، deployed:false؛ لا مفاتيح.</span></small></div></li>
+    <li class="warn"><span class="ic">▲</span><div><b><span data-lang-text="en" class="inline">ZK privacy proofs (L4)</span><span data-lang-text="ar" class="inline">إثباتات الخصوصية ZK (L4)</span></b><small><span data-lang-text="en" class="inline">RESEARCH.</span><span data-lang-text="ar" class="inline">بحث.</span></small></div></li>
+    <li class="warn"><span class="ic">▲</span><div><b><span data-lang-text="en" class="inline">Revenue · customers · partnerships · funding · audit</span><span data-lang-text="ar" class="inline">الإيراد · العملاء · الشراكات · التمويل · التدقيق</span></b><small><span data-lang-text="en" class="inline">$0 · 0 · 0 · none claimed · third-party audit NOT PERFORMED.</span><span data-lang-text="ar" class="inline">$0 · 0 · 0 · لا ادعاء · تدقيق طرف ثالث غير منفّذ.</span></small></div></li>
+  </ul>
+</section>
+
+<section>
+  <div class="sec-head"><h2><span data-lang-text="en" class="inline">10 · Evaluate in one minute</span><span data-lang-text="ar" class="inline">10 · قيّم في دقيقة</span></h2><span class="n">5</span></div>
+  <ul class="gov">
+    <li><span class="ic">◆</span><div><code>npm install</code><small><span data-lang-text="en" class="inline">Zero framework, zero runtime dependencies; Node ≥ 18.</span><span data-lang-text="ar" class="inline">بلا إطار وبلا اعتماديات تشغيل؛ Node ≥ 18.</span></small></div></li>
+    <li><span class="ic">◆</span><div><code>npm&nbsp;test</code><small><span data-lang-text="en" class="inline">The full suite, its total enforced against the measured snapshot.</span><span data-lang-text="ar" class="inline">الجناح الكامل، وإجماليه مفروض على اللقطة المقاسة.</span></small></div></li>
+    <li><span class="ic">◆</span><div><code>node demo.mjs</code><small><span data-lang-text="en" class="inline">UNKNOWN → HELD. No key, no network, no money.</span><span data-lang-text="ar" class="inline">UNKNOWN → HELD. بلا مفتاح ولا شبكة ولا مال.</span></small></div></li>
+    <li><span class="ic">◆</span><div><code>npm run claims:audit</code> · <code>npm run release:gate:independence</code><small><span data-lang-text="en" class="inline">The honesty layer checks itself.</span><span data-lang-text="ar" class="inline">طبقة الصدق تفحص نفسها.</span></small></div></li>
+    <li><span class="ic">◆</span><div><a href="https://github.com/EslaM-X/coreguard">github.com/EslaM-X/coreguard</a><small><span data-lang-text="en" class="inline">Contact: open an issue or PR.</span><span data-lang-text="ar" class="inline">للتواصل: افتح قضية أو طلب دمج.</span></small></div></li>
+  </ul>
+</section>
+
+<footer>
+  <span data-lang-text="en" class="inline">Every row maps to a committed path or an executed command. Measured numbers live in <a href="STATUS.md">STATUS.md</a>; the claim set is audited by <code>npm run claims:audit</code>. Revenue $0 · customers 0 · partners 0 · prices locked · no live external integration.</span>
+  <span data-lang-text="ar" class="inline">كل صف يقابله مسار ملتزم أو أمر منفّذ. الأرقام المقاسة في <a href="STATUS.md">STATUS.md</a>؛ مجموعة الادعاءات يدققها <code>npm run claims:audit</code>. الإيراد $0 · العملاء 0 · الشركاء 0 · الأسعار مقفلة · لا تكامل خارجي حي.</span>
+</footer>
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var enBtn = document.getElementById("lbtn-en");
+  var arBtn = document.getElementById("lbtn-ar");
+  var toggle = document.getElementById("langToggle");
+  var KEY = "cg-lang";
+
+  function apply(lang) {
+    var ar = lang === "ar";
+    root.setAttribute("data-active", ar ? "ar" : "en");
+    root.setAttribute("lang", ar ? "ar" : "en");
+    root.setAttribute("dir", ar ? "rtl" : "ltr");
+    enBtn.classList.toggle("on", !ar);
+    arBtn.classList.toggle("on", ar);
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+  }
+
+  function current() {
+    try {
+      var saved = localStorage.getItem(KEY);
+      if (saved === "ar" || saved === "en") return saved;
+    } catch (e) {}
+    return "en"; /* English is the default language */
+  }
+
+  function flip() { apply(current() === "ar" ? "en" : "ar"); }
+
+  toggle.addEventListener("click", flip);
+  toggle.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); }
+  });
+
+  apply(current());
+})();
+</script>
+</body>
+</html>
