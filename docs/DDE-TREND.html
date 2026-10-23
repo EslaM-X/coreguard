@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoreGuard DDE — منحنى الاتجاه الكامل · Full perf curve</title>
+<style>
+  :root { color-scheme: dark; --bg:#0d1117; --card:#161b22; --line:#21262d; --fg:#e6edf3; --dim:#8b949e; --ok:#3fb950; --bad:#f85149; --accent:#1b998b; --warn:#d29922; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: "Segoe UI", system-ui, -apple-system, sans-serif; margin: 0; padding: 2rem 1rem; }
+  main { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+  h2 { font-size: 1.1rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; margin-top: 2rem; }
+  .sub { color: var(--dim); font-size: .9rem; margin-bottom: 1.25rem; }
+  .switcher button { background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: .25rem .8rem; cursor: pointer; margin-inline-start: .3rem; }
+  .switcher button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  html[lang="en"] [data-lang-text="ar"], html[lang="ar"] [data-lang-text="en"] { display: none; }
+  [data-lang-text] { display: inline; }
+  .feeds { display: flex; flex-wrap: wrap; gap: .5rem; margin: .75rem 0 1.5rem; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: .15rem .7rem; font-size: .78rem; color: var(--dim); }
+  .chip.ok { border-color: var(--ok); color: var(--ok); }
+  .chip.bad { border-color: var(--bad); color: var(--bad); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+  .card h3 { margin: 0 0 .15rem; font-size: 1rem; }
+  .row { display: flex; justify-content: space-between; gap: .5rem; font-size: .82rem; color: var(--dim); margin-top: .35rem; direction: ltr; }
+  .curve { width: 100%; height: auto; direction: ltr; display: block; margin-top: .4rem; }
+  .err { border: 1px solid var(--bad); color: var(--bad); border-radius: 10px; padding: .75rem 1rem; margin: .5rem 0; font-size: .88rem; }
+  footer { margin-top: 2.5rem; color: var(--dim); font-size: .8rem; line-height: 1.7; border-top: 1px solid var(--line); padding-top: 1rem; }
+  code { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3rem; direction: ltr; unicode-bidi: embed; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem;">
+    <div>
+      <h1><span data-lang-text="ar">منحنى أداء DDE الكامل</span><span data-lang-text="en">DDE full performance curve</span></h1>
+      <p class="sub">
+        <span data-lang-text="ar">كل نقطة ألحقها دورة الأداء بسجل <code>benchmarks/perf-history.jsonl</code> الملتزم — سجل متزايَد لا يُعاد كتابته، وتُغذّيه لينات بوت التتبع بعد كل دورة. الصفحة تعيد جلب السجل من <code>raw.githubusercontent.com</code> كل 60 ثانية مع مكسر مخزن <code>?t=</code>، فتظهر نقطة البوت الجديدة بالتلقائي — مع الاعتراف الصريح بأن شبكة CDN قد تتأخر دقائق قبل أن تلتقط الالتزام. سلسلة بلا نقاط لا تُرسم أصفارًا مفبركة: الغياب يُعلن، ويُرسم المنحنى عند أول تسجيل.</span>
+        <span data-lang-text="en">Every point the perf cycle appended to the committed <code>benchmarks/perf-history.jsonl</code> — an append-only ledger fed by the trend bot after each cycle. The page re-fetches the ledger from <code>raw.githubusercontent.com</code> every 60 seconds with a <code>?t=</code> cache-buster, so each new bot point appears automatically — and it states honestly that the CDN may lag the commit by minutes. A series with no points renders no fabricated zeros: absence is stated, the curve draws with the first recorded point.</span>
+      </p>
+    </div>
+    <div class="switcher">
+      <button id="btn-ar" aria-pressed="true">عربي</button>
+      <button id="btn-en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+
+  <div class="feeds" id="feeds">
+    <span class="chip" id="chip-jsonl">perf-history: …</span>
+    <span class="chip" id="chip-budget">budgets: …</span>
+    <span class="chip" id="chip-refresh">refresh: …</span>
+  </div>
+
+  <h2><span data-lang-text="ar">المنحنى (كل نقطة مسجلة، لكل سلسلة وسطية)</span><span data-lang-text="en">The curve (every recorded point, per median series)</span></h2>
+  <div id="panel-container"></div>
+  <div id="feed-errors"></div>
+
+  <p class="sub">
+    <a href="DDE-PERF.html"><span data-lang-text="ar">← لوحة الأداء الحية (آخر قياس + الميزانيات + artifacts)</span><span data-lang-text="en">← The live perf board (latest + budgets + artifacts)</span></a>
+  </p>
+
+  <footer>
+    <span data-lang-text="ar">
+      مصدران فقط، كلاهما عام وبلا توكن: <code>raw.githubusercontent.com</code> لملف <code>benchmarks/perf-history.jsonl</code> (السجلات التي يلحقها بوت التتبع بعد كل دورة CI)، و<code>raw.githubusercontent.com</code> لوحدة <code>scripts/benchmark-trend.mjs</code> (جدول الميزانيات: السلسلة ← الميزانية). الميزانيات مشتقة من ذلك الجدول لحظة الرسم — لا ميزانية معاد كتابتها هنا، وأسطر <code>.jsonl</code> التافهة تُتَّصف وتبقى هي المتزايَد الأصلي. إن تعذّر مصدر فتظهر شارة حمراء باسمه: الصفحة لا تعرض صمتًا ولا رقمًا قديمًا باسم حاضر، ولا أصفارًا مفبركة عند غياب نقاط السجل.
+    </span>
+    <span data-lang-text="en">
+      Sources, both public and token-free: <code>raw.githubusercontent.com</code> for <code>benchmarks/perf-history.jsonl</code> (the lines the trend bot appends after every CI cycle) plus a parallel raw fetch of <code>scripts/benchmark-trend.mjs</code> (the badge table: series → budget). Budgets are derived from that table at draw time — no retyped budget number here; torn <code>.jsonl</code> lines are skipped and the ledger stays append-only. A dead source renders its own red chip: this page never shows silence, nor an old number wearing a live name, and empty series render nothing rather than fabricated zeros.
+    </span>
+    <br><a href="index.html"><span data-lang-text="ar">← صفحة المستودع</span><span data-lang-text="en">← Repo page</span></a>
+  </footer>
+</main>
+
+<script>
+"use strict";
+
+/* Derived-live discipline ([C25]): this page retypes NO budget and NO series
+ * name it can derive. Series + budgets come from the trend module's badge
+ * table (raw fetch + parse), and every plotted point comes from the committed
+ * perf history — the exact bytes the trend bot appended. Auto-updates every
+ * REFRESH_MS with a cache-buster, so a bot point decides when the curve
+ * moves — the page never waits for a human reload. */
+
+const OWNER_REPO = "EslaM-X/coreguard";
+const RAW_TREND = "https://raw.githubusercontent.com/" + OWNER_REPO + "/main/scripts/benchmark-trend.mjs";
+const RAW_JSONL = "https://raw.githubusercontent.com/" + OWNER_REPO + "/main/benchmarks/perf-history.jsonl";
+const REFRESH_MS = 60000;
+
+function chip(id, ok, text) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.classList.remove("ok", "bad");
+  el.classList.add(ok ? "ok" : "bad");
+}
+
+function feedError(msg) {
+  const div = document.createElement("div");
+  div.className = "err";
+  div.textContent = msg;
+  document.getElementById("feed-errors").appendChild(div);
+}
+
+async function getText(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error("HTTP " + r.status + " — " + url);
+  return r.text();
+}
+
+/* The live budget table: series → budget (+ declared metric), parsed from
+ * the trend module's BADGE_SERIES entries. Throws when the table is
+ * unreadable — refusing to derive zero budgets ([C30]) beats rendering
+ * confident nothing. Same shape the perf board parses. */
+function parseBudgets(src) {
+  const rows = [];
+  for (const m of src.matchAll(/series:\s*"([^"]+)",\s*label:\s*"([^"]+)",\s*budget:\s*(\d+)(?:,\s*metric:\s*"([a-z0-9]+)")?/g)) {
+    rows.push({ series: m[1], label: m[2], budget: Number(m[3]), metric: m[4] ?? null });
+  }
+  if (rows.length === 0) throw new Error("no series/budget rows derivable from benchmark-trend.mjs");
+  return rows;
+}
+
+/* The median series only — the page plots sequential-depth curves; the
+ * concurrency tail (declared metric "p95") is the perf board's pair card,
+ * not a median curve, and saying so beats silently mixing depths. */
+function medianSeries(rows) {
+  return rows.filter((r) => !r.metric || r.metric === "median");
+}
+
+/* The full curve per series, in file order (append-only ledger ⇒ file order
+ * IS chronology). Torn/truncated lines are skipped, never re-written. */
+function curveBySeries(theSeries, lines) {
+  const values = [];
+  const utcs = [];
+  for (const line of lines) {
+    let e;
+    try { e = JSON.parse(line); } catch { continue; }
+    if (e && e.benchmark === theSeries && e.stats && typeof e.stats.median === "number") {
+      values.push(e.stats.median);
+      utcs.push(e.utc ?? "");
+    }
+  }
+  return { series: theSeries, values, utcs };
+}
+
+/* One series panel: the full recorded curve with the budget as a dashed
+ * line WHEN the scale can bear it (scale fits the data; a budget far above
+ * the curve is reported as measured headroom instead of cramping the trend
+ * into invisibility — both renderings state their number, none invented). */
+function curvePanel(row, values) {
+  const w = 1000, h = 190, pad = 18;
+  const pts = values.filter((v) => typeof v === "number" && Number.isFinite(v));
+  if (pts.length === 0) {
+    return '<div class="card"><h3>' + row.label + '</h3><p class="sub">' +
+      '<span data-lang-text="ar">لا نقاط مسجلة لهذه السلسلة بعد — المنحنى يُرسم مع أول تسجيل، دون أصفار مُفبركة.</span>' +
+      '<span data-lang-text="en">No recorded points for this series yet — the curve renders with the first recorded point, never fabricated zeros.</span>' +
+      '</p></div>';
+  }
+  const max = Math.max(...pts) * 1.15 || 1;
+  const x = (i) => pad + (i * (w - 2 * pad)) / Math.max(pts.length - 1, 1);
+  const y = (v) => h - pad - (v / max) * (h - 2 * pad);
+  const path = pts.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ");
+  const last = pts[pts.length - 1];
+  const peak = Math.max(...pts);
+  const inScale = row.budget <= max;
+  const budgetLine = inScale
+    ? '<line x1="' + pad + '" y1="' + y(row.budget).toFixed(1) + '" x2="' + (w - pad) + '" y2="' + y(row.budget).toFixed(1) +
+      '" stroke="#3fb950" stroke-dasharray="5 4" stroke-width="1"/>'
+    : "";
+  return '<div class="card"><h3>' + row.label + '</h3>' +
+    '<svg class="curve" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" role="img" aria-label="' + row.label + ' curve">' +
+    budgetLine +
+    '<path d="' + path + '" fill="none" stroke="#1b998b" stroke-width="1.6"/>' +
+    '<circle cx="' + x(pts.length - 1).toFixed(1) + '" cy="' + y(last).toFixed(1) + '" r="3.2" fill="#1b998b"/>' +
+    '</svg>' +
+    '<div class="row"><span>' + pts.length + ' recorded medians</span><span>' +
+    (inScale ? "budget " + row.budget + " ms (dashed)" : "budget " + row.budget + " ms — headroom ≥ " +
+      (row.budget / peak).toFixed(1) + "×, drawn as headroom not as a cramped line") +
+    '</span></div>' +
+    '<div class="row"><span>last ' + last + ' ms</span><span>' +
+    (last <= row.budget ? "inside budget" : "OVER budget") + '</span></div>' +
+    '</div>';
+}
+
+/* One draw pass: module budget table + ledger → panels; failure names its
+ * chip red and keeps the page silent about what it could not fetch. */
+async function drawOnce() {
+  const [trendRes, jsonlRes] = await Promise.allSettled([
+    getText(RAW_TREND).then(parseBudgets),
+    // The cache-buster is part of the freshness contract: GitHub's raw CDN
+    // may hold a 5-minute-old ledger copy, and each poll carries a fresh ?t=
+    // so the newest bot point is served, not the newest cached one.
+    getText(RAW_JSONL + "?t=" + Date.now()).then((t) => t.split("\n").filter((l) => l.trim())),
+  ]);
+
+  if (jsonlRes.status === "fulfilled") {
+    const lines = jsonlRes.value;
+    chip("chip-jsonl", lines.length > 0, "perf-history: " + lines.length + " committed lines (append-only)");
+  } else {
+    chip("chip-jsonl", false, "perf-history: FAIL");
+    feedError("perf-history feed failed: " + (jsonlRes.reason && jsonlRes.reason.message));
+  }
+
+  if (trendRes.status === "fulfilled") {
+    chip("chip-budget", true, "budgets: " + trendRes.value.length + " series (live table)");
+  } else {
+    chip("chip-budget", false, "budgets: FAIL");
+    feedError("budget feed failed: " + (trendRes.reason && trendRes.reason.message));
+  }
+
+  if (trendRes.status === "fulfilled" && jsonlRes.status === "fulfilled") {
+    const panels = medianSeries(trendRes.value)
+      .map((row) => curvePanel(row, curveBySeries(row.series, jsonlRes.value).values))
+      .join("");
+    document.getElementById("panel-container").innerHTML = panels;
+    chip("chip-refresh", true, "refresh: auto every " + REFRESH_MS / 1000 + "s (live)");
+  }
+}
+
+document.getElementById("btn-ar").addEventListener("click", () => setLang("ar"));
+document.getElementById("btn-en").addEventListener("click", () => setLang("en"));
+function setLang(l) {
+  document.documentElement.lang = l;
+  document.documentElement.dir = l === "ar" ? "rtl" : "ltr";
+  document.getElementById("btn-ar").setAttribute("aria-pressed", l === "ar" ? "true" : "false");
+  document.getElementById("btn-en").setAttribute("aria-pressed", l === "en" ? "true" : "false");
+}
+
+/* The auto-update contract: each new bot point lands as a committed append,
+ * so polling the raw ledger is honest liveness — no websocket, no caching
+ * layer the page pretends to own. */
+setInterval(() => { drawOnce().catch((e) => feedError("refresh failed: " + (e && e.message))); }, REFRESH_MS);
+
+drawOnce().catch((e) => feedError("page failed: " + (e && e.message)));
+</script>
+</body>
+</html>
