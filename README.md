@@ -29,6 +29,26 @@
 
 ---
 
+## Proof-first: run it, don't trust it
+
+The agent-economy primitives run with zero keys and zero money:
+
+- **Live playground:** [PLAYGROUND.html](https://eslam-x.github.io/coreguard/PLAYGROUND.html) — open a job, lock escrow, carve shares, reserve before signing, deliver evidence, and watch ACCEPTED / REJECTED / UNKNOWN.
+- **Terminal demo:** the same cycle in one command, ending with `UNKNOWN → HELD`.
+- **Architecture:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — `agreed → executed → proven`, and why `UNKNOWN` stays held.
+- **Facts only:** [docs/ONE-PAGER.md](docs/ONE-PAGER.md).
+
+```bash
+node demo.mjs
+```
+
+Real code, not slides:
+[`packages/budget/ledger.mjs`](packages/budget/ledger.mjs) ·
+[`packages/acceptance/index.mjs`](packages/acceptance/index.mjs) ·
+[`packages/x402/index.mjs`](packages/x402/index.mjs) ·
+[`packages/job-integration/index.mjs`](packages/job-integration/index.mjs) ·
+[`packages/refusal-audit/index.mjs`](packages/refusal-audit/index.mjs)
+
 ## Protocol ecosystem
 
 CoreGuard is now a **stack of sealed protocols**: each layer consumes the

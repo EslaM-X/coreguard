@@ -226,6 +226,10 @@ function buildSandbox(tmp) {
   symlinkSync(join(REPO, "packages"), join(tmp, "packages"), "junction");
   symlinkSync(join(REPO, "scripts"), join(tmp, "scripts"), "junction");
   symlinkSync(join(REPO, "node_modules"), join(tmp, "node_modules"), "junction");
+  // README documents `node demo.mjs`; it imports ./packages (junctioned above)
+  // and writes ./var (inside the sandbox), so only the root file must be staged.
+  assert.ok(existsSync(join(REPO, "demo.mjs")), "sandbox staging source missing in repo: demo.mjs");
+  cpSync(join(REPO, "demo.mjs"), join(tmp, "demo.mjs"));
   for (const rel of ["examples/delivery-fixture", "examples/vault", "examples/agent-platform-integration", "examples/real-fixture-intake", "examples/transfer", "examples/swap", "examples/multistep", "examples/provenance", "examples/reference-tribunal", "examples/platform-quickstart"]) {
     assert.ok(existsSync(join(REPO, rel)), `sandbox staging source missing in repo: ${rel}`);
     cpSync(join(REPO, rel), join(tmp, rel), { recursive: true });

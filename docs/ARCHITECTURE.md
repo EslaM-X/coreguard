@@ -1,76 +1,46 @@
-# Architecture
+# Architecture: agreed → executed → proven
 
-CoreGuard v0.1 is a zero-runtime-dependency ES module pipeline plus a single
-Solidity contract. Nothing runs until you run it; the verifier never touches a
-network.
+CoreGuard enforces a strict mechanical split. **Proof over promise.**
 
-```
-                        ┌─────────────────────────────┐
-   CLI (packages/cli)   │  packages/* (pure ESM)      │
-        │               │                             │
-        │ analyze       │  canonical ──► intent       │
-        ▼               │       │        │            │
- ┌──────────────┐       │       ▼        ▼            │
- │ ChainAdapter │──────►│  trace ──► evidence ──► verifier
- │ (RPC 1114)   │       │                 │            │
- └──────────────┘       └─────────────────┼────────────┘
-                                          ▼
-                                   Execution Receipt
-                                          │
-                              EvidenceRegistry.sol (Core)
+## Flow
+
+```text
+┌─────────┐   ┌───────────┐   ┌─────────┐
+│  AGREED │ → │  EXECUTED │ → │  PROVEN  │
+└─────────┘   └───────────┘   └─────────┘
+     │              │              │
+   Job+ceiling   Reserve before  Evidence evaluated
+   Hold at pub   sign (x402)     mechanically
 ```
 
-## Data model
+## Budget & Reservation
 
-| Artifact | Produced by | Contains |
-|---|---|---|
-| **Intent** | `intent` | What the signer authorized (action, target, amount, recipient, constraints) |
-| **Policy** | `policy` | Deterministic rules (6 + ORACLE_BOUND guardrail) |
-| **Trace** | `trace.normalizeExecution` | Canonical execution: tx, block, flattened calls, events, state delta |
-| **Evidence** | `evidence.createEvidenceBundle` | commitments over intent/policy/trace, result, verification level, state pins |
-| **Receipt** | `evidence.createReceipt` | `receiptId = H(chainId||tx||blocks||intent/policy/trace/evidence hashes||result)` |
-| **VO (Verification Object)** | `verifier` | 6 independent checks + verdict |
+- **Agent never holds payer key.** Only a job-scoped authority token.
+- **Reserve before sign.** Every cost is atomically reserved against the job or a carved sub-agent share before any signature.
+- **Race-safe.** Two sub-agents cannot both take the "last dollar". Refused at reservation time.
+- **Per-job, not global cap.** Knows exactly what each run/sub-agent is allowed to spend.
 
-## Hashing
+## Acceptance & Disposition
 
-Domain-separated, deterministic, RPC-free:
+| Verdict | Disposition | Meaning |
+| --- | --- | --- |
+| **ACCEPTED** | `RELEASED` | Evidence matches machine-checkable criteria → funds released. |
+| **REJECTED** | `REFUNDED` | Evidence fails a required mechanical check → funds refunded. |
+| **UNKNOWN** | **`HELD`** | Needs judgment or can't be determined mechanically → **funds stay LOCKED**. Never auto-pay. Never auto-refund. |
 
-```
-CGEP/1:INTENT   CGEP/1:POLICY   CGEP/1:TRACE   CGEP/1:EVIDENCE   CGEP/1:RECEIPT   CGEP/1:PROOF
-```
+## The "UNKNOWN stays HELD" Rule
 
-Canonical encoding: integer→decimal string, hex→lowercase quoted, keys sorted,
-arrays in order, null explicit. See `spec/canonical-encoding.md`.
+For non-deterministic work, there is **no universal mechanical oracle**. 
 
-## Verifier checks (independent, no trust)
+- Auto-refund punishes workers for questions the system cannot answer.
+- Auto-pay launders "payment" into "done" without proof.
+- **Holding is the honest third answer.**
 
-1. `RECEIPT_COMMITMENT` — recompute `receiptId` from payload (excluding the ID field)
-2. `INTENT_HASH` — recompute and compare
-3. `POLICY_HASH` — recompute and compare
-4. `TRACE_HASH` — recompute and compare
-5. `INTENT_EXECUTION_BINDING` — target/value/recipient vs declared intent
-6. `STATE_PINNING` — simulation vs execution block linkage consistent
+Publisher/human judgment can feed in as input, but the **hold is enforced by the ledger mechanically** regardless of who the oracle is.
 
-Verdict: `VERIFIED` / `INVALID` / `UNVERIFIABLE` / `INCOMPLETE`.
+## Proof
 
-## On-chain (v0.1)
-
-`EvidenceRegistry` stores `bytes32 → bytes32` commitments. Tx-level events only.
-Evidence/receipts are retrieved off-chain; the anchor proves *a commitment
-existed at a point in time on a specific chain*.
-
-## Chain capture
-
-`CoreTestnet2Adapter` fetches `eth_getTransactionByHash` / receipt / block, and —
-when the RPC exposes `debug_traceTransaction` — full call-frame traces. When node
-tracing is unavailable (public RPC), state deltas are computed from
-`eth_getBalance` at the pre/post block, giving **L1** chain receipt with state
-pinning. L2 replay needs trace-capable endpoints or our own simulator.
-
-## Honest failure modes
-
-- Execution conformed but was harmful → policy authoring problem (documented).
-- Deep per-call sequence diffs (hidden hop, sandwich, order-swap) → L2 layer
-  status: catalogued in corpus, enforced at top-level + binding in v0.1.
-- Oracle trust → assumptions documented in `spec/threat-model.md`; ORACLE_BOUND
-  is a guardrail rule, not a claim of oracle security.
+- **Playground (live):** [https://eslam-x.github.io/coreguard/PLAYGROUND.html](https://eslam-x.github.io/coreguard/PLAYGROUND.html)
+- **Demo:** `node demo.mjs`
+- **Tests:** 1304/1304 passing • Boundary audit PASS • Release gate GATE_PASS
+- **One-Pager:** [ONE-PAGER.md](ONE-PAGER.md)
