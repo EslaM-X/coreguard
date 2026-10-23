@@ -166,6 +166,33 @@ Two wire-specific honesty rules:
   the endpoint verifies the records *as submitted*. The mark exists so no one
   can misread a wire report as pin verification.
 
+**Performance budgets — two, measured separately, promised separately.** One
+number cannot carry both depths, so the boundary states each in its own:
+
+- **Sequential (one request at a time):** `engine < 50 ms` / `median < 150 ms`
+  per verify call — declared in the trend module's badge table
+  (`scripts/benchmark-trend.mjs`) and re-measured on **every CI push** by
+  `npm run benchmark:dde-http` under the `2x` drift gate (`dde.yml`), then
+  rendered live as badges and a sparkline on the perf page.
+- **Concurrent (50 requests in flight together):** `p95 < 600 ms` tail —
+  enforced by `npm run benchmark:dde-load`'s fail-closed gate (peak in flight
+  must equal 50 and summed-latency/wall-time must prove overlap ≥ `2x`, so a
+  sequential rewrite cannot wear the concurrent label and `--concurrency 1` is
+  refused by name). This one is a deliberate **operator command, not a CI
+  step**: a load burst on shared CI hardware would report runner contention
+  as product latency — the sequential depth is already push-gated.
+- Observed locally (dev box, `v0.5.34`): p95 `93 ms` under the 50-way burst
+  vs `~2.4–3.2 ms` for the sequential runner. The gap is **queueing on the
+  shared event loop, not engine regression** — the same code, two depths,
+  each judged against its own budget.
+
+*The product promise line:* **a verify request is answered by the gate at any
+depth of attack — never dropped, never rate-limited into silence without a
+numeric `retry-after`, and never decided late: the decision comes back inside
+the budget of the depth you are using (150 ms median alone, 600 ms p95 tail
+under a 50-request burst), every budget is machine-gated, and turning a gate
+red requires a measured fact rather than a monitoring alert.**
+
 For a **real** bilateral case (not the synthetic exercise): the
 [real-fixture intake kit](../examples/real-fixture-intake/) provides the
 bilateral consent template with a named disclosure scope (both parties sign
