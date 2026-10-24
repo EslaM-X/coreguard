@@ -49,11 +49,20 @@
  *   - the history file must stay parseable: torn/truncated lines are
  *     reported and skipped, never silently re-written
  *
+ * First-drift alert: the run's FIRST drift breach is surfaced three ways —
+ * a structured `alert` (series, metric, current, baseline, ratio) in the
+ * --json status, a stderr block in every mode, and — when GITHUB_STEP_SUMMARY
+ * is set (CI runs) — a breach row appended to the GitHub run summary, so the
+ * failing run's Summary page names the offending series, its 5-run baseline
+ * and its ratio without a log scroll. A report whose OWN gate is FAIL is a
+ * recording error, not a regression — it never produces the alert. The
+ * summary write is best-effort: a failing append never flips the gate.
+ *
  * History is one line per push, append-only: perf history is evidence,
  * not state to be rewritten.
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, appendFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -225,6 +234,7 @@ if (fileArg > -1) {
 
 const { entries, torn } = parseHistory();
 const failures = [];
+const drifts = []; // structured drift-breach rows — the first-drift alert's source
 
 // baseline: trailing BASELINE_WINDOW entries of the same series
 const seriesEntries = {};
@@ -237,6 +247,13 @@ for (const rep of reports) {
     const baseMetric = medianOf(baseline.map((e) => e.stats[rep.metric]));
     const ratio = rep.stats[rep.metric] / baseMetric;
     if (ratio > DRIFT_FACTOR) {
+      drifts.push({
+        series: rep.benchmark,
+        metric: rep.metric,
+        current: rep.stats[rep.metric],
+        baseline: baseMetric,
+        ratio: Number(ratio.toFixed(2)),
+      });
       failures.push(
         `${rep.metric} ${rep.stats[rep.metric]}ms is ${ratio.toFixed(2)}x the ${BASELINE_WINDOW}-run baseline ` +
         `(${baseMetric}ms) — drift beyond the ${DRIFT_FACTOR}x regression bar for ${rep.benchmark}`
@@ -269,6 +286,37 @@ if (!statusOnly && !dryRun && record.length) {
   writeFileSync(HISTORY, record.map((r) => JSON.stringify(r)).join("\n") + "\n", { flag: "a" });
 }
 
+// FIRST-DRIFT ALERT: the first drift breach of this run, structured so the
+// failing run names exactly which series, baseline and ratio — a run-summary
+// row the reviewer sees beside the red gate. Only drift breaches produce
+// it: a report whose own gate is FAIL is a recording error, not a
+// regression.
+const firstDrift = drifts[0];
+const DRIFT_ALERT = firstDrift
+  ? [
+      "## 🚨 Perf trend gate breached — first drift beyond the regression bar",
+      "",
+      "| series | metric | current | baseline (5-run median) | ratio |",
+      "| --- | --- | --- | --- | --- |",
+      `| ${firstDrift.series} | ${firstDrift.metric} | ${firstDrift.current}ms | ${firstDrift.baseline}ms | ${firstDrift.ratio}x |`,
+      "",
+      `Gate is RED and nothing was recorded: the ${firstDrift.series} series moved ${firstDrift.ratio}x past its trailing ${BASELINE_WINDOW}-run ${firstDrift.metric} baseline (bar = ${DRIFT_FACTOR}x). Compare the curve on docs/DDE-TREND.html.`,
+    ].join("\n")
+  : null;
+if (DRIFT_ALERT) {
+  console.error(`benchmark-trend:\n${DRIFT_ALERT}`);
+  // Run summary — appended, never clobbered, and best-effort: a summary
+  // write failure must not change the gate outcome already computed.
+  const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+  if (summaryPath) {
+    try {
+      appendFileSync(summaryPath, DRIFT_ALERT + "\n");
+    } catch (e) {
+      console.error(`benchmark-trend: run-summary append failed (${e.message}) — gate outcome unchanged`);
+    }
+  }
+}
+
 const status = {
   trend: "benchmark-trend",
   file: "benchmarks/perf-history.jsonl",
@@ -283,6 +331,8 @@ const status = {
   recorded: record.length,
   dryRun,
   gate: failures.length === 0 ? "PASS" : "FAIL",
+  // the run's first drifting series, structured (absent while green)
+  ...(firstDrift ? { alert: firstDrift } : {}),
   failures,
 };
 
