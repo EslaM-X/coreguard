@@ -168,16 +168,69 @@ test("load series recorded: badge shows the tracked p95 and colors by the 600ms 
   }
 });
 
-test("the README embeds exactly the three badge files the generator writes", () => {
+/* The aggregate: perf·all — the set's worst case in one glance. It is
+ * computed ONLY from the badges the run actually rendered (never a series
+ * with no fresh entry) and speaks the severity ladder by name: all green →
+ * "all within budget"; a series past its budget but inside the 2x bar →
+ * yellow "N above budget"; beyond the bar → red "regression detected".
+ * The README contract grows to four: the aggregate is embedded beside the
+ * three series badges, and no badge may be referenced the generator
+ * never produces. */
+test("aggregate badge: every series within budget → green 'all within budget'", () => {
+  const s = sandbox();
+  try {
+    const out = runBadges(s.dir, FULL_HISTORY); // engine 0.226/50 · wire 1.597/150 · sdk 0.298/50
+    assert.match(badge(s.dir, "perf-all.svg"), /perf·all<\/text><text [^>]*>all within budget</);
+    assert.match(badge(s.dir, "perf-all.svg"), /fill="#4c1"/, "all inside budget → green");
+    assert.ok(out.includes("docs/badges/perf-all.svg"), "the generation summary must list the aggregate it wrote");
+  } finally {
+    s.cleanup();
+  }
+});
+
+test("aggregate badge: worst series speaks — above budget, inside the bar → yellow 'N above budget'", () => {
+  const s = sandbox();
+  try {
+    const history = (engineMedian) => [
+      PASS_ENTRY("dde-http-wire-perf:engine", engineMedian),
+      PASS_ENTRY("dde-http-wire-perf:wire", 1.0),
+      PASS_ENTRY("dde-sdk-verify-perf", 0.3),
+    ];
+    runBadges(s.dir, history(75)); // budget 50, ≤100 bar → engine yellow, rest green
+    assert.match(badge(s.dir, "perf-all.svg"), /perf·all<\/text><text [^>]*>1 above budget</);
+    assert.match(badge(s.dir, "perf-all.svg"), /fill="#dfb317"/, "any above-budget series with none past the bar → yellow");
+  } finally {
+    s.cleanup();
+  }
+});
+
+test("aggregate badge: a series beyond the 2x bar → red 'regression detected'", () => {
+  const s = sandbox();
+  try {
+    const history = (engineMedian) => [
+      PASS_ENTRY("dde-http-wire-perf:engine", engineMedian),
+      PASS_ENTRY("dde-http-wire-perf:wire", 1.0),
+      PASS_ENTRY("dde-sdk-verify-perf", 0.3),
+    ];
+    runBadges(s.dir, history(120)); // > 100 bar → engine red
+    assert.match(badge(s.dir, "perf-all.svg"), /perf·all<\/text><text [^>]*>regression detected</);
+    assert.match(badge(s.dir, "perf-all.svg"), /fill="#e05d44"/, "any series past the regression bar → red");
+  } finally {
+    s.cleanup();
+  }
+});
+
+test("the README embeds exactly the badge files the generator writes — three series + the aggregate", () => {
   for (const [file, label] of [
     ["perf-engine.svg", "DDE perf · engine"],
     ["perf-wire.svg", "DDE perf · wire"],
     ["perf-sdk.svg", "DDE perf · sdk"],
+    ["perf-all.svg", "DDE perf · all"],
   ]) {
     assert.match(README, new RegExp(`\\[${label}\\]\\(docs/badges/${file}\\)`));
   }
   // and no live badge is referenced that the generator does not produce
-  const generated = new Set(["perf-engine.svg", "perf-wire.svg", "perf-sdk.svg"]);
+  const generated = new Set(["perf-engine.svg", "perf-wire.svg", "perf-sdk.svg", "perf-all.svg"]);
   for (const m of README.matchAll(/docs\/badges\/([a-z0-9.-]+\.svg)/g)) {
     assert.ok(generated.has(m[1]), `README references docs/badges/${m[1]} which --badges never generates`);
   }

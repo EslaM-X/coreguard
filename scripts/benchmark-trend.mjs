@@ -117,10 +117,13 @@ function medianOf(values) {
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
-function badgeColor(median, budget) {
-  if (median <= budget) return "#4c1"; // within budget
-  if (median <= budget * DRIFT_FACTOR) return "#dfb317"; // noisy, inside the 2x regression bar
-  return "#e05d44"; // beyond the regression bar
+// Severity ladder shared by the per-series badges and the aggregate badge:
+// 0 = within budget (green), 1 = above budget but inside the 2x regression
+// bar (yellow), 2 = beyond the regression bar (red).
+function badgeState(value, budget) {
+  if (value <= budget) return { sev: 0, color: "#4c1" }; // within budget
+  if (value <= budget * DRIFT_FACTOR) return { sev: 1, color: "#dfb317" }; // inside the 2x regression bar
+  return { sev: 2, color: "#e05d44" }; // beyond the regression bar
 }
 
 function badgeSvg(label, value, color) {
@@ -145,6 +148,8 @@ function badgeSvg(label, value, color) {
 // Regenerate all badges from the latest recorded tracked-metric values —
 // atomically: every configured series must resolve to a PASS entry or
 // NOTHING is written (a half-updated badge row would contradict itself).
+// The aggregate `perf-all.svg` then sums the rendered set by worst case —
+// one glance answers "are we inside the budgets?" without reading three rows.
 // The load series is the removed nightly depth: an absent history is a
 // notice, not a gate failure, so the always-on badges survive until the
 // nightly recorder fires for the first time.
@@ -170,13 +175,27 @@ function writePerfBadges() {
     }
     const metric = METRIC(b.series);
     const value = latest.stats[metric];
-    svgs.push({ file: b.file, svg: badgeSvg(b.label, `${Number(value.toFixed(3))}ms`, badgeColor(value, b.budget)) });
+    const { sev, color } = badgeState(value, b.budget);
+    svgs.push({ file: b.file, svg: badgeSvg(b.label, `${Number(value.toFixed(3))}ms`, color), sev });
   }
   if (errors.length > 0) {
     for (const e of errors) console.error(`benchmark-trend: ${e}`);
     process.exit(1);
   }
   for (const n of notes) console.error(`benchmark-trend: note — ${n}`);
+  // Aggregate badge — perf·all: the set's worst case in one glance.
+  // Computed ONLY from the badges this run actually rendered (the always-on
+  // three; the nightly load tail joins the moment it records) and named the
+  // way the ladder speaks: all green → "all within budget"; any series past
+  // its budget but inside the bar → "N above budget" (yellow); any series
+  // beyond the regression bar → "regression detected" (red). Written with
+  // the same all-or-nothing atomicity: no badges → no aggregate.
+  if (svgs.length > 0) {
+    const worst = Math.max(...svgs.map((s) => s.sev));
+    const message = worst === 0 ? "all within budget" : worst === 1 ? `${svgs.filter((s) => s.sev === 1).length} above budget` : "regression detected";
+    const aggColor = worst === 0 ? "#4c1" : worst === 1 ? "#dfb317" : "#e05d44";
+    svgs.push({ file: "perf-all.svg", svg: badgeSvg("perf·all", message, aggColor), sev: worst });
+  }
   mkdirSync(BADGES_DIR, { recursive: true });
   for (const s of svgs) writeFileSync(join(BADGES_DIR, s.file), s.svg);
   console.log(JSON.stringify({ badges: svgs.map((s) => `docs/badges/${s.file}`), source: "benchmarks/perf-history.jsonl" }, null, 2));
