@@ -13,7 +13,7 @@ CoreGuard is a **fail-closed verification layer**. It binds agreement → execut
 - **Refusal audit**: every refusal is recorded with reason/code (no secrets/keys) for proof without exposing sensitive data.
 
 ## Proof (from the committed tree)
-- **Tests**: `1316/1316` passing (local)
+- **Tests**: `1320/1320` passing (local)
 - **Boundary audit**: `npm run boundary:audit` — PASS
 - **Release gate**: `npm run release:gate` — GATE_PASS (18/18 legs)
 - **Claims**: `npm run claims:audit` — PASS (committed artifact bound)
