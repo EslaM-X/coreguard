@@ -20,7 +20,12 @@
 import { loadFixtureFromDir, verifyDeliveryFixture, releaseWhen } from "./engine-dde.mjs";
 
 const json = process.argv.includes("--json");
-const dir = new URL("./dde-fixture/", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
+import { fileURLToPath } from "node:url";
+
+// fileURLToPath, not pathname: a pathname percent-encodes whatever the
+// working path contains (a space becomes %20) and strips/keeps drive
+// letters platform-dependently — this scaffold must run as-is anywhere.
+const dir = fileURLToPath(new URL("./dde-fixture/", import.meta.url));
 const report = await verifyDeliveryFixture(loadFixtureFromDir(dir));
 
 /**

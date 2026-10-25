@@ -63,6 +63,7 @@
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, appendFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -73,6 +74,19 @@ const REPO = process.env.PERF_TREND_REPO ?? join(dirname(fileURLToPath(import.me
 const HISTORY = join(REPO, "benchmarks", "perf-history.jsonl");
 const BADGES_DIR = join(REPO, "docs", "badges");
 const BASELINE_WINDOW = 5;
+
+// The exact commit whose code was measured at record time — the binding
+// between every trend point and the checkout that produced it. Unreachable
+// git (no repo, ceiling cut) means NO sha: a missing binding is safer than a
+// fabricated one, and the badge audit refuses a binding the ledger never
+// carried. GIT_CEILING_DIRECTORIES flows through the environment, so a
+// nested checkout can never be handed a parent repository's sha.
+const SHA40 = /^[0-9a-f]{40}$/;
+function headSha() {
+  const r = spawnSync("git", ["rev-parse", "HEAD"], { cwd: REPO, encoding: "utf8" });
+  const sha = r.status === 0 ? r.stdout.trim() : "";
+  return SHA40.test(sha) ? sha : null;
+}
 const DRIFT_FACTOR = 2;
 
 // The README badge set: file → series → display label → budget → the ONE
@@ -126,7 +140,10 @@ function badgeState(value, budget) {
   return { sev: 2, color: "#e05d44" }; // beyond the regression bar
 }
 
-function badgeSvg(label, value, color) {
+function badgeSvg(label, value, color, sha = null) {
+  // The commit binding: a per-series badge wears data-sha naming the exact
+  // measured commit of its latest point — stale binding detection bites on
+  // it. The aggregate never passes one: it sums points that may span commits.
   const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const left = esc(label);
   const right = esc(value);
@@ -134,7 +151,7 @@ function badgeSvg(label, value, color) {
   const vw = 6.5 * value.length + 12;
   const w = lw + vw;
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="20" role="img" aria-label="${left}: ${right}">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="20" role="img"${sha ? ` data-sha="${sha}"` : ""} aria-label="${left}: ${right}">` +
     `<linearGradient id="g" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>` +
     `<clipPath id="r"><rect width="${w}" height="20" rx="3" fill="#fff"/></clipPath>` +
     `<g clip-path="url(#r)"><rect width="${w}" height="20" fill="#555"/>` +
@@ -175,8 +192,9 @@ function writePerfBadges() {
     }
     const metric = METRIC(b.series);
     const value = latest.stats[metric];
+    const pointSha = typeof latest.sha === "string" && SHA40.test(latest.sha) ? latest.sha : null;
     const { sev, color } = badgeState(value, b.budget);
-    svgs.push({ file: b.file, svg: badgeSvg(b.label, `${Number(value.toFixed(3))}ms`, color), sev });
+    svgs.push({ file: b.file, svg: badgeSvg(b.label, `${Number(value.toFixed(3))}ms`, color, pointSha), sev });
   }
   if (errors.length > 0) {
     for (const e of errors) console.error(`benchmark-trend: ${e}`);
@@ -258,6 +276,10 @@ const drifts = []; // structured drift-breach rows — the first-drift alert's s
 // baseline: trailing BASELINE_WINDOW entries of the same series
 const seriesEntries = {};
 const records = [];
+// The measured-at commit: identical rows recorded without reachable git
+// simply omit it — a point that cannot name its commit stays nameless.
+const measuredSha = statusOnly ? null : headSha();
+
 for (const rep of reports) {
   const series = entries.filter((e) => e.benchmark === rep.benchmark);
   seriesEntries[rep.benchmark] = series.length;
@@ -294,6 +316,8 @@ for (const rep of reports) {
     // recorded only when non-default: an explicit metric on a median series
     // would be redundant, but a p95-tracked series must say so in its own row
     ...(rep.metric !== "median" ? { metric: rep.metric } : {}),
+    // the commit binding — present only when git hands us a real sha ([C30])
+    ...(measuredSha ? { sha: measuredSha } : {}),
   });
 }
 

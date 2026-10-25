@@ -93,6 +93,18 @@ export function audit(historyText, badges) {
     if (parseColor(badge) !== expectedColor) {
       problems.push(`docs/badges/${row.file} color ${parseColor(badge)} contradicts the ladder verdict ${expectedColor} for ${row.series} at ${fmt(tracked)} vs budget ${row.budget}ms — a lying badge`);
     }
+    // Commit binding: the badge must wear the sha of the exact point it is
+    // derived from. A badge bound to a different run's commit is stale even
+    // when its value happens to agree (a flaky median can reprint the same
+    // number), and a sha the ledger does not carry is fabricated ([C30]).
+    const pointSha = typeof entry.sha === "string" && /^[0-9a-f]{40}$/.test(entry.sha) ? entry.sha : null;
+    const badgeSha = (badge.match(/data-sha="([0-9a-f]{40})"/) ?? [])[1] ?? null;
+    if (pointSha && badgeSha !== pointSha) {
+      problems.push(`docs/badges/${row.file} is bound to ${badgeSha ?? "no commit"} but ${row.series}' latest point was measured at ${pointSha} — STALE COMMIT BINDING (re-run --badges)`);
+    }
+    if (!pointSha && badgeSha) {
+      problems.push(`docs/badges/${row.file} wears data-sha=\"${badgeSha}\" but the ledger carries no commit for ${row.series}' latest point — a fabricated binding`);
+    }
   }
   // Aggregate: worst case over EXACTLY the rendered badges.
   if (renderedRows.length > 0) {
@@ -108,6 +120,9 @@ export function audit(historyText, badges) {
       }
       if (parseColor(agg) !== COLORS[worst]) {
         problems.push(`docs/badges/perf-all.svg color ${parseColor(agg)} contradicts the worst-case verdict ${COLORS[worst]}`);
+      }
+      if (/data-sha="[0-9a-f]{40}"/.test(agg)) {
+        problems.push("docs/badges/perf-all.svg wears a single data-sha — the aggregate is derived state across points that may span commits; it must not claim one measured-at commit");
       }
     }
   }

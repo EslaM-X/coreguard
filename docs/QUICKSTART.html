@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoreGuard — قوالب البدء السريع · Quick-start templates</title>
+<style>
+  :root { color-scheme: dark; --bg:#0d1117; --card:#161b22; --line:#21262d; --fg:#e6edf3; --dim:#8b949e; --ok:#3fb950; --bad:#f85149; --accent:#1b998b; --warn:#d29922; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: "Segoe UI", system-ui, -apple-system, sans-serif; margin: 0; padding: 2rem 1rem; }
+  main { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+  h2 { font-size: 1.1rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; margin-top: 2rem; }
+  h3 { font-size: .95rem; margin: .4rem 0 .3rem; }
+  .sub { color: var(--dim); font-size: .9rem; margin-bottom: 1.25rem; line-height: 1.7; }
+  .switcher button { background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: .25rem .8rem; cursor: pointer; margin-inline-start: .3rem; }
+  .switcher button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  html[lang="en"] [data-lang-text="ar"], html[lang="ar"] [data-lang-text="en"] { display: none; }
+  [data-lang-text] { display: inline; }
+  .feeds { display: flex; flex-wrap: wrap; gap: .5rem; margin: .75rem 0 1.5rem; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: .15rem .7rem; font-size: .78rem; color: var(--dim); direction: ltr; }
+  .chip.ok { border-color: var(--ok); color: var(--ok); }
+  .chip.bad { border-color: var(--bad); color: var(--bad); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+  .card h3 { margin: 0 0 .35rem; }
+  .cmd { background: #0d1117; border: 1px solid var(--line); border-radius: 6px; padding: .5rem .7rem; direction: ltr; unicode-bidi: embed; font-family: ui-monospace, Consolas, monospace; font-size: .85rem; color: var(--accent); overflow-x: auto; white-space: pre; margin: .35rem 0; }
+  .tree { direction: ltr; unicode-bidi: embed; font-family: ui-monospace, Consolas, monospace; font-size: .8rem; color: var(--dim); margin: .3rem 0; }
+  .tree li { list-style: none; padding: .08rem 0; }
+  .tree ul { margin: .2rem 0; padding-inline-start: 1rem; }
+  .verdict { border: 1px solid var(--ok); color: var(--ok); border-radius: 8px; padding: .45rem .8rem; font-weight: 600; direction: ltr; unicode-bidi: embed; font-size: .9rem; }
+  .verdict.bad { border-color: var(--bad); color: var(--bad); }
+  .verdict.warn { border-color: var(--warn); color: var(--warn); }
+  .reasons, .checks { direction: ltr; unicode-bidi: embed; font-size: .8rem; font-family: ui-monospace, Consolas, monospace; }
+  .reasons { color: var(--dim); margin: .4rem 0 0; padding-inline-start: 1.4rem; }
+  table.checks { width: 100%; border-collapse: collapse; margin-top: .5rem; }
+  table.checks td { border-top: 1px solid var(--line); padding: .3rem .4rem; font-size: .78rem; }
+  table.checks tr.ok td:first-child { color: var(--ok); }
+  table.checks tr.bad td:first-child { color: var(--bad); }
+  table.checks tr.warn td:first-child { color: var(--warn); }
+  .row { display: flex; justify-content: space-between; gap: .5rem; font-size: .82rem; color: var(--dim); margin-top: .35rem; direction: ltr; }
+  .err { border: 1px solid var(--bad); color: var(--bad); border-radius: 10px; padding: .75rem 1rem; margin: .5rem 0; font-size: .88rem; direction: ltr; unicode-bidi: embed; }
+  footer { margin-top: 2.5rem; color: var(--dim); font-size: .8rem; line-height: 1.7; border-top: 1px solid var(--line); padding-top: 1rem; }
+  code { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3rem; direction: ltr; unicode-bidi: embed; }
+  a { color: var(--accent); }
+  .dim { color: var(--dim); font-size: .85rem; }
+</style>
+</head>
+<body>
+<main>
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem;">
+    <div>
+      <h1><span data-lang-text="ar">قوالب البدء السريع</span><span data-lang-text="en">Quick-start templates</span></h1>
+      <p class="sub">
+        <span data-lang-text="ar">أوّل أمر يكتبك في مشروع تكامل خارجي: <code>create:integration</code> يولّد هيكلًا جاهزًا من القالب الرسمي — وضعه الافتراضي يعطيك أرضية الحارس (<code>authorize → verify → anchor</code>) بالوحدات المرجعية، ووضع <code>--dde</code> يعطيك قوالب الأدلة ثنائية الأطراف + محرّك الحدود مستقلًا + بوابة الدفع التي لا تُطلق إلا بمحرّك <b>VERIFIED</b> <i>و</i> قبول موقّع من الطرفين. كل أمثلة هذه الصفحة <b>حية</b>: الأوها مشتقّة لحظة العرض من بايتات السكربت نفسه، وقائمة الملفات من GitHub API، وجدول المحرّك يعمل فعليًا في تبويبك على القالب المرتبط بالمستودع — لا نص منسوخ يدويًا ولا رقم معاد كتابته.</span>
+        <span data-lang-text="en">The first command that puts you in an external integration project: <code>create:integration</code> scaffolds from the official template — its default mode gives you the guard floor (<code>authorize → verify → anchor</code>) on the reference SDK, and <code>--dde</code> gives you the ten DDE/1 evidence records, the standalone boundary engine, and the payment gate that releases only on engine <b>VERIFIED</b> <i>and</i> signed two-party acceptance. Every example on this page is <b>live</b>: commands derive at render time from the generator's own bytes, the file trees come from the GitHub API, and the engine table actually runs in your tab against the committed fixture — no hand-copied prose, no retyped number.</span>
+      </p>
+    </div>
+    <div class="switcher">
+      <button id="btn-ar" aria-pressed="true">عربي</button>
+      <button id="btn-en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+
+  <div class="feeds" id="feeds">
+    <span class="chip" id="chip-generator">generator: …</span>
+    <span class="chip" id="chip-templates">templates: …</span>
+    <span class="chip" id="chip-engine">engine: …</span>
+  </div>
+  <div id="feed-errors"></div>
+
+  <h2><span data-lang-text="ar">الأوامر (مشتقّة من نص الاستخدام)</span><span data-lang-text="en">The commands (derived from the usage text)</span></h2>
+  <div class="card" id="commands">
+    <span class="dim" data-lang-text="ar">جاري الاشتقاق من <code>scripts/create-integration.mjs</code> …</span>
+    <span class="dim" data-lang-text="en">Deriving from <code>scripts/create-integration.mjs</code> …</span>
+  </div>
+
+  <h2><span data-lang-text="ar">ما الذي يولّده كل وضع</span><span data-lang-text="en">What each mode generates</span></h2>
+  <div class="card" id="mode-default">
+    <h3><code id="cmd-default-label">create:integration …</code> — <span data-lang-text="ar">الوضع الافتراضي</span><span data-lang-text="en">default mode</span></h3>
+    <p class="dim" id="mode-default-desc">…</p>
+    <div class="tree" id="tree-default">…</div>
+  </div>
+  <div class="card" id="mode-dde">
+    <h3><code id="cmd-dde-label">create:integration … --dde</code> — <span data-lang-text="ar">وضع بوابة الدفع DDE</span><span data-lang-text="en">DDE payment-gate mode</span></h3>
+    <p class="dim" id="mode-dde-desc">…</p>
+    <div class="tree" id="tree-dde">…</div>
+  </div>
+
+  <h2><span data-lang-text="ar">مثال حي من المحرك (يعمل الآن في تبويبك)</span><span data-lang-text="en">A live example from the engine (running in your tab right now)</span></h2>
+  <p class="sub">
+    <span data-lang-text="ar">المحرّك المرتبط (<code>templates/integration-dde/engine-dde.mjs</code>) يُجلب من <code>raw.githubusercontent.com</code>، ويُشغَّل على السجلات العشرة الملتزمة ودبابيس SHA-256 نفسها — مع تمرير مِعدَّل SHA-256 المُختبر للّعبة في المتصفح. هذا هو مخرج <code>node verify-dde.mjs</code> بالضبط، محسوبًا هنا لحظة العرض.</span>
+    <span data-lang-text="en">The committed engine (<code>templates/integration-dde/engine-dde.mjs</code>) is fetched from <code>raw.githubusercontent.com</code> and run over the ten committed records and their SHA-256 pins — through the playground's browser-tested SHA-256 shim. This is exactly what <code>node verify-dde.mjs</code> prints, computed at render time.</span>
+  </p>
+  <div class="card">
+    <div id="engine-status"><span class="dim">…</span></div>
+    <div class="row"><span id="engine-pins">pins: …</span><span id="engine-summary">summary: …</span></div>
+    <div id="engine-boundary" class="dim" style="margin-top:.6rem; font-size:.82rem; direction:ltr; unicode-bidi:embed;">…</div>
+    <table class="checks" id="engine-checks"></table>
+  </div>
+
+  <h2><span data-lang-text="ar">بوابة الدفع: نفس القانون، حيًّا</span><span data-lang-text="en">The payment gate: the same law, live</span></h2>
+  <p class="sub">
+    <span data-lang-text="ar"><code>releaseWhen()</code> من المحرّك نفسه، وشرط القبول مُشتقّ لحظة العرض من <code>payout-gate.mjs</code>. الإطار المرتبط يرفض القبول (<code>REJECTED</code> على معايير مقيَّمة) — فتظهر البوابة HOLD بأسامٍها. ما لم يتغيّر هو معنى الاستقرار وحده: معاملة مستقرة لا تُطلق شيئًا.</span>
+    <span data-lang-text="en"><code>releaseWhen()</code> from the engine itself, with the acceptance predicate derived at render time from <code>payout-gate.mjs</code>. The committed fixture carries a REJECTED verdict on evaluated criteria — so the gate shows HOLD with its reasons. What a settled transaction changes: nothing.</span>
+  </p>
+  <div class="card" id="gate-card">
+    <div id="engine-gate"><span class="dim">…</span></div>
+  </div>
+
+  <h2><span data-lang-text="ar">جرّبه محليًا</span><span data-lang-text="en">Try it locally</span></h2>
+  <div class="card">
+    <div class="cmd" id="try-cmd">…</div>
+    <p class="dim">
+      <span data-lang-text="ar">القالب المولَّد يعيش خارج مساحة العمل عمدًا — يستهلك CoreGuard كما يستهلكه مكشوف خارجي حقيقي. التعليمات الكاملة داخل <code><name>/README.md</code> المولَّد.</span>
+      <span data-lang-text="en">The generated project lives outside this workspace on purpose — it consumes CoreGuard the way a real external integrator does. Full instructions live in the generated <code><name>/README.md</code>.</span>
+    </p>
+  </div>
+
+  <p class="sub"><a href="index.html"><span data-lang-text="ar">← صفحة المستودع</span><span data-lang-text="en">← Repo page</span></a></p>
+
+  <footer>
+    <span data-lang-text="ar">
+      مصادر عامة بلا توكن: <code>raw.githubusercontent.com</code> لسكربت المولّد و<code>package.json</code> ومحرّك <code>engine-dde.mjs</code> و<code>payout-gate.mjs</code> ومِعدَّل SHA-256 وسجلات <code>dde-fixture/</code> العشرة؛ وGitHub API (<code>contents</code>) لقوائم ملفات القالبين. الأوشا والوصف وشرط القبول تُشتق من البايتات في لحظة العرض — لا نص مُعاد كتابته هنا. فشل أي مصدر يُظهر شارة حمراء باسمه، ولا يُعرض جدول المحرّك بصمت.
+    </span>
+    <span data-lang-text="en">
+      Public, token-free sources: <code>raw.githubusercontent.com</code> for the generator script, <code>package.json</code>, <code>engine-dde.mjs</code>, <code>payout-gate.mjs</code>, the SHA-256 shim and the ten <code>dde-fixture/</code> records; the GitHub API <code>contents</code> endpoint for both template trees. Commands, mode descriptions and the acceptance predicate are derived from those bytes at render time — nothing retyped here. A dead source renders its red chip by name, and the engine table never renders in silence.
+    </span>
+  </footer>
+</main>
+
+<script>
+"use strict";
+
+/* Derived-live discipline: this page retypes NO command, NO file path list,
+ * NO mode description and NO acceptance rule — it parses them from the
+ * committed sources above, and it EXECUTES the committed boundary engine on
+ * the committed fixture. The contract test (test/delivery/quickstart-page.test.js)
+ * runs these same functions against the real bytes in a VM. */
+
+const OWNER_REPO = "EslaM-X/coreguard";
+const RAW = "https://raw.githubusercontent.com/" + OWNER_REPO + "/main/";
+const RAW_GENERATOR = RAW + "scripts/create-integration.mjs";
+const RAW_PACKAGE = RAW + "package.json";
+const RAW_ENGINE = RAW + "templates/integration-dde/engine-dde.mjs";
+const RAW_GATE = RAW + "templates/integration-dde/payout-gate.mjs";
+const RAW_SHIM = RAW + "packages/crypto-shim-playground.js";
+const RAW_FIXTURE = RAW + "templates/integration-dde/dde-fixture/";
+const API_TEMPLATES = "https://api.github.com/repos/" + OWNER_REPO + "/contents/templates/integration";
+const API_TEMPLATES_DDE = "https://api.github.com/repos/" + OWNER_REPO + "/contents/templates/integration-dde";
+
+function esc(s) {
+  // Entities are assembled by concatenation so the escaping itself can
+  // never be mangled by a transport that decodes entities in transit.
+  return String(s)
+    .split("&").join("&" + "amp;")
+    .split("<").join("&" + "lt;")
+    .split(">").join("&" + "gt;")
+    .split(String.fromCharCode(34)).join("&" + "quot;");
+}
+
+function chip(id, ok, text) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.classList.remove("ok", "bad");
+  el.classList.add(ok ? "ok" : "bad");
+}
+
+function feedError(msg) {
+  const div = document.createElement("div");
+  div.className = "err";
+  div.textContent = msg;
+  document.getElementById("feed-errors").appendChild(div);
+}
+
+async function getText(url, label) {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error("HTTP " + r.status + " — " + url);
+    const t = await r.text();
+    if (!t.trim()) throw new Error("empty body — " + url);
+    return t;
+  } catch (e) {
+    feedError(label + " feed is dark: " + e.message);
+    throw e;
+  }
+}
+
+async function getJson(url, label) {
+  try {
+    const r = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+    if (!r.ok) throw new Error("HTTP " + r.status + " — " + url);
+    const j = await r.json();
+    if (!Array.isArray(j)) throw new Error("unexpected shape (not a directory listing) — " + url);
+    return j;
+  } catch (e) {
+    feedError(label + " feed is dark: " + e.message);
+    throw e;
+  }
+}
+
+/* ---- pure derivations: the contract executes each against real bytes ---- */
+
+/** usage() lines → the command and both template directories (throw, never default). */
+function parseUsage(src) {
+  const line = src.match(/usage:\s*([^\n"]+)/);
+  if (!line) throw new Error("usage() line not derivable from create-integration.mjs");
+  const command = line[1].replace(/\s*\[--dde\]\s*$/, "").trim();
+  const def = src.match(/default\s+creates \.\/<name> from (\S+)/);
+  const dde = src.match(/--dde\s+creates \.\/<name> from (\S+)/);
+  if (!def || !dde) throw new Error("mode template paths not derivable from usage()");
+  if (def[1] === dde[1]) throw new Error("usage() names the same template for both modes — derivation refused");
+  return { command: command, defaultDir: def[1], ddeDir: dde[1] };
+}
+
+/** The header comment's own per-mode descriptions, folded to one line each. */
+function parseModes(src) {
+  const grab = (from, to) => {
+    const start = src.indexOf(from);
+    if (start < 0) throw new Error("mode description not found: " + from);
+    const stop = src.indexOf(to, start + from.length);
+    if (stop < 0) throw new Error("mode description unterminated: " + from);
+    return src.slice(start, stop).split("\n").map((l) => l.replace(/^\s*\*\s?/, "").trim()).join(" ").replace(/\s+/g, " ").trim();
+  };
+  return {
+    def: grab("default — ", "\n *   --dde"),
+    dde: grab("--dde   — ", "\n *\n"),
+  };
+}
+
+/** The engine's file → fixture-key table, parsed from the ENGINE (never retyped). */
+function parseFileKey(src) {
+  const m = src.match(/const FILE_TO_KEY = \{([\s\S]*?)\};/);
+  if (!m) throw new Error("FILE_TO_KEY not found in engine source — derivation refused");
+  const pairs = [...m[1].matchAll(/"([^"]+)":\s*"([^"]+)"/g)].map((x) => [x[1], x[2]]);
+  if (pairs.length === 0) throw new Error("FILE_TO_KEY parsed empty — refusing to fabricate a record list");
+  return pairs;
+}
+
+/** The payout-gate acceptance predicate body, parsed from payout-gate.mjs. */
+function parsePredicate(src) {
+  const m = src.match(/const predicate = \(\) =>([\s\S]*?);/);
+  if (!m || !m[1].trim()) throw new Error("acceptance predicate not derivable from payout-gate.mjs");
+  return m[1].trim();
+}
+
+/** Fixture object exactly as loadFixtureFromDir would build it, from fetched bytes. */
+function buildFixture(engineSrc, files) {
+  const fixture = {};
+  for (const [name, key] of parseFileKey(engineSrc)) {
+    const text = files[name];
+    if (typeof text !== "string") throw new Error("fixture record missing from fetch set: " + name);
+    fixture[key] = JSON.parse(text);
+  }
+  const manifest = files["hashes.json"];
+  if (typeof manifest !== "string") throw new Error("fixture record missing from fetch set: hashes.json");
+  const parsed = JSON.parse(manifest);
+  if (parsed && parsed.fixture && parsed.fixture.origin) fixture.origin = parsed.fixture.origin;
+  if (parsed && parsed.fixture && parsed.fixture.lifecycleState) fixture.lifecycleState = parsed.fixture.lifecycleState;
+  return fixture;
+}
+
+/** package.json + usage → the exact invocations shown (throw if the script vanishes). */
+function renderCommands(usage, pkg) {
+  const script = pkg && pkg.scripts && pkg.scripts["create:integration"];
+  if (!script) throw new Error("package.json no longer defines scripts.create:integration");
+  return {
+    script: script,
+    node: usage.command,
+    nodeDde: usage.command + " --dde",
+    npm: "npm run create:integration -- <name>",
+    npmDde: "npm run create:integration -- <name> --dde",
+  };
+}
+
+function renderTree(entries) {
+  const items = entries
+    .map((e) => "<li>" + (e.type === "dir" ? "▸ " : "  ") + esc(e.name) + (e.type === "dir" ? "/" : "") + "</li>")
+    .join("");
+  return "<ul>" + items + "</ul>";
+}
+
+function statusBlock(report) {
+  const cls = report.status === "VERIFIED" ? "" : report.status === "REJECTED" ? "bad" : "warn";
+  return '<div class="verdict ' + cls + '">' + esc(report.status) + " — " + esc(report.decision) + "</div>";
+}
+
+function checkRow(c) {
+  const mark = c.result === "PASS" ? "OK" : c.result === "NOT_RUN" ? "SKIP" : "FAIL";
+  const cls = c.result === "PASS" ? "ok" : c.result === "NOT_RUN" ? "warn" : "bad";
+  const extra = (c.reasons && c.reasons[0]) || (c.mismatches && c.mismatches[0]) || c.note || "";
+  return '<tr class="' + cls + '"><td>[' + mark + "]</td><td>" + esc(c.id) + "</td><td>" + esc(c.name) +
+    "</td><td>" + esc(extra) + "</td></tr>";
+}
+
+function gateBlock(gate) {
+  const label = gate.release ? "RELEASE" : "HOLD";
+  const cls = gate.release ? "" : "bad";
+  const reasons = gate.reasons.map((r) => "<li>" + esc(r) + "</li>").join("");
+  return '<div class="verdict ' + cls + '">' + label + "</div><ul class=\"reasons\">" + reasons + "</ul>";
+}
+
+/* ---- engine execution: committed bytes → a live module in this tab ---- */
+
+async function loadEngineModule(engineSrc, shimSrc) {
+  const shimUrl = URL.createObjectURL(new Blob([shimSrc], { type: "text/javascript" }));
+  const patched = engineSrc
+    .replace('import { createHash } from "node:crypto";', 'import { createHash } from "' + shimUrl + '";')
+    .replace('import { readFileSync } from "node:fs";',
+      'const readFileSync = () => { throw new Error("this page fetches fixture records as bytes — node:fs is never reached"); };');
+  if (patched.includes('from "node:crypto"') || patched.includes('from "node:fs"')) {
+    throw new Error("engine import surface changed — the page's patch points no longer match the committed bytes");
+  }
+  const engineUrl = URL.createObjectURL(new Blob([patched], { type: "text/javascript" }));
+  return import(engineUrl);
+}
+
+async function main() {
+  // --- generator + package: commands, modes, trees ---
+  let usage = null, modes = null;
+  try {
+    const [generator, pkg] = await Promise.all([getText(RAW_GENERATOR, "generator"), getText(RAW_PACKAGE, "package.json")]);
+    usage = parseUsage(generator);
+    modes = parseModes(generator);
+    const cmds = renderCommands(usage, JSON.parse(pkg));
+    const box = document.getElementById("commands");
+    box.innerHTML =
+      '<div class="cmd">' + esc(cmds.npm) + "</div>" +
+      '<div class="cmd">' + esc(cmds.npmDde) + "</div>" +
+      '<div class="cmd">' + esc(cmds.node) + "   # " + esc(cmds.nodeDde) + "</div>" +
+      '<div class="row"><span>package.json → ' + esc(cmds.script) + "</span><span>source: scripts/create-integration.mjs</span></div>";
+    document.getElementById("cmd-default-label").textContent = cmds.npm.replace("npm run create:integration -- ", "create:integration ");
+    document.getElementById("cmd-dde-label").textContent = cmds.npmDde.replace("npm run create:integration -- ", "create:integration ");
+    document.getElementById("mode-default-desc").textContent = modes.def;
+    document.getElementById("mode-dde-desc").textContent = modes.dde;
+    document.getElementById("try-cmd").textContent =
+      cmds.npm + "\n" + cmds.npmDde + "\ncd <name> && node verify-dde.mjs && node payout-gate.mjs";
+    chip("chip-generator", true, "generator: live");
+  } catch (e) {
+    if (!usage) chip("chip-generator", false, "generator: " + e.message.slice(0, 60));
+  }
+
+  // --- template trees: GitHub API directory listings ---
+  try {
+    const [a, b] = await Promise.all([getJson(API_TEMPLATES, "templates"), getJson(API_TEMPLATES_DDE, "templates-dde")]);
+    document.getElementById("tree-default").innerHTML = renderTree(a);
+    document.getElementById("tree-dde").innerHTML = renderTree(b);
+    chip("chip-templates", true, "templates: " + (a.length + b.length) + " files");
+  } catch (e) {
+    chip("chip-templates", false, "templates: " + e.message.slice(0, 60));
+  }
+
+  // --- engine: fetch committed bytes, run them here ---
+  try {
+    const [engineSrc, gateSrc, shimSrc] = await Promise.all([
+      getText(RAW_ENGINE, "engine"),
+      getText(RAW_GATE, "engine"),
+      getText(RAW_SHIM, "engine"),
+    ]);
+    const pairs = parseFileKey(engineSrc);
+    const files = {};
+    files["hashes.json"] = await getText(RAW_FIXTURE + "hashes.json", "engine");
+    await Promise.all(pairs.map(async ([name]) => {
+      files[name] = await getText(RAW_FIXTURE + name, "engine");
+    }));
+
+    const mod = await loadEngineModule(engineSrc, shimSrc);
+    const pins = await mod.verifyPins("dde-fixture", (p) => files[String(p).split("/").pop()] ?? null);
+    const fixture = buildFixture(engineSrc, files);
+    const report = await mod.verifyDeliveryFixture(fixture);
+
+    document.getElementById("engine-status").innerHTML = statusBlock(report);
+    document.getElementById("engine-pins").textContent =
+      "pins: " + pins.result + " (" + pins.checked.length + " files re-hashed)" +
+      (pins.mismatches.length ? " — " + pins.mismatches[0] : "");
+    document.getElementById("engine-summary").textContent = "summary: " + JSON.stringify(report.summary);
+    document.getElementById("engine-boundary").textContent = report.boundary;
+    document.getElementById("engine-checks").innerHTML = report.checks.map(checkRow).join("");
+
+    // Gate: the predicate is payout-gate's own body, derived at render time.
+    const acc = JSON.parse(files["acceptance-record.json"]);
+    const predicate = new Function("acc", "return (" + parsePredicate(gateSrc) + ")");
+    const gate = mod.releaseWhen(report, () => predicate(acc));
+    document.getElementById("engine-gate").innerHTML =
+      '<div class="dim" style="direction:ltr;unicode-bidi:embed;">node payout-gate.mjs — release law: engine VERIFIED AND party ACCEPTED</div>' +
+      gateBlock(gate);
+    chip("chip-engine", true, "engine: live · " + report.status);
+  } catch (e) {
+    chip("chip-engine", false, "engine: " + e.message.slice(0, 60));
+    feedError("engine example is dark: " + e.message);
+  }
+}
+
+/* --- language switcher (same pattern as the other pages) --- */
+document.getElementById("btn-ar").addEventListener("click", () => {
+  document.documentElement.lang = "ar";
+  document.documentElement.dir = "rtl";
+  document.getElementById("btn-ar").setAttribute("aria-pressed", "true");
+  document.getElementById("btn-en").setAttribute("aria-pressed", "false");
+});
+document.getElementById("btn-en").addEventListener("click", () => {
+  document.documentElement.lang = "en";
+  document.documentElement.dir = "ltr";
+  document.getElementById("btn-ar").setAttribute("aria-pressed", "false");
+  document.getElementById("btn-en").setAttribute("aria-pressed", "true");
+});
+
+main();
+</script>
+</body>
+</html>
