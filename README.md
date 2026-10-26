@@ -225,7 +225,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 1330 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard, verification-platform suite
+npm test              # 1333 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard, verification-platform suite
 git config core.hooksPath .githooks   # install the Pages settle pre-push guard — every main push waits for the Pages build
 npm run corpus        # deterministic 73-scenario adversarial corpus
 npm run benchmark     # 73/73 pass
@@ -365,6 +365,7 @@ evidence — never a verdict.
 
 ```bash
 node scripts/create-integration.mjs my-escrow-dapp --dde   # from this repo
+node scripts/create-integration.mjs my-real-dapp --dde --fixture-real <candidate-dir>   # from YOUR real case
 ```
 
 Generates a working DDE/1 payment-gate scaffold under `./my-escrow-dapp/`:
@@ -383,7 +384,12 @@ node --test             # 5/5 green
 The shipped fixture is honestly labeled (`SYNTHETIC`, `realDisputeExists:
 false`) and its execution record is an `OWNER-DECLARED` placeholder —
 `paymentSettled: false`, a zero txHash, provably settling nothing — so nothing
-in the scaffold can be mistaken for a verified execution claim.
+in the scaffold can be mistaken for a verified execution claim. For real cases,
+`--fixture-real <candidate-dir>` (with `--dde`) replaces the static fixture
+with YOUR candidate's converted records through the intake pipeline's own
+prelude gate: GATE GREEN or nothing scaffolds (fail-closed), origin `REAL`,
+pins re-hashed against the written bytes, and the REAL engine's VERIFIED
+verdict required before the scaffold is kept.
 
 ### Two-line SDK integration
 

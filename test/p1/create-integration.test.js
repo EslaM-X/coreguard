@@ -14,6 +14,8 @@ import { join, dirname, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
+import { mkdir, cp } from "node:fs/promises";
+import { RECORDS, makeCandidate } from "../../test/delivery/intake-candidate.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, "../..");
@@ -139,6 +141,103 @@ test("create-integration --dde: the generated fixture verifies against the REAL 
     assert.equal(report.status, "VERIFIED");
     assert.equal(report.decision, "EXECUTION_EVIDENCE_ADMISSIBLE — CONFORMITY_UNDECIDED_BY_ENGINE");
     assert.equal(report.summary.notRun, 1, "E5 NOT_RUN — consent replay never fabricated");
+  } finally {
+    await rm(work, { recursive: true, force: true });
+  }
+});
+
+// ---------------------------------------------------------------- --fixture-real
+
+const generatorArgv = (name, flags) => [generator, ...(name ? [name] : []), ...flags];
+
+async function makeModeledCandidate(work) {
+  // The intake pipeline's own builder — the same shape CI's surveillance run
+  // exercises, not a test-private copy.
+  return makeCandidate(join(work, "candidate"));
+}
+
+test("create-integration --fixture-real: scaffolds the DDE project over the candidate's REAL converted fixture", async () => {
+  const work = await mkdtemp(join(tmpdir(), "cg-fixture-real-"));
+  const dest = join(work, "real-case");
+  try {
+    const candidate = await makeModeledCandidate(work);
+    const run = spawnSync(process.execPath, generatorArgv("real-case", ["--dde", "--fixture-real", candidate]), {
+      cwd: work,
+      encoding: "utf8",
+    });
+    assert.equal(run.status, 0, run.stderr);
+
+    // Same skeleton as --dde (the engine, gate and verifier templates ride
+    // along untouched), but the fixture directory is the CONVERTED candidate.
+    for (const rel of EXPECTED_DDE_FILES) {
+      const full = join(dest, ...rel.split("/"));
+      const stat = await readFile(full, "utf8").then(() => true, () => false);
+      assert.ok(stat, `expected generated file ${rel}`);
+    }
+
+    // Provenance flips: the fixture is the candidate's REAL truth, never the
+    // template's synthetic copy mixed into real files.
+    const manifest = JSON.parse(await readFile(join(dest, "dde-fixture", "hashes.json"), "utf8"));
+    assert.equal(manifest.fixture?.origin, "REAL");
+    assert.equal(manifest.fixture?.realDisputeExists, true);
+    // Faithful packaging: every generated record equals the candidate's own
+    // record (JSON-identical) — conversion never edits a field, it only
+    // re-serializes and pins bytes (the prelude rejected synthetic origin).
+    for (const name of RECORDS) {
+      const generated = JSON.parse(await readFile(join(dest, "dde-fixture", name), "utf8"));
+      const candidate = JSON.parse(await readFile(join(work, "candidate", name), "utf8"));
+      assert.deepEqual(generated, candidate, `${name} must be the candidate's own record, not an edited copy`);
+    }
+
+    // Exactly the bytes the converter wrote: pins re-hash against the disk
+    // and the REAL engine verifies the generated fixture as-is.
+    const { verifyFixture } = await import(
+      pathToFileURL(join(repoRoot, "packages", "delivery", "sdk.js")).href
+    );
+    const report = await verifyFixture({ fixtureDir: join(dest, "dde-fixture") });
+    assert.equal(report.status, "VERIFIED", report.decision);
+
+    // The gate's green verdict (and engine report) is echoed into the run.
+    assert.match(run.stdout, /GATE GREEN/, "the prelude gate output must surface in the scaffold run");
+  } finally {
+    await rm(work, { recursive: true, force: true });
+  }
+});
+
+test("create-integration --fixture-real: without --dde it is a usage error — the real-fixture path is DDE-only", async () => {
+  const work = await mkdtemp(join(tmpdir(), "cg-fixture-real-"));
+  try {
+    const candidate = await makeModeledCandidate(work);
+    const run = spawnSync(process.execPath, generatorArgv("wrong-mode", ["--fixture-real", candidate]), {
+      cwd: work,
+      encoding: "utf8",
+    });
+    assert.notEqual(run.status, 0);
+    assert.match(run.stderr, /implies --ddd|implies --dde/);
+    assert.ok(!(await readFile(join(work, "wrong-mode"), "utf8").then(() => true, () => false)), "nothing scaffolds");
+  } finally {
+    await rm(work, { recursive: true, force: true });
+  }
+});
+
+test("create-integration --fixture-real: red candidate → nothing scaffolds, no half-real scaffold left behind", async () => {
+  const work = await mkdtemp(join(tmpdir(), "cg-fixture-real-"));
+  const dest = join(work, "red-case");
+  try {
+    // The STATIC template fixture is the honest non-candidate: origin SYNTHETIC
+    // with realDisputeExists false — prelude must call it red.
+    const redCandidate = join(work, "red-candidate");
+    await cp(join(repoRoot, "templates", "integration-dde", "dde-fixture"), redCandidate, { recursive: true });
+
+    const run = spawnSync(process.execPath, generatorArgv("red-case", ["--dde", "--fixture-real", redCandidate]), {
+      cwd: work,
+      encoding: "utf8",
+    });
+    assert.notEqual(run.status, 0);
+    assert.match(run.stderr, /GATE RED|conversion refused/);
+    assert.match(run.stderr, /removed.*No half-real scaffold/, "the refusal must promise a clean removal by name");
+    const left = await readFile(dest, "utf8").then(() => true, () => false);
+    assert.ok(!left, "fail-closed: a gate-red candidate must not leave a scaffold directory behind");
   } finally {
     await rm(work, { recursive: true, force: true });
   }

@@ -374,7 +374,18 @@ test("every documented node/npm command in the repo runs, is skip-listed with a 
                 continue;
               }
               const r = spawnSync(BASH, ["-c", s], { cwd, ...SPAWN_OPTS, timeout: 120_000 });
-              assert.equal(r.status, 0, `${rel}: documented chain step must run: ${s}\n${r.stderr.slice(0, 300)}`);
+              // Chain steps honor the SAME per-line contracts as the single
+              // command path — payout-gate's documented exit 2 (HOLD) is
+              // contract here too, not an error.
+              const stepExpect = expectFor(s);
+              if (!stepExpect.exit.includes(r.status) || (stepExpect.match && !stepExpect.match.test(r.stdout))) {
+                assert.fail(
+                  `${rel}: documented chain step must run: ${s}\n` +
+                  `  exit : ${r.status} (expected ${JSON.stringify(stepExpect.exit)})\n` +
+                  `  stdout: ${r.stdout.slice(0, 300)}\n` +
+                  `  stderr: ${r.stderr.slice(0, 300)}`
+                );
+              }
               executed.push({ doc: rel, line: s.slice(0, 90) });
               perDoc[rel] = (perDoc[rel] || 0) + 1;
             }
@@ -389,14 +400,29 @@ test("every documented node/npm command in the repo runs, is skip-listed with a 
           }
 
           const hit = SKIP.find((s) => s.re.test(t));
-          if (hit) { skipped.push({ doc: rel, line: t.slice(0, 90), reason: hit.reason }); continue; }
-
-          // Scaffold family: run the documented generator at the fence cwd
+          if (hit) { skipped.push({ doc: rel, line: t.slice(0, 90), reason: hit.reason }); continue; }          // Scaffold family: run the documented generator at the fence cwd
           // (it materializes ./<name> right there), then the fence's own cd
           // puts the trio inside it — the reader's world, executed.
+          // --fixture-real is its own arm: the generator warms the REAL-fixture
+          // conversion against the SAME staged candidate the intake fences
+          // use (a distinct name keeps it clear of the --dde arm's tree), and
+          // the converted fixture must land REAL, not synthetic.
+          if (/create[-:]integration/.test(t) && /--fixture-real/.test(t)) {
+            const name = "my-real-dapp";
+            const gen = spawnSync(BASH, ["-c", `node ${q(join(REPO, "scripts", "create-integration.mjs"))} ${name} --dde --fixture-real ${q(candidateDir)}`], { cwd, ...SPAWN_OPTS, timeout: 120_000 });
+            assert.equal(gen.status, 0, `${rel}: documented --fixture-real scaffold must run against the staged candidate: ${gen.stderr.slice(0, 300)}`);
+            assert.ok(existsSync(join(cwd, name, "package.json")), `${rel}: scaffold must materialize ${name}/`);
+            assert.ok(existsSync(join(cwd, name, "verify-dde.mjs")) && existsSync(join(cwd, name, "payout-gate.mjs")), "real-fixture scaffold must ship the documented verifier + payout gate");
+            const realManifest = JSON.parse(readFileSync(join(cwd, name, "dde-fixture", "hashes.json"), "utf8"));
+            assert.equal(realManifest?.fixture?.origin, "REAL", "the documented --fixture-real scaffold must carry the converted REAL fixture");
+            executed.push({ doc: rel, line: t.slice(0, 90) });
+            perDoc[rel] = (perDoc[rel] || 0) + 1;
+            continue;
+          }
           if (/create[-:]integration/.test(t)) {
             const dde = /--dde/.test(t);
             const name = dde ? "my-escrow-dapp" : "my-dapp";
+
             // npm's form needs the workspace package.json in cwd (absent in
             // the sandbox by design) — the README documents the same
             // generator invocable directly; run that equivalent. It runs at
@@ -529,7 +555,7 @@ test("every documented node/npm command in the repo runs, is skip-listed with a 
       // README's generate-fence → cd-fence sequence works exactly as written
       // while the NEXT doc's identical documented command still meets a fresh
       // root (the generator's refuse-to-overwrite contract stays real).
-      for (const name of ["my-escrow-dapp", "my-dapp"]) {
+      for (const name of ["my-escrow-dapp", "my-dapp", "my-real-dapp"]) {
         rmSync(join(tmp, name), { recursive: true, force: true });
       }
     }

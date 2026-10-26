@@ -56,6 +56,16 @@ node scripts/create-integration.mjs my-escrow-dapp --dde
 cd my-escrow-dapp && node verify-dde.mjs && node --test
 ```
 
+### Scaffold from your real case instead of the static fixture
+
+```bash
+# 3b. --fixture-real: the scaffold's dde-fixture/ is converted from YOUR
+# intake candidate through the prelude gate (fail-closed — a GATE RED
+# candidate scaffolds nothing; no synthetic bytes mix with real ones):
+node scripts/create-integration.mjs my-escrow-dapp --dde --fixture-real <candidate-dir>
+cd my-escrow-dapp && node verify-dde.mjs && node payout-gate.mjs
+```
+
 ## Verify over HTTP (acceptance API)
 
 ```bash
