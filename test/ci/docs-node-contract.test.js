@@ -123,7 +123,7 @@ const PKG_SCRIPTS = JSON.parse(readFileSync(join(REPO, "package.json"), "utf8"))
 const SKIP = [
   { re: /(^|\s)npm (install|ci)(\s|$)/, reason: "registry install (npm ci is owned by every workflow's setup step; the documented @coreguard/sdk install is E404 — unpublished)" },
   { re: /npm test/, reason: "full suite — this contract runs inside it (recursion)" },
-  { re: /npm run release:gate(\s|$)/, reason: "the gate's `tests` leg IS `npm test` — this contract lives inside that suite, so executing the gate here re-enters this file (unbounded recursion; a Node 18 CI leg was SIGTERMed at 8m25s over it). Owned by the Engine leg's `release:gate:independence` step + scripts/pre-push-check.mjs" },
+  { re: /npm run release:gate(:\S+)?(\s|$)/, reason: "the gate's `tests` leg IS `npm test` — this contract lives inside that suite, so executing the gate here re-enters this file (unbounded recursion; a Node 18 CI leg was SIGTERMed at 8m25s over it). Includes the :independence reader-guide form (HOW-TO-EVALUATE/EXECUTIVE-SUMMARY fence); owned by the Engine leg's `release:gate:independence` step + scripts/pre-push-check.mjs" },
   { re: /npm run (corpus|benchmark)(\s|$)/, reason: "corpus rewrites committed benchmarks/ (the make-fixture rule); plain benchmark re-derives it from the corpus" },
   { re: /npm run benchmark:/, reason: "perf medians are owned by the DDE Evidence Cycle (dde.yml runs benchmark-dde/-http + trend badges); not re-run here" },
   { re: /npm run (anchor:plan|anchor:verify)/, reason: "rewrites committed scripts/live-anchor-planned.json (freeze-adjacent) / drives PowerShell against live Mainnet state" },

@@ -56,15 +56,23 @@ node scripts/create-integration.mjs my-escrow-dapp --dde
 cd my-escrow-dapp && node verify-dde.mjs && node --test
 ```
 
-### Scaffold from your real case instead of the static fixture
+The static scaffold ships a synthetic fixture honestly labeled `SYNTHETIC`.
+When you have a real intake candidate that already passed the prelude gate
+(`examples/real-fixture-intake/prelude.mjs` — see that directory's README),
+let the generator convert it in place of the static bytes:
 
 ```bash
-# 3b. --fixture-real: the scaffold's dde-fixture/ is converted from YOUR
-# intake candidate through the prelude gate (fail-closed — a GATE RED
-# candidate scaffolds nothing; no synthetic bytes mix with real ones):
-node scripts/create-integration.mjs my-escrow-dapp --dde --fixture-real <candidate-dir>
-cd my-escrow-dapp && node verify-dde.mjs && node payout-gate.mjs
+# 3b. the same DDE scaffold, generated from a real intake candidate: the
+# prelude gate runs first and a RED gate scaffolds nothing, the converter
+# re-pins SHA-256 over the real bytes, and the committed engine must verdict
+# VERIFIED — or the scaffold is rolled back entirely:
+node scripts/create-integration.mjs my-escrow-dapp-real --dde --fixture-real <candidate-dir>
+cd my-escrow-dapp-real && node verify-dde.mjs
 ```
+
+The boundary survives conversion: engine verification over real records does
+not decide delivery conformity — the payment gate still releases only through
+the payout gate's party consent.
 
 ## Verify over HTTP (acceptance API)
 

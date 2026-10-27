@@ -136,6 +136,11 @@ Same gate and engine flow as directory mode — the engine judges the
 packaged bytes via a temp directory *before* the archive is written. The
 archive is hand-built with Node's stdlib only (no zip dependency):
 
+> **Straight into a scaffold:** `scripts/create-integration.mjs --dde --fixture-real <candidate-dir>` runs this
+> same gate + converter and lands the converted records directly into a fresh
+> DDE payment-gate scaffold (`<name>/dde-fixture/`), rolling the scaffold back
+> if the gate goes red — see [INTEGRATION.md](../../INTEGRATION.md).
+
 - **STORE-only, deterministic bytes** — fixed member timestamps plus
   provenance fields derived from the candidate's pinned bytes (no
   wall-clock, no machine-local paths). Two runs over identical candidate

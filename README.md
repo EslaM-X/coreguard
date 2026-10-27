@@ -23,6 +23,7 @@
 [![Solidity](https://img.shields.io/badge/solidity-0.8.24-363636.svg?logo=solidity&logoColor=white)](https://github.com/foundry-rs/foundry)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Spec](https://img.shields.io/badge/CGEP%2F1-Draft-yellow.svg)](spec/CGEP-1.md)
+[![Full Inventory - ALL-IN-ONE](https://img.shields.io/badge/Full%20Inventory-ALL--IN--ONE-0f766e)](docs/ALL-IN-ONE-CATALOG.md)
 
 *Off-chain engine · Solidity registry · CGEP/1 draft spec. Real Core Mainnet execution verified · on-chain anchor live on Core (chainId 1116) · VERIFIED ANCHOR INTEGRITY*
 
