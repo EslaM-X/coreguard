@@ -1,0 +1,93 @@
+name: Scaffold Runs
+
+# The create:integration story gets its own badge workflow: every push (and
+# PR) generates BOTH shipped templates into FRESH temp directories — the
+# clean environment an external integrator clones into, with no workspace
+# linking and no committed scaffold — and then runs each generated project's
+# OWN internal tests inside it:
+#
+#   default — templates/integration: `node --test` executes the scaffold's
+#             smoke tests, which import the PUBLIC @coreguard/sdk. The SDK is
+#             installed from packed tarballs of its real dependency closure
+#             (the publish gate's install-parity technique: npm links
+#             command-line tarballs to each other by name+version), so the
+#             tests prove the PUBLISHABLE packages work for a consumer — not
+#             that workspace symlinks work.
+#   --dde   — templates/integration-dde: zero-dependency boundary engine.
+#             `node verify-dde.mjs` must exit 0 (VERIFIED), `node
+#             payout-gate.mjs` must exit 2 (the documented HOLD — party
+#             REJECTED in the shipped fixture; a RELEASE there is a broken
+#             lesson and fails the run by name), then the scaffold's own
+#             `node --test`.
+#
+# A green run therefore means: the generator still materialises both
+# templates, both scaffolds are runnable as shipped, and their internal test
+# suites pass OUTSIDE this repository's tree. Same guard class as the other
+# badge workflows: lockfile check BEFORE setup-node (cache: npm fails opaque
+# when package-lock.json is absent), then the YAML zero-jobs guard, then the
+# runs.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  scaffold-runs:
+    name: both templates generate and pass their own tests (clean env)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Guard - lockfile present + workspace sync (before setup-node)
+        run: node scripts/check-lock-sync.mjs
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Guard - workflow YAML (zero-jobs trap)
+        run: node scripts/check-workflows.mjs
+      - run: npm ci
+      - name: Default scaffold — generate + its internal tests (clean dir)
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/scaffold-default"
+          mkdir -p "$WORK/tgz"
+          cd "$WORK"
+          node "$GITHUB_WORKSPACE/scripts/create-integration.mjs" my-dapp
+          # Pack the SDK's real dependency closure (dependency-first, same
+          # order the publish gate documents) and install ALL tarballs in one
+          # command — npm links command-line tarballs to each other by
+          # name+version, so @coreguard/* resolves from the packed bytes,
+          # never from the registry or workspace symlinks.
+          for d in canonical crypto policy trace evidence replay evm provenance intent verifier firewall delivery sdk; do
+            (cd "$GITHUB_WORKSPACE/packages/$d" && npm pack --pack-destination "$WORK/tgz" >/dev/null)
+          done
+          cd "$WORK/my-dapp"
+          npm install --no-audit --no-fund "$WORK"/tgz/*.tgz
+          node --test
+      - name: DDE scaffold — generate + its internal tests (clean dir)
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/scaffold-dde"
+          mkdir -p "$WORK"
+          cd "$WORK"
+          node "$GITHUB_WORKSPACE/scripts/create-integration.mjs" escrow-dapp --dde
+          cd escrow-dapp
+          # Re-verify the shipped evidence fixture: VERIFIED, exit 0.
+          node verify-dde.mjs
+          # The gate's DOCUMENTED verdict on the shipped fixture is HOLD
+          # (party REJECTED) — exit 2 is contract; a RELEASE means the
+          # scaffold no longer teaches the boundary and fails the run.
+          if node payout-gate.mjs; then
+            echo "::error::payout gate RELEASED on the shipped fixture — the documented HOLD broke"
+            exit 1
+          else
+            rc=$?
+            if [ "$rc" -ne 2 ]; then
+              echo "::error::payout gate exited $rc — the documented HOLD is exit 2"
+              exit 1
+            fi
+          fi
+          # The scaffold's own contract tests, inside the generated project.
+          node --test
