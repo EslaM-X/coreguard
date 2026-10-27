@@ -137,6 +137,7 @@ const SKIP = [
   { re: /^cd coreguard$/, reason: "lands in the fresh clone created by the documented `git clone` in the same fence (external network) — the package's own verification fences run from the package root" },
   { re: /forge /, reason: "Solidity toolchain (foundry) — a non-Node contract file guarded by the CI Contracts job (forge build / forge test), not a node/npm command; not installed on every dev box" },
   { re: /^node scripts\/build-verifier\.mjs$/, reason: "artifact build gate — exit code is toolchain-present-dependent: without cargo it SHA-checks only and exits 0, but on CI the auto-installed rustup cargo lacks the wasm32-unknown-unknown target so regeneration fails and it exits 1; the byte-drift verdict is owned by the independent-verifier pipeline, not a docs contract" },
+  { re: /node scripts\/current-state\.mjs --check/, reason: "re-measures docs-node contract (recursion) and reads the live tree; covered by test/ci/current-state.test.js" },
 ];
 
 /**
@@ -306,6 +307,7 @@ function expectFor(cmd) {
 
 test("every documented node/npm command in the repo runs, is skip-listed with a reason, or fails the contract", () => {
   const tmp = mkdtempSync(join(tmpdir(), "docs-node-"));
+  let executedCount = 0;
   const executed = [];
   const skipped = [];
   const perDoc = {};
@@ -341,6 +343,9 @@ test("every documented node/npm command in the repo runs, is skip-listed with a 
       // from THEIR package root (node verification/validate-freeze.mjs …) —
       // the reader's world there is the package, not the repo.
       const docRoot = rel.startsWith("coreguard-assurance") ? join(REPO, rel.split("/")[0]) : tmp;
+      // Scaffold names this doc created — cleaned at doc end so the next doc
+      // meets a fresh root and refuse-to-overwrite stays real.
+      const madeScaffolds = new Set();
       for (const fence of extractBashFences(md)) {
         const lines = logicalCommands(fence);
         if (lines.length === 0) continue;
@@ -374,18 +379,7 @@ test("every documented node/npm command in the repo runs, is skip-listed with a 
                 continue;
               }
               const r = spawnSync(BASH, ["-c", s], { cwd, ...SPAWN_OPTS, timeout: 120_000 });
-              // Chain steps honor the SAME per-line contracts as the single
-              // command path — payout-gate's documented exit 2 (HOLD) is
-              // contract here too, not an error.
-              const stepExpect = expectFor(s);
-              if (!stepExpect.exit.includes(r.status) || (stepExpect.match && !stepExpect.match.test(r.stdout))) {
-                assert.fail(
-                  `${rel}: documented chain step must run: ${s}\n` +
-                  `  exit : ${r.status} (expected ${JSON.stringify(stepExpect.exit)})\n` +
-                  `  stdout: ${r.stdout.slice(0, 300)}\n` +
-                  `  stderr: ${r.stderr.slice(0, 300)}`
-                );
-              }
+              assert.equal(r.status, 0, `${rel}: documented chain step must run: ${s}\n${r.stderr.slice(0, 300)}`);
               executed.push({ doc: rel, line: s.slice(0, 90) });
               perDoc[rel] = (perDoc[rel] || 0) + 1;
             }
@@ -400,38 +394,45 @@ test("every documented node/npm command in the repo runs, is skip-listed with a 
           }
 
           const hit = SKIP.find((s) => s.re.test(t));
-          if (hit) { skipped.push({ doc: rel, line: t.slice(0, 90), reason: hit.reason }); continue; }          // Scaffold family: run the documented generator at the fence cwd
+          if (hit) { skipped.push({ doc: rel, line: t.slice(0, 90), reason: hit.reason }); continue; }
+
+          // Scaffold family: run the documented generator at the fence cwd
           // (it materializes ./<name> right there), then the fence's own cd
           // puts the trio inside it — the reader's world, executed.
-          // --fixture-real is its own arm: the generator warms the REAL-fixture
-          // conversion against the SAME staged candidate the intake fences
-          // use (a distinct name keeps it clear of the --dde arm's tree), and
-          // the converted fixture must land REAL, not synthetic.
-          if (/create[-:]integration/.test(t) && /--fixture-real/.test(t)) {
-            const name = "my-real-dapp";
-            const gen = spawnSync(BASH, ["-c", `node ${q(join(REPO, "scripts", "create-integration.mjs"))} ${name} --dde --fixture-real ${q(candidateDir)}`], { cwd, ...SPAWN_OPTS, timeout: 120_000 });
-            assert.equal(gen.status, 0, `${rel}: documented --fixture-real scaffold must run against the staged candidate: ${gen.stderr.slice(0, 300)}`);
-            assert.ok(existsSync(join(cwd, name, "package.json")), `${rel}: scaffold must materialize ${name}/`);
-            assert.ok(existsSync(join(cwd, name, "verify-dde.mjs")) && existsSync(join(cwd, name, "payout-gate.mjs")), "real-fixture scaffold must ship the documented verifier + payout gate");
-            const realManifest = JSON.parse(readFileSync(join(cwd, name, "dde-fixture", "hashes.json"), "utf8"));
-            assert.equal(realManifest?.fixture?.origin, "REAL", "the documented --fixture-real scaffold must carry the converted REAL fixture");
-            executed.push({ doc: rel, line: t.slice(0, 90) });
-            perDoc[rel] = (perDoc[rel] || 0) + 1;
-            continue;
-          }
           if (/create[-:]integration/.test(t)) {
             const dde = /--dde/.test(t);
-            const name = dde ? "my-escrow-dapp" : "my-dapp";
-
+            // A documented `--fixture-real <candidate-dir>` is executed as
+            // documented: the staged intake candidate is passed through the
+            // prelude gate + converter exactly as the doc names it.
+            const real = /--fixture-real\s+<candidate-dir>/.test(t);
+            // The scaffolded directory name is READ from the documented line
+            // (node and npm forms alike carry it right after the module or
+            // its `--` shim); an unparseable line keeps the historical
+            // defaults below rather than silently renaming the reader's dir.
+            const nameM = t.match(/create[-:]integration[^\s]*\s+(\S+)/);
+            const name = nameM && /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(nameM[1])
+              ? nameM[1]
+              : (dde ? "my-escrow-dapp" : "my-dapp");
+            madeScaffolds.add(name);
             // npm's form needs the workspace package.json in cwd (absent in
             // the sandbox by design) — the README documents the same
             // generator invocable directly; run that equivalent. It runs at
             // the current world cwd, materializing ./<name> right there.
-            const gen = spawnSync(BASH, ["-c", `node ${q(join(REPO, "scripts", "create-integration.mjs"))} ${name}${dde ? " --dde" : ""}`], { cwd, ...SPAWN_OPTS, timeout: 60_000 });
-            assert.equal(gen.status, 0, `${rel}: documented scaffold must run: ${gen.stderr}`);
+            const gen = spawnSync(BASH, ["-c", `node ${q(join(REPO, "scripts", "create-integration.mjs"))} ${name}${dde ? " --dde" : ""}${real ? " --fixture-real " + q(candidateDir) : ""}`], { cwd, ...SPAWN_OPTS, timeout: 60_000 });
+            assert.equal(gen.status, 0, `${rel}: documented scaffold must run:\n${gen.stdout.slice(0, 300)}\n${gen.stderr.slice(0, 300)}`);
             assert.ok(existsSync(join(cwd, name, "package.json")), `${rel}: scaffold must materialize ${name}/`);
             if (dde) {
               assert.ok(existsSync(join(cwd, name, "verify-dde.mjs")) && existsSync(join(cwd, name, "payout-gate.mjs")), "dde scaffold must ship the documented verifier + payout gate");
+              if (real) {
+                // The documented --fixture-real scaffold shipped a CONVERTED
+                // candidate, not the static synthetic template: origin REAL,
+                // pins derived from the converted bytes.
+                const fixManifest = join(cwd, name, "dde-fixture", "hashes.json");
+                assert.ok(existsSync(fixManifest), "real-fixture scaffold must ship the converted dde-fixture manifest");
+                const fm = JSON.parse(readFileSync(fixManifest, "utf8"));
+                assert.equal(fm.fixture.origin, "REAL", `${rel}: documented --fixture-real scaffold must carry a REAL-origin fixture, got ${fm.fixture.origin}`);
+                assert.equal(fm.manifest.generatedBy, "examples/real-fixture-intake/convert-to-fixture.mjs");
+              }
             } else {
               assert.ok(existsSync(join(cwd, name, "verify.mjs")) && existsSync(join(cwd, name, "example.mjs")), "guard scaffold must ship the documented verifier + lifecycle example");
             }
@@ -555,7 +556,7 @@ test("every documented node/npm command in the repo runs, is skip-listed with a 
       // README's generate-fence → cd-fence sequence works exactly as written
       // while the NEXT doc's identical documented command still meets a fresh
       // root (the generator's refuse-to-overwrite contract stays real).
-      for (const name of ["my-escrow-dapp", "my-dapp", "my-real-dapp"]) {
+      for (const name of new Set(["my-escrow-dapp", "my-dapp", ...madeScaffolds])) {
         rmSync(join(tmp, name), { recursive: true, force: true });
       }
     }
@@ -563,8 +564,8 @@ test("every documented node/npm command in the repo runs, is skip-listed with a 
     // Coverage floors: the contract must stay broad enough to bite.
     assert.ok(executed.length >= 30, `expected >=30 executed documented commands, ran ${executed.length}`);
     const mustCover = {
-      "README.md": 18,
-      "INTEGRATION.md": 3,
+      "README.md": 19,
+      "INTEGRATION.md": 4,
       "REVIEW-GUIDE.md": 4,
       "examples/delivery-fixture/README.md": 5,
       "examples/real-fixture-intake/README.md": 4,
