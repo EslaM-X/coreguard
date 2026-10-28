@@ -173,17 +173,17 @@
       },
       {
         "file": "../docs/GOVERNANCE-DASHBOARD.html",
-        "sha256": "0x02335b3f1e3fbd4750186614d32581c15a2a4ad27062c7323bf4f38f2ea00e95",
+        "sha256": "0xc795b5fd7b12aca33597d548f2e8939ac5b4c8e227de0bdde3d0fe067f13c3b4",
         "bytes": 76465
       },
       {
         "file": "../docs/coreguard-gate41-visual.html",
-        "sha256": "0xdb756715318004100d88aaaafa867a48e947b28a0fca430d37596a63123aa49c",
+        "sha256": "0xea135fa37df9300ef16e4a801c09b7a8f0412701ae1eedbc4f7e2a2fc54bdcff",
         "bytes": 145569
       },
       {
         "file": "../docs/coreguard-gate41-visual-en.html",
-        "sha256": "0x12b826918898dd693cc07f4420ab6f2ad146c45bab89c0565bf608e4db7686ee",
+        "sha256": "0x66fe8a8c4967c0f11b94fee67818ff41b3575e977f58d2ea3f9f4a1c1021cf47",
         "bytes": 70787
       }
     ],
@@ -296,8 +296,8 @@
     },
     {
       "file": "../docs/GOVERNANCE-DASHBOARD.html",
-      "commit": "4e6c7f8",
-      "reason": "bilingual payout-gate section added to the live board (EN defaults, AR via the documented i18n prelude); re-pinned per integrity rule — re-pin re-pointed to 4e6c7f8 after a rebase rewrote the original publication commit"
+      "commit": "ff0bb74d56a24e4ce166d7f76c0b8ce56a6cd3a9",
+      "reason": "brand: CoreGuard identity system re-pin to ff0bb74d56a2"
     },
     {
       "file": "README.md",
@@ -306,13 +306,13 @@
     },
     {
       "file": "../docs/coreguard-gate41-visual.html",
-      "commit": "71cde7f75c866261b8366ea52164abcf1f9617e7",
-      "reason": "bilingual AR-primary session board published verbatim to docs/; pinned from its publication commit"
+      "commit": "ff0bb74d56a24e4ce166d7f76c0b8ce56a6cd3a9",
+      "reason": "brand: CoreGuard identity system re-pin to ff0bb74d56a2"
     },
     {
       "file": "../docs/coreguard-gate41-visual-en.html",
-      "commit": "71cde7f75c866261b8366ea52164abcf1f9617e7",
-      "reason": "EN mirror session board published verbatim to docs/; pinned from its publication commit"
+      "commit": "ff0bb74d56a24e4ce166d7f76c0b8ce56a6cd3a9",
+      "reason": "brand: CoreGuard identity system re-pin to ff0bb74d56a2"
     }
   ]
 }
