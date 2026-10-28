@@ -76,7 +76,8 @@
     "live": "node examples/live/live-verify.js",
     "anchor": "powershell -ExecutionPolicy Bypass -File scripts/anchor-local.ps1",
     "anchor:plan": "node scripts/compute-commitment.mjs --out scripts/live-anchor-planned.json",
-    "anchor:verify": "powershell -ExecutionPolicy Bypass -File scripts/verify-anchor.ps1"
+    "anchor:verify": "powershell -ExecutionPolicy Bypass -File scripts/verify-anchor.ps1",
+    "stellar:demo": "node examples/stellar-verify/demo.mjs"
   },
   "engines": {
     "node": ">=18"
@@ -98,5 +99,8 @@
   "license": "MIT",
   "devDependencies": {
     "yaml": "^2.9.1"
+  },
+  "dependencies": {
+    "@stellar/stellar-sdk": "^17.4.0"
   }
 }
