@@ -192,7 +192,7 @@ RPC, zero trust in the issuer, and an on-chain anchor on Core.
 |---|---|
 | **L0 · Commitment** | Intent + policy committed (hashed) before execution |
 | **L1 · Chain Receipt** | Execution captured from chain, receipt pinned to block hash |
-| **L2 · Deterministic Replay** | Execution replayed/compared against committed intent (MVP) |
+| **L2 · Deterministic Replay** | Production-grade: step-by-step audit trail, cryptographic replay hash, diff, report; MATCH/MISMATCH/UNKNOWN — no partial success ever upgrades to MATCH |
 | L3 · Merkle proof | Compact, privacy-friendly proof of a receipt sub-tree |
 | L4 · Zero-knowledge | Fully private execution proofs (research phase) |
 

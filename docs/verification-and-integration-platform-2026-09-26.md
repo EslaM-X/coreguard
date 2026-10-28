@@ -90,7 +90,7 @@ claimed.
 ## 8. Control Plane (derived numbers only)
 
 scripts/ladder/adoption-dashboard.mjs gained a controlPlane block: five
-verification rows (L0 PASS, L1 RECORDED_ONLY, L2 REPLAY_CAPABLE, L3
+verification rows (L0 PASS, L1 RECORDED_ONLY, L2 REPLAY_CAPABLE (production-grade: audit trail + hash + diff + report), L3
 AVAILABLE, L4 RESEARCH), four integration rows (sandbox AVAILABLE, webhook
 AVAILABLE — CG-WH/1 HMAC + replay window + idempotency, adapters DRY_RUN,
 production UNKNOWN), and three commercial rows (revenue $0, customers

@@ -53,8 +53,7 @@ carry.
 | **AgentProof — actor provenance** | Per-check, fail-closed provenance report: commitment, manifest signature, declared-vs-detected identity. | SHIPPED | [`packages/provenance`](../packages/provenance) |
 | **Recovery engine** | Crash-safe write-ahead journal from send intent → on-chain verification; makes the Gate 4.1 failure class structural. | SHIPPED | [`packages/recovery`](../packages/recovery) |
 
-**Verification levels:** L0 commitment · L1 chain receipt · L2 deterministic
-replay · L3 Merkle proof · L4 zero-knowledge (research).
+**Verification levels:** L0 commitment · L1 chain receipt · L2 deterministic replay (production-grade: audit trail + cryptographic replay hash + diff + report) · L3 Merkle proof · L4 zero-knowledge (research).
 
 Run it:
 
