@@ -20,7 +20,7 @@
   <a href="https://eslam-x.github.io/coreguard/PRODUCTS.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/cg-bdg-1-badges.svg" alt="CG-BDG/1 badges"></a>
   <a href="https://eslam-x.github.io/coreguard/GOVERNANCE-DASHBOARD.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/cg-cl-1-claims.svg" alt="CG-CL/1 claims"></a>
   <a href="https://eslam-x.github.io/coreguard/"><img src="https://eslam-x.github.io/coreguard/assets/badges/core-mainnet-anchor.svg" alt="Core Mainnet anchor"></a>
-  <a href="https://github.com/EslaM-X/coreguard/actions"><img src="https://eslam-x.github.io/coreguard/assets/badges/ci-1333-tests.svg" alt="CI 1333 tests"></a>
+  <a href="https://github.com/EslaM-X/coreguard/actions"><img src="https://eslam-x.github.io/coreguard/assets/badges/ci-1345-tests.svg" alt="CI 1345 tests"></a>
 </p>
 
 ### Verifiable Execution Truth Layer for Bitcoin DeFi
