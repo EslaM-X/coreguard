@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="CoreGuard">
+  <defs>
+    <linearGradient id="cgShield" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFB01F"/>
+      <stop offset="0.55" stop-color="#FF8A00"/>
+      <stop offset="1" stop-color="#E8590C"/>
+    </linearGradient>
+    <linearGradient id="cgCore" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2B3138"/>
+      <stop offset="1" stop-color="#14181D"/>
+    </linearGradient>
+  </defs>
+  <path d="M32 4 L56 12 V30 C56 45 46 55 32 60 C18 55 8 45 8 30 V12 Z" fill="url(#cgShield)"/>
+  <path d="M32 4 L56 12 V30 C56 45 46 55 32 60 C18 55 8 45 8 30 V12 Z" fill="none" stroke="#0B0F14" stroke-opacity="0.35" stroke-width="2"/>
+  <path d="M32 12 L48 17.5 V31 C48 41.5 41.5 48.5 32 52.5 C22.5 48.5 16 41.5 16 31 V17.5 Z" fill="url(#cgCore)"/>
+  <path d="M37 26.5 C35.6 24.9 33.7 24 31.6 24 C27.9 24 25 27 25 31.2 C25 35.4 27.9 38.4 31.6 38.4 C33.7 38.4 35.6 37.5 37 35.9 V32.6 H31.6" fill="none" stroke="#F5F7FA" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M32 4 L56 12 V16 L32 8 Z" fill="#FFFFFF" fill-opacity="0.28"/>
+</svg>

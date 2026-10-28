@@ -1,0 +1,9 @@
+:root {
+  --brand-orange: #ff8a00;      /* Core Orange   — Energy / Action */
+  --brand-orange-hot: #ffb01f;  /* highlight edge of the mark */
+  --brand-deep: #0b0f14;        /* Deep Core     — Trust / Security */
+  --brand-graphite: #4a5568;    /* Graphite      — Balance / Tech */
+  --brand-ice: #f5f7fa;         /* Ice White     — Clarity / Focus */
+  --brand-font: "Poppins", "Montserrat", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Arial, sans-serif;
+}

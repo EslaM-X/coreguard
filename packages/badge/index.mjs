@@ -31,13 +31,21 @@
  */
 
 import { createHash } from "node:crypto";
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, readFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const BADGE_DIR = join(REPO, "docs", "badges");
 const BADGE_REGISTRY = join(REPO, "docs", "badge-registry.json");
+/* issued artwork lives in its own directory so a SPECIMEN scan of docs/badges/
+   can never be confused with real issuance; the ledger is the only place an
+   issuance event is recorded, beside the artwork it produced. */
+const ISSUED_DIR = join(BADGE_DIR, "issued");
+const ISSUED_LEDGER = join(REPO, "docs", "badge-issuances.json");
+/* the owner acknowledgment that must be typed beside --issue: issuance is a
+   decision, not a side effect of passing flags by accident. */
+const OWNER_ACK = "--i-am-the-owner-and-competent-to-issue";
 
 export const BADGE_SCHEMA = "CG-BDG/1";
 export const CONFORMANCE_SUITE_VERSION = "CG-CS/1";
@@ -130,7 +138,7 @@ export function renderBadge(record) {
   const title = issued ? "CoreGuard Verified Integration" : "CoreGuard Conformance";
   const subtitle = issued ? suite : "CONFORMANCE SUITE " + suite;
   const ribbon = issued ? "ISSUED" : allPass ? "SPECIMEN · NOT ISSUED" : "NOT CONFORMANT · NOT ISSUED";
-  const ribbonFill = issued ? "#0F766E" : allPass ? "#B45309" : "#B91C1C";
+  const ribbonFill = issued ? "#FF8A00" : allPass ? "#B45309" : "#B91C1C";
   const shieldMark = allPass
     ? "M40 20 L51 24 V34 C51 41 47 46.5 40 49 C33 46.5 29 41 29 34 V24 Z M35 34.5 L38.5 38 L45.5 30.5"
     : "M40 20 L51 24 V34 C51 41 47 46.5 40 49 C33 46.5 29 41 29 34 V24 Z M34.5 30.5 L45.5 41 M45.5 30.5 L34.5 41";
@@ -361,6 +369,78 @@ export function writeBadgeRegistry() {
   return { registry, written, registryFile: "docs/badge-registry.json" };
 }
 
+/**
+ * issueBadge — the owner gate. An issued badge is an OWNERSHIP DECISION, not
+ * a command-line side effect: this refuses unless (a) the record is a real
+ * CG-CS/1 INTEGRATION record whose six criteria all pass, (b) the literal
+ * owner acknowledgment was passed, and (c) the subject is non-empty. The
+ * artwork lands beside the specimens under docs/badges/issued/<DIGEST>.svg
+ * and the ledger docs/badge-issuances.json records exactly what was issued,
+ * to whom, from which record file — with no dates or timestamps, so the
+ * ledger re-derives from git history instead of trusting prose.
+ */
+export function issueBadge({ recordPath, ack } = {}) {
+  if (ack !== OWNER_ACK) {
+    return { issued: false, reason: "OWNER_ACK_REQUIRED", detail: `issuance is an owner decision: rerun with --record <file> ${OWNER_ACK}` };
+  }
+  if (!recordPath) return { issued: false, reason: "NO_RECORD", detail: "pass --record <path-to-cg-cs1-record.json>" };
+  const abs = join(REPO, recordPath);
+  if (!existsSync(abs)) return { issued: false, reason: "RECORD_NOT_FOUND", detail: `${recordPath} does not exist` };
+  let record;
+  try {
+    const raw = JSON.parse(readFileSync(abs, "utf8"));
+    record = integrationRecord({ subject: raw.subject, results: raw.results });
+  } catch (e) {
+    return { issued: false, reason: "RECORD_UNREADABLE", detail: String(e.message || e) };
+  }
+  if (!record.subject || record.verdict !== "CONFORMANT") {
+    return { issued: false, reason: "NOT_CONFORMANT", detail: "a badge is never issued to a record whose six criteria do not all pass" };
+  }
+  const svg = renderBadge(record);
+  const digest = badgeDigest(record);
+  mkdirSync(ISSUED_DIR, { recursive: true });
+  const file = `docs/badges/issued/${digest}.svg`;
+  writeFileSync(join(REPO, file), svg + "\n", "utf8");
+  let ledger = { schema: BADGE_SCHEMA, issuances: [] };
+  if (existsSync(ISSUED_LEDGER)) {
+    ledger = JSON.parse(readFileSync(ISSUED_LEDGER, "utf8"));
+    if (!Array.isArray(ledger.issuances)) ledger.issuances = [];
+  }
+  if (!ledger.issuances.some((i) => i.digest === digest)) {
+    ledger.issuances.push({
+      subject: record.subject,
+      suite: record.suite,
+      verdict: record.verdict,
+      criteriaPassed: record.criteria.filter((c) => c.pass).length,
+      criteriaTotal: record.criteria.length,
+      digest,
+      file,
+      record: recordPath,
+      issuedBy: OWNER_ACK,
+      note: "Issued by the owner from a committed CG-CS/1 record; certifies this integration's attestations only.",
+    });
+    writeFileSync(ISSUED_LEDGER, JSON.stringify(ledger, null, 2) + "\n", "utf8");
+  }
+  assertVerifiedOrRemove(svg, record, join(REPO, file));
+  return { issued: true, digest, file, subject: record.subject };
+}
+
+/* an issued artwork that does not verify against its record never ships:
+   the file is deleted again so the tree cannot hold art it disproves. */
+function assertVerifiedOrRemove(svg, record, path) {
+  const out = verifyBadge(svg, record);
+  if (!out.valid) {
+    writeFileSync(path.replace(/[^/\\]+\.svg$/, "refused.txt"), `REFUSED: ${out.reason} ${out.detail}\n`, "utf8");
+    throw new Error(`issued artwork failed self-verification (${out.reason}) — written as refused.txt instead`);
+  }
+  return true;
+}
+
+function readIssuedLedger() {
+  if (!existsSync(ISSUED_LEDGER)) return { schema: BADGE_SCHEMA, issuances: [] };
+  return JSON.parse(readFileSync(ISSUED_LEDGER, "utf8"));
+}
+
 function main() {
   const args = process.argv.slice(2);
   if (args.includes("--write")) {
@@ -387,6 +467,27 @@ function main() {
   }
   if (args.includes("--registry")) {
     console.log(JSON.stringify(buildBadgeRegistry(), null, 2));
+    return;
+  }
+  if (args.includes("--issue")) {
+    const recordIdx = args.indexOf("--record");
+    const recordPath = recordIdx !== -1 ? args[recordIdx + 1] : undefined;
+    const ack = args.includes(OWNER_ACK) ? OWNER_ACK : undefined;
+    const out = issueBadge({ recordPath, ack });
+    if (!out.issued) {
+      console.log(`BADGE ISSUE GATE — ${BADGE_SCHEMA} · NOTHING ISSUED`);
+      console.log(`  reason: ${out.reason} — ${out.detail}`);
+      console.log(`  decision status: NOT ISSUED (owner decides when a real record earns it)`);
+      return;
+    }
+    console.log(`BADGE ISSUED — ${BADGE_SCHEMA}`);
+    console.log(`  ${out.file} · ${out.subject} · digest ${out.digest}`);
+    return;
+  }
+  if (args.includes("--issued")) {
+    const ledger = readIssuedLedger();
+    console.log(`BADGE LEDGER — ${BADGE_SCHEMA} · ${ledger.issuances.length} issuance(s), re-derived from committed records`);
+    for (const i of ledger.issuances) console.log(`  ${i.file} · ${i.subject} · ${i.digest} · from ${i.record}`);
     return;
   }
   console.log(`COREGUARD BADGE — ${BADGE_SCHEMA} (derived artwork, self-verifying, issued to nobody)`);

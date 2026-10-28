@@ -41,7 +41,7 @@
 
 | المؤشر | القيمة | الدليل |
 |---|---|---|
-| `issuerCount` | 0 | لا سجل إصدار |
+| `issuerCount` | 0 | لا سجل إصدار؛ الإصدار يمر فقط عبر بوّابة المالك `npm run badge -- --issue --record <file> --i-am-the-owner-and-competent-to-issue` |
 | specimens | 2 | ملفان في `docs/badges/` |
 | معايير CG-CS/1 | 6 | `docs/conformance-report.json` |
 | شارات مُصدرة لأشخاص | 0 | `badgeIssuerCount` في تقرير المطابقة |
@@ -81,6 +81,7 @@ never adjudication · never an audit of the counterparty · never a security rev
 
 ```bash
 npm run badge          # self-check 15/15
+npm run badge -- --issued       # list every issuance the owner has ever recorded
 npm run badge:write    # يكتب السجل والعينات
 npm run badge:verify   # يعيد اشتقاق كل digest
 ```
@@ -138,7 +139,7 @@ final newline is not forgery**; a changed byte inside the artwork is.
 
 | Metric | Value | Evidence |
 |---|---|---|
-| `issuerCount` | 0 | no issuance record |
+| `issuerCount` | 0 | no issuance record; issuance runs ONLY through the owner gate (`npm run badge -- --issue --record <file> --i-am-the-owner-and-competent-to-issue`) |
 | specimens | 2 | two files under `docs/badges/` |
 | CG-CS/1 criteria | 6 | `docs/conformance-report.json` |
 | badges issued to people | 0 | `badgeIssuerCount` in the report |
@@ -182,6 +183,7 @@ a contract violation.
 
 ```bash
 npm run badge          # self-check 15/15
+npm run badge -- --issued       # list every issuance the owner has ever recorded
 npm run badge:write    # writes the registry and specimens
 npm run badge:verify   # re-derives every digest
 ```

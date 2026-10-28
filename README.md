@@ -6,6 +6,23 @@
 
 # ⛨ CoreGuard
 
+### VERIFY&nbsp;•&nbsp;<b style="color:#ff8a00">PROTECT</b>&nbsp;•&nbsp;EMPOWER — Execution Integrity for a Smarter Onchain Future
+
+**Live&nbsp;·&nbsp;[eslam-x.github.io/coreguard](https://eslam-x.github.io/coreguard/)**
+
+<p align="center">
+  <a href="https://eslam-x.github.io/coreguard/"><img src="https://eslam-x.github.io/coreguard/assets/badges/cgep-1-receipt.svg" alt="CGEP/1 receipt"></a>
+  <a href="https://eslam-x.github.io/coreguard/PRODUCTS.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/execution-firewall.svg" alt="Execution Firewall"></a>
+  <a href="https://eslam-x.github.io/coreguard/PRODUCTS.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/intent-policy.svg" alt="Intent + Policy"></a>
+  <a href="https://eslam-x.github.io/coreguard/PRODUCTS.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/verifier-x3.svg" alt="Verifier x3"></a>
+  <a href="https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/coreguard-sdk.svg" alt="@coreguard/sdk"></a>
+  <a href="https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/dde-dispute.svg" alt="DDE / dispute"></a>
+  <a href="https://eslam-x.github.io/coreguard/PRODUCTS.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/cg-bdg-1-badges.svg" alt="CG-BDG/1 badges"></a>
+  <a href="https://eslam-x.github.io/coreguard/GOVERNANCE-DASHBOARD.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/cg-cl-1-claims.svg" alt="CG-CL/1 claims"></a>
+  <a href="https://eslam-x.github.io/coreguard/"><img src="https://eslam-x.github.io/coreguard/assets/badges/core-mainnet-anchor.svg" alt="Core Mainnet anchor"></a>
+  <a href="https://github.com/EslaM-X/coreguard/actions"><img src="https://eslam-x.github.io/coreguard/assets/badges/ci-1333-tests.svg" alt="CI 1333 tests"></a>
+</p>
+
 ### Verifiable Execution Truth Layer for Bitcoin DeFi
 
 **CoreGuard doesn't tell you whether a transaction looks safe.**
@@ -277,6 +294,7 @@ with no credentials and no network.
 npm run claims               # CG-CL/1: 28 claims derived from committed sources, one status each
 npm run claims:audit         # fails if a VERIFIED claim has no evidence, or an evidence path is missing
 npm run badge:verify         # CG-BDG/1: re-derive every badge digest from its record, byte for byte
+npm run badge -- --issued             # list every badge the owner has ever issued (docs/badge-issuances.json)
 npm run partner:journey      # CG-PJ/1: ten integration legs over one bundle
 npm run integration:replay   # CG-IR/1: replay a bundle through L0-L3, no partial credit
 npm run release:gate         # CG-RG/1: 18 legs, and the gate audits its own source
@@ -290,8 +308,12 @@ Four rules that the machine enforces, not the prose:
 - **A clean partner journey is `MATCH`, not `VERIFIED`.** L2 is the weakest
   link, and inflating it would inflate the evidence.
 - **A badge's artwork is its proof.** Hand-edit one byte and `verifyBadge()`
-  fails. `issuerCount` is 0: nothing is issued to anyone, and only two
-  `NOT ISSUED` specimens exist.
+  fails. `issuerCount` is 0: nothing is auto-issued, and only two `NOT ISSUED`
+  specimens exist. Issuance is an explicit owner decision:
+  `npm run badge -- --issue --record <file> --i-am-the-owner-and-competent-to-issue`
+  mints ISSUED artwork under `docs/badges/issued/` ONLY from a committed
+  CG-CS/1 record whose six criteria all pass, records it in
+  `docs/badge-issuances.json`, and refuses a non-conformant record outright.
 - **A gate that cannot assert anything fails.** A leg that proves nothing is
   `FAIL`, never a quiet pass — a green check with no assertion behind it is
   worse than no check, because it gets trusted.

@@ -154,7 +154,7 @@ node demo.mjs
 | **CG-IR/1 replay lab** | Replays a bundle through L0–L3; no partial credit. | SHIPPED | `npm run integration:replay` |
 | **CG-PJ/1 partner journey** | Ten integration legs over one bundle; a clean journey is `MATCH`, not `VERIFIED`. | SHIPPED | `npm run partner:journey` |
 | **CG-RG/1 release gate** | 18 legs, and the gate audits its own source; a leg that proves nothing is `FAIL`. | SHIPPED | `npm run release:gate` · `npm run release:gate:independence` · [JSON](release-gate.json) |
-| **CG-BDG/1 badge system** | Re-derives every badge digest from its record byte-for-byte. Two `NOT ISSUED` specimens only; `issuerCount: 0`. | SHIPPED · issuance **NOT PERFORMED** | `npm run badge:verify` · [registry](badge-registry.json) · [spec](badge-system-2026-09-26.md) |
+| **CG-BDG/1 badge system** | Re-derives every badge digest from its record byte-for-byte. Owner issuance gate: `npm run badge --issue --record <file> --i-am-the-owner-and-competent-to-issue` mints ISSUED artwork ONLY from a committed 6/6 CG-CS/1 record; specimens ship `NOT ISSUED` (issuerCount 0). | SHIPPED · issuance gate **LIVE** | `npm run badge:verify` · [registry](badge-registry.json) · [spec](badge-system-2026-09-26.md) |
 | **CG-CL/1 claims registry** | 28 claims derived from committed sources, one status each; `claims:audit` fails if a `VERIFIED` claim has no evidence. | SHIPPED | `npm run claims` · `npm run claims:audit` · [JSON](claims-registry.json) |
 | **Observability sink** | Local event sink self-check. | SHIPPED | `npm run observability` |
 | **Adoption ladder + control plane** | Integration registry, evidence passport, adoption dashboard, risk findings, reputation. Reputation = recorded external milestones only (today 0). | SHIPPED (external counters 0) | `npm run ladder:status` · `npm run ladder:dashboard` · `npm run ladder:findings` · `npm run ladder:reputation` |
@@ -235,7 +235,7 @@ Commercial framing and the guardrails:
 | **npm publish of the 13-package closure** | **GATED**; the package is not on the public registry (`E404`). Local install/tests work. |
 | **Published pricing** | **LOCKED** behind the Decision Gate (Counterparty #1). Every output stamps `gated: true`. |
 | **Live external integration (People's Court / ElizaOS / any platform)** | **NONE**. Adapters are `DRY_RUN` until a recorded confirmation exists. |
-| **Badge issuance** | **NOT PERFORMED**; `issuerCount: 0`; two `NOT ISSUED` specimens. |
+| **Badge issuance** | Owner gate **LIVE**: `npm run badge --issue --record <file> --i-am-the-owner-and-competent-to-issue` mints self-verifying ISSUED artwork from a committed 6/6 record only; specimens ship `NOT ISSUED` (issuerCount 0). |
 | **Settlement / escrow / custody** | **NOT AUTHORIZED**; reference only, `deployed:false`; no keys held. |
 | **ZK privacy proofs (L4)** | **RESEARCH**. |
 | **Revenue / customers / partnerships / funding** | **$0 / 0 / 0 / none claimed**. |
