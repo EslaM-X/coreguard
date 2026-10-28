@@ -86,10 +86,9 @@ test("STELLAR_HORIZON has testnet/mainnet/futurenet", () => {
   assert.ok(STELLAR_HORIZON.mainnet.includes("horizon.stellar.org"));
 });
 
-// Optional live read (network-dependent). Skipped if no network.
-test("readAccount live testnet (optional)", async (t) => {
-  // Stellar testnet account that may or may not exist; treat any non-throw as pass.
+// Optional live read (network-dependent). Skipped in CI by default to avoid
+// network flakiness; set STELLAR_LIVE=1 to enable.
+test("readAccount live testnet (optional)", { skip: !process.env.STELLAR_LIVE }, async () => {
   const r = await readAccount({ network: "testnet", accountId: "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN7", timeoutMs: 8000 });
-  // Either READ_OK or READ_FAILED is acceptable; must not throw.
   assert.ok(r.state === "READ_OK" || r.state === "READ_FAILED");
 });
