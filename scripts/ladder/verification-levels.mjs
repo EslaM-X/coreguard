@@ -106,30 +106,155 @@ export function verifyReceipt(receipt, commitment, chain) {
 
 /* ------------------------------------------------------------------ L2 */
 
+/**
+ * Deterministic replay (L2) — upgraded from MVP to production-grade.
+ *
+ * Replay compares the committed intent against the receipt's evidence and
+ * rules, producing MATCH | MISMATCH | UNKNOWN. No partial success ever
+ * upgrades to MATCH. Missing evidence is UNKNOWN; a contradiction is MISMATCH.
+ *
+ * Enhancements over the MVP:
+ *   - step-by-step audit trail (every rule, every check, every verdict)
+ *   - deterministic replay hash (cryptographic commitment of the result)
+ *   - replay diff (what diverged, expected vs actual)
+ *   - fail-closed validation (malformed input -> UNKNOWN, never MATCH)
+ *   - replay report (structured output for integrators)
+ */
+
+export const REPLAY_SCHEMA = "CGRPL/1";
+
 export function replay(intent, receipt, rules) {
-  if (!intent || !receipt || !rules || rules.length === 0) {
-    return { verdict: "UNKNOWN", verdictCode: "REQUIRED_EVIDENCE_MISSING", reason: "intent/receipt/rules incomplete" };
+  const audit = [];
+  const push = (step, status, detail) => audit.push({ step, status, detail, at: audit.length });
+
+  // ---- input validation (fail-closed) ----
+  if (!intent || typeof intent !== "object") {
+    push("validate", "FAIL", "intent missing or not an object");
+    return _replayResult("UNKNOWN", "REQUIRED_EVIDENCE_MISSING", "intent is required", audit, null, null);
   }
+  if (!receipt || typeof receipt !== "object") {
+    push("validate", "FAIL", "receipt missing or not an object");
+    return _replayResult("UNKNOWN", "REQUIRED_EVIDENCE_MISSING", "receipt is required", audit, null, null);
+  }
+  if (!Array.isArray(rules) || rules.length === 0) {
+    push("validate", "FAIL", "rules missing or empty");
+    return _replayResult("UNKNOWN", "REQUIRED_EVIDENCE_MISSING", "rules must be a non-empty array", audit, null, null);
+  }
+  // validate rule shape
+  for (const r of rules) {
+    if (!r || typeof r.id !== "string" || r.id.length === 0) {
+      push("validate", "FAIL", "rule missing id");
+      return _replayResult("UNKNOWN", "RULE_SHAPE_INVALID", "every rule must have a non-empty string id", audit, null, null);
+    }
+  }
+  push("validate", "PASS", `intent+receipt+${rules.length} rules accepted`);
+
+  // ---- canonical intent hash ----
+  const intentHash = "0x" + sha256(canonical(intent));
+  push("intent-hash", "PASS", intentHash);
+
   const failed = Array.isArray(receipt.failedChecks) ? receipt.failedChecks : [];
   const evidence = Array.isArray(receipt.evidence) ? receipt.evidence : [];
+  const diff = [];
+
+  // ---- check 1: no contradicted rule may be claimed PASS ----
   for (const rule of rules) {
-    if (failed.some((f) => f.rule === rule.id)) {
-      return { verdict: "MISMATCH", verdictCode: "RULE_FAILED", reason: `${rule.id} contradicted` };
+    const contradicted = failed.find((f) => f && f.rule === rule.id);
+    if (contradicted) {
+      push("contradiction-check", "FAIL", `${rule.id} contradicted`);
+      diff.push({ rule: rule.id, expected: "PASS", actual: "FAIL", reason: "contradicted" });
+      return _replayResult("MISMATCH", "RULE_FAILED", `${rule.id} contradicted`, audit, intentHash, diff);
     }
   }
+  push("contradiction-check", "PASS", "no rule contradicted");
+
+  // ---- check 2: every rule must have evidence ----
   for (const rule of rules) {
-    const hit = evidence.find((e) => e.rule === rule.id);
+    const hit = evidence.find((e) => e && e.rule === rule.id);
     if (!hit) {
-      return { verdict: "UNKNOWN", verdictCode: "EVIDENCE_MISSING", reason: `${rule.id} has no evidence` };
+      push("evidence-presence", "FAIL", `${rule.id} has no evidence`);
+      diff.push({ rule: rule.id, expected: "PASS", actual: "MISSING", reason: "no evidence" });
+      return _replayResult("UNKNOWN", "EVIDENCE_MISSING", `${rule.id} has no evidence`, audit, intentHash, diff);
     }
+    push("evidence-presence", "PASS", `${rule.id} evidence found`);
+  }
+
+  // ---- check 3: every rule's evidence must be PASS ----
+  for (const rule of rules) {
+    const hit = evidence.find((e) => e && e.rule === rule.id);
     if (hit.result !== "PASS") {
-      return { verdict: "MISMATCH", verdictCode: "RULE_FAILED", reason: `${rule.id} evidence is not PASS` };
+      push("evidence-result", "FAIL", `${rule.id} evidence is ${hit.result}`);
+      diff.push({ rule: rule.id, expected: "PASS", actual: hit.result, reason: "evidence not PASS" });
+      return _replayResult("MISMATCH", "RULE_FAILED", `${rule.id} evidence is not PASS`, audit, intentHash, diff);
     }
+    push("evidence-result", "PASS", `${rule.id} -> PASS`);
   }
-  if (failed.length > 0 || rules.some((r) => !evidence.some((e) => e.rule === r.id && e.result === "PASS"))) {
-    return { verdict: "UNKNOWN", verdictCode: "PARTIAL_SUCCESS_NOT_MATCH", reason: "no partial success upgrades to MATCH" };
+
+  // ---- check 4: no stray failures / partial success ----
+  const strayFailures = failed.filter((f) => !rules.some((r) => r.id === f.rule));
+  if (strayFailures.length > 0) {
+    push("stray-failure", "FAIL", `${strayFailures.length} stray failure(s)`);
+    for (const f of strayFailures) diff.push({ rule: f.rule, expected: "absent", actual: "FAIL", reason: "stray failure" });
+    return _replayResult("MISMATCH", "STRAY_FAILURE", "stray failures present", audit, intentHash, diff);
   }
-  return { verdict: "MATCH", verdictCode: "REPLAY_CONSISTENT", reason: "every canonical rule replayed to PASS" };
+  if (failed.length > 0) {
+    push("stray-failure", "FAIL", `${failed.length} failure(s) remain`);
+    return _replayResult("UNKNOWN", "PARTIAL_SUCCESS_NOT_MATCH", "no partial success upgrades to MATCH", audit, intentHash, diff);
+  }
+
+  // ---- check 5: full coverage ----
+  const uncovered = rules.filter((r) => !evidence.some((e) => e.rule === r.id && e.result === "PASS"));
+  if (uncovered.length > 0) {
+    push("coverage", "FAIL", `${uncovered.length} rule(s) uncovered`);
+    for (const r of uncovered) diff.push({ rule: r.id, expected: "PASS", actual: "MISSING", reason: "uncovered" });
+    return _replayResult("UNKNOWN", "PARTIAL_SUCCESS_NOT_MATCH", "no partial success upgrades to MATCH", audit, intentHash, diff);
+  }
+  push("coverage", "PASS", `${rules.length}/${rules.length} rules covered`);
+
+  // ---- MATCH ----
+  push("verdict", "PASS", "every canonical rule replayed to PASS");
+  return _replayResult("MATCH", "REPLAY_CONSISTENT", "every canonical rule replayed to PASS", audit, intentHash, diff);
+}
+
+function _replayResult(verdict, verdictCode, reason, audit, intentHash, diff) {
+  const payload = { verdict, verdictCode, reason, intentHash, diff: diff || [], stepCount: audit.length };
+  const replayHash = "0x" + sha256(canonical({ schema: REPLAY_SCHEMA, ...payload, audit: audit.map((a) => ({ step: a.step, status: a.status })) }));
+  return {
+    schemaVersion: REPLAY_SCHEMA,
+    verdict,
+    verdictCode,
+    reason,
+    intentHash,
+    replayHash,
+    audit,
+    diff: diff || [],
+    replayable: true,
+  };
+}
+
+export function isReplayConsistent(r) {
+  return !!(r && r.verdict === "MATCH" && r.verdictCode === "REPLAY_CONSISTENT" && typeof r.replayHash === "string" && r.replayHash.startsWith("0x"));
+}
+
+export function replayDiff(r) {
+  if (!r || !Array.isArray(r.diff)) return [];
+  return r.diff.map((d) => `${d.rule}: expected ${d.expected}, actual ${d.actual} (${d.reason})`);
+}
+
+export function replayReport(r) {
+  if (!r) return null;
+  return {
+    schemaVersion: r.schemaVersion,
+    verdict: r.verdict,
+    verdictCode: r.verdictCode,
+    reason: r.reason,
+    intentHash: r.intentHash,
+    replayHash: r.replayHash,
+    stepCount: (r.audit || []).length,
+    failedSteps: (r.audit || []).filter((a) => a.status === "FAIL").map((a) => a.step),
+    diffCount: (r.diff || []).length,
+    replayable: r.replayable,
+  };
 }
 
 /* ------------------------------------------------------------------ L3 */
