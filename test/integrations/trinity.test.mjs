@@ -1,0 +1,14 @@
+﻿import test from "node:test";
+import assert from "node:assert/strict";
+import { TRINITY_VERSION, TRINITY_NETWORKS, KILLER_TRINITY, trinityGate, trinityShield, trinityAnchor, killerReferenceTrinity, killerCustomerTrinity, ecosystemTrinityMap, status } from "../../packages/coreguard-trinity/index.mjs";
+const RULES = [{id:"VALUE_LIMIT"},{id:"RECIPIENT_ALLOWLIST"}];
+test("trinity exports", ()=>{ assert.equal(TRINITY_VERSION,"COREGUARD-TRINITY/1"); assert.deepEqual(TRINITY_NETWORKS,["core","stellar","pi"]); assert.equal(KILLER_TRINITY.feature,"UNIFIED_EXECUTION_TRUTH"); });
+test("trinityGate stellar", ()=>{ const g=trinityGate({network:"stellar",agentId:"a1",payment:{destination:"G_GOOD",amount:"10"},policy:{maxAmount:100,allowedRecipients:["G_GOOD"]},rules:RULES}); assert.equal(g.allowed,true); });
+test("trinityGate core", ()=>{ const g=trinityGate({network:"core",agentId:"a1",payment:{destination:"G_GOOD",amount:"10"},policy:{maxAmount:100,allowedRecipients:["G_GOOD"]},rules:RULES}); assert.equal(g.allowed,true); });
+test("trinityGate pi", ()=>{ const g=trinityGate({network:"pi",agentId:"a1",payment:{destination:"G_GOOD",amount:"10"},policy:{maxAmount:100,allowedRecipients:["G_GOOD"]},rules:RULES}); assert.equal(g.allowed,true); });
+test("trinityShield", ()=>{ const s=trinityShield({network:"stellar",action:"swap",intent:{hash:"h1"},policy:{rules:RULES},rules:RULES}); assert.equal(s.trinity,true); });
+test("trinityAnchor", ()=>{ const a=trinityAnchor({network:"stellar",commitmentId:"0xabc"}); assert.equal(a.status,"PLAN_OK"); assert.equal(a.txPlan.submit,false); });
+test("killerReferenceTrinity", ()=>{ const r=killerReferenceTrinity(); assert.ok(r.networks.includes("pi")); assert.ok(r.differentiators.some(d=>d.includes("TRINITY_UNIFIED"))); });
+test("killerCustomerTrinity", ()=>{ const c=killerCustomerTrinity(); assert.ok(c.segments.length>=3); });
+test("ecosystemTrinityMap", ()=>{ const m=ecosystemTrinityMap(); assert.ok(m.stellar.includes("Freighter")); assert.ok(m.pi.includes("Pi Network")); assert.ok(m.core.includes("Core DAO")); });
+test("status honest", ()=>{ const s=status(); assert.equal(s.runMode,"DRY_RUN"); });

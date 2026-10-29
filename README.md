@@ -30,6 +30,7 @@
 
 [![CI](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml)
 [![Stellar Killer](https://img.shields.io/badge/Stellar-KILLER%20FEATURES-7B61FF.svg?logo=stellar&logoColor=white)](docs/STELLAR-KILLER-FEATURES.md)
+[![Trinity](https://img.shields.io/badge/CORE%20%2B%20STELLAR%20%2B%20PI-TRINITY-FF6B00.svg)](docs/TRINITY-CORE-STELLAR-PI.md)
 [![DDE Evidence Cycle](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml)
 [![Docs](https://img.shields.io/badge/docs-API%20reference%20live-0969DA.svg?logo=githubpages&logoColor=white)](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html)
 [![Intake Pipeline](https://github.com/EslaM-X/coreguard/actions/workflows/intake.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/intake.yml)
