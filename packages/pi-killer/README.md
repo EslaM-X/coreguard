@@ -1,4 +1,4 @@
-﻿# Pi Network Killer Features (PI-KILLER/1)
+# Pi Network Killer Features (PI-KILLER/1)
 
 > **Verify before you submit on Pi. Replay after. Held if unknown.**
 > AI-agent native. Fail-closed. Deterministic. Built to protect every Pi Browser DApp, wallet, agent & commerce.

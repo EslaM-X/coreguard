@@ -1,4 +1,4 @@
-﻿import test from "node:test";
+import test from "node:test";
 import assert from "node:assert/strict";
 import { PI_KILLER_VERSION, KILLER, piGate, piShield, piAnchor, killerReferencePi, killerCustomerPi, piEcosystemMap, status } from "../../packages/pi-killer/index.mjs";
 const RULES=[{id:"VALUE_LIMIT"},{id:"RECIPIENT_ALLOWLIST"}];

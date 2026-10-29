@@ -1,4 +1,4 @@
-﻿import test from "node:test";
+import test from "node:test";
 import assert from "node:assert/strict";
 import { COREDAO_KILLER_VERSION, KILLER, coreGate, coreShield, coreAnchor, killerReferenceCore, killerCustomerCore, coreEcosystemMap, status } from "../../packages/coredao-killer/index.mjs";
 const RULES=[{id:"VALUE_LIMIT"},{id:"RECIPIENT_ALLOWLIST"}];

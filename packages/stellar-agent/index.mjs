@@ -60,12 +60,13 @@ export function verifyAgentPayment({ agentId, payment, policy, rules }) {
     return { verdict: "REJECTED", reason: policyResult.reason, commitment: null, receipt: null, replayHash: null };
   }
 
-  // Build commitment
+  // Build commitment — deterministic: the intent bytes bound here MUST NOT
+  // carry wall-clock time (a fresh timestamp per call would mint a new
+  // commitment per call, breaking the same-intent-same-commitment contract).
   const commitment = commit({
     subject: `stellar-agent-payment:${agentId}:${payment.destination}:${payment.amount}`,
     policy: rules.map((r) => r.id),
     chainId: payment.chainId || null,
-    timestamp: new Date().toISOString(),
   });
 
   // Build receipt

@@ -1,4 +1,4 @@
-﻿import test from "node:test";
+import test from "node:test";
 import assert from "node:assert/strict";
 import { TRINITY_VERSION, TRINITY_NETWORKS, KILLER_TRINITY, trinityGate, trinityShield, trinityAnchor, killerReferenceTrinity, killerCustomerTrinity, ecosystemTrinityMap, status } from "../../packages/coreguard-trinity/index.mjs";
 const RULES = [{id:"VALUE_LIMIT"},{id:"RECIPIENT_ALLOWLIST"}];

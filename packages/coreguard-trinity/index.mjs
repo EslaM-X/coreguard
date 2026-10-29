@@ -1,4 +1,4 @@
-﻿/**
+/**
  * packages/coreguard-trinity/index.mjs
  * COREGUARD-TRINITY/1 - Unified for Core DAO + Stellar + Pi Network
  * Killer Feature/Use/On-Chain/Utility/Adoption/Reference/Customer

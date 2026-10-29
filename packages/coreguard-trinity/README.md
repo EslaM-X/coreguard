@@ -1,4 +1,4 @@
-﻿# CoreGuard Trinity (COREGUARD-TRINITY/1)
+# CoreGuard Trinity (COREGUARD-TRINITY/1)
 
 **One execution-truth engine for Core DAO + Stellar + Pi Network**
 

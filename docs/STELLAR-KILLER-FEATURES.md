@@ -1,4 +1,4 @@
-﻿# CoreGuard for Stellar/Soroban - Killer Features
+# CoreGuard for Stellar/Soroban - Killer Features
 
 > "Verify before you submit. Replay after. Held if unknown."
 > AI-agent first. Fail-closed. Deterministic. Measurable. Undeniable.

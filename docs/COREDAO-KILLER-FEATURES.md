@@ -1,4 +1,4 @@
-﻿# Core DAO Killer Features (COREDao-KILLER/1)
+# Core DAO Killer Features (COREDao-KILLER/1)
 
 > **Verify before you submit on Core DAO. Replay after. Held if unknown.**
 > AI-agent native. Fail-closed. Deterministic L2 replay. Built for EVERY Core DApp, wallet, agent.

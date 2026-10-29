@@ -1,4 +1,4 @@
-﻿# CoreGuard TRINITY - For Core DAO + Stellar + Pi Network
+# CoreGuard TRINITY - For Core DAO + Stellar + Pi Network
 
 > One execution-truth engine. Verify before submit. Replay after. Held if unknown.
 > AI-agent native. Fail-closed. Deterministic. Measurable. Protects EVERY DApp/wallet/DEX/agent/bridge.

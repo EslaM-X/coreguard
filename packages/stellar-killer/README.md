@@ -1,4 +1,4 @@
-﻿# @coreguard/stellar-killer (STELLAR-KILLER/1)
+# @coreguard/stellar-killer (STELLAR-KILLER/1)
 
 Killer feature set for Stellar and Soroban. Verify before you submit. Replay after. Held if unknown.
 

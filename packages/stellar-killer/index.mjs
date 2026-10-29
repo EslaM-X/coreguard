@@ -1,4 +1,4 @@
-﻿/**
+/**
  * packages/stellar-killer/index.mjs
  * CoreGuard Stellar Killer Features — STELLAR-KILLER/1
  */

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * packages/pi-killer/index.mjs
  * Pi Network Killer/1
  */

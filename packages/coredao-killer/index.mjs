@@ -1,4 +1,4 @@
-﻿/**
+/**
  * packages/coredao-killer/index.mjs
  * COREDao-Killer/1 - Core DAO focused killer features
  */

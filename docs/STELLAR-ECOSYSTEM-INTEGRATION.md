@@ -1,4 +1,4 @@
-﻿# Stellar Ecosystem Integration Map
+# Stellar Ecosystem Integration Map
 
 > CoreGuard is built to protect EVERY application in the Stellar ecosystem.
 
