@@ -31,7 +31,7 @@
 [![CI](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml)
 [![Core DAO Killer](https://img.shields.io/badge/Core%20DAO-KILLER%20FEATURES-FF6B1C.svg)](docs/COREDAO-KILLER-FEATURES.md)
 [![Stellar Killer](https://img.shields.io/badge/Stellar-KILLER%20FEATURES-7B61FF.svg?logo=stellar&logoColor=white)](docs/STELLAR-KILLER-FEATURES.md)
-[![Pi Network Killer](https://img.shields.io/badge/Pi%20Network-KILLER%20FEATURES-F5A623.svg)](docs/PI-KILLER-FEATURES.md)
+[![Pi Network Killer](https://img.shields.io/badge/Pi%20Network-KILLER%20FEATURES-F5A623.svg?logo=pi-network&logoColor=white)](docs/PI-KILLER-FEATURES.md)
 [![Trinity](https://img.shields.io/badge/CORE%20%2B%20STELLAR%20%2B%20PI-TRINITY-00D4AA.svg)](docs/TRINITY-CORE-STELLAR-PI.md)
 [![DDE Evidence Cycle](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml)
 [![Docs](https://img.shields.io/badge/docs-API%20reference%20live-0969DA.svg?logo=githubpages&logoColor=white)](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html)
