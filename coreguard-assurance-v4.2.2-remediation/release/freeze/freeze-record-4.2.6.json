@@ -174,17 +174,17 @@
       {
         "file": "../docs/GOVERNANCE-DASHBOARD.html",
         "sha256": "0xc795b5fd7b12aca33597d548f2e8939ac5b4c8e227de0bdde3d0fe067f13c3b4",
-        "bytes": 76465
+        "bytes": 76582
       },
       {
         "file": "../docs/coreguard-gate41-visual.html",
         "sha256": "0xea135fa37df9300ef16e4a801c09b7a8f0412701ae1eedbc4f7e2a2fc54bdcff",
-        "bytes": 145569
+        "bytes": 145686
       },
       {
         "file": "../docs/coreguard-gate41-visual-en.html",
         "sha256": "0x66fe8a8c4967c0f11b94fee67818ff41b3575e977f58d2ea3f9f4a1c1021cf47",
-        "bytes": 70787
+        "bytes": 70904
       }
     ],
     "quarantineFiles": [
