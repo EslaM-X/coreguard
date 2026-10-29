@@ -1,0 +1,155 @@
+{
+  "schema": "CG-CS/1",
+  "subject": "COREGUARD SELF · FIRST-PARTY",
+  "party": "FIRST-PARTY",
+  "firstPartyNote": "Issued by CoreGuard to itself to prove the issuance machine end to end. This is NOT third-party validation and never a badge for a counterparty; the badge system issues nothing to any third party (issuerCount 0).",
+  "suite": "CG-CS/1",
+  "criteria": [
+    {
+      "id": "evidenceContractPass",
+      "pass": true,
+      "evidence": [
+        {
+          "kind": "committed-test-file",
+          "file": "test/conformance/live/conformance.test.mjs",
+          "prefixes": [
+            "C-L-1 chainId",
+            "C-L-2 block-pin",
+            "C-L-3 transaction",
+            "C-L-4 receipt/log",
+            "C-L-5b attestation"
+          ],
+          "testFileExitZero": true,
+          "matched": [
+            "C-L-1 chainId",
+            "C-L-2 block-pin",
+            "C-L-3 transaction",
+            "C-L-4 receipt/log",
+            "C-L-5b attestation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "determinismPass",
+      "pass": true,
+      "evidence": [
+        {
+          "kind": "committed-test-file",
+          "file": "test/conformance/live/conformance.test.mjs",
+          "prefixes": [
+            "C-L-7 determinism double-run",
+            "determinism over Path B"
+          ],
+          "testFileExitZero": true,
+          "matched": [
+            "C-L-7 determinism double-run",
+            "determinism over Path B"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "replayPass",
+      "pass": true,
+      "evidence": [
+        {
+          "kind": "committed-test-file",
+          "file": "test/conformance/live/conformance.test.mjs",
+          "prefixes": [
+            "C-L-5 extraction end-to-end",
+            "C-L-6 independent recomputation",
+            "C-L-8 read-only guard"
+          ],
+          "testFileExitZero": true,
+          "matched": [
+            "C-L-5 extraction end-to-end",
+            "C-L-6 independent recomputation",
+            "C-L-8 read-only guard"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tamperDetectionPass",
+      "pass": true,
+      "evidence": [
+        {
+          "kind": "committed-test-file",
+          "file": "test/conformance/live/conformance.test.mjs",
+          "prefixes": [
+            "A-W5-1 wrong block hash",
+            "A-W5-3 altered logs",
+            "A-W5-8 target/selector/value"
+          ],
+          "testFileExitZero": true,
+          "matched": [
+            "A-W5-1 wrong block hash",
+            "A-W5-3 altered logs",
+            "A-W5-8 target/selector/value"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "securityCheckPass",
+      "pass": true,
+      "evidence": [
+        {
+          "kind": "inline-scan",
+          "label": "no tracked .env in git",
+          "pass": true
+        },
+        {
+          "kind": "inline-scan",
+          "label": "no credential pattern in code tree",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "compatibilityPass",
+      "pass": true,
+      "evidence": [
+        {
+          "kind": "committed-test-file",
+          "file": "test/sdk/sdk-binding.test.js",
+          "prefixes": [
+            "W2-I"
+          ],
+          "testFileExitZero": true,
+          "matched": [
+            "W2-I"
+          ]
+        },
+        {
+          "kind": "committed-test-file",
+          "file": "test/conformance/live/conformance.test.mjs",
+          "prefixes": [
+            "vocabulary guard",
+            "canonicalizer casing parity"
+          ],
+          "matched": [
+            "vocabulary guard",
+            "canonicalizer casing parity"
+          ]
+        }
+      ]
+    }
+  ],
+  "results": {
+    "evidenceContractPass": true,
+    "determinismPass": true,
+    "replayPass": true,
+    "tamperDetectionPass": true,
+    "securityCheckPass": true,
+    "compatibilityPass": true
+  },
+  "verdict": "CONFORMANT",
+  "infrastructure": {
+    "offline": true,
+    "deterministic": true,
+    "runCommand": "node scripts/ladder/self-conformance.mjs",
+    "badgeGate": "npm run badge --issue --record docs/conformance/records/coreguard-self.cgcs1.json --i-am-the-owner-and-competent-to-issue"
+  }
+}

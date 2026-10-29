@@ -32,7 +32,8 @@
 
 import { createHash } from "node:crypto";
 import { writeFileSync, mkdirSync, readFileSync, existsSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { spawnSync } from "node:child_process";
+import { dirname, join, relative, resolve, sep, isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -53,12 +54,14 @@ export const CONFORMANCE_SUITE_VERSION = "CG-CS/1";
 /* The two badge kinds. Neither is a mark of approval. */
 export const BADGE_KINDS = Object.freeze({
   INTEGRATION: "VERIFIED_INTEGRATION",
+  SELF_ASSESSMENT: "FIRST_PARTY_SELF_ASSESSMENT",
   SPECIMEN: "SPECIMEN",
 });
 
 export const BADGE_RULES = Object.freeze({
   INTEGRATION: Object.freeze([
-    "Issued only from a CG-CS/1 record whose six criteria all PASS.",
+    "Issued only from a committed CG-CS/1 record whose six criteria all PASS; the exact record bytes must match HEAD.",
+    "A first-party self-assessment is labelled as such and is never third-party validation or an endorsement.",
     "Certifies the integration's attestations only — never the counterparty, its funds, its adjudication, or any legal outcome.",
     "Carries the subject id, the suite version, and a digest of the exact record; any edit to those fails verification.",
   ]),
@@ -118,10 +121,10 @@ export function renderBadge(record) {
     throw new TypeError("renderBadge: record.subject (string) is required");
   }
   const kind = badgeKind(record);
-  if (kind !== BADGE_KINDS.INTEGRATION && kind !== BADGE_KINDS.SPECIMEN) {
+  if (![BADGE_KINDS.INTEGRATION, BADGE_KINDS.SELF_ASSESSMENT, BADGE_KINDS.SPECIMEN].includes(kind)) {
     throw new TypeError("renderBadge: the record must come from integrationRecord() or specimenRecord(); an unbranded, hand-built, or copied record is refused");
   }
-  if (kind === BADGE_KINDS.INTEGRATION && record.verdict !== "CONFORMANT") {
+  if ((kind === BADGE_KINDS.INTEGRATION || kind === BADGE_KINDS.SELF_ASSESSMENT) && record.verdict !== "CONFORMANT") {
     throw new TypeError("renderBadge: an integration badge requires verdict CONFORMANT — a non-conformant record can never render one");
   }
 
@@ -130,23 +133,26 @@ export function renderBadge(record) {
 
   const digest = badgeDigest(record);
   const issued = kind === BADGE_KINDS.INTEGRATION;
+  const selfAssessment = kind === BADGE_KINDS.SELF_ASSESSMENT;
   const allPass = criteriaTotal > 0 && criteriaPassed === criteriaTotal;
   const subject = esc(record.subject.length > 26 ? record.subject.slice(0, 25) + "…" : record.subject);
   const suite = esc(record.suite || CONFORMANCE_SUITE_VERSION);
 
   /* three honest faces: issued, conformant-but-not-issued, and the refusal */
-  const title = issued ? "CoreGuard Verified Integration" : "CoreGuard Conformance";
-  const subtitle = issued ? suite : "CONFORMANCE SUITE " + suite;
-  const ribbon = issued ? "ISSUED" : allPass ? "SPECIMEN · NOT ISSUED" : "NOT CONFORMANT · NOT ISSUED";
-  const ribbonFill = issued ? "#FF8A00" : allPass ? "#B45309" : "#B91C1C";
+  const title = selfAssessment ? "CoreGuard Self-Assessment" : issued ? "CoreGuard Verified Integration" : "CoreGuard Conformance";
+  const subtitle = selfAssessment ? "FIRST-PARTY · " + suite : issued ? suite : "CONFORMANCE SUITE " + suite;
+  const ribbon = selfAssessment ? "SELF-ASSESSMENT" : issued ? "ISSUED" : allPass ? "SPECIMEN · NOT ISSUED" : "NOT CONFORMANT · NOT ISSUED";
+  const ribbonFill = issued || selfAssessment ? "#FF8A00" : allPass ? "#B45309" : "#B91C1C";
   const shieldMark = allPass
     ? "M40 20 L51 24 V34 C51 41 47 46.5 40 49 C33 46.5 29 41 29 34 V24 Z M35 34.5 L38.5 38 L45.5 30.5"
     : "M40 20 L51 24 V34 C51 41 47 46.5 40 49 C33 46.5 29 41 29 34 V24 Z M34.5 30.5 L45.5 41 M45.5 30.5 L34.5 41";
-  const limitsLine = issued
-    ? "Certifies this integration's attestations only — not the counterparty, its funds, or any outcome"
-    : allPass
-      ? "Design specimen — no third party holds this badge"
-      : "Fails CG-CS/1 — no badge may be issued to a non-conformant record";
+  const limitsLine = selfAssessment
+    ? "First-party self-assessment — NOT independent or third-party certified"
+    : issued
+      ? "Certifies this integration's attestations only — not the counterparty, its funds, or any outcome"
+      : allPass
+        ? "Design specimen — no third party holds this badge"
+        : "Fails CG-CS/1 — no badge may be issued to a non-conformant record";
 
   /* the ribbon is sized from the string it holds, not guessed: 8.5px
      semi-condensed glyph advance + 1.2px letter-spacing, plus 10px padding.
@@ -275,8 +281,9 @@ export function specimenRecord({ criteriaPass = true, subject = "SPECIMEN · NOT
 }
 
 /** A record for a real issuance — refused unless the suite actually passed. */
-export function integrationRecord({ subject, results }) {
+export function integrationRecord({ subject, results, party = "THIRD-PARTY" }) {
   if (!subject || typeof subject !== "string") throw new TypeError("integrationRecord: subject is required");
+  if (party !== "THIRD-PARTY" && party !== "FIRST-PARTY") throw new TypeError("integrationRecord: party must be FIRST-PARTY or THIRD-PARTY");
   const ids = [
     "evidenceContractPass",
     "determinismPass",
@@ -287,7 +294,8 @@ export function integrationRecord({ subject, results }) {
   ];
   const criteria = ids.map((id) => ({ id, pass: results && results[id] === true }));
   const verdict = criteria.every((c) => c.pass) ? "CONFORMANT" : "NOT_CONFORMANT";
-  return brand({ subject, suite: CONFORMANCE_SUITE_VERSION, verdict, criteria }, BADGE_KINDS.INTEGRATION);
+  const kind = party === "FIRST-PARTY" ? BADGE_KINDS.SELF_ASSESSMENT : BADGE_KINDS.INTEGRATION;
+  return brand({ subject, suite: CONFORMANCE_SUITE_VERSION, verdict, criteria, party }, kind);
 }
 
 export function buildBadgeRegistry() {
@@ -372,57 +380,103 @@ export function writeBadgeRegistry() {
 /**
  * issueBadge — the owner gate. An issued badge is an OWNERSHIP DECISION, not
  * a command-line side effect: this refuses unless (a) the record is a real
- * CG-CS/1 INTEGRATION record whose six criteria all pass, (b) the literal
- * owner acknowledgment was passed, and (c) the subject is non-empty. The
- * artwork lands beside the specimens under docs/badges/issued/<DIGEST>.svg
- * and the ledger docs/badge-issuances.json records exactly what was issued,
- * to whom, from which record file — with no dates or timestamps, so the
- * ledger re-derives from git history instead of trusting prose.
+ * CG-CS/1 INTEGRATION record whose six criteria and results agree, (b) the
+ * exact record bytes are committed at HEAD, (c) the literal owner acknowledgment
+ * was passed, and (d) the subject is non-empty. First-party records render as
+ * SELF-ASSESSMENT, never as third-party validation. The ledger records the
+ * party classification and record path; the third-party issuer count remains
+ * a separate conformance metric.
  */
 export function issueBadge({ recordPath, ack } = {}) {
   if (ack !== OWNER_ACK) {
     return { issued: false, reason: "OWNER_ACK_REQUIRED", detail: `issuance is an owner decision: rerun with --record <file> ${OWNER_ACK}` };
   }
   if (!recordPath) return { issued: false, reason: "NO_RECORD", detail: "pass --record <path-to-cg-cs1-record.json>" };
-  const abs = join(REPO, recordPath);
-  if (!existsSync(abs)) return { issued: false, reason: "RECORD_NOT_FOUND", detail: `${recordPath} does not exist` };
-  let record;
+  if (typeof recordPath !== "string" || !recordPath) return { issued: false, reason: "NO_RECORD", detail: "pass --record <path-to-cg-cs1-record.json>" };
+  const abs = resolve(REPO, recordPath);
+  const repoPath = relative(REPO, abs).split(sep).join("/");
+  if (!repoPath || repoPath.startsWith("..") || isAbsolute(repoPath)) {
+    return { issued: false, reason: "INVALID_RECORD_PATH", detail: "recordPath must resolve inside this repository" };
+  }
+  if (!existsSync(abs)) return { issued: false, reason: "RECORD_NOT_FOUND", detail: `${repoPath} does not exist` };
+  const committed = spawnSync("git", ["show", `HEAD:${repoPath}`], { cwd: REPO, maxBuffer: 2 * 1024 * 1024 });
+  if (committed.status !== 0) {
+    return { issued: false, reason: "RECORD_NOT_COMMITTED", detail: `${repoPath} is not present in HEAD; commit the exact CG-CS/1 record before issuance` };
+  }
+  const recordBytes = readFileSync(abs);
+  if (!recordBytes.equals(committed.stdout)) {
+    return { issued: false, reason: "RECORD_DIFFERS_FROM_HEAD", detail: `${repoPath} differs from the committed bytes in HEAD` };
+  }
+  let raw;
   try {
-    const raw = JSON.parse(readFileSync(abs, "utf8"));
-    record = integrationRecord({ subject: raw.subject, results: raw.results });
+    raw = JSON.parse(recordBytes.toString("utf8"));
   } catch (e) {
     return { issued: false, reason: "RECORD_UNREADABLE", detail: String(e.message || e) };
   }
+  const ids = [
+    "evidenceContractPass",
+    "determinismPass",
+    "replayPass",
+    "tamperDetectionPass",
+    "securityCheckPass",
+    "compatibilityPass",
+  ];
+  const evidenceAgrees = raw.schema === CONFORMANCE_SUITE_VERSION
+    && raw.suite === CONFORMANCE_SUITE_VERSION
+    && Array.isArray(raw.criteria)
+    && raw.criteria.length === ids.length
+    && ids.every((id, i) => raw.criteria[i]?.id === id && raw.criteria[i]?.pass === (raw.results?.[id] === true));
+  if (!evidenceAgrees) {
+    return { issued: false, reason: "RECORD_INVALID", detail: "CG-CS/1 criteria and results are missing, malformed, or inconsistent" };
+  }
+  if (raw.party !== "FIRST-PARTY" && raw.party !== "THIRD-PARTY") {
+    return { issued: false, reason: "RECORD_INVALID", detail: "party must be explicitly FIRST-PARTY or THIRD-PARTY" };
+  }
+  if (raw.verdict !== "CONFORMANT") {
+    return { issued: false, reason: "RECORD_INVALID", detail: "record verdict must explicitly be CONFORMANT" };
+  }
+  if (raw.party === "FIRST-PARTY" && !/NOT third-party validation/i.test(raw.firstPartyNote || "")) {
+    return { issued: false, reason: "RECORD_INVALID", detail: "first-party records must explicitly disclaim third-party validation" };
+  }
+  const party = raw.party === "FIRST-PARTY" ? "FIRST-PARTY" : "THIRD-PARTY";
+  const record = integrationRecord({ subject: raw.subject, results: raw.results, party });
   if (!record.subject || record.verdict !== "CONFORMANT") {
     return { issued: false, reason: "NOT_CONFORMANT", detail: "a badge is never issued to a record whose six criteria do not all pass" };
   }
-  const svg = renderBadge(record);
-  const digest = badgeDigest(record);
-  mkdirSync(ISSUED_DIR, { recursive: true });
-  const file = `docs/badges/issued/${digest}.svg`;
-  writeFileSync(join(REPO, file), svg + "\n", "utf8");
   let ledger = { schema: BADGE_SCHEMA, issuances: [] };
   if (existsSync(ISSUED_LEDGER)) {
-    ledger = JSON.parse(readFileSync(ISSUED_LEDGER, "utf8"));
-    if (!Array.isArray(ledger.issuances)) ledger.issuances = [];
+    try { ledger = JSON.parse(readFileSync(ISSUED_LEDGER, "utf8")); }
+    catch (e) { return { issued: false, reason: "LEDGER_INVALID", detail: String(e.message || e) }; }
+    if (ledger.schema !== BADGE_SCHEMA || !Array.isArray(ledger.issuances)) {
+      return { issued: false, reason: "LEDGER_INVALID", detail: "issuance ledger has the wrong schema or issuances shape" };
+    }
   }
+  const svg = renderBadge(record);
+  const digest = badgeDigest(record);
+  const file = `docs/badges/issued/${digest}.svg`;
+  const out = verifyBadge(svg, record);
+  if (!out.valid) return { issued: false, reason: "ARTWORK_INVALID", detail: `${out.reason}: ${out.detail}` };
+  mkdirSync(ISSUED_DIR, { recursive: true });
+  writeFileSync(join(REPO, file), svg + "\n", "utf8");
   if (!ledger.issuances.some((i) => i.digest === digest)) {
     ledger.issuances.push({
       subject: record.subject,
+      party,
       suite: record.suite,
       verdict: record.verdict,
       criteriaPassed: record.criteria.filter((c) => c.pass).length,
       criteriaTotal: record.criteria.length,
       digest,
       file,
-      record: recordPath,
+      record: repoPath,
       issuedBy: OWNER_ACK,
-      note: "Issued by the owner from a committed CG-CS/1 record; certifies this integration's attestations only.",
+      note: party === "FIRST-PARTY"
+        ? "First-party self-assessment only; NOT third-party validation, endorsement, or an audit."
+        : "Issued by the owner from a committed CG-CS/1 record; certifies this integration's attestations only.",
     });
     writeFileSync(ISSUED_LEDGER, JSON.stringify(ledger, null, 2) + "\n", "utf8");
   }
-  assertVerifiedOrRemove(svg, record, join(REPO, file));
-  return { issued: true, digest, file, subject: record.subject };
+  return { issued: true, party, digest, file, subject: record.subject };
 }
 
 /* an issued artwork that does not verify against its record never ships:
@@ -480,7 +534,7 @@ function main() {
       console.log(`  decision status: NOT ISSUED (owner decides when a real record earns it)`);
       return;
     }
-    console.log(`BADGE ISSUED — ${BADGE_SCHEMA}`);
+    console.log(`BADGE ISSUED — ${BADGE_SCHEMA} · ${out.party === "FIRST-PARTY" ? "FIRST-PARTY SELF-ASSESSMENT (NOT THIRD-PARTY VALIDATION)" : "THIRD-PARTY INTEGRATION"}`);
     console.log(`  ${out.file} · ${out.subject} · digest ${out.digest}`);
     return;
   }

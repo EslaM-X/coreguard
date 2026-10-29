@@ -1,0 +1,17 @@
+{
+  "schema": "CG-BDG/1",
+  "issuances": [
+    {
+      "subject": "COREGUARD SELF · FIRST-PARTY",
+      "suite": "CG-CS/1",
+      "verdict": "CONFORMANT",
+      "criteriaPassed": 6,
+      "criteriaTotal": 6,
+      "digest": "DF6E20C032A8",
+      "file": "docs/badges/issued/DF6E20C032A8.svg",
+      "record": "docs/conformance/records/coreguard-self.cgcs1.json",
+      "issuedBy": "--i-am-the-owner-and-competent-to-issue",
+      "note": "Issued by the owner from a committed CG-CS/1 record; certifies this integration's attestations only."
+    }
+  ]
+}

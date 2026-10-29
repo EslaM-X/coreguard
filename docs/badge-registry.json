@@ -3,7 +3,8 @@
   "suite": "CG-CS/1",
   "rules": {
     "INTEGRATION": [
-      "Issued only from a CG-CS/1 record whose six criteria all PASS.",
+      "Issued only from a committed CG-CS/1 record whose six criteria all PASS; the exact record bytes must match HEAD.",
+      "A first-party self-assessment is labelled as such and is never third-party validation or an endorsement.",
       "Certifies the integration's attestations only — never the counterparty, its funds, its adjudication, or any legal outcome.",
       "Carries the subject id, the suite version, and a digest of the exact record; any edit to those fails verification."
     ],
