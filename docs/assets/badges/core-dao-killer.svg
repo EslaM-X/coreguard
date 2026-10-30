@@ -2,6 +2,8 @@
 <rect width="167" height="20" rx="3" fill="#0B0F14"/>
 <rect x="105" width="62" height="20" rx="3" fill="#FF8A00"/>
 <rect x="105" width="1" height="20" fill="#FFFFFF" fill-opacity="0.35"/>
+<path transform="translate(10 2.5) scale(0.42)" d="M12 0 L24 6 V15 C24 22.5 19 28 12 31 C5 28 0 22.5 0 15 V6 Z" fill="none" stroke="#FF8A00" stroke-width="2.6" stroke-linejoin="round"/>
+<g transform="translate(10 2.5) scale(0.42)"><path d="M12 9 L17.5 12 V19 C17.5 22 15.4 23.9 12 25 C8.6 23.9 6.5 22 6.5 19 V12 Z" fill="#171C24"/><path d="M12 12.2 L7.8 15.4 V12 L12 9.4 L16.2 12 V15.4 Z" fill="#FF8A00"/></g>
 <text x="52.5" y="14" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="10" fill="#F5F7FA">Core DAO Killer</text>
 <text x="136" y="14" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11" fill="#0B0F14">KILLER</text>
 </svg>
