@@ -44,13 +44,27 @@
 [![Solidity](https://img.shields.io/badge/solidity-0.8.24-363636.svg?logo=solidity&logoColor=white)](https://github.com/foundry-rs/foundry)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Spec](https://img.shields.io/badge/CGEP%2F1-Draft-yellow.svg)](spec/CGEP-1.md)
-[![Full Inventory - ALL-IN-ONE](https://img.shields.io/badge/Full%20Inventory-ALL--IN--ONE-0f766e)](docs/ALL-IN-ONE-CATALOG.md)
-
-*Off-chain engine · Solidity registry · CGEP/1 draft spec. Real Core Mainnet execution verified · on-chain anchor live on Core (chainId 1116) · VERIFIED ANCHOR INTEGRITY*
+[![Full Inventory - ALL-IN-ONE](https://img.shields.io/badge/Full%20Inventory-ALL--IN--ONE-0f766e)](docs/ALL-IN-ONE-CATALOG.md)  *Off-chain engine · Solidity registry · CGEP/1 draft spec. Real Core Mainnet execution verified · on-chain anchor live on Core (chainId 1116) · VERIFIED ANCHOR INTEGRITY — CoreGuard Verify · Protect · Empower*
 
 </div>
 
 ---
+
+## The Killer Ladder — seven rungs, pinned per ecosystem · سلّم المنتجات القاتلة
+
+Every ecosystem entry — Core DAO · Stellar · Pi Network — pins the same seven rungs against committed evidence in its own facts file, no prose claims. The unified view:
+
+| Rung | What it closes, on every network |
+|---|---|
+| **Killer Feature** | Intent-to-Evidence Binding — every intent carries tamper-evident, replayable evidence; break the binding and verification fails closed |
+| **Killer Use** | AI Agent Payment Gate — agent proposals verified against policy + deterministic replay BEFORE submission; VERIFIED only, never auto-pay |
+| **Killer On-Chain** | Per-network Commitment Anchor — Core anchor live on chainId 1116 · Soroban/Pi anchors carried honestly as DRY_RUN/PLAN_ONLY, never styled as live |
+| **Killer Utility** | Universal DApp Shield — wrap ANY app action (swap, lend, borrow, bridge, vote); ALLOW/DENY/HOLD with a verifiable commitment |
+| **Killer Adoption** | One-line integration across wallets, DEXs, contracts and AI agents of each ecosystem |
+| **Killer Reference** | Deterministic replay-before-submit: audit trail + replayHash + diff + report, re-runnable by anyone |
+| **Killer Customer** | Named per network — Core: DeFi, DApps, wallets, AI agents, validators, escrow/A2A · Stellar: Freighter, Soroban DEXs, agents · Pi: Browser DApps, Pi Wallet, Pi Commerce, bridges |
+
+One ladder, three ecosystems, one Trinity view: [Core DAO](docs/COREDAO-KILLER-FEATURES.md) · [Stellar](docs/STELLAR-KILLER-FEATURES.md) · [Pi Network](docs/PI-KILLER-FEATURES.md) · [Trinity](docs/TRINITY-CORE-STELLAR-PI.md).
 
 ## Proof-first: run it, don't trust it
 
@@ -88,7 +102,7 @@ LIVE / DRY_RUN / GATED / RESEARCH), is listed in one place:
   the bilingual (AR/EN) catalog page.
 
 Nothing in these catalogs claims revenue, customers, partners, funding, a price, a
-badge issuance, a live external integration or a third-party audit. Those stay
+third-party badge issuance, a live external integration or a third-party audit. Those stay
 `UNKNOWN` / `GATED` until a named event with evidence exists.
 
 ## Protocol ecosystem
@@ -313,7 +327,7 @@ Four rules that the machine enforces, not the prose:
   link, and inflating it would inflate the evidence.
 - **A badge's artwork is its proof.** Hand-edit one byte and `verifyBadge()`
   fails. `issuerCount` is 0: nothing is auto-issued, and only two `NOT ISSUED`
-  specimens exist. Issuance is an explicit owner decision:
+  specimens exist, and the one recorded issuance is first-party only: the CG-CS/1 self record minted to CoreGuard itself (`DF6E20C032A8`, listed by `npm run badge -- --issued`) proving the machine end-to-end — never third-party validation, and never a badge for any counterparty. Issuance is an explicit owner decision:
   `npm run badge -- --issue --record <file> --i-am-the-owner-and-competent-to-issue`
   mints ISSUED artwork under `docs/badges/issued/` ONLY from a committed
   CG-CS/1 record whose six criteria all pass, records it in
@@ -322,7 +336,7 @@ Four rules that the machine enforces, not the prose:
   `FAIL`, never a quiet pass — a green check with no assertion behind it is
   worse than no check, because it gets trusted.
 
-What is **not** claimed anywhere: badge issuance, a named integrator, an
+What is **not** claimed anywhere: third-party badge issuance, a named integrator, an
 unlocked price, external review, a live-chain authority, or any revenue. See
 [docs/badge-system-2026-09-26.md](docs/badge-system-2026-09-26.md) and §9 of
 [docs/owner-decisions-and-claimable-facts-2026-09.md](docs/owner-decisions-and-claimable-facts-2026-09.md).
