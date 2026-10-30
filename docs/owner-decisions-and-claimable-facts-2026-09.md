@@ -14,9 +14,9 @@ until an explicit per-step owner sign-off exists (phase-3 plan §5, binding).
 
 | Capability | Where it lives | Proof (reproduces locally) |
 |---|---|---|
-| Evidence model + offline proof | whole repo | `npm test` → **1304 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
-| Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **890 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
-| Docs-node contract (executable docs stay runnable) | `test/ci/docs-node-contract.test.js` | 95 executed · 56 skip-listed · 20 docs covered |
+| Evidence model + offline proof | whole repo | `npm test` → **1405 pass** — machine-pinned: `scripts/run-tests.mjs` enforces the total vs `docs/state-snapshot.json` (drift = red) |
+| Canonical measured state (single source for every cited number) | `docs/state-snapshot.json` + `scripts/current-state.mjs` | `npm run boundary:audit` → **955 files (committed tree), 0 violations** · `node scripts/current-state.mjs --check` → CHECK OK |
+| Docs-node contract (executable docs stay runnable) | `test/ci/docs-node-contract.test.js` | 105 executed · 66 skip-listed · 22 docs covered |
 | Live-submission harness (recorded feed, webhooks DRY-RUN, x402 DRY-RUN) | `packages/peoples-court-adapter/` | `npm run peoples-court:harness` → 11/11 |
 | Boundary enforcement (fail-closed) | `scripts/boundary-audit.mjs` + `test/ci/boundary-enforcement.test.js` | `npm run boundary:audit` → PASS |
 | CI green on every push (all 4 gates) | `.github/workflows/` | `gh run list --branch main` |
@@ -245,8 +245,8 @@ rewards.
    Plane prints no invented percentage at all.
 8. **A stale number in any document is a failing build.** Every count is
    machine-measured into `docs/state-snapshot.json` and enforced by
-   `scripts/run-tests.mjs`; the current sync is 1304/1304 tests, 890 committed
-   files, 0 violations, docs-node 95·56·20.
+   `scripts/run-tests.mjs`; the current sync is 1405/1405 tests, 955 committed
+   files, 0 violations, docs-node 105·66·22.
 9. **B1–B6 keep their gates; B6 is OWNER SIGN-OFF REQUIRED.** The platform
    build continues in parallel with the outreach tracks; no letter, no message
    and no follow-up leaves the repo without its recorded owner gate.

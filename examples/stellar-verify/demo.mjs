@@ -49,6 +49,9 @@ async function submitTransaction(xdr) {
 }
 
 async function main() {
+  console.log("  ⛨  Core DAO · CoreGuard");
+  console.log("  Stellar Verify — COREDao-KILLER/1 · verify before submit · replay after · held if unknown");
+  console.log("");
   console.log("=== CoreGuard Stellar Verify Demo (TESTNET) ===\n");
 
   // 1. Create two keypairs

@@ -46,9 +46,11 @@ for (const must of [
 const W = process.stdout.columnWidth || process.stdout.columns || 100;
 
 const pad = (s, n, ch = ".") => String(s).padEnd(n, ch);
+const MARK = "⛨"; // the Core DAO shield mark — leads every beat, stays visible
+const COREDAO_VERSION = "COREDao-KILLER/1";
 function h(line, sub) {
   console.log("");
-  console.log(`\x1b[1m${line}\x1b[0m`);
+  console.log(`\x1b[1m  ${MARK} ${line}\x1b[0m`);
   if (sub) console.log(`\x1b[2m${sub}\x1b[0m`);
   console.log("─".repeat(W));
 }
@@ -78,6 +80,13 @@ function verdict(line, ok, expected, actual) {
   }
   return ok;
 }
+
+// ————— frame 0 · brand header — the Core DAO mark leads the demo ————————————
+console.log("");
+console.log(`\x1b[1m  ${MARK}  Core DAO · CoreGuard`);
+console.log(`\x1b[1m  ${COREDAO_VERSION} — verify before submit · replay after · held if unknown`);
+console.log("─".repeat(W));
+console.log("");
 
 // ————— beat 1 · the problem —————————————————————————————————————————
 h("1 · THE PROBLEM", "An agent can execute a transaction. Execution is not consent.");

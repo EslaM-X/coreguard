@@ -20,7 +20,7 @@
   <a href="https://eslam-x.github.io/coreguard/PRODUCTS.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/cg-bdg-1-badges.svg" alt="CG-BDG/1 badges"></a>
   <a href="https://eslam-x.github.io/coreguard/GOVERNANCE-DASHBOARD.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/cg-cl-1-claims.svg" alt="CG-CL/1 claims"></a>
   <a href="https://eslam-x.github.io/coreguard/"><img src="https://eslam-x.github.io/coreguard/assets/badges/core-mainnet-anchor.svg" alt="Core Mainnet anchor"></a>
-  <a href="https://github.com/EslaM-X/coreguard/actions"><img src="https://eslam-x.github.io/coreguard/assets/badges/ci-1345-tests.svg" alt="CI 1345 tests"></a>
+  <a href="https://github.com/EslaM-X/coreguard/actions"><img src="https://eslam-x.github.io/coreguard/assets/badges/ci-1405-tests.svg" alt="CI 1405 tests"></a>
 </p>
 
 ### Verifiable Execution Truth Layer for Bitcoin DeFi
@@ -29,7 +29,7 @@
 **It produces independently verifiable evidence of whether execution conformed to what was authorized.**
 
 [![CI](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml)
-[![Core DAO Killer](https://img.shields.io/badge/Core%20DAO-KILLER%20FEATURES-FF6B1C.svg)](docs/COREDAO-KILLER-FEATURES.md)
+[![Core DAO Killer](https://eslam-x.github.io/coreguard/assets/badges/core-dao-killer.svg)](docs/COREDAO-KILLER-FEATURES.md)
 [![Stellar Killer](https://img.shields.io/badge/Stellar-KILLER%20FEATURES-7B61FF.svg?logo=stellar&logoColor=white)](docs/STELLAR-KILLER-FEATURES.md)
 [![Pi Network Killer](https://img.shields.io/badge/Pi%20Network-KILLER%20FEATURES-F5A623.svg?logo=pi-network&logoColor=white)](docs/PI-KILLER-FEATURES.md)
 [![Trinity](https://img.shields.io/badge/CORE%20%2B%20STELLAR%20%2B%20PI-TRINITY-00D4AA.svg)](docs/TRINITY-CORE-STELLAR-PI.md)
@@ -79,7 +79,7 @@ and service that exists in this repository, with its honest status (SHIPPED /
 LIVE / DRY_RUN / GATED / RESEARCH), is listed in one place:
 
 - **[docs/ALL-IN-ONE-CATALOG.md](docs/ALL-IN-ONE-CATALOG.md)** — **EVERYTHING**:
-  all 32 packages, all 69 npm scripts, all workflows, all examples/templates,
+  all 38 packages, all 70 npm scripts, all workflows, all examples/templates,
   all HTML surfaces, and a complete file index of every file in the repo (no
   `node_modules/.git`), with paths and runnable commands.
 - **[docs/PRODUCTS.md](docs/PRODUCTS.md)** — curated complete catalog, each row
@@ -251,7 +251,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 1330 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard, verification-platform suite
+npm test              # 1405 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard, verification-platform suite
 git config core.hooksPath .githooks   # install the Pages settle pre-push guard — every main push waits for the Pages build
 npm run corpus        # deterministic 73-scenario adversarial corpus
 npm run benchmark     # 73/73 pass

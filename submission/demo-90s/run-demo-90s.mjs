@@ -217,7 +217,8 @@ function proofCommitment(a) { return (a.l1Verification && a.l1Verification.check
 function short(x) { return x ? x.slice(0, 10) + "…" + x.slice(-4) : "?"; }
 function banner() {
   console.log("==========================================================");
-  console.log("  CoreGuard · 90-second demo — verifiable agent execution");
+  console.log("  ⛨  Core DAO · CoreGuard — verifiable agent execution");
+  console.log("  COREDao-KILLER/1 · verify before submit · replay after · held if unknown");
   console.log("==========================================================");
 }
 function section(title, tag) {

@@ -25,10 +25,10 @@ CoreGuard is a fail-closed execution-truth layer for agent-to-agent jobs. Money 
 
 | Item / العنصر | Value / القيمة | Source / المصدر |
 |---|---|---|
-| **Test suite / مجموعة الاختبارات** | **1345 / 1345 PASS (measured)** | [`npm test`](../package.json) · [`state-snapshot.json`](state-snapshot.json) |
-| **Boundary audit / تدقيق الحدود** | **901 files · 0 violations** | [`npm run boundary:audit`](../package.json) |
+| **Test suite / مجموعة الاختبارات** | **1405 / 1405 PASS (measured)** | [`npm test`](../package.json) · [`state-snapshot.json`](state-snapshot.json) |
+| **Boundary audit / تدقيق الحدود** | **955 files · 0 violations** | [`npm run boundary:audit`](../package.json) |
 | **Claims audit / تدقيق الادعاءات** | **28 claims · VERIFIED 16 · 0 violations** | [`npm run claims:audit`](../package.json) · [`claims-registry.json`](claims-registry.json) |
-| **Docs-node contract / عقود التوثيق القابلة للتنفيذ** | **104 executed · 62 skip-listed · 22 docs covered** | [`../test/ci/docs-node-contract.test.js`](../test/ci/docs-node-contract.test.js) |
+| **Docs-node contract / عقود التوثيق القابلة للتنفيذ** | **105 executed · 66 skip-listed · 22 docs covered** | [`../test/ci/docs-node-contract.test.js`](../test/ci/docs-node-contract.test.js) |
 | **Release gate / بوابة الإصدار** | **18/18 legs · GATE_PASS · independence PASS** | [`npm run release:gate:independence`](../package.json) · [`release-gate.json`](release-gate.json) |
 | **Measured state check / فحص الحالة المقاسة** | **CHECK OK** | `node scripts/current-state.mjs --check` |
 
@@ -45,7 +45,7 @@ CoreGuard is a fail-closed execution-truth layer for agent-to-agent jobs. Money 
 | **DDE API/SDK references** | **LIVE** | **[docs/DDE-API-REFERENCE.html](DDE-API-REFERENCE.html)** · **[docs/DDE-SDK-REFERENCE.html](DDE-SDK-REFERENCE.html)** |
 | **Single source of truth** | **LIVE** | **[docs/STATUS.md](STATUS.md)** |
 
-**Packages:** `22` | **npm scripts:** `69` | **Workflows:** `6` | **Examples:** `12` | **Templates:** `2` | **Total files (measured):** `901` (see [`state-snapshot.json`](state-snapshot.json))
+**Packages:** `22` | **npm scripts:** `69` | **Workflows:** `6` | **Examples:** `12` | **Templates:** `2` | **Total files (measured):** `955` (see [`state-snapshot.json`](state-snapshot.json))
 
 ---
 
@@ -66,7 +66,7 @@ node demo.mjs
 ```
 
 **Expected / المتوقع:**
-- `npm test` → **1304/1304 pass, fail 0**
+- `npm test` → **1405/1405 pass, fail 0**
 - `node demo.mjs` → shows **`UNKNOWN → HELD`**
 - `npm run claims:audit` → **CLAIM-AUDIT: PASS**
 - `npm run release:gate:independence` → **GATE_PASS**

@@ -12,11 +12,11 @@ npm run release:gate:independence
 ```
 
 ## Snapshot
-- Files in repo (no node_modules/.git): **1180**
-- Packages: **32**
-- npm scripts: **69**
-- Workflows: **5**
-- Examples: **12**
+- Files in repo (no node_modules/.git): **955**
+- Packages: **38**
+- npm scripts: **70**
+- Workflows: **6**
+- Examples: **13**
 - Templates: **2**
 
 ## 1) Packages (32)
