@@ -44,7 +44,18 @@
 [![Solidity](https://img.shields.io/badge/solidity-0.8.24-363636.svg?logo=solidity&logoColor=white)](https://github.com/foundry-rs/foundry)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Spec](https://img.shields.io/badge/CGEP%2F1-Draft-yellow.svg)](spec/CGEP-1.md)
-[![Full Inventory - ALL-IN-ONE](https://img.shields.io/badge/Full%20Inventory-ALL--IN--ONE-0f766e)](docs/ALL-IN-ONE-CATALOG.md)  *Off-chain engine · Solidity registry · CGEP/1 draft spec. Real Core Mainnet execution verified · on-chain anchor live on Core (chainId 1116) · VERIFIED ANCHOR INTEGRITY — CoreGuard Verify · Protect · Empower*
+[![Full Inventory - ALL-IN-ONE](https://img.shields.io/badge/Full%20Inventory-ALL--IN--ONE-0f766e)](docs/ALL-IN-ONE-CATALOG.md)
+
+### The Badge Shield — exclusive-source plates · درع الشارات بمصادر حصرية
+
+[![CoreGuard Badge Shield](https://eslam-x.github.io/coreguard/assets/badges/wall-badge-shield.svg)](https://eslam-x.github.io/coreguard/assets/badges/wall-badge-shield.svg)
+
+Seven brand plates, each minted from ONE committed file that exclusively owns its surface — Execution Firewall, Verifier X3, Stellar Agent, Trinity, the CG-BDG/1 engine, the CGEP/1 receipt, and the Core Mainnet anchor. Every plate's artwork names its source and carries that file's full `sha256` digest in a machine payload; the audit re-derives every digest from the committed tree, offline, and fails loudly on any drift — a plate can never silently drift from the bytes it certifies:
+
+```bash
+node scripts/badge-wall.mjs --audit   # re-derive all 7 plate digests from the committed tree (CG-WALL/1, offline)
+node scripts/badge-wall.mjs           # regenerate plates + the composed wall after source changes
+```  *Off-chain engine · Solidity registry · CGEP/1 draft spec. Real Core Mainnet execution verified · on-chain anchor live on Core (chainId 1116) · VERIFIED ANCHOR INTEGRITY — CoreGuard Verify · Protect · Empower*
 
 </div>
 

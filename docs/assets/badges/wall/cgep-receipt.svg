@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 88" width="320" height="88" role="img" aria-label="CoreGuard EVIDENCE RECEIPT — CGEP/1">
+<defs>
+<linearGradient id="platecgepreceipt" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#12161C"/><stop offset="0.55" stop-color="#0B0E13"/><stop offset="1" stop-color="#07090C"/>
+</linearGradient>
+<linearGradient id="shieldcgepreceipt" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#FFB84A"/><stop offset="0.55" stop-color="#FF8A00"/><stop offset="1" stop-color="#F26B00"/>
+</linearGradient>
+<linearGradient id="sheencgepreceipt" x1="0" y1="0" x2="1" y2="0.6">
+<stop offset="0" stop-color="#FFFFFF" stop-opacity="0.10"/><stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.02"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="edgecgepreceipt" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#4B5563"/><stop offset="0.5" stop-color="#1F2937"/><stop offset="1" stop-color="#4B5563"/>
+</linearGradient>
+</defs>
+<rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="url(#platecgepreceipt)"/>
+<rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="none" stroke="url(#edgecgepreceipt)" stroke-width="1"/>
+<rect x="1.5" y="1.5" width="317" height="4" rx="2" fill="url(#shieldcgepreceipt)" fill-opacity="0.9"/>
+<path d="M0 0 H320 V52 L0 74 Z" fill="url(#sheencgepreceipt)"/>
+<path transform="translate(16 22) scale(1.4)" d="M12 0 L24 6 V15 C24 22.5 19 28 12 31 C5 28 0 22.5 0 15 V6 Z" fill="none" stroke="url(#shieldcgepreceipt)" stroke-width="2.6" stroke-linejoin="round"/>
+<g transform="translate(16 22) scale(1.4)"><path d="M12 9 L17.5 12 V19 C17.5 22 15.4 23.9 12 25 C8.6 23.9 6.5 22 6.5 19 V12 Z" fill="#171C24"/><path d="M12 12.2 L7.8 15.4 V12 L12 9.4 L16.2 12 V15.4 Z" fill="url(#shieldcgepreceipt)"/></g>
+<text x="74" y="30" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="14.5" font-weight="700" letter-spacing="0.4" fill="#F5F7FA">EVIDENCE RECEIPT</text>
+<text x="74" y="45" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="8" fill="#FF8A00" letter-spacing="0.8">CGEP/1</text>
+<text x="74" y="60" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="9" fill="#9CA3AF" letter-spacing="0.3">RECEIPT SEMANTICS · REPLAYABLE</text>
+<text x="74" y="74" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="7" fill="#6B7280">src spec/CGEP-1.md</text>
+<text x="74" y="83" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="7" fill="#565E6B">sha256:75dafc38b77f05f7…</text>
+<!-- CG-WALL/1 src="spec/CGEP-1.md" sha256="75dafc38b77f05f723fa180cc1f0d76d494c39cad11944d52e87b06ee2213aef" name="EVIDENCE RECEIPT" suite="CGEP/1" -->
+</svg>

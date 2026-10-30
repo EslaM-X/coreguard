@@ -13,7 +13,7 @@
 | Claim | Measured value | Source |
 |---|---|---|
 | Test suite | **1405 / 1405 PASS** · 0 fail · 0 drift | `docs/state-snapshot.json` (`testsTotal`) · `scripts/run-tests.mjs` |
-| Boundary audit | **955 files scanned · 0 violations · CHECK PASS** | `docs/state-snapshot.json` (`boundaryAudit`) · `scripts/boundary-audit.mjs` |
+| Boundary audit | **964 files scanned · 0 violations · CHECK PASS** | `docs/state-snapshot.json` (`boundaryAudit`) · `scripts/boundary-audit.mjs` |
 | Docs-node contract | **105 executed · 66 skip-listed · 22 docs covered** | `docs/state-snapshot.json` (`docsNode`) · `test/ci/docs-node-contract.test.js` |
 | Claims audit (CG-CL/1) | **28 claims · 16 VERIFIED · 0 violations** | `docs/claims-registry.json` · `scripts/ladder/claim-registry.mjs --audit` |
 | Release gate (CG-RG/1) | **18/18 legs · GATE_PASS · independence PASS (18/18 self-audited)** | `docs/release-gate.json` · `npm run release:gate:independence` |

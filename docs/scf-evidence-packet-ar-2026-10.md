@@ -13,7 +13,7 @@
 | المطلب / الادعاء | القيمة المقاسة | المصدر |
 |---|---|---|
 | مجموعة الاختبارات | **1405 / 1405 PASS** · 0 فشل · 0 انحراف | `docs/state-snapshot.json` (`testsTotal`) · `scripts/run-tests.mjs` |
-| تدقيق الحدود | **955 ملفًا مسحًا · 0 انتهاكات · CHECK PASS** | `docs/state-snapshot.json` (`boundaryAudit`) · `scripts/boundary-audit.mjs` |
+| تدقيق الحدود | **964 ملفًا مسحًا · 0 انتهاكات · CHECK PASS** | `docs/state-snapshot.json` (`boundaryAudit`) · `scripts/boundary-audit.mjs` |
 | عقد التوثيق للوثائق | **105 منفذة · 66 مدرجة للاستبعاد · 22 وثيقة مغطاة** | `docs/state-snapshot.json` (`docsNode`) · `test/ci/docs-node-contract.test.js` |
 | تدقيق الادعاءات (CG-CL/1) | **28 ادعاءً · 16 VERIFIED · 0 انتهاكات** | `docs/claims-registry.json` · `scripts/ladder/claim-registry.mjs --audit` |
 | بوابة الإصدار (CG-RG/1) | **18/18 · GATE_PASS · الاستقلال PASS (18/18 مفحوصة)** | `docs/release-gate.json` · `npm run release:gate:independence` |

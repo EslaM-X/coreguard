@@ -14,7 +14,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { mkdtempSync, writeFileSync, rmSync, readFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync, rmSync, readFileSync, renameSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -63,7 +63,11 @@ test("queued/building → waits, then settles once the build turns terminal", as
   try {
     writeFileSync(s.sim, JSON.stringify({ status: "building", created_at: newIso() }));
     const timer = setTimeout(() => {
-      writeFileSync(s.sim, JSON.stringify({ status: "built", created_at: oldIso() }));
+      /* atomic flip: the guard re-reads mid-rewrite under load; a torn read
+         (malformed JSON) is a raced sim artifact, not a settle answer. */
+      const tmp = `${s.sim}.next`;
+      writeFileSync(tmp, JSON.stringify({ status: "built", created_at: oldIso() }));
+      renameSync(tmp, s.sim);
     }, 60);
     const r = await runSettle({ PAGES_SETTLE_JSON: s.sim, PAGES_SETTLE_MAX_WAIT_MS: "5000" });
     clearTimeout(timer);
