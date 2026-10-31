@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 31" width="24" height="31" role="img" aria-label="CoreGuard mark">
+  <!-- CoreGuard identity v1.0 — mark: shield + core -->
+  <path d="M12 0 L24 6 V15 C24 22.5 19 28 12 31 C5 28 0 22.5 0 15 V6 Z" fill="none" stroke="#FF8A00" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M12 9 L17.5 12 V19 C17.5 22 15.4 23.9 12 25 C8.6 23.9 6.5 22 6.5 19 V12 Z" fill="#0B3D2E"/>
+  <path d="M12 12.2 L7.8 15.4 V12 L12 9.4 L16.2 12 V15.4 Z" fill="#FF8A00"/>
+</svg>

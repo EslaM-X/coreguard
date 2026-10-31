@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="CoreGuard app icon">
+  <!-- CoreGuard identity v1.0 — app icon -->
+  <rect width="512" height="512" rx="112" fill="#0B3D2E"/>
+  <rect x="8" y="8" width="496" height="496" rx="104" fill="none" stroke="#FF8A00" stroke-width="6"/>
+  <g transform="translate(110 130) scale(1.7)">
+    <path d="M12 0 L24 6 V15 C24 22.5 19 28 12 31 C5 28 0 22.5 0 15 V6 Z" fill="none" stroke="#FF8A00" stroke-width="2.6" stroke-linejoin="round"/>
+    <path d="M12 9 L17.5 12 V19 C17.5 22 15.4 23.9 12 25 C8.6 23.9 6.5 22 6.5 19 V12 Z" fill="#0B3D2E"/>
+    <path d="M12 12.2 L7.8 15.4 V12 L12 9.4 L16.2 12 V15.4 Z" fill="#FF8A00"/>
+  </g>
+</svg>

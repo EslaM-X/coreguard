@@ -1,0 +1,21 @@
+/* CoreGuard identity v1.0 — design tokens */
+:root {
+  /* CoreGuard deep green scale */
+  --cg-deep-green: #0B3D2E;
+  --cg-deep-green-2: #14532D;
+  /* CoreGuard / Core accent */
+  --cg-orange: #FF8A00;
+  --cg-orange-bright: #FFB84A;
+  --cg-gold: #D4AF37;
+  /* CoreGuard surfaces */
+  --cg-bg: #0B0F14;
+  --cg-surface: #12161C;
+  --cg-text: #F5F7FA;
+  --cg-muted: #9CA3AF;
+  --cg-line: #1F2937;
+  /* Brand gradient */
+  --cg-gradient: linear-gradient(135deg, #FFB84A, #FF8A00 55%, #F26B00);
+  /* Typography */
+  --cg-font-sans: Inter, 'Segoe UI', system-ui, sans-serif;
+  --cg-font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+}
