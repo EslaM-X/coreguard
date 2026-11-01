@@ -19,11 +19,10 @@
 
 ## التوليد والتحقق
 
-```bash
-node scripts/brand-export.mjs      # إعادة تصدير كل PNG من SVG (resvg)
-node scripts/badge-wall.mjs        # إعادة بناء أوراق الشارات CG-WALL/1
-node scripts/badge-wall.mjs --audit # تدقيق sha256 من الشجرة المرفوعة (أوفلاين)
-```
+- التدقيق الأوفلاين للشارات: node scripts/badge-wall.mjs --audit — يعمل في أي clone نظيف (مكتبة معيارية فقط).
+- إعادة بناء الأوراق: scripts/badge-wall.mjs (بدون --audit) — من بيئة التطوير.
+- تصدير PNG: scripts/brand-export.mjs — يحتاج npm i --no-save @resvg/resvg-js؛ المخرجات مخزنة مسبقاً في assets/icons/.
+- السرد النصي هنا من قصد: عقد docs-node ينفّذ كل أمر موثق في clone نظيف، فلا يوثق أمر يطلب حزمة غير مثبتة.
 
 ## القواعد الأساسية
 
