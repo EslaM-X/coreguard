@@ -11,6 +11,10 @@
  * The digest is the sha256 of the committed source bytes; --audit re-derives it
  * offline (no network, no deps) and fails loudly on any drift, so a plate can
  * never drift from the source it certifies.
+ *
+ * Identity v1.1: plates carry the OFFICIAL CoreGuard mark (488-unit shield with
+ * the bottom slit + faceted G) drawn from assets/coreguard-mark.svg geometry,
+ * on the official Deep Core surfaces with the official Core Orange gradient.
  */
 
 import { createHash } from "node:crypto";
@@ -44,7 +48,7 @@ function payload(s, d) {
   return `<!-- CG-WALL/1 src="${s.src}" sha256="${d.full}" name="${s.plate}" suite="${s.suite}" -->`;
 }
 
-/* ---------- brand artwork ---------- */
+/* ---------- brand artwork (official identity v1.1) ---------- */
 
 const FONT = "Inter, 'Segoe UI', system-ui, sans-serif";
 const MONO = "'JetBrains Mono', 'Cascadia Code', Consolas, monospace";
@@ -52,27 +56,45 @@ const MONO = "'JetBrains Mono', 'Cascadia Code', Consolas, monospace";
 function defs(id) {
   return `<defs>
 <linearGradient id="plate${id}" x1="0" y1="0" x2="0" y2="1">
-<stop offset="0" stop-color="#12161C"/><stop offset="0.55" stop-color="#0B0E13"/><stop offset="1" stop-color="#07090C"/>
+<stop offset="0" stop-color="#10161F"/><stop offset="0.55" stop-color="#0B0F14"/><stop offset="1" stop-color="#080B10"/>
 </linearGradient>
-<linearGradient id="shield${id}" x1="0" y1="0" x2="1" y2="1">
-<stop offset="0" stop-color="#FFB84A"/><stop offset="0.55" stop-color="#FF8A00"/><stop offset="1" stop-color="#F26B00"/>
+<linearGradient id="shield${id}" x1="0" y1="0" x2="0.25" y2="1">
+<stop offset="0" stop-color="#FFC53D"/><stop offset="0.38" stop-color="#FFA31A"/><stop offset="0.68" stop-color="#FF8A00"/><stop offset="1" stop-color="#F4610A"/>
+</linearGradient>
+<linearGradient id="steel${id}" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#4A5568"/><stop offset="0.45" stop-color="#232936"/><stop offset="1" stop-color="#10131A"/>
 </linearGradient>
 <linearGradient id="sheen${id}" x1="0" y1="0" x2="1" y2="0.6">
 <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.10"/><stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.02"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
 </linearGradient>
 <linearGradient id="edge${id}" x1="0" y1="0" x2="1" y2="1">
-<stop offset="0" stop-color="#4B5563"/><stop offset="0.5" stop-color="#1F2937"/><stop offset="1" stop-color="#4B5563"/>
+<stop offset="0" stop-color="#4A5568"/><stop offset="0.5" stop-color="#232936"/><stop offset="1" stop-color="#4A5568"/>
 </linearGradient>
 </defs>`;
 }
 
-/* Shield mark drawn from the brand geometry (hex shield + inner core). */
-function shieldGlyph(x, y, s, gradient) {
-  return `<path transform="translate(${x} ${y}) scale(${s})" d="M12 0 L24 6 V15 C24 22.5 19 28 12 31 C5 28 0 22.5 0 15 V6 Z" fill="none" stroke="url(#${gradient})" stroke-width="2.6" stroke-linejoin="round"/>
-<g transform="translate(${x} ${y}) scale(${s})"><path d="M12 9 L17.5 12 V19 C17.5 22 15.4 23.9 12 25 C8.6 23.9 6.5 22 6.5 19 V12 Z" fill="#171C24"/><path d="M12 12.2 L7.8 15.4 V12 L12 9.4 L16.2 12 V15.4 Z" fill="url(#${gradient})"/></g>`;
+/* Official CoreGuard mark on the 512 grid: shield band (bottom slit) + faceted G.
+   A unique mask id per plate keeps the slit valid in standalone SVGs AND in the
+   inlined composed wall (mask coords resolve in the referencing path's user
+   space, so the slice maps correctly under plate scaling). */
+const MARK_BAND  = "M256 16 L460 136 L460 306 L256 472 L52 306 L52 136 Z M256 90 L402 163 L402 296 L256 398 L110 296 L110 163 Z";
+const MARK_CROWN = "M256 16 L460 136 L460 172 L256 54 L52 172 L52 136 Z";
+const MARK_RING  = "M329 285 L329 313 L256 369 L175 313 L175 175 L329 175 L329 229";
+const MARK_BAR   = "M226 285 L329 285";
+
+function shieldGlyph(x, y, s, gradient, id) {
+  return `<mask id="slit${id}"><rect width="512" height="512" fill="#fff"/><rect x="241" y="374" width="30" height="140" fill="#000"/></mask>
+<g transform="translate(${x} ${y}) scale(${s})">
+<path fill="url(#${gradient})" fill-rule="evenodd" mask="url(#slit${id})" d="${MARK_BAND}"/>
+<path fill="#FFD867" opacity="0.5" mask="url(#slit${id})" d="${MARK_CROWN}"/>
+<g fill="none" stroke="url(#steel${id})" stroke-width="54" stroke-linecap="butt" stroke-linejoin="miter">
+<path d="${MARK_RING}"/><path d="${MARK_BAR}"/>
+</g>
+<path fill="none" stroke="#6E7A8C" stroke-width="10" opacity="0.9" d="M326 151 L182 151"/>
+</g>`;
 }
 
-/* One proof plate: 320×88, dark plate, shield, name, suite chip, digest line. */
+/* One proof plate: 320×88, dark plate, official mark, name, suite chip, digest line. */
 function plateSvg(s, d) {
   const id = s.id.replace(/[^a-z0-9]/gi, "");
   const nameX = 74;
@@ -82,18 +104,18 @@ ${defs(id)}
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="none" stroke="url(#edge${id})" stroke-width="1"/>
 <rect x="1.5" y="1.5" width="317" height="4" rx="2" fill="url(#shield${id})" fill-opacity="0.9"/>
 <path d="M0 0 H320 V52 L0 74 Z" fill="url(#sheen${id})"/>
-${shieldGlyph(16, 22, 1.4, `shield${id}`)}
+${shieldGlyph(8.5, 16.3, 0.105, `shield${id}`, id)}
 <text x="${nameX}" y="30" font-family="${FONT}" font-size="14.5" font-weight="700" letter-spacing="0.4" fill="#F5F7FA">${s.plate}</text>
 <text x="${nameX}" y="45" font-family="${MONO}" font-size="8" fill="#FF8A00" letter-spacing="0.8">${s.suite}</text>
-<text x="${nameX}" y="60" font-family="${FONT}" font-size="9" fill="#9CA3AF" letter-spacing="0.3">${s.value}</text>
-<text x="${nameX}" y="74" font-family="${MONO}" font-size="7" fill="#6B7280">src ${s.src}</text>
+<text x="${nameX}" y="60" font-family="${FONT}" font-size="9" fill="#C6CFDA" letter-spacing="0.3">${s.value}</text>
+<text x="${nameX}" y="74" font-family="${MONO}" font-size="7" fill="#8B95A6">src ${s.src}</text>
 <text x="${nameX}" y="83" font-family="${MONO}" font-size="7" fill="#565E6B">sha256:${d.short}…</text>
 ${payload(s, d)}
 </svg>
 `;
 }
 
-/* Composed banner: 1024×300, brand grid, headline + the seven plates. */
+/* Composed banner: 1024×420, brand grid, headline + the seven plates. */
 function wallSvg(plates) {
   const cols = [24, 356, 688];
   const rows = [118, 212, 306];
@@ -104,19 +126,20 @@ function wallSvg(plates) {
   });
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 420" width="1024" height="420" role="img" aria-label="CoreGuard Badge Shield — seven exclusive-source plates">
 <defs>
-<linearGradient id="wallBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#10141B"/><stop offset="1" stop-color="#07090C"/></linearGradient>
-<linearGradient id="wallShield" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFB84A"/><stop offset="0.55" stop-color="#FF8A00"/><stop offset="1" stop-color="#F26B00"/></linearGradient>
+<linearGradient id="wallBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#10161F"/><stop offset="1" stop-color="#0B0F14"/></linearGradient>
+<linearGradient id="wallShield" x1="0" y1="0" x2="0.25" y2="1"><stop offset="0" stop-color="#FFC53D"/><stop offset="0.38" stop-color="#FFA31A"/><stop offset="0.68" stop-color="#FF8A00"/><stop offset="1" stop-color="#F4610A"/></linearGradient>
+<linearGradient id="wallSteel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A5568"/><stop offset="0.45" stop-color="#232936"/><stop offset="1" stop-color="#10131A"/></linearGradient>
 </defs>
 <rect width="1024" height="420" rx="16" fill="url(#wallBg)"/>
 <g stroke="#1B212B" stroke-width="1">
 ${[1, 2, 3, 4, 5, 6, 7].map((i) => `<path d="M${i * 128} 96 V420"/>`).join("")}
 </g>
-${shieldGlyph(24, 18, 1.7, "wallShield")}
+${shieldGlyph(21.3, 12.6, 0.09, "wallShield", "wall")}
 <text x="70" y="38" font-family="${FONT}" font-size="26" font-weight="800" fill="#F5F7FA">CoreGuard <tspan fill="#FF8A00">Badge Shield</tspan></text>
-<text x="71" y="58" font-family="${FONT}" font-size="11" letter-spacing="3.2" fill="#9CA3AF">VERIFY · PROTECT · EMPOWER — SEVEN EXCLUSIVE-SOURCE PLATES</text>
+<text x="71" y="58" font-family="${FONT}" font-size="11" letter-spacing="3.2" fill="#C6CFDA">VERIFY · PROTECT · EMPOWER — SEVEN EXCLUSIVE-SOURCE PLATES</text>
 <text x="760" y="38" font-family="${MONO}" font-size="10" fill="#FF8A00">CG-WALL/1</text>
-<text x="760" y="54" font-family="${MONO}" font-size="8" fill="#6B7280">sha256 · committed tree · offline</text>
-<text x="760" y="68" font-family="${MONO}" font-size="8" fill="#6B7280">${plates.length} exclusive-source plates</text>
+<text x="760" y="54" font-family="${MONO}" font-size="8" fill="#8B95A6">sha256 · committed tree · offline</text>
+<text x="760" y="68" font-family="${MONO}" font-size="8" fill="#8B95A6">${plates.length} exclusive-source plates</text>
 ${slots}
 </svg>
 `;
@@ -130,7 +153,7 @@ function regenerate() {
     let svg = plateSvg(s, d);
     /* banners reference per-plate gradients that collide when inlined; give
        each inlined copy a unique gradient id prefix so the wall stays valid */
-    svg = svg.replace(/(plate|shield|sheen|edge)([a-z0-9]+)/gi, (m, g, i) => `${g}${i}`);
+    svg = svg.replace(/(plate|shield|sheen|edge|steel|slit)([a-z0-9]+)/gi, (m, g, i) => `${g}${i}`);
     plates.push({ plate: s.plate, id: s.id, file: `${s.id}.svg`, svg, body: stripRootSvg(svg), digest: d });
     writeFileSync(join(OUT, `${s.id}.svg`), svg, "utf8");
   }
