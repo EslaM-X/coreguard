@@ -1,10 +1,34 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="CoreGuard app icon">
-  <!-- CoreGuard identity v1.0 — app icon -->
-  <rect width="512" height="512" rx="112" fill="#0B3D2E"/>
-  <rect x="8" y="8" width="496" height="496" rx="104" fill="none" stroke="#FF8A00" stroke-width="6"/>
-  <g transform="translate(110 130) scale(1.7)">
-    <path d="M12 0 L24 6 V15 C24 22.5 19 28 12 31 C5 28 0 22.5 0 15 V6 Z" fill="none" stroke="#FF8A00" stroke-width="2.6" stroke-linejoin="round"/>
-    <path d="M12 9 L17.5 12 V19 C17.5 22 15.4 23.9 12 25 C8.6 23.9 6.5 22 6.5 19 V12 Z" fill="#0B3D2E"/>
-    <path d="M12 12.2 L7.8 15.4 V12 L12 9.4 L16.2 12 V15.4 Z" fill="#FF8A00"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="CoreGuard app icon (dark squircle)">
+  <defs>
+    <linearGradient id="aiO" x1="0" y1="0" x2=".25" y2="1">
+      <stop offset="0" stop-color="#FFC53D"/>
+      <stop offset=".38" stop-color="#FFA31A"/>
+      <stop offset=".68" stop-color="#FF8A00"/>
+      <stop offset="1" stop-color="#F4610A"/>
+    </linearGradient>
+    <linearGradient id="aiS" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4A5568"/>
+      <stop offset=".45" stop-color="#232936"/>
+      <stop offset="1" stop-color="#10131A"/>
+    </linearGradient>
+    <linearGradient id="aiBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10161F"/>
+      <stop offset="1" stop-color="#0B0F14"/>
+    </linearGradient>
+    <mask id="aiM">
+      <rect width="512" height="512" fill="#fff"/>
+      <rect x="241" y="374" width="30" height="140" fill="#000"/>
+    </mask>
+  </defs>
+  <rect width="512" height="512" rx="118" fill="url(#aiBg)"/>
+  <g transform="translate(56 66) scale(.78)">
+    <path fill="url(#aiO)" fill-rule="evenodd" mask="url(#aiM)"
+          d="M256 16 L460 136 L460 306 L256 472 L52 306 L52 136 Z
+             M256 90 L402 163 L402 296 L256 398 L110 296 L110 163 Z"/>
+    <g fill="none" stroke="url(#aiS)" stroke-width="54" stroke-linecap="butt" stroke-linejoin="miter">
+      <path d="M329 285 L329 313 L256 369 L175 313 L175 175 L329 175 L329 229"/>
+      <path d="M226 285 L329 285"/>
+    </g>
+    <path fill="none" stroke="#6E7A8C" stroke-width="10" opacity=".9" d="M326 151 L182 151"/>
   </g>
 </svg>

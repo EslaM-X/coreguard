@@ -1,10 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 560" width="320" height="560" role="img" aria-label="CoreGuard lockup — vertical">
-  <!-- CoreGuard identity v1.0 — lockup: vertical mark + wordmark + tagline -->
-  <g transform="translate(70 40) scale(1.7)">
-    <path d="M12 0 L24 6 V15 C24 22.5 19 28 12 31 C5 28 0 22.5 0 15 V6 Z" fill="none" stroke="#FF8A00" stroke-width="2.6" stroke-linejoin="round"/>
-    <path d="M12 9 L17.5 12 V19 C17.5 22 15.4 23.9 12 25 C8.6 23.9 6.5 22 6.5 19 V12 Z" fill="#0B3D2E"/>
-    <path d="M12 12.2 L7.8 15.4 V12 L12 9.4 L16.2 12 V15.4 Z" fill="#FF8A00"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 800" width="1000" height="800" role="img" aria-label="CoreGuard vertical lockup">
+  <defs>
+    <linearGradient id="vO" x1="0" y1="0" x2=".25" y2="1">
+      <stop offset="0" stop-color="#FFC53D"/>
+      <stop offset=".38" stop-color="#FFA31A"/>
+      <stop offset=".68" stop-color="#FF8A00"/>
+      <stop offset="1" stop-color="#F4610A"/>
+    </linearGradient>
+    <linearGradient id="vD" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2A313C"/>
+      <stop offset="1" stop-color="#0B0F14"/>
+    </linearGradient>
+    <mask id="vMk">
+      <rect width="512" height="512" fill="#fff"/>
+      <rect x="241" y="374" width="30" height="140" fill="#000"/>
+    </mask>
+  </defs>
+
+  <g transform="translate(340 30) scale(.62)">
+    <path fill="url(#vO)" fill-rule="evenodd" mask="url(#vMk)"
+          d="M256 16 L460 136 L460 306 L256 472 L52 306 L52 136 Z
+             M256 90 L402 163 L402 296 L256 398 L110 296 L110 163 Z"/>
+    <path fill="#FFD867" opacity=".5" mask="url(#vMk)"
+          d="M256 16 L460 136 L460 172 L256 54 L52 172 L52 136 Z"/>
+    <g fill="none" stroke="#232936" stroke-width="54" stroke-linecap="butt" stroke-linejoin="miter">
+      <path d="M329 285 L329 313 L256 369 L175 313 L175 175 L329 175 L329 229"/>
+      <path d="M226 285 L329 285"/>
+    </g>
+    <path fill="none" stroke="#6E7A8C" stroke-width="10" opacity=".9" d="M326 151 L182 151"/>
   </g>
-  <text x="160" y="330" text-anchor="middle" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="64" font-weight="800" fill="#F5F7FA">CoreGuard</text>
-  <text x="160" y="384" text-anchor="middle" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="20" font-weight="700" letter-spacing="5" fill="#FF8A00">VERIFY · PROTECT · EMPOWER</text>
+
+  <text x="500" y="668" text-anchor="middle"
+        font-family="Exo 2, Montserrat, sans-serif" font-weight="800" font-size="172" letter-spacing="-3">
+    <tspan fill="url(#vD)">Core</tspan><tspan fill="url(#vO)">Guard</tspan>
+  </text>
+  <text x="500" y="742" text-anchor="middle" font-family="Inter, sans-serif" font-weight="600"
+        font-size="30" letter-spacing="14" fill="#3A4250">VERIFY <tspan fill="#FF8A00">•</tspan> PROTECT <tspan fill="#FF8A00">•</tspan> EMPOWER</text>
 </svg>
