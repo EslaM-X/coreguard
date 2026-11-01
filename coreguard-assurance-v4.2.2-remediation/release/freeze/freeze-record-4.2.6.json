@@ -173,18 +173,18 @@
       },
       {
         "file": "../docs/GOVERNANCE-DASHBOARD.html",
-        "sha256": "0xc795b5fd7b12aca33597d548f2e8939ac5b4c8e227de0bdde3d0fe067f13c3b4",
-        "bytes": 76582
+        "sha256": "0x9a7536294c0d4a32edc198c8b0c9fa6d42481ef99f0bab64b950fe7893bbe02c",
+        "bytes": 76747
       },
       {
         "file": "../docs/coreguard-gate41-visual.html",
-        "sha256": "0xea135fa37df9300ef16e4a801c09b7a8f0412701ae1eedbc4f7e2a2fc54bdcff",
-        "bytes": 145686
+        "sha256": "0x79b5c1f50502feb416d2ab4c73e2ecd6dc1b09418a8faf98b57f45d89dfeb8c1",
+        "bytes": 145851
       },
       {
         "file": "../docs/coreguard-gate41-visual-en.html",
-        "sha256": "0x66fe8a8c4967c0f11b94fee67818ff41b3575e977f58d2ea3f9f4a1c1021cf47",
-        "bytes": 70904
+        "sha256": "0x0fa716a5c3823720d4933d11db69f5796ee375a302681c96f55654def809859a",
+        "bytes": 71069
       }
     ],
     "quarantineFiles": [
@@ -295,24 +295,24 @@
       "reason": "packet 1.2.1 commit-anchored command update; re-pinned per integrity rule"
     },
     {
-      "file": "../docs/GOVERNANCE-DASHBOARD.html",
-      "commit": "ff0bb74d56a24e4ce166d7f76c0b8ce56a6cd3a9",
-      "reason": "brand: CoreGuard identity system re-pin to ff0bb74d56a2"
-    },
-    {
       "file": "README.md",
       "commit": "71cde7f75c866261b8366ea52164abcf1f9617e7",
       "reason": "review map entry 6 added: bilingual session boards published to docs/; re-pinned per integrity rule"
     },
     {
+      "file": "../docs/GOVERNANCE-DASHBOARD.html",
+      "commit": "088c9393ab6da6c89a2370c5aa776422f2d9cd6f",
+      "reason": "CoreGuard identity v1.1 refinement (Core Orange / Deep Core) — supersedes the ff0bb74 brand re-pin; re-pinned per integrity rule to 088c939"
+    },
+    {
       "file": "../docs/coreguard-gate41-visual.html",
-      "commit": "ff0bb74d56a24e4ce166d7f76c0b8ce56a6cd3a9",
-      "reason": "brand: CoreGuard identity system re-pin to ff0bb74d56a2"
+      "commit": "088c9393ab6da6c89a2370c5aa776422f2d9cd6f",
+      "reason": "CoreGuard identity v1.1 refinement (Core Orange / Deep Core) — supersedes the ff0bb74 brand re-pin; re-pinned per integrity rule to 088c939"
     },
     {
       "file": "../docs/coreguard-gate41-visual-en.html",
-      "commit": "ff0bb74d56a24e4ce166d7f76c0b8ce56a6cd3a9",
-      "reason": "brand: CoreGuard identity system re-pin to ff0bb74d56a2"
+      "commit": "088c9393ab6da6c89a2370c5aa776422f2d9cd6f",
+      "reason": "CoreGuard identity v1.1 refinement (Core Orange / Deep Core) — supersedes the ff0bb74 brand re-pin; re-pinned per integrity rule to 088c939"
     }
   ]
 }
