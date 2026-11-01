@@ -9,8 +9,8 @@
 <style>
   :root{
     --bg:#0b0f17; --panel:#121a28; --panel2:#0d1420; --line:#223047; --ink:#e9eef8;
-    --muted:#9fb0c9; --green:#34d399; --green-d:#0c2b21; --amber:#fbbf24; --amber-d:#2e2410;
-    --red:#f87171; --red-d:#301418; --blue:#60a5fa; --blue-d:#12233d; --violet:#a78bfa;
+    --muted:#9fb0c9; --green:#FFA31A; --green-d:#2B1708; --amber:#fbbf24; --amber-d:#2e2410;
+    --red:#f87171; --red-d:#301418; --blue:#60a5fa; --blue-d:#12233d; --violet:#FFC53D;
     --mono:Consolas,"Cascadia Mono",ui-monospace,Menlo,monospace;
   }
   *{box-sizing:border-box}
@@ -58,7 +58,7 @@
   .auth .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
   .chip{font-family:var(--mono);direction:ltr;unicode-bidi:isolate;font-size:.78rem;
     border:1px solid #7a2f3d;color:var(--red);border-radius:999px;padding:3px 10px;background:#1c0d12}
-  .chip.g{color:var(--green);border-color:#1f5c47;background:#0c2b21}
+  .chip.g{color:var(--green);border-color:#4A2A0C;background:#2B1708}
 
   /* governors (live) */
   .gates{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));margin-top:14px}
@@ -74,7 +74,7 @@
   .lineage{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center}
   .lchip{font-family:var(--mono);direction:ltr;unicode-bidi:isolate;font-size:.72rem;border:1px solid var(--line);
     color:var(--muted);border-radius:999px;padding:2px 9px;background:var(--panel2)}
-  .lchip.h{color:var(--blue);border-color:#2c4a77;font-weight:700}
+  .lchip.h{color:var(--blue);border-color:#232936;font-weight:700}
   .larr{color:var(--muted);font-size:.75rem}
 
   /* independent-signature simulator (governors) */
@@ -104,7 +104,7 @@
   .ba{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-top:10px}
   .ba .side{border-radius:10px;padding:10px 12px;font-size:.86rem;line-height:1.6}
   .ba .before{background:var(--red-d);border:1px solid #5b2330}
-  .ba .after{background:var(--green-d);border:1px solid #1f5c47}
+  .ba .after{background:var(--green-d);border:1px solid #4A2A0C}
   .ba .arr{color:var(--muted);font-size:1.3rem}
   .evi{font-size:.8rem;color:var(--muted);border-top:1px dashed var(--line);margin-top:10px;padding-top:8px}
 
@@ -139,10 +139,10 @@
   tr:nth-child(even) td{background:rgba(255,255,255,.015)}
   .tag{display:inline-block;font-size:.72rem;font-weight:700;border-radius:6px;padding:1px 8px;
     font-family:var(--mono);direction:ltr;unicode-bidi:isolate}
-  .t-g{background:var(--green-d);color:var(--green);border:1px solid #1f5c47}
+  .t-g{background:var(--green-d);color:var(--green);border:1px solid #4A2A0C}
   .t-a{background:var(--amber-d);color:var(--amber);border:1px solid #6b5310}
   .t-r{background:var(--red-d);color:var(--red);border:1px solid #7a2f3d}
-  .t-b{background:var(--blue-d);color:var(--blue);border:1px solid #2c4a77}
+  .t-b{background:var(--blue-d);color:var(--blue);border:1px solid #232936}
 
   /* timeline */
   .tl{position:relative;margin:26px 4px 6px;padding-inline-start:26px}
@@ -175,9 +175,9 @@
   .hashbox{direction:ltr;font-family:var(--mono);font-size:.8rem;color:var(--muted);
     background:#080c14;border:1px solid var(--line);border-radius:10px;padding:10px 12px;word-break:break-all;margin-top:10px}
   .verdict{margin-top:12px;font-weight:800;border-radius:10px;padding:10px 14px;text-align:center}
-  .v-ok{background:var(--green-d);color:var(--green);border:1px solid #1f5c47}
+  .v-ok{background:var(--green-d);color:var(--green);border:1px solid #4A2A0C}
   .v-bad{background:var(--red-d);color:var(--red);border:1px solid #7a2f3d}
-  button{font:inherit;cursor:pointer;background:var(--blue-d);color:var(--blue);border:1px solid #2c4a77;
+  button{font:inherit;cursor:pointer;background:var(--blue-d);color:var(--blue);border:1px solid #232936;
     border-radius:10px;padding:8px 18px;margin-top:12px}
   button:hover,button:focus-visible{filter:brightness(1.2);outline:2px solid var(--blue)}
 
@@ -198,12 +198,12 @@
   button{transition:filter .15s ease, transform .1s ease}
 
   /* nav current-section highlight */
-  nav a.active{color:var(--ink);background:var(--blue-d);border-color:#2c4a77}
+  nav a.active{color:var(--ink);background:var(--blue-d);border-color:#232936}
 
   /* export switch — print/PDF trigger (replaces the retired two-file language bridge) */
   .lang{margin-inline-start:auto;display:flex;gap:4px;align-items:center}
   #printBtn{margin-top:0;font-family:var(--mono);font-weight:700;font-size:.78rem;direction:ltr;unicode-bidi:isolate;
-    padding:4px 12px;border-radius:999px;border:1px solid #2c4a77;background:var(--blue-d);color:var(--blue)}
+    padding:4px 12px;border-radius:999px;border:1px solid #232936;background:var(--blue-d);color:var(--blue)}
   #printBtn:hover,#printBtn:focus-visible{filter:brightness(1.25);outline:2px solid var(--blue);outline-offset:2px}
   /* print-only provenance header (hidden on screen) */
   .printhead{display:none}
@@ -215,7 +215,7 @@
     transition:opacity .15s ease}
   .terminal .cmd:hover::after{opacity:.65}
   .copied{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
-    background:var(--green-d);color:var(--green);border:1px solid #1f5c47;border-radius:999px;
+    background:var(--green-d);color:var(--green);border:1px solid #4A2A0C;border-radius:999px;
     padding:6px 18px;font-size:.85rem;z-index:99;opacity:0;transition:opacity .2s ease;pointer-events:none}
   .copied.show{opacity:1}
 
@@ -265,19 +265,19 @@
     .callout.ok{background:#f0faf5}
     .callout.warn{background:#fdf9ee}
     .muted,.tile .d,.gate .src,.gate .slot,.downflow,.who,.evi,.sub,figcaption{color:#4a586c}
-    .s-green{color:#0d7a4f}.s-amber{color:#8a5a00}.s-red{color:#b3232a}.s-blue{color:#1553a8}
+    .s-green{color:#B4540A}.s-amber{color:#8a5a00}.s-red{color:#b3232a}.s-blue{color:#4A5568}
     .tag,.chip,.lchip,.v-ok,.v-bad,.verdict{background:#fff}
-    .t-g,.chip.g,.v-ok{color:#0d7a4f;border-color:#7cc3a3}
+    .t-g,.chip.g,.v-ok{color:#B4540A;border-color:#7cc3a3}
     .t-a{color:#8a5a00;border-color:#d9b25c}
     .t-r,.chip,.v-bad{color:#b3232a;border-color:#d98f95}
-    .t-b{color:#1553a8;border-color:#8fb4e0}
+    .t-b{color:#4A5568;border-color:#8fb4e0}
     .gate.p7{background:#fdf1f2;border-color:#c98189}
     .step.here{background:#fdf9ee;border-color:#d9b25c}
     .step.vault{background:#fdf1f2;border-color:#c98189}
     .bytes,.hashbox{background:#f4f6fa;border-color:#b9c4d4;color:#16202f}
     .bytes mark{background:#f3c2c6;color:#7a1220}
     button{display:none}
-    a{color:#1553a8;text-decoration:none}
+    a{color:#4A5568;text-decoration:none}
     .ltr,code,.code{background:#f4f6fa;border-color:#d5dce6}
     .terminal{font-size:7.6pt;border-color:#b9c4d4}
     .terminal .cmd{white-space:pre-wrap}
@@ -291,6 +291,10 @@
     .lang{display:none}
   }
 </style>
+<meta name="theme-color" content="#0B0F14">
+
+  <link rel="stylesheet" href="assets/identity.css">
+  <meta property="og:image" content="../assets/og-cover-1200.png">
 </head>
 <body>
 
@@ -471,9 +475,9 @@
         </marker>
       </defs>
       <!-- headline: verified edge status -->
-      <text x="272" y="38" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">46/46 MATCH ✓ (from disk — proven)</text>
+      <text x="272" y="38" text-anchor="middle" fill="#FFA31A" font-size="13" font-weight="700">46/46 MATCH ✓ (from disk — proven)</text>
       <!-- edges -->
-      <line x1="150" y1="105" x2="392" y2="105" stroke="#34d399" stroke-width="2.5" marker-end="url(#ar)" marker-start="url(#ar)"></line>
+      <line x1="150" y1="105" x2="392" y2="105" stroke="#FFA31A" stroke-width="2.5" marker-end="url(#ar)" marker-start="url(#ar)"></line>
       <line x1="115" y1="140" x2="230" y2="238" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#ar)" marker-start="url(#ar)"></line>
       <line x1="435" y1="140" x2="330" y2="238" stroke="#223047" stroke-width="2" stroke-dasharray="4 6" marker-end="url(#ar)" marker-start="url(#ar)"></line>
       <!-- edge labels -->

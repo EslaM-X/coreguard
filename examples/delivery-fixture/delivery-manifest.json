@@ -15,8 +15,8 @@
     },
     {
       "id": "brand-guide.md",
-      "content": "# Brand Guide — synthetic fixture artifact\n\n## Color tokens\n- Primary: #1b998b\n- Surface: #0d1b2a\n\n## Typography\n- Display: system sans-serif, 700\n",
-      "sha256": "0xdf5d7e13a448060b370b7663778cea1d4cfb3e7fea294b45163475fc19bb38ad",
+      "content": "# Brand Guide — synthetic fixture artifact\n\n## Color tokens\n- Primary: #FF8A00\n- Surface: #0B0F14\n\n## Typography\n- Display: system sans-serif, 700\n",
+      "sha256": "0xa4af8d769413d2f5d285b705451414b520e5463cabdacc96d02710c90f89a29d",
       "bytes": 149
     },
     {

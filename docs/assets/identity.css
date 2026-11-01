@@ -1,0 +1,56 @@
+/* ============================================================
+   CoreGuard Identity v1.1 — global live-surface layer
+   "Execution Integrity for a Smarter Onchain Future"
+   Loaded LAST on every live page so it wins the cascade and
+   re-themes any legacy green/teal surface to the official
+   Core Orange ramp over Deep Core.
+   ============================================================ */
+:root {
+  /* ---- Official v1.1 tokens ------------------------------- */
+  --cg-orange:        #FF8A00;
+  --cg-orange-bright: #FFA31A;
+  --cg-orange-soft:   #FFC53D;
+  --cg-orange-deep:   #F4610A;
+  --cg-core:          #0B0F14;
+  --cg-graphite:      #4A5568;
+  --cg-graphite-2:    #232936;
+  --cg-ice:           #F5F7FA;
+
+  /* ---- Legacy-token remap (older pages keep their var names,
+          but every value now belongs to the brand) ---------- */
+  --green:  #FFA31A;
+  --green2: #FF8A00;
+  --teal:   #FF8A00;
+  --gold:   #FFC53D;
+  --accent: #FFA31A;
+  --bg:     #0B0F14;
+  --bg2:    #10161F;
+  --panel:  #141C24;
+  --panel2: #18222C;
+}
+
+/* ---- Header brand mark: Deep Core chip + Core Orange
+        monogram + official glow (the v1.1 app-icon look) ---- */
+.brand .mark,
+.mark {
+  background: linear-gradient(160deg, #10161F 0%, #0B0F14 100%) !important;
+  color: #FFA31A !important;
+  font-weight: 800 !important;
+  border: 1px solid rgba(255, 138, 0, .45);
+  box-shadow: 0 4px 16px rgba(255, 138, 0, .28),
+              inset 0 0 0 1px rgba(74, 85, 104, .25) !important;
+}
+
+/* ---- Brand wordmark: Core Orange emphasis ---------------- */
+.brand b, .brand strong {
+  color: #FFA31A;
+}
+
+/* ---- Chips / tags that survived on legacy hex ------------ */
+.tag, .chip, .badge {
+  border-color: rgba(255, 138, 0, .35);
+}
+
+::selection {
+  background: rgba(255, 138, 0, .35);
+}

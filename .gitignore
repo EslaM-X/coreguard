@@ -22,3 +22,8 @@ __pycache__/
 
 # generated demo output
 var/
+
+# Rust build artifacts
+soroban/**/target/
+# local probes
+.probe-live.mjs

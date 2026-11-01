@@ -230,8 +230,8 @@ const ARTIFACTS = {
   "brand-guide.md":
 "# Brand Guide — synthetic fixture artifact\n\n" +
 "## Color tokens\n" +
-"- Primary: #1b998b\n" +
-"- Surface: #0d1b2a\n\n" +
+"- Primary: #FF8A00\n" +
+"- Surface: #0B0F14\n\n" +
 "## Typography\n" +
 "- Display: system sans-serif, 700\n",
 

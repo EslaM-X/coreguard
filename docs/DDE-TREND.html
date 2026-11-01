@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CoreGuard DDE — منحنى الاتجاه الكامل · Full perf curve</title>
 <style>
-  :root { color-scheme: dark; --bg:#0d1117; --card:#161b22; --line:#21262d; --fg:#e6edf3; --dim:#8b949e; --ok:#3fb950; --bad:#f85149; --accent:#1b998b; --warn:#d29922; }
+  :root { color-scheme: dark; --bg:#0d1117; --card:#161b22; --line:#21262d; --fg:#e6edf3; --dim:#8b949e; --ok:#FFA31A; --bad:#f85149; --accent:#FF8A00; --warn:#d29922; }
   * { box-sizing: border-box; }
   body { background: var(--bg); color: var(--fg); font-family: "Segoe UI", system-ui, -apple-system, sans-serif; margin: 0; padding: 2rem 1rem; }
   main { max-width: 1080px; margin: 0 auto; }
@@ -31,6 +31,10 @@
   code { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3rem; direction: ltr; unicode-bidi: embed; }
   a { color: var(--accent); }
 </style>
+<meta name="theme-color" content="#0B0F14">
+
+  <link rel="stylesheet" href="assets/identity.css">
+  <meta property="og:image" content="../assets/og-cover-1200.png">
 </head>
 <body>
 <main>
@@ -166,13 +170,13 @@ function curvePanel(row, values) {
   const inScale = row.budget <= max;
   const budgetLine = inScale
     ? '<line x1="' + pad + '" y1="' + y(row.budget).toFixed(1) + '" x2="' + (w - pad) + '" y2="' + y(row.budget).toFixed(1) +
-      '" stroke="#3fb950" stroke-dasharray="5 4" stroke-width="1"/>'
+      '" stroke="#FFA31A" stroke-dasharray="5 4" stroke-width="1"/>'
     : "";
   return '<div class="card"><h3>' + row.label + '</h3>' +
     '<svg class="curve" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" role="img" aria-label="' + row.label + ' curve">' +
     budgetLine +
-    '<path d="' + path + '" fill="none" stroke="#1b998b" stroke-width="1.6"/>' +
-    '<circle cx="' + x(pts.length - 1).toFixed(1) + '" cy="' + y(last).toFixed(1) + '" r="3.2" fill="#1b998b"/>' +
+    '<path d="' + path + '" fill="none" stroke="#FF8A00" stroke-width="1.6"/>' +
+    '<circle cx="' + x(pts.length - 1).toFixed(1) + '" cy="' + y(last).toFixed(1) + '" r="3.2" fill="#FF8A00"/>' +
     '</svg>' +
     '<div class="row"><span>' + pts.length + ' recorded medians</span><span>' +
     (inScale ? "budget " + row.budget + " ms (dashed)" : "budget " + row.budget + " ms — headroom ≥ " +
