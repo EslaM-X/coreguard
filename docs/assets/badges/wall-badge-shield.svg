@@ -3,10 +3,16 @@
 <linearGradient id="wallBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#10161F"/><stop offset="1" stop-color="#0B0F14"/></linearGradient>
 <linearGradient id="wallShield" x1="0" y1="0" x2="0.25" y2="1"><stop offset="0" stop-color="#FFC53D"/><stop offset="0.38" stop-color="#FFA31A"/><stop offset="0.68" stop-color="#FF8A00"/><stop offset="1" stop-color="#F4610A"/></linearGradient>
 <linearGradient id="wallSteel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A5568"/><stop offset="0.45" stop-color="#232936"/><stop offset="1" stop-color="#10131A"/></linearGradient>
+<radialGradient id="wallGlow" cx="0.17" cy="0.06" r="0.5"><stop offset="0" stop-color="#FF8A00" stop-opacity="0.16"/><stop offset="1" stop-color="#FF8A00" stop-opacity="0"/></radialGradient>
+<linearGradient id="wallFrame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFC53D" stop-opacity="0.9"/><stop offset="0.5" stop-color="#FF8A00" stop-opacity="0.55"/><stop offset="1" stop-color="#F4610A" stop-opacity="0.9"/></linearGradient>
+<linearGradient id="wallFoot" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FF8A00" stop-opacity="0"/><stop offset="0.18" stop-color="#FF8A00" stop-opacity="0.75"/><stop offset="0.82" stop-color="#FF8A00" stop-opacity="0.75"/><stop offset="1" stop-color="#FF8A00" stop-opacity="0"/></linearGradient>
 </defs>
 <rect width="1024" height="420" rx="16" fill="url(#wallBg)"/>
+<rect width="1024" height="420" rx="16" fill="url(#wallGlow)"/>
+<rect x="1" y="1" width="1022" height="418" rx="15" fill="none" stroke="url(#wallFrame)" stroke-width="2"/>
+<rect x="6" y="6" width="1012" height="408" rx="11" fill="none" stroke="#1B212B" stroke-width="1"/>
 <g stroke="#1B212B" stroke-width="1">
-<path d="M128 96 V420"/><path d="M256 96 V420"/><path d="M384 96 V420"/><path d="M512 96 V420"/><path d="M640 96 V420"/><path d="M768 96 V420"/><path d="M896 96 V420"/>
+<path d="M128 96 V384"/><path d="M256 96 V384"/><path d="M384 96 V384"/><path d="M512 96 V384"/><path d="M640 96 V384"/><path d="M768 96 V384"/><path d="M896 96 V384"/>
 </g>
 <mask id="slitwall"><rect width="512" height="512" fill="#fff"/><rect x="241" y="374" width="30" height="140" fill="#000"/></mask>
 <g transform="translate(21.3 12.6) scale(0.09)">
@@ -19,6 +25,7 @@
 </g>
 <text x="70" y="38" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="26" font-weight="800" fill="#F5F7FA">CoreGuard <tspan fill="#FF8A00">Badge Shield</tspan></text>
 <text x="71" y="58" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="11" letter-spacing="3.2" fill="#C6CFDA">VERIFY · PROTECT · EMPOWER — SEVEN EXCLUSIVE-SOURCE PLATES</text>
+<text x="1004" y="84" text-anchor="end" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="10.5" fill="#8B95A6">درع الشارات — سبع بطاقات من مصادر حصرية</text>
 <text x="760" y="38" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="10" fill="#FF8A00">CG-WALL/1</text>
 <text x="760" y="54" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="8" fill="#8B95A6">sha256 · committed tree · offline</text>
 <text x="760" y="68" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="8" fill="#8B95A6">7 exclusive-source plates</text>
@@ -26,6 +33,9 @@
 <defs>
 <linearGradient id="plateexecutionfirewall" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="#10161F"/><stop offset="0.55" stop-color="#0B0F14"/><stop offset="1" stop-color="#080B10"/>
+</linearGradient>
+<linearGradient id="haloexecutionfirewall" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FF8A00" stop-opacity="0.30"/><stop offset="1" stop-color="#FF8A00" stop-opacity="0"/>
 </linearGradient>
 <linearGradient id="shieldexecutionfirewall" x1="0" y1="0" x2="0.25" y2="1">
 <stop offset="0" stop-color="#FFC53D"/><stop offset="0.38" stop-color="#FFA31A"/><stop offset="0.68" stop-color="#FF8A00"/><stop offset="1" stop-color="#F4610A"/>
@@ -42,6 +52,7 @@
 </defs>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="url(#plateexecutionfirewall)"/>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="none" stroke="url(#edgeexecutionfirewall)" stroke-width="1"/>
+<rect x="0.5" y="0.5" width="319" height="30" rx="12" fill="url(#haloexecutionfirewall)"/>
 <rect x="1.5" y="1.5" width="317" height="4" rx="2" fill="url(#shieldexecutionfirewall)" fill-opacity="0.9"/>
 <path d="M0 0 H320 V52 L0 74 Z" fill="url(#sheenexecutionfirewall)"/>
 <mask id="slitexecutionfirewall"><rect width="512" height="512" fill="#fff"/><rect x="241" y="374" width="30" height="140" fill="#000"/></mask>
@@ -53,6 +64,7 @@
 </g>
 <path fill="none" stroke="#6E7A8C" stroke-width="10" opacity="0.9" d="M326 151 L182 151"/>
 </g>
+<text x="306" y="21" text-anchor="end" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="7.5" letter-spacing="1.4" fill="#3E4A59" opacity="0.9">Nº 01</text>
 <text x="74" y="30" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="14.5" font-weight="700" letter-spacing="0.4" fill="#F5F7FA">EXECUTION FIREWALL</text>
 <text x="74" y="45" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="8" fill="#FF8A00" letter-spacing="0.8">CG-EF/1</text>
 <text x="74" y="60" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="9" fill="#C6CFDA" letter-spacing="0.3">FAIL-CLOSED DECISION RECORDS</text>
@@ -63,6 +75,9 @@
 <defs>
 <linearGradient id="plateverifierx3" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="#10161F"/><stop offset="0.55" stop-color="#0B0F14"/><stop offset="1" stop-color="#080B10"/>
+</linearGradient>
+<linearGradient id="haloverifierx3" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FF8A00" stop-opacity="0.30"/><stop offset="1" stop-color="#FF8A00" stop-opacity="0"/>
 </linearGradient>
 <linearGradient id="shieldverifierx3" x1="0" y1="0" x2="0.25" y2="1">
 <stop offset="0" stop-color="#FFC53D"/><stop offset="0.38" stop-color="#FFA31A"/><stop offset="0.68" stop-color="#FF8A00"/><stop offset="1" stop-color="#F4610A"/>
@@ -79,6 +94,7 @@
 </defs>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="url(#plateverifierx3)"/>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="none" stroke="url(#edgeverifierx3)" stroke-width="1"/>
+<rect x="0.5" y="0.5" width="319" height="30" rx="12" fill="url(#haloverifierx3)"/>
 <rect x="1.5" y="1.5" width="317" height="4" rx="2" fill="url(#shieldverifierx3)" fill-opacity="0.9"/>
 <path d="M0 0 H320 V52 L0 74 Z" fill="url(#sheenverifierx3)"/>
 <mask id="slitverifierx3"><rect width="512" height="512" fill="#fff"/><rect x="241" y="374" width="30" height="140" fill="#000"/></mask>
@@ -90,6 +106,7 @@
 </g>
 <path fill="none" stroke="#6E7A8C" stroke-width="10" opacity="0.9" d="M326 151 L182 151"/>
 </g>
+<text x="306" y="21" text-anchor="end" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="7.5" letter-spacing="1.4" fill="#3E4A59" opacity="0.9">Nº 02</text>
 <text x="74" y="30" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="14.5" font-weight="700" letter-spacing="0.4" fill="#F5F7FA">VERIFIER X3</text>
 <text x="74" y="45" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="8" fill="#FF8A00" letter-spacing="0.8">CG-VX3/1</text>
 <text x="74" y="60" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="9" fill="#C6CFDA" letter-spacing="0.3">TRIPLE KEY · INDEPENDENT PARITY</text>
@@ -100,6 +117,9 @@
 <defs>
 <linearGradient id="platestellaragent" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="#10161F"/><stop offset="0.55" stop-color="#0B0F14"/><stop offset="1" stop-color="#080B10"/>
+</linearGradient>
+<linearGradient id="halostellaragent" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FF8A00" stop-opacity="0.30"/><stop offset="1" stop-color="#FF8A00" stop-opacity="0"/>
 </linearGradient>
 <linearGradient id="shieldstellaragent" x1="0" y1="0" x2="0.25" y2="1">
 <stop offset="0" stop-color="#FFC53D"/><stop offset="0.38" stop-color="#FFA31A"/><stop offset="0.68" stop-color="#FF8A00"/><stop offset="1" stop-color="#F4610A"/>
@@ -116,6 +136,7 @@
 </defs>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="url(#platestellaragent)"/>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="none" stroke="url(#edgestellaragent)" stroke-width="1"/>
+<rect x="0.5" y="0.5" width="319" height="30" rx="12" fill="url(#halostellaragent)"/>
 <rect x="1.5" y="1.5" width="317" height="4" rx="2" fill="url(#shieldstellaragent)" fill-opacity="0.9"/>
 <path d="M0 0 H320 V52 L0 74 Z" fill="url(#sheenstellaragent)"/>
 <mask id="slitstellaragent"><rect width="512" height="512" fill="#fff"/><rect x="241" y="374" width="30" height="140" fill="#000"/></mask>
@@ -127,6 +148,7 @@
 </g>
 <path fill="none" stroke="#6E7A8C" stroke-width="10" opacity="0.9" d="M326 151 L182 151"/>
 </g>
+<text x="306" y="21" text-anchor="end" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="7.5" letter-spacing="1.4" fill="#3E4A59" opacity="0.9">Nº 03</text>
 <text x="74" y="30" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="14.5" font-weight="700" letter-spacing="0.4" fill="#F5F7FA">STELLAR AGENT</text>
 <text x="74" y="45" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="8" fill="#FF8A00" letter-spacing="0.8">STELLAR-AGENT/1</text>
 <text x="74" y="60" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="9" fill="#C6CFDA" letter-spacing="0.3">PAYMENT GATE · JUDGED BEFORE SUBMIT</text>
@@ -137,6 +159,9 @@
 <defs>
 <linearGradient id="platetrinity" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="#10161F"/><stop offset="0.55" stop-color="#0B0F14"/><stop offset="1" stop-color="#080B10"/>
+</linearGradient>
+<linearGradient id="halotrinity" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FF8A00" stop-opacity="0.30"/><stop offset="1" stop-color="#FF8A00" stop-opacity="0"/>
 </linearGradient>
 <linearGradient id="shieldtrinity" x1="0" y1="0" x2="0.25" y2="1">
 <stop offset="0" stop-color="#FFC53D"/><stop offset="0.38" stop-color="#FFA31A"/><stop offset="0.68" stop-color="#FF8A00"/><stop offset="1" stop-color="#F4610A"/>
@@ -153,6 +178,7 @@
 </defs>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="url(#platetrinity)"/>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="none" stroke="url(#edgetrinity)" stroke-width="1"/>
+<rect x="0.5" y="0.5" width="319" height="30" rx="12" fill="url(#halotrinity)"/>
 <rect x="1.5" y="1.5" width="317" height="4" rx="2" fill="url(#shieldtrinity)" fill-opacity="0.9"/>
 <path d="M0 0 H320 V52 L0 74 Z" fill="url(#sheentrinity)"/>
 <mask id="slittrinity"><rect width="512" height="512" fill="#fff"/><rect x="241" y="374" width="30" height="140" fill="#000"/></mask>
@@ -164,6 +190,7 @@
 </g>
 <path fill="none" stroke="#6E7A8C" stroke-width="10" opacity="0.9" d="M326 151 L182 151"/>
 </g>
+<text x="306" y="21" text-anchor="end" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="7.5" letter-spacing="1.4" fill="#3E4A59" opacity="0.9">Nº 04</text>
 <text x="74" y="30" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="14.5" font-weight="700" letter-spacing="0.4" fill="#F5F7FA">TRINITY ENGINE</text>
 <text x="74" y="45" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="8" fill="#FF8A00" letter-spacing="0.8">COREGUARD-TRINITY/1</text>
 <text x="74" y="60" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="9" fill="#C6CFDA" letter-spacing="0.3">CORE + STELLAR + PI · ONE LADDER</text>
@@ -174,6 +201,9 @@
 <defs>
 <linearGradient id="platebadgeengine" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="#10161F"/><stop offset="0.55" stop-color="#0B0F14"/><stop offset="1" stop-color="#080B10"/>
+</linearGradient>
+<linearGradient id="halobadgeengine" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FF8A00" stop-opacity="0.30"/><stop offset="1" stop-color="#FF8A00" stop-opacity="0"/>
 </linearGradient>
 <linearGradient id="shieldbadgeengine" x1="0" y1="0" x2="0.25" y2="1">
 <stop offset="0" stop-color="#FFC53D"/><stop offset="0.38" stop-color="#FFA31A"/><stop offset="0.68" stop-color="#FF8A00"/><stop offset="1" stop-color="#F4610A"/>
@@ -190,6 +220,7 @@
 </defs>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="url(#platebadgeengine)"/>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="none" stroke="url(#edgebadgeengine)" stroke-width="1"/>
+<rect x="0.5" y="0.5" width="319" height="30" rx="12" fill="url(#halobadgeengine)"/>
 <rect x="1.5" y="1.5" width="317" height="4" rx="2" fill="url(#shieldbadgeengine)" fill-opacity="0.9"/>
 <path d="M0 0 H320 V52 L0 74 Z" fill="url(#sheenbadgeengine)"/>
 <mask id="slitbadgeengine"><rect width="512" height="512" fill="#fff"/><rect x="241" y="374" width="30" height="140" fill="#000"/></mask>
@@ -201,6 +232,7 @@
 </g>
 <path fill="none" stroke="#6E7A8C" stroke-width="10" opacity="0.9" d="M326 151 L182 151"/>
 </g>
+<text x="306" y="21" text-anchor="end" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="7.5" letter-spacing="1.4" fill="#3E4A59" opacity="0.9">Nº 05</text>
 <text x="74" y="30" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="14.5" font-weight="700" letter-spacing="0.4" fill="#F5F7FA">BADGE ENGINE</text>
 <text x="74" y="45" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="8" fill="#FF8A00" letter-spacing="0.8">CG-BDG/1</text>
 <text x="74" y="60" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="9" fill="#C6CFDA" letter-spacing="0.3">ARTWORK IS THE PROOF · HAND-EDIT FAILS</text>
@@ -211,6 +243,9 @@
 <defs>
 <linearGradient id="platecgepreceipt" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="#10161F"/><stop offset="0.55" stop-color="#0B0F14"/><stop offset="1" stop-color="#080B10"/>
+</linearGradient>
+<linearGradient id="halocgepreceipt" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FF8A00" stop-opacity="0.30"/><stop offset="1" stop-color="#FF8A00" stop-opacity="0"/>
 </linearGradient>
 <linearGradient id="shieldcgepreceipt" x1="0" y1="0" x2="0.25" y2="1">
 <stop offset="0" stop-color="#FFC53D"/><stop offset="0.38" stop-color="#FFA31A"/><stop offset="0.68" stop-color="#FF8A00"/><stop offset="1" stop-color="#F4610A"/>
@@ -227,6 +262,7 @@
 </defs>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="url(#platecgepreceipt)"/>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="none" stroke="url(#edgecgepreceipt)" stroke-width="1"/>
+<rect x="0.5" y="0.5" width="319" height="30" rx="12" fill="url(#halocgepreceipt)"/>
 <rect x="1.5" y="1.5" width="317" height="4" rx="2" fill="url(#shieldcgepreceipt)" fill-opacity="0.9"/>
 <path d="M0 0 H320 V52 L0 74 Z" fill="url(#sheencgepreceipt)"/>
 <mask id="slitcgepreceipt"><rect width="512" height="512" fill="#fff"/><rect x="241" y="374" width="30" height="140" fill="#000"/></mask>
@@ -238,6 +274,7 @@
 </g>
 <path fill="none" stroke="#6E7A8C" stroke-width="10" opacity="0.9" d="M326 151 L182 151"/>
 </g>
+<text x="306" y="21" text-anchor="end" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="7.5" letter-spacing="1.4" fill="#3E4A59" opacity="0.9">Nº 06</text>
 <text x="74" y="30" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="14.5" font-weight="700" letter-spacing="0.4" fill="#F5F7FA">EVIDENCE RECEIPT</text>
 <text x="74" y="45" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="8" fill="#FF8A00" letter-spacing="0.8">CGEP/1</text>
 <text x="74" y="60" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="9" fill="#C6CFDA" letter-spacing="0.3">RECEIPT SEMANTICS · REPLAYABLE</text>
@@ -248,6 +285,9 @@
 <defs>
 <linearGradient id="platecoreanchor" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0" stop-color="#10161F"/><stop offset="0.55" stop-color="#0B0F14"/><stop offset="1" stop-color="#080B10"/>
+</linearGradient>
+<linearGradient id="halocoreanchor" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FF8A00" stop-opacity="0.30"/><stop offset="1" stop-color="#FF8A00" stop-opacity="0"/>
 </linearGradient>
 <linearGradient id="shieldcoreanchor" x1="0" y1="0" x2="0.25" y2="1">
 <stop offset="0" stop-color="#FFC53D"/><stop offset="0.38" stop-color="#FFA31A"/><stop offset="0.68" stop-color="#FF8A00"/><stop offset="1" stop-color="#F4610A"/>
@@ -264,6 +304,7 @@
 </defs>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="url(#platecoreanchor)"/>
 <rect x="0.5" y="0.5" width="319" height="87" rx="12" fill="none" stroke="url(#edgecoreanchor)" stroke-width="1"/>
+<rect x="0.5" y="0.5" width="319" height="30" rx="12" fill="url(#halocoreanchor)"/>
 <rect x="1.5" y="1.5" width="317" height="4" rx="2" fill="url(#shieldcoreanchor)" fill-opacity="0.9"/>
 <path d="M0 0 H320 V52 L0 74 Z" fill="url(#sheencoreanchor)"/>
 <mask id="slitcoreanchor"><rect width="512" height="512" fill="#fff"/><rect x="241" y="374" width="30" height="140" fill="#000"/></mask>
@@ -275,6 +316,7 @@
 </g>
 <path fill="none" stroke="#6E7A8C" stroke-width="10" opacity="0.9" d="M326 151 L182 151"/>
 </g>
+<text x="306" y="21" text-anchor="end" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="7.5" letter-spacing="1.4" fill="#3E4A59" opacity="0.9">Nº 07</text>
 <text x="74" y="30" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="14.5" font-weight="700" letter-spacing="0.4" fill="#F5F7FA">CORE MAINNET ANCHOR</text>
 <text x="74" y="45" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="8" fill="#FF8A00" letter-spacing="0.8">CHAIN 1116</text>
 <text x="74" y="60" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="9" fill="#C6CFDA" letter-spacing="0.3">V3 EVIDENCE REGISTRY · ON-CHAIN</text>
@@ -282,4 +324,8 @@
 <text x="74" y="83" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="7" fill="#565E6B">sha256:c5dcf2e7bd37538a…</text>
 <!-- CG-WALL/1 src="contracts/EvidenceRegistryV3.sol" sha256="c5dcf2e7bd37538a7b89f8d471995dbda89585a6cb37bd22954436a8c5de713e" name="CORE MAINNET ANCHOR" suite="CHAIN 1116" -->
 </g>
+<line x1="100" y1="393" x2="924" y2="393" stroke="url(#wallFoot)" stroke-width="1"/>
+<circle cx="300" cy="404.5" r="2.5" fill="#FF8A00"/>
+<text x="512" y="408" text-anchor="middle" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="8.5" letter-spacing="2.6" fill="#FF8A00">COREGUARD · VERIFY · PROTECT · EMPOWER — CG-WALL/1</text>
+<circle cx="724" cy="404.5" r="2.5" fill="#FF8A00"/>
 </svg>
