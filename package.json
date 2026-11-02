@@ -77,7 +77,8 @@
     "anchor": "powershell -ExecutionPolicy Bypass -File scripts/anchor-local.ps1",
     "anchor:plan": "node scripts/compute-commitment.mjs --out scripts/live-anchor-planned.json",
     "anchor:verify": "powershell -ExecutionPolicy Bypass -File scripts/verify-anchor.ps1",
-    "stellar:demo": "node examples/stellar-verify/demo.mjs"
+    "stellar:demo": "node examples/stellar-verify/demo.mjs",
+    "stellar:gate": "node examples/stellar-gate/demo.mjs"
   },
   "engines": {
     "node": ">=18"

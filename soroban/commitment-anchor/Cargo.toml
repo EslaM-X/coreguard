@@ -1,0 +1,19 @@
+[package]
+name = "cg-commitment-anchor"
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.83"
+publish = false
+description = "CoreGuard CG-COMMITMENT-ANCHOR/1 - Soroban commitment anchor for Stellar (testnet-first, fail-closed)"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+soroban-sdk = "23"
+# Pin: soroban-env-host + ed25519-dalek 3.0.0 resolve into a CryptoRng trait
+# mismatch (upstream rand-core split); dalek 2.x unifies the graph.
+ed25519-dalek = "2.2"
+
+[dev-dependencies]
+soroban-sdk = { version = "23", features = ["testutils"] }
