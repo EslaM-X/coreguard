@@ -50,6 +50,8 @@
 
 [![CoreGuard Badge Shield](https://eslam-x.github.io/coreguard/assets/badges/wall-badge-shield.svg)](https://eslam-x.github.io/coreguard/assets/badges/wall-badge-shield.svg)
 
+**The official brand page — [docs/BRAND.html](https://eslam-x.github.io/coreguard/BRAND.html) · صفحة الهوية الرسمية**: the shield, lockups, the audited color system (Core Orange #FF8A00 · Deep Core #0B0F14 · Graphite #4A5568 · Ice White #F5F7FA), the official gradient, the mark law, and the full downloadable asset kit.
+
 Seven brand plates, each minted from ONE committed file that exclusively owns its surface — Execution Firewall, Verifier X3, Stellar Agent, Trinity, the CG-BDG/1 engine, the CGEP/1 receipt, and the Core Mainnet anchor. Every plate's artwork names its source and carries that file's full `sha256` digest in a machine payload; the audit re-derives every digest from the committed tree, offline, and fails loudly on any drift — a plate can never silently drift from the bytes it certifies:
 
 ```bash

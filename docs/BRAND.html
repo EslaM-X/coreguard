@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CoreGuard — الهوية الرسمية · Official Brand Identity</title>
+  <meta name="description" content="الهوية الرسمية لـCoreGuard v1.1: الدرع، الشعار، الألوان (Core Orange #FF8A00 · Deep Core #0B0F14 · Graphite #4A5568 · Ice White #F5F7FA)، التدرجات، الأسطح المختلفة، وقواعد استخدام العلامة — مع روابط تنزيل كل الأصول الرسمية.">
+  <meta property="og:image" content="https://eslam-x.github.io/coreguard/assets/og-cover-1200.png">
+  <meta name="theme-color" content="#0B0F14">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/identity.css">
+  <link rel="stylesheet" href="assets/brand.css">
+  <style>
+    :root{
+      --bg:#0b0f14; --bg2:#10161d; --panel:#141c24; --panel2:#18222c;
+      --line:#243240; --line2:#2e3f50;
+      --ink:#e8eef4; --muted:#8fa3b5; --faint:#5f7386;
+      --orange:#FF8A00; --orange2:#FFA31A; --gold:#FFC53D; --deep:#F4610A;
+      --graphite:#4A5568; --ice:#F5F7FA;
+      --radius:14px;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --grad:linear-gradient(135deg,#FFC53D 0%,#FFA31A 38%,#FF8A00 68%,#F4610A 100%);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; font-family:"Segoe UI","Noto Sans",system-ui,-apple-system,sans-serif;
+      background:
+        radial-gradient(1100px 500px at 88% -12%, rgba(255,138,0,.12), transparent 60%),
+        radial-gradient(900px 420px at 0% 0%, rgba(255,197,61,.07), transparent 55%),
+        var(--bg);
+      color:var(--ink); line-height:1.7; min-height:100vh;
+    }
+    [dir="ltr"] body{font-family:"Inter","Segoe UI",system-ui,sans-serif}
+    .wrap{max-width:1080px;margin:0 auto;padding:1.2rem 1.3rem 4rem}
+
+    .top{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 0 1rem}
+    .brand{display:flex;align-items:center;gap:.75rem;font-weight:700;letter-spacing:.2px}
+    .brand .mark{
+      width:40px;height:40px;border-radius:10px;flex:0 0 auto;
+      background:var(--grad);
+      display:grid;place-items:center;color:#0B0F14;font-weight:800;
+      box-shadow:0 4px 16px rgba(255,138,0,.4);
+    }
+    .brand .mark svg{width:26px;height:26px}
+    .brand small{display:block;font-weight:400;color:var(--faint);font-size:.72rem;letter-spacing:.4px}
+    [dir="rtl"] .brand small{letter-spacing:0}
+    .lang{
+      display:flex;align-items:center;gap:.35rem;background:var(--panel);
+      border:1px solid var(--line);border-radius:999px;padding:.3rem;
+      cursor:pointer;user-select:none;transition:border-color .2s;
+    }
+    .lang:hover{border-color:var(--orange2)}
+    .lang span{
+      padding:.28rem .8rem;border-radius:999px;font-size:.85rem;font-weight:600;
+      color:var(--muted);transition:all .2s;
+    }
+    .lang span.on{background:var(--orange);color:#0B0F14;box-shadow:0 2px 10px rgba(255,138,0,.4)}
+
+    header.hero{
+      background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);
+      border:1px solid var(--line);border-radius:calc(var(--radius) + 4px);
+      padding:2.4rem 2rem 2rem;margin-top:.6rem;box-shadow:var(--shadow);
+      position:relative;overflow:hidden;text-align:center;
+    }
+    header.hero::before{
+      content:"";position:absolute;top:0;left:0;right:0;height:3px;
+      background:var(--grad);
+    }
+    .hero-lockup{max-width:460px;width:78%;margin:.6rem auto .8rem;display:block}
+    .kicker{
+      display:inline-flex;align-items:center;gap:.45rem;
+      font-size:.78rem;font-weight:600;letter-spacing:.6px;text-transform:uppercase;
+      color:var(--orange);background:rgba(255,138,0,.08);
+      border:1px solid rgba(255,138,0,.25);border-radius:999px;
+      padding:.28rem .85rem;margin-bottom:.9rem;
+    }
+    .kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--orange);box-shadow:0 0 8px var(--orange);animation:pulse 2.2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+    h1{margin:.3rem 0 .55rem;font-size:clamp(1.6rem,3.8vw,2.4rem);line-height:1.25;letter-spacing:-.3px}
+    h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .lede{color:var(--muted);max-width:64ch;margin:0 auto;font-size:1.02rem}
+    .hero-cta{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem;justify-content:center}
+    .btn{
+      display:inline-flex;align-items:center;gap:.5rem;
+      padding:.58rem 1.15rem;border-radius:10px;font-size:.92rem;font-weight:600;
+      text-decoration:none;transition:transform .15s, box-shadow .15s, border-color .15s;
+      border:1px solid var(--line2);color:var(--ink);background:var(--panel2);
+    }
+    .btn:hover{transform:translateY(-2px);border-color:var(--orange2);box-shadow:0 8px 22px rgba(255,138,0,.18)}
+    .btn.primary{background:var(--grad);color:#0B0F14;border:none;box-shadow:0 6px 18px rgba(255,138,0,.35)}
+    .btn.primary:hover{box-shadow:0 10px 26px rgba(255,138,0,.45)}
+
+    .triad{display:flex;gap:.9rem;justify-content:center;margin-top:1.1rem;flex-wrap:wrap}
+    .triad span{
+      font-size:.8rem;font-weight:700;letter-spacing:3px;color:var(--muted);text-transform:uppercase;
+    }
+    .triad span b{color:var(--orange)}
+
+    section{margin-top:2.4rem}
+    .sec-head{display:flex;align-items:baseline;gap:.8rem;border-bottom:1px solid var(--line);padding-bottom:.55rem;margin-bottom:.6rem}
+    .sec-head h2{margin:0;font-size:1.25rem;letter-spacing:-.2px}
+    .sec-head .n{
+      font-size:.8rem;font-weight:700;color:var(--orange);
+      background:rgba(255,138,0,.08);border:1px solid rgba(255,138,0,.25);
+      border-radius:999px;padding:.05rem .6rem;
+    }
+    .sec-sub{color:var(--muted);margin:.2rem 0 1.1rem;max-width:70ch}
+    .sec-sub code{color:var(--orange2)}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.9rem}
+    .card{
+      background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);
+      border:1px solid var(--line);border-radius:var(--radius);
+      padding:1.1rem 1.15rem;box-shadow:var(--shadow);
+      transition:transform .18s,border-color .18s,box-shadow .18s;position:relative;overflow:hidden;
+    }
+    .card:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:0 16px 36px rgba(0,0,0,.45)}
+    .card b{display:block;margin-bottom:.4rem}
+    .card small{color:var(--muted);display:block;line-height:1.6}
+
+    .asset{display:flex;flex-direction:column;align-items:center;text-align:center;gap:.7rem}
+    .asset .frame{
+      width:100%;min-height:132px;border-radius:12px;display:grid;place-items:center;padding:1.2rem 1rem;
+      border:1px solid var(--line);
+    }
+    .asset .frame.dark{background:radial-gradient(420px 180px at 50% 0%, rgba(255,138,0,.10), transparent 70%),#0d1319}
+    .asset .frame.light{background:#F5F7FA}
+    .asset .frame img{max-width:100%;max-height:120px}
+    .asset b{font-size:.95rem}
+    .asset small{font-size:.82rem}
+    .asset .use{color:var(--faint);font-size:.78rem;direction:ltr}
+    a.dl{
+      display:inline-flex;gap:.4rem;align-items:center;
+      font-size:.8rem;font-weight:700;text-decoration:none;color:var(--orange);
+      background:rgba(255,138,0,.08);border:1px solid rgba(255,138,0,.25);
+      border-radius:999px;padding:.3rem .8rem;transition:all .15s;
+    }
+    a.dl:hover{background:rgba(255,138,0,.16);transform:translateY(-1px)}
+
+    .palette{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.9rem}
+    .swatch{
+      border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);
+      background:var(--panel);box-shadow:var(--shadow);
+    }
+    .swatch .chip{height:96px;position:relative}
+    .swatch .chip::after{
+      content:attr(data-hex);position:absolute;bottom:.55rem;inset-inline-end:.7rem;
+      font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace;font-size:.78rem;
+      color:rgba(255,255,255,.92);background:rgba(6,9,12,.45);border-radius:8px;padding:.14rem .5rem;
+      backdrop-filter:blur(3px);
+    }
+    .swatch .meta{padding:.8rem .95rem}
+    .swatch .meta b{display:block;margin-bottom:.15rem}
+    .swatch .meta small{color:var(--muted);display:block;line-height:1.5;font-size:.82rem}
+    .gradbar{
+      height:74px;border-radius:12px;background:var(--grad);
+      border:1px solid var(--line2);box-shadow:0 8px 26px rgba(255,138,0,.28);margin:.2rem 0 .8rem;
+    }
+    .gradstops{
+      display:flex;justify-content:space-between;font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace;
+      font-size:.74rem;color:var(--muted);
+    }
+
+    .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.9rem}
+    .rule{border-inline-start:3px solid var(--orange);padding:.15rem 1rem .15rem 0}
+    [dir="ltr"] .rule{padding:.15rem 0 .15rem 1rem}
+    .rule b{display:block;margin-bottom:.3rem}
+    .rule.dont{border-inline-start-color:#e5484d}
+    .rule small{color:var(--muted)}
+    .rule.dont b{color:#ff8f8f}
+
+    .wallshot{
+      border-radius:calc(var(--radius) + 4px);border:1px solid var(--line);
+      overflow:hidden;box-shadow:var(--shadow);display:block;width:100%;
+    }
+
+    .downloads{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.9rem}
+    .dlcard{
+      background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+      padding:1rem 1.1rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:.55rem;
+      transition:transform .18s,border-color .18s;
+    }
+    .dlcard:hover{transform:translateY(-3px);border-color:var(--orange2)}
+    .dlcard b{font-size:.9rem}
+    .dlcard small{color:var(--muted);font-size:.78rem;flex:1;line-height:1.55;direction:ltr;text-align:left}
+    [dir="rtl"] .dlcard small{direction:rtl;text-align:right}
+
+    footer.ribbon{
+      margin-top:3rem;border-top:1px solid var(--line);
+      padding:1.2rem 0 1.6rem;text-align:center;position:relative;
+    }
+    footer.ribbon::before{
+      content:"";position:absolute;top:-1px;left:18%;right:18%;height:2px;
+      background:linear-gradient(90deg,transparent,rgba(255,138,0,.75) 20%,rgba(255,138,0,.75) 80%,transparent);
+    }
+    footer.ribbon .words{
+      font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace;
+      font-size:.8rem;letter-spacing:3px;color:var(--orange);direction:ltr;
+    }
+    footer.ribbon .sub{color:var(--faint);font-size:.78rem;margin-top:.35rem}
+    footer.ribbon .dots{color:var(--orange);letter-spacing:6px}
+
+    html[lang="en"] [data-lang-text="ar"], html[lang="ar"] [data-lang-text="en"]{display:none}
+    [data-lang-text]{display:inline}
+    [data-lang-dir="ar"]{display:block}
+    html[lang="en"] [data-lang-dir="ar"]{display:none}
+    html[lang="ar"] [data-lang-dir="en"]{display:none}
+    html[lang="en"]{direction:ltr}
+    html[lang="en"] .wrap{direction:ltr}
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2 L20 6.5 V13.5 L12 21 L4 13.5 V6.5 Z"/><path d="M9 12 h4.6"/>
+        </svg>
+      </div>
+      <div>
+        CoreGuard
+        <small><span data-lang-text="ar" class="inline">الهوية الرسمية · v1.1</span><span data-lang-text="en" class="inline">Official brand identity · v1.1</span></small>
+      </div>
+    </div>
+    <div class="lang" id="lang">
+      <span id="btn-ar">عربي</span><span id="btn-en">EN</span>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="kicker"><span class="dot"></span><span data-lang-text="ar" class="inline">هوية CoreGuard الرسمية · v1.1</span><span data-lang-text="en" class="inline">The official CoreGuard identity · v1.1</span></div>
+    <img class="hero-lockup" src="../assets/coreguard-lockup-vertical.svg" alt="CoreGuard — Verify · Protect · Empower">
+    <p class="lede">
+      <span data-lang-text="ar" class="inline">كل شيء يعرّف CoreGuard بصريًا في مكان واحد: الدرع المميز، الشعار، لوحة الألوان المدققة، التدرج الرسمي، القواعد الصارمة لاستخدام العلامة، ومعرض الأصول الرسمية القابلة للتنزيل — حزمة هوية مؤسسية جاهزة للمستثمرين والشركاء والحاضنات.</span>
+      <span data-lang-text="en" class="inline">Everything that visually defines CoreGuard in one place: the signature shield, the lockups, the audited color system, the official gradient, strict logo-usage rules, and the full downloadable asset kit — an enterprise-grade identity pack for investors, partners and accelerators.</span>
+    </p>
+    <div class="triad">
+      <span>Verify</span><b style="color:var(--orange)">·</b><span>Protect</span><b style="color:var(--orange)">·</b><span>Empower</span>
+    </div>
+    <div class="hero-cta">
+      <a class="btn primary" href="#downloads"><span data-lang-text="ar" class="inline">⬇ حزمة الأصول</span><span data-lang-text="en" class="inline">⬇ Asset kit</span></a>
+      <a class="btn" href="PRODUCTS.html"><span data-lang-text="ar" class="inline">كتالوج المنتجات</span><span data-lang-text="en" class="inline">Product catalog</span></a>
+      <a class="btn" href="index.html"><span data-lang-text="ar" class="inline">الصفحة الرئيسية</span><span data-lang-text="en" class="inline">Home</span></a>
+    </div>
+  </header>
+
+  <section id="foundation">
+    <div class="sec-head"><h2><span data-lang-text="ar" class="inline">الشعار — الأسطح الرسمية</span><span data-lang-text="en" class="inline">The wordmark — official lockups</span></h2><span class="n">4</span></div>
+    <p class="sec-sub">
+      <span data-lang-text="ar" class="inline">الشعار الأفقي والعمودي والمفرد الأحادي — كل سطح له ملف SVG متجهي واحد. الحرج: <code>"Core"</code> داكن و<code>"Guard"</code> بتدرج Core Orange أصفر-برتقالي نارّ — تكوين لا يتغير أبدًا.</span>
+      <span data-lang-text="en" class="inline">Horizontal, vertical and standalone marks — one vector file per surface. The constant: <code>"Core"</code> in dark graphite and <code>"Guard"</code> in the yellow→orange Core Orange gradient — a composition that never changes.</span>
+    </p>
+    <div class="grid">
+      <div class="card asset">
+        <div class="frame dark"><img src="../assets/coreguard-lockup-vertical.svg" alt="CoreGuard vertical lockup"></div>
+        <b><span data-lang-text="ar" class="inline">الشعار العمودي</span><span data-lang-text="en" class="inline">Vertical lockup</span></b>
+        <small><span data-lang-text="ar" class="inline">ترويسات المواقع والملايات الرسمية والعرض على الشاشات.</span><span data-lang-text="en" class="inline">Site headers, official one-pagers, screen-first layouts.</span></small>
+        <span class="use">coreguard-lockup-vertical.svg</span>
+        <a class="dl" href="../assets/coreguard-lockup-vertical.svg" download>SVG ⬇</a>
+      </div>
+      <div class="card asset">
+        <div class="frame dark"><img src="../assets/coreguard-lockup.svg" alt="CoreGuard horizontal lockup"></div>
+        <b><span data-lang-text="ar" class="inline">الشعار الأفقي</span><span data-lang-text="en" class="inline">Horizontal lockup</span></b>
+        <small><span data-lang-text="ar" class="inline">التواقيع البريدية والترويسات الوثائقية والشرائح الجانبية.</span><span data-lang-text="en" class="inline">Email signatures, document headers, slide layouts.</span></small>
+        <span class="use">coreguard-lockup.svg</span>
+        <a class="dl" href="../assets/coreguard-lockup.svg" download>SVG ⬇</a>
+      </div>
+      <div class="card asset">
+        <div class="frame dark"><img src="../assets/coreguard-mark.svg" alt="CoreGuard shield mark"></div>
+        <b><span data-lang-text="ar" class="inline">الدرع — الرمز المفرد CG</span><span data-lang-text="en" class="inline">The shield — standalone CG mark</span></b>
+        <small><span data-lang-text="ar" class="inline">رمز التطبيق، الأفاتار، الشارات الموحّدة؛ تعمل وحدها بلا أسماء.</span><span data-lang-text="en" class="inline">App icon, avatars, uniform badges; stands alone without a name.</span></small>
+        <span class="use">coreguard-mark.svg</span>
+        <a class="dl" href="../assets/coreguard-mark.svg" download>SVG ⬇</a>
+      </div>
+      <div class="card asset">
+        <div class="frame light"><img src="../assets/coreguard-mono.svg" alt="CoreGuard monochrome mark"></div>
+        <b><span data-lang-text="ar" class="inline">نسخة أحادية اللون</span><span data-lang-text="en" class="inline">Monochrome mark</span></b>
+        <small><span data-lang-text="ar" class="inline">الطباعة أحادية اللون، الحفر والفواتير والأوسمة المعدنية.</span><span data-lang-text="en" class="inline">Single-color print, engraving, invoices, foils &amp; medals.</span></small>
+        <span class="use">coreguard-mono.svg</span>
+        <a class="dl" href="../assets/coreguard-mono.svg" download>SVG ⬇</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="colors">
+    <div class="sec-head"><h2><span data-lang-text="ar" class="inline">نظام الألوان المدقّق</span><span data-lang-text="en" class="inline">The audited color system</span></h2><span class="n">4+1</span></div>
+    <p class="sec-sub">
+      <span data-lang-text="ar" class="inline">أربعة ألوان مركزية بعقل اجتماعي واحد: نار البرتقال على ليل الأونشين — بلا ظل خامس. كل لون له دور بدقة في بنية الصفحات الحية.</span>
+      <span data-lang-text="en" class="inline">Four core colors, one grammar: embers over onchain night — with no fifth improvisation. Each color owns a precise role across the live surfaces.</span>
+    </p>
+    <div class="palette">
+      <div class="swatch">
+        <div class="chip" data-hex="#FF8A00" style="background:#FF8A00"></div>
+        <div class="meta">
+          <b>Core Orange</b>
+          <small><span data-lang-text="ar" class="inline">الطاقة · النمو · الحراك — اللون البطل للإجراءات والروابط والتدفق.</span><span data-lang-text="en" class="inline">Energy · Growth · Action — the hero color for actions, links and flow.</span></small>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="chip" data-hex="#0B0F14" style="background:#0B0F14"></div>
+        <div class="meta">
+          <b>Deep Core</b>
+          <small><span data-lang-text="ar" class="inline">الثقة · الأمن · الاستقرار — ليل كل سطح، أرضية الصدق البصري.</span><span data-lang-text="en" class="inline">Trust · Security · Stability — the night of every surface, the visual floor of honesty.</span></small>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="chip" data-hex="#4A5568" style="background:#4A5568"></div>
+        <div class="meta">
+          <b>Graphite</b>
+          <small><span data-lang-text="ar" class="inline">التوازن · التقنية · الابتكار — مقاطع الفولاذ في الدرع وحدود البطاقات.</span><span data-lang-text="en" class="inline">Balance · Tech · Innovation — the steel facets in the shield and card borders.</span></small>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="chip" data-hex="#F5F7FA" style="background:#F5F7FA"></div>
+        <div class="meta">
+          <b>Ice White</b>
+          <small><span data-lang-text="ar" class="inline">الوضوح · البساطة · التركيز — النصوة على Deep Core وخلفيات الطباعة.</span><span data-lang-text="en" class="inline">Clarity · Simplicity · Focus — ink on Deep Core and print backgrounds.</span></small>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:1.2rem">
+      <b><span data-lang-text="ar" class="inline">التدرج الرسمي — Core Orange Gradient</span><span data-lang-text="en" class="inline">The official gradient — Core Orange</span></b>
+      <div class="gradbar" style="margin-top:.6rem"></div>
+      <div class="gradstops">
+        <span>0% · #FFC53D</span><span>38% · #FFA31A</span><span>68% · #FF8A00</span><span>100% · #F4610A</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="rules">
+    <div class="sec-head"><h2><span data-lang-text="ar" class="inline">قانون العلامة — افعل ولا تفعل</span><span data-lang-text="en" class="inline">The mark law — do / don't</span></h2><span class="n">6</span></div>
+    <div class="rules">
+      <div class="card rule"><b><span data-lang-text="ar" class="inline">✓ مساحة أمان</span><span data-lang-text="en" class="inline">✓ Clear space</span></b>
+        <small><span data-lang-text="ar" class="inline">أربح حول الدرع نفس ارتفاع فتحة الدرع السفلية كحد أدنى.</span><span data-lang-text="en" class="inline">Keep, around the shield, at minimum the height of its bottom slit.</span></small>
+      </div>
+      <div class="card rule"><b><span data-lang-text="ar" class="inline">✓ الخلفيات الأصلية</span><span data-lang-text="en" class="inline">✓ Native grounds</span></b>
+        <small><span data-lang-text="ar" class="inline">الدرع يطل على Deep Core، Graphite الداكن، أو Ice White — لا على صور عشوائية.</span><span data-lang-text="en" class="inline">The shield sits on Deep Core, dark graphite or Ice White — never casual photos.</span></small>
+      </div>
+      <div class="card rule"><b><span data-lang-text="ar" class="inline">✓ المقاسات الدنيا</span><span data-lang-text="en" class="inline">✓ Minimum sizes</span></b>
+        <small><span data-lang-text="ar" class="inline">درع مفرد 24px، الشعار الأفقي 120px، الأيقونة المصغرة لا تقل عن 16px.</span><span data-lang-text="en" class="inline">Standalone shield 24px, horizontal lockup 120px, favicon not below 16px.</span></small>
+      </div>
+      <div class="card rule dont"><b><span data-lang-text="ar" class="inline">✗ لا تحريف</span><span data-lang-text="en" class="inline">✗ No distortion</span></b>
+        <small><span data-lang-text="ar" class="inline">لا إمالة ولا تمديد ولا انعكاس ولا ظل خارجي مصطنع — الدرع يُستعار كما هو.</span><span data-lang-text="en" class="inline">No skew, stretch, mirror or glued fake glow — the shield is used as-is.</span></small>
+      </div>
+      <div class="card rule dont"><b><span data-lang-text="ar" class="inline">✗ لا إعادة تلوين</span><span data-lang-text="en" class="inline">✗ No recoloring</span></b>
+        <small><span data-lang-text="ar" class="inline">التدرج الرسمي هو الهوية — أي لون آخر على الدرع يلغى حقه في أن يكون CoreGuard.</span><span data-lang-text="en" class="inline">The official gradient is the identity — any other color on the shield forfeits the name.</span></small>
+      </div>
+      <div class="card rule dont"><b><span data-lang-text="ar" class="inline">✗ لا تكوين مخترق</span><span data-lang-text="en" class="inline">✗ No hacked lockups</span></b>
+        <small><span data-lang-text="ar" class="inline">"Core" داكن و"Guard" نارّ — لا تبديل ترتيب ولا خط بديل ولا فوائد فارقة.</span><span data-lang-text="en" class="inline">"Core" dark and "Guard" blazing — no reorder, substitute font or stray effects.</span></small>
+      </div>
+    </div>
+  </section>
+
+  <section id="badge-shield">
+    <div class="sec-head"><h2><span data-lang-text="ar" class="inline">درع الشارات — بطاقات المصادر الحصرية</span><span data-lang-text="en" class="inline">The Badge Shield — exclusive-source plates</span></h2><span class="n">7</span></div>
+    <p class="sec-sub">
+      <span data-lang-text="ar" class="inline">سبع بطاقات، كل بطاقة تُسكب من ملف ملتزم واحد يحتكر سطحه — باسم المصدر ورمز sha256 الكامل داخل اللوح نفسه. التدقيق يعيد اشتقاق كل بصمة من الشجرة الملتزمة دون شبكة، وأي انجراف يُخفق بصوت عالٍ.</span>
+      <span data-lang-text="en" class="inline">Seven plates, each minted from ONE committed file that exclusively owns its surface — source name and full sha256 inside the artwork. The audit re-derives every digest from the committed tree offline; any drift fails loudly.</span>
+    </p>
+    <img class="wallshot" src="assets/badges/wall-badge-shield.svg" alt="CoreGuard Badge Shield — seven exclusive-source plates">
+  </section>
+
+  <section id="downloads">
+    <div class="sec-head"><h2><span data-lang-text="ar" class="inline">حزمة الأصول الرسمية</span><span data-lang-text="en" class="inline">The official asset kit</span></h2><span class="n">8</span></div>
+    <p class="sec-sub">
+      <span data-lang-text="ar" class="inline">كل أصل رسمي جاهز للتنزيل المباشر من الويب الحي — عناصر متجهية بلا خسائر، وغطاء مشاركة اجتماعية جاهز. هذه الحزمة هي نفسها التي تُدار من المستودع الملتزم؛ الأصل الواحد، الحقيقة الواحدة.</span>
+      <span data-lang-text="en" class="inline">Every official asset, straight from the live site — lossless vectors and a ready social cover. This kit is governed by the committed repo; one source, one truth.</span>
+    </p>
+    <div class="downloads">
+      <div class="dlcard"><b><span data-lang-text="ar" class="inline">درع CG المفرد</span><span data-lang-text="en" class="inline">CG standalone mark</span></b><small>coreguard-mark.svg — vector</small><a class="dl" href="../assets/coreguard-mark.svg" download>⬇</a></div>
+      <div class="dlcard"><b><span data-lang-text="ar" class="inline">أيقونة تطبيق</span><span data-lang-text="en" class="inline">App icon</span></b><small>coreguard-appicon.svg — vector</small><a class="dl" href="../assets/coreguard-appicon.svg" download>⬇</a></div>
+      <div class="dlcard"><b><span data-lang-text="ar" class="inline">الشعار الأفقي</span><span data-lang-text="en" class="inline">Horizontal lockup</span></b><small>coreguard-lockup.svg — vector</small><a class="dl" href="../assets/coreguard-lockup.svg" download>⬇</a></div>
+      <div class="dlcard"><b><span data-lang-text="ar" class="inline">الشعار العمودي</span><span data-lang-text="en" class="inline">Vertical lockup</span></b><small>coreguard-lockup-vertical.svg — vector</small><a class="dl" href="../assets/coreguard-lockup-vertical.svg" download>⬇</a></div>
+      <div class="dlcard"><b><span data-lang-text="ar" class="inline">البطاقة الأحادية</span><span data-lang-text="en" class="inline">Monochrome mark</span></b><small>coreguard-mono.svg — vector</small><a class="dl" href="../assets/coreguard-mono.svg" download>⬇</a></div>
+      <div class="dlcard"><b><span data-lang-text="ar" class="inline">أيقونة التبويب</span><span data-lang-text="en" class="inline">Favicon</span></b><small>favicon.svg — vector</small><a class="dl" href="../assets/favicon.svg" download>⬇</a></div>
+      <div class="dlcard"><b><span data-lang-text="ar" class="inline">غطاء المشاركة</span><span data-lang-text="en" class="inline">Social cover</span></b><small>og-cover-1200.png — 1200 × 630</small><a class="dl" href="../assets/og-cover-1200.png" download>⬇</a></div>
+      <div class="dlcard"><b><span data-lang-text="ar" class="inline">درع الشارات</span><span data-lang-text="en" class="inline">Badge Shield</span></b><small>wall-badge-shield.svg — 1024 × 420</small><a class="dl" href="assets/badges/wall-badge-shield.svg" download>⬇</a></div>
+    </div>
+  </section>
+
+  <footer class="ribbon">
+    <div class="words">COREGUARD <span class="dots">·</span> VERIFY <span class="dots">·</span> PROTECT <span class="dots">·</span> EMPOWER</div>
+    <div class="sub">
+      <span data-lang-text="ar" class="inline">الهوية الرسمية v1.1 — جميع الأصول محكومة من الشجرة الملتزمة · <a href="https://github.com/EslaM-X/coreguard" style="color:var(--orange2)">المستودع</a></span>
+      <span data-lang-text="en" class="inline">Official identity v1.1 — all assets governed by the committed tree · <a href="https://github.com/EslaM-X/coreguard" style="color:var(--orange2)">Repository</a></span>
+    </div>
+  </footer>
+
+</div>
+<script>
+  document.getElementById("btn-ar").addEventListener("click", () => setLang("ar"));
+  document.getElementById("btn-en").addEventListener("click", () => setLang("en"));
+  function setLang(l) {
+    document.documentElement.lang = l;
+    document.documentElement.dir = l === "ar" ? "rtl" : "ltr";
+    document.getElementById("btn-ar").classList.toggle("on", l === "ar");
+    document.getElementById("btn-en").classList.toggle("on", l === "en");
+    try { localStorage.setItem("cg-lang", l); } catch {}
+  }
+  try {
+    const saved = localStorage.getItem("cg-lang");
+    setLang(saved === "en" ? "en" : "ar");
+  } catch { setLang("ar"); }
+</script>
+</body>
+</html>
