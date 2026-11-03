@@ -15,12 +15,10 @@
 | طبيعته | **LIVE · READ-ONLY** — يخزّن الالتزامات فقط | لا حفظ أصول · لا أوراكل · لا مفاتيح |
 | نزاهتها | **VERIFIED ANCHOR INTEGRITY** | إعادة اشتقاق مستقلة، ملتزمة في CI |
 
-## 2 · خطوات التحقق المستقل · The independent-verify ladder
+## 2 · خطوات التحقق المستقل · The independent-verify ladderبعد استنساخ بارد — `git clone https://github.com/coreguard-global/CoreGuard.git` ثم مَرورك إلى جذور المشروع — شغّل بدوري هذا:
 
 ```bash
-git clone https://github.com/coreguard-global/CoreGuard.git
-cd CoreGuard
-npm ci
+npm ci                    
 npm test                    # الجناح الكامل — العدد مثبت آليًا في docs/state-snapshot.json
 npm run claims:audit        # سجل الادعاءات CG-CL/1 — كل ادعاء ملتزم ومحدد المصدر
 npm run boundary:audit      # عدد الملفات الملتزمة · 0 انتهاكات
