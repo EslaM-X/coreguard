@@ -1,0 +1,21 @@
+# CoreGuard Global - Code Owners
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+* @EslaM-X
+
+# Network-specific
+/packages/stellar* @EslaM-X
+/packages/pi* @EslaM-X
+/packages/coredao* @EslaM-X
+
+# Contracts
+/contracts/ @EslaM-X
+/soroban/ @EslaM-X
+
+# CI/CD
+/.github/ @EslaM-X
+/scripts/ @EslaM-X
+
+# Docs
+/docs/ @EslaM-X
+/README.md @EslaM-X
