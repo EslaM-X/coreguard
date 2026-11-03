@@ -54,6 +54,13 @@
 
 **The official brand page — [docs/BRAND.html](https://eslam-x.github.io/coreguard/BRAND.html) · صفحة الهوية الرسمية**: the shield, lockups, the audited color system (Core Orange #FF8A00 · Deep Core #0B0F14 · Graphite #4A5568 · Ice White #F5F7FA), the official gradient, the mark law, and the full downloadable asset kit.
 
+### The trust gate · legal node · the lab · the bot — بوابة الثقة والعقدة القانونية
+
+- **Trust gate — investor portal · بوابة الثقة**: [docs/TRUST.md](docs/TRUST.md) — the live Core Mainnet anchor (chainId 1116), the independent-verify ladder, the evidence matrix, and what we never claim.
+- **Legal node · العقدة القانونية**: [LICENSE.md](LICENSE.md) — MIT code, brand-and-trademark posture, bilingual.
+- **CoreGuard Labs — the evidence lab · مخبر الأدلة**: [docs/LABS.md](docs/LABS.md) — independent re-derivation, reviewer kits, incubation/program evidence packs.
+- **Verify bot (Telegram/Discord) · بوت التحقق**: [docs/VERIFY-BOT.md](docs/VERIFY-BOT.md) — committed engineering spec, honest PLAN_ONLY status.
+
 Seven brand plates, each minted from ONE committed file that exclusively owns its surface — Execution Firewall, Verifier X3, Stellar Agent, Trinity, the CG-BDG/1 engine, the CGEP/1 receipt, and the Core Mainnet anchor. Every plate's artwork names its source and carries that file's full `sha256` digest in a machine payload; the audit re-derives every digest from the committed tree, offline, and fails loudly on any drift — a plate can never silently drift from the bytes it certifies:
 
 ```bash
