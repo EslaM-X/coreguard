@@ -22,6 +22,7 @@
   <a href="https://eslam-x.github.io/coreguard/"><img src="https://eslam-x.github.io/coreguard/assets/badges/core-mainnet-anchor.svg" alt="Core Mainnet anchor"></a>
   <a href="https://github.com/EslaM-X/coreguard/actions"><img src="https://eslam-x.github.io/coreguard/assets/badges/ci-1412-tests.svg" alt="CI 1412 tests"></a>
   <a href="https://www.linkedin.com/company/coreguard-global"><img src="https://img.shields.io/badge/LinkedIn-CoreGuard%20Global-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
+  <a href="https://twitter.com/CoreGuardGlobal"><img src="https://img.shields.io/badge/Twitter-@CoreGuardGlobal-1DA1F2?style=flat-square&logo=twitter&logoColor=white" alt="Twitter"></a>
 </p>
 
 ### Verifiable Execution Truth Layer for Bitcoin DeFi
