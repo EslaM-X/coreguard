@@ -31,8 +31,8 @@ const BOUND_LETTERS = [
 
 const LIVE_SURFACES = [
   "https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html",
-  "https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md",
-  "https://github.com/EslaM-X/coreguard",
+  "https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md",
+  "https://github.com/coreguard-global/CoreGuard",
   "https://eslam-x.github.io/coreguard/raer/registry.json",
   "https://eslam-x.github.io/coreguard/raer/feed.json",
 ];

@@ -160,8 +160,8 @@ export async function submitTransaction({ xdr, submitter } = {}) {
 export function status() {
   return {
     version: STELLAR_VERSION,
-    runMode: "TESTNET_LIVE",
-    integrationStatus: "BUILT",
+    runMode: "DRY_RUN",
+    integrationStatus: "NOT_BUILT",
     hasCredentials: false,
     authorized: false,
     executed: false,

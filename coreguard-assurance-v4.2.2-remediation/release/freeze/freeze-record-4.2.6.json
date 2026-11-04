@@ -173,17 +173,17 @@
       },
       {
         "file": "../docs/GOVERNANCE-DASHBOARD.html",
-        "sha256": "0x9a7536294c0d4a32edc198c8b0c9fa6d42481ef99f0bab64b950fe7893bbe02c",
+        "sha256": "0xa03bdb2b96a2770f223a7a4466225112fd3a9803ecf648cd489f2e0c09cf37a4",
         "bytes": 76747
       },
       {
         "file": "../docs/coreguard-gate41-visual.html",
-        "sha256": "0x79b5c1f50502feb416d2ab4c73e2ecd6dc1b09418a8faf98b57f45d89dfeb8c1",
+        "sha256": "0x5e58a28f0bbeabfcff1f614fcf737ebcd6c5e12a2e2d12585032521dba933e54",
         "bytes": 145851
       },
       {
         "file": "../docs/coreguard-gate41-visual-en.html",
-        "sha256": "0x0fa716a5c3823720d4933d11db69f5796ee375a302681c96f55654def809859a",
+        "sha256": "0xfc66f3119c2f45ce743b4b9ebb0d90d60301d045b839f52cbcd67fd253a3dc20",
         "bytes": 71069
       }
     ],
@@ -286,7 +286,7 @@
     ]
   },
   "decision": "CONDITIONAL NO-GO — C7=PARTIAL C8=PENDING C9=PENDING; SIGNING/COMMITINTENT/ANCHORPROOF/MAINNET BROADCAST = NOT AUTHORIZED",
-  "gitCommit": "71cde7f75c866261b8366ea52164abcf1f9617e7",
+  "gitCommit": "46fd43030c167d01fc673fb2b120fd6d3b98d18a",
   "gitCommitNote": "anchor advanced to the boards-publication commit; prior anchors 5fcc247214e5ba1af9f48d0e0f97b350fa29b280, 3bbdd983cadcd3bb4b19005252a0c07ef1d4f3a3 and c34cae8684c18111d014c89af3be2cad0d86f531 remain valid history; re-pin list documents the active exception per file (superseded entries live in git history)",
   "postCommitRePins": [
     {
@@ -301,18 +301,18 @@
     },
     {
       "file": "../docs/GOVERNANCE-DASHBOARD.html",
-      "commit": "088c9393ab6da6c89a2370c5aa776422f2d9cd6f",
-      "reason": "CoreGuard identity v1.1 refinement (Core Orange / Deep Core) — supersedes the ff0bb74 brand re-pin; re-pinned per integrity rule to 088c939"
+      "commit": "46fd43030c167d01fc673fb2b120fd6d3b98d18a",
+      "reason": "URL migration to coreguard-global/CoreGuard org"
     },
     {
       "file": "../docs/coreguard-gate41-visual.html",
-      "commit": "088c9393ab6da6c89a2370c5aa776422f2d9cd6f",
-      "reason": "CoreGuard identity v1.1 refinement (Core Orange / Deep Core) — supersedes the ff0bb74 brand re-pin; re-pinned per integrity rule to 088c939"
+      "commit": "46fd43030c167d01fc673fb2b120fd6d3b98d18a",
+      "reason": "URL migration to coreguard-global/CoreGuard org"
     },
     {
       "file": "../docs/coreguard-gate41-visual-en.html",
-      "commit": "088c9393ab6da6c89a2370c5aa776422f2d9cd6f",
-      "reason": "CoreGuard identity v1.1 refinement (Core Orange / Deep Core) — supersedes the ff0bb74 brand re-pin; re-pinned per integrity rule to 088c939"
+      "commit": "46fd43030c167d01fc673fb2b120fd6d3b98d18a",
+      "reason": "URL migration to coreguard-global/CoreGuard org"
     }
   ]
 }

@@ -116,7 +116,7 @@ function pageViolations(page) {
       v.push(`${name}: the page must fetch this committed source from the anchor \`${anchor}\` — a retyped or invented source rots ([C25])`);
     }
   }
-  if (!script.includes('OWNER_REPO = "EslaM-X/coreguard"')) {
+  if (!script.includes('OWNER_REPO = "coreguard-global/CoreGuard"')) {
     v.push("OWNER_REPO: the page must pin the repo constant it fetches against");
   }
   for (const id of ["chip-generator", "chip-templates", "chip-engine", "tree-default", "tree-dde", "engine-checks", "engine-gate", "feed-errors", "try-cmd"]) {
