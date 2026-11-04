@@ -27,3 +27,6 @@ var/
 soroban/**/target/
 # local probes
 .probe-live.mjs
+
+# Stellar wallet (NEVER commit)
+.stellar-wallet.json
