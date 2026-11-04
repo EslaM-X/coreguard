@@ -101,7 +101,7 @@ kept as separate semantic layers.
 ## Reproduce it
 
 ```bash
-git clone https://github.com/EslaM-X/coreguard.git
+git clone https://github.com/coreguard-global/CoreGuard.git
 cd coreguard && npm install
 npm run evidence-package -- --out my-package   # one-command evidence package, 11/11 → EVP_OK
 node examples/delivery-fixture/pairs/assent-pair/verify-assent-pair.mjs   # from any pair dir
@@ -130,7 +130,7 @@ Standard + rules: `docs/evidence-package-standard.md` (in repo).
 2. An open review caught two label bugs in our public fixture: a consent
    aggregate that could read as bilateral assent, and a "not settled" that
    read like a verified nonpayment. Corrected, tested, committed at
-   @EslaM-X/coreguard 1e75fba. (…)
+   @coreguard-global/CoreGuard 1e75fba. (…)
 3. Rules we now enforce in every evidence package: consent is per-party first,
    aggregates are derived tri-states; evidence status ≠ actual status; unknowns
    stay unknown; hashes pin every byte. (…)
@@ -138,7 +138,7 @@ Standard + rules: `docs/evidence-package-standard.md` (in repo).
    `npm run evidence-package -- --out pkg` → 11/11 → EVP_OK.
    Synthetic fixture, real execution anchor, no overclaims. (…)
 5. Standard is public: docs/evidence-package-standard.md. Built by
-   @EslaM-X/coreguard — post-execution provenance that never plays judge. (…)
+   @coreguard-global/CoreGuard — post-execution provenance that never plays judge. (…)
 
 ## LinkedIn draft
 

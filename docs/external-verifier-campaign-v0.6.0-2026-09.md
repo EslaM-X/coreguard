@@ -28,7 +28,7 @@ code, runs it, inspects the evidence, and builds on it.
 
 ## What the recipient receives
 
-- Release link: https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+- Release link: https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 - The 90-second killer demo (`npm run demo:90s:killer`) + its transcript
   (`submission/demo-90s/transcript/killer-demo-90s-2026-09-24.txt`)
 - The technical article (`docs/article-missing-verification-layer-agentic-disputes.md`)

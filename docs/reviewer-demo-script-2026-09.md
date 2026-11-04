@@ -7,7 +7,7 @@ is a test-invariant).
 
 Prerequisites: Node 18+, `git clone`, `npm install`. That is the entire setup.
 
-Only external link used: https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+Only external link used: https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ---
 

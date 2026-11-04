@@ -22,7 +22,7 @@ across the SDK and the wire, and deterministic replay (byte-identical verdicts
 from the same bundle) is asserted by contract tests in CI.
 
 Live, in one click: https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
-Spec (CI-executed claims): https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+Spec (CI-executed claims): https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 
 Happy to run a reviewer through the 30-minute protocol — live page, then a
 cold-clone replay — with no commitment implied.

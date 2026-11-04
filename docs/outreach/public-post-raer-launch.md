@@ -43,10 +43,10 @@ The next time a multi-month review is announced, the question is no longer
 - Registry: https://eslam-x.github.io/coreguard/raer/registry.json
 - Feed: https://eslam-x.github.io/coreguard/raer/feed.json
 - AIE-1 spec (every claim CI-executed):
-  https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+  https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 - Live review page (no server, no clone):
   https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
-- Repo: https://github.com/EslaM-X/coreguard
+- Repo: https://github.com/coreguard-global/CoreGuard
 
 Critique welcome — including "your threat model is wrong because X". A
 documented external critique upgrades the standard; that's a win we count.

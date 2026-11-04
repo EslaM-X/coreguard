@@ -133,7 +133,7 @@ curl -sS -X POST http://127.0.0.1:8787/peoples-court -H "content-type: applicati
 ```
 
 Live in-page (no local run needed): https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html ·
-One page: https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md
+One page: https://github.com/coreguard-global/CoreGuard/blob/main/INTEGRATION.md
 
 ## 5. Bound-not-ply disclaimer (appendix)
 

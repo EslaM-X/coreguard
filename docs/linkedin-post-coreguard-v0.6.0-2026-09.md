@@ -2,7 +2,7 @@
 
 Publish-ready draft (English; Arabic translation on request). Author's account
 required to publish; the repo only produces the draft. Release reference (the
-ONLY link used): https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+ONLY link used): https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ---
 
@@ -40,6 +40,6 @@ That's the standard we're building toward.
 
 CoreGuard v0.6.0 — verification infrastructure for agentic disputes.
 
-https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 #AgenticDisputes #BitcoinDeFi #Verification #CoreDAO #Web3

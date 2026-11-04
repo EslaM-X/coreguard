@@ -6,7 +6,7 @@ MIT مفتوح المصدر. كل ما يلي قابل لإعادة الإنتا
 
 التواصل: افتح issue أو PR على المستودع.
 الرابط الخارجي الوحيد المستخدم:
-https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ---
 

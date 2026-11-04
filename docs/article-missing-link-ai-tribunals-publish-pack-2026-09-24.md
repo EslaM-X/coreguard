@@ -6,7 +6,7 @@ body per platform. Nothing here adds a claim that evidence doesn't support —
 the honesty note is part of the product, keep it.
 
 Release reference (the ONLY link used anywhere, never invent another):
-https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ---
 
@@ -66,7 +66,7 @@ We're looking for independent technical verification, not endorsement. If you
 find an ambiguity, false assumption, or fail-open path, open an issue or send
 us the reproduction.
 
-https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ## Medium body (full-length, ready to paste)
 
@@ -110,7 +110,7 @@ Each layer consumes the previous one's pinned output and never rewrites it.
 The business-facing inventory of this algorithm is in the **v0.6.0 release
 notes**: a 60-second narrative of the whole stack with byte-level proof.
 
-https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ### 4. How it could adapt to the sector
 

@@ -51,7 +51,7 @@ counts on purpose, so letters never go stale):
   evidenceStatus/actualStatus split), ADAL/1 dispute & attestation standard,
   AEA/1 escrow/arbitration boundary record, conformance adapter
   (integrationStatus NOT_BUILT), synthetic reference tribunal.
-- Anchor: https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+- Anchor: https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ### Letter B1 — Internet-Court ecosystem (GenLayer / Internet Court coalition)
 

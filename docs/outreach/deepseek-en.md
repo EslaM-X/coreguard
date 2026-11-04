@@ -21,7 +21,7 @@ out), tamper attempts name the exact flipped byte, and the spec's claims are
 executed by CI so a fork can prove it stayed honest.
 
 Live in one click, no server: https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
-Spec: https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+Spec: https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 
 A 30-minute walkthrough — live page, then a cold-clone replay — is available
 any time, with zero commitment.

@@ -63,10 +63,10 @@ Intent → Policy → Execution → Evidence → Replay → Verdict
 ## Slide 9: Team
 - Founder: EslaM-X (CoreGuard Global)
 - LinkedIn: https://www.linkedin.com/company/coreguard-global
-- GitHub: https://github.com/EslaM-X/coreguard
+- GitHub: https://github.com/coreguard-global/CoreGuard
 - Website: https://coreguard.app
 
 ## Slide 10: Contact
 - Email: inquire@coredao.org
 - LinkedIn: https://www.linkedin.com/company/coreguard-global
-- GitHub: https://github.com/EslaM-X/coreguard
+- GitHub: https://github.com/coreguard-global/CoreGuard

@@ -25,7 +25,7 @@ You can see the real engine run in one click, no server, no clone:
 https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
 
 Spec — every claim on it is executed by CI, not trusted:
-https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 
 A 30-minute walkthrough (live page + cold-clone replay) is available any time,
 with zero commitment.

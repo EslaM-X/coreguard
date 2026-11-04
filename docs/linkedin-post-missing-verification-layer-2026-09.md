@@ -41,7 +41,7 @@ Two honesty notes that matter:
 
 The strongest thing this protocol ships is what it refuses to claim.
 
-Repository + article + one-command offline demo: github.com/EslaM-X/coreguard
+Repository + article + one-command offline demo: github.com/coreguard-global/CoreGuard
 
 #AgenticDisputes #BitcoinDeFi #Verification #CoreDAO #Web3
 

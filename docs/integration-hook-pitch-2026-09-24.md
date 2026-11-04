@@ -5,7 +5,7 @@ is the verifier wave; this one is the *integration hook* — the conversation
 that moves toward a credential-holding integrator building the bridge).
 
 Release reference (the ONLY link used anywhere, never invent another):
-https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ---
 
@@ -104,7 +104,7 @@ one-liner, not the feature list:
 > If you find an ambiguity, false assumption, or fail-open path, open an issue
 > or send us the reproduction.
 >
-> https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+> https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ## Assembly rules
 

@@ -4,7 +4,7 @@ Sibling of `docs/external-verifier-campaign-v0.6.0-2026-09.md`. This file is the
 execution surface: one draft message per segment, one tracker to run the wave.
 
 Release reference (the ONLY link used anywhere, never invent another):
-https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ## CTA (unchanged core — do not rewrite)
 
@@ -58,7 +58,7 @@ group broadcast.*
 > If you find an ambiguity, false assumption, or fail-open path, open an issue
 > or send us the reproduction.
 >
-> https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+> https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ### 2 · agent commerce / payments
 
@@ -79,7 +79,7 @@ group broadcast.*
 > If you find an ambiguity, false assumption, or fail-open path, open an issue
 > or send us the reproduction.
 >
-> https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+> https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ### 3 · escrow
 
@@ -100,7 +100,7 @@ group broadcast.*
 > If you find an ambiguity, false assumption, or fail-open path, open an issue
 > or send us the reproduction.
 >
-> https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+> https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ### 4 · dispute resolution
 
@@ -121,7 +121,7 @@ group broadcast.*
 > If you find an ambiguity, false assumption, or fail-open path, open an issue
 > or send us the reproduction.
 >
-> https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+> https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ### 5 · blockchain infrastructure
 
@@ -140,7 +140,7 @@ group broadcast.*
 > If you find an ambiguity, false assumption, or fail-open path, open an issue
 > or send us the reproduction.
 >
-> https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+> https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ### 6 · protocol / security engineering
 
@@ -153,7 +153,7 @@ group broadcast.*
 > We want it broken, not endorsed. If you find an ambiguity, false
 > assumption, or fail-open path, open an issue or send us the reproduction.
 >
-> https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+> https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ## Tracker
 

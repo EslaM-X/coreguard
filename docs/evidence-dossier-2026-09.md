@@ -8,7 +8,7 @@ Nothing here is claimed as executed; everything marked *verified* is
 re-derivable from the committed tree.
 
 Release reference (the ONLY link used anywhere):
-https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 Companion live surfaces (same committed sources, all deterministic):
 `docs/live-integration-and-adoption-ladder-2026-09-25.md` (the 13-state

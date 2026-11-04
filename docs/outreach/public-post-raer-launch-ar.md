@@ -36,10 +36,10 @@
 - السجل: https://eslam-x.github.io/coreguard/raer/registry.json
 - الـfeed: https://eslam-x.github.io/coreguard/raer/feed.json
 - المواصفة (كل ادعاء ينفذه CI):
-  https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+  https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 - صفحة العرض الحي (بلا خادم ولا استنساخ):
   https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
-- المستودع: https://github.com/EslaM-X/coreguard
+- المستودع: https://github.com/coreguard-global/CoreGuard
 
 النقد مرحّب به — بمن فيهم «نموذج التهديد عندكم خاطئ لأن X». النقد الخارجي
 الموثق يرقّي بالمعيار؛ وهذا مكسب نحتسبه.

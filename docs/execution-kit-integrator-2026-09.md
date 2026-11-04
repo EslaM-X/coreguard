@@ -10,7 +10,7 @@ Companion documents: `docs/phase3-credential-acquisition-plan-2026-09.md`
 DRY-RUN matrix + L1–L3), `docs/integration-surface-map-2026-09.md` (surfaces).
 
 The ONLY external link used anywhere:
-https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ---
 

@@ -8,7 +8,7 @@ messaging. Supersedes the message bodies in
 record; this file is the current copy-to-post text).
 
 **Release reference (the ONLY link used, never invent another):**
-https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ## CTA (unchanged core — do not rewrite)
 
@@ -89,7 +89,7 @@ Each post ≤ 280 chars; X counts the URL as 23 chars (t.co).
 >
 > Verification before trust.
 >
-> https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+> https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ## LinkedIn post (English; Arabic translation on request)
 
@@ -128,7 +128,7 @@ Each post ≤ 280 chars; X counts the URL as 23 chars (t.co).
 > Clone it. Run it. Try to break the evidence model. We're looking for
 > independent technical verification, not endorsement.
 >
-> https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+> https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 >
 > #AgenticDisputes #BitcoinDeFi #Verification #CoreDAO #Web3
 
@@ -144,7 +144,7 @@ Each post ≤ 280 chars; X counts the URL as 23 chars (t.co).
 >
 > Clone it. Run it. Try to break the evidence model.
 >
-> https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+> https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ## Channel checklist (post in this order)
 

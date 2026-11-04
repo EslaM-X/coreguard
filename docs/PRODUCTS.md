@@ -245,7 +245,7 @@ Commercial framing and the guardrails:
 ## 10. Evaluate in one minute
 
 ```text
-git clone https://github.com/EslaM-X/coreguard.git
+git clone https://github.com/coreguard-global/CoreGuard.git
 cd coreguard
 npm install
 npm test            # full suite, enforced against the measured snapshot
@@ -258,7 +258,7 @@ Then open <https://eslam-x.github.io/coreguard/PLAYGROUND.html> and
 <https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html>.
 
 **Contact:** open an issue or PR on
-[github.com/EslaM-X/coreguard](https://github.com/EslaM-X/coreguard).
+[github.com/coreguard-global/CoreGuard](https://github.com/coreguard-global/CoreGuard).
 
 ---
 

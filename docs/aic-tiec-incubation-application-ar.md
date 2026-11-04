@@ -48,8 +48,8 @@
 | مرجع الواجهة البرمجية | https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html | لغة الأحكام على السلك |
 | سجل RAER (بيانات) | https://eslam-x.github.io/coreguard/raer/registry.json | المخطط + مصفوفة الإثبات الفاشل |
 | الـfeed المشتق (بث آلي) | https://eslam-x.github.io/coreguard/raer/feed.json | مشتق مولَّدًا مثبتًا — `--check` يقارن بايت-ببايت |
-| المواصفة (كل ادعاء ينفذه CI) | https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md | النثر لا ينفصل عن الكود |
-| المستودع كاملًا | https://github.com/EslaM-X/coreguard | استنساخ بارد + `npm test` يعيد إثبات كل شيء |
+| المواصفة (كل ادعاء ينفذه CI) | https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md | النثر لا ينفصل عن الكود |
+| المستودع كاملًا | https://github.com/coreguard-global/CoreGuard | استنساخ بارد + `npm test` يعيد إثبات كل شيء |
 
 *(روابط القسم 3 فُحصت جميعها HTTP 200 قبل تسليم هذا الملف — تاريخ آخر فحص:
 2026-09-28.)*

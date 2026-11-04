@@ -7,7 +7,7 @@ tree in one command.
 
 Contact: open an issue or PR on the repo.
 Only external link used:
-https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0
+https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ---
 

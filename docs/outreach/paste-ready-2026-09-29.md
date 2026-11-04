@@ -41,7 +41,7 @@ Everything is verifiable in one click, in your browser tab, with no server and
 no clone: https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
 
 Spec (every claim executed by CI):
-https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 
 If it's useful, I'll walk a reviewer through the 30-minute protocol — live
 page, then a cold-clone replay — with zero commitment on your side.
@@ -74,7 +74,7 @@ across the SDK and the wire, and deterministic replay (byte-identical verdicts
 from the same bundle) is asserted by contract tests in CI.
 
 Live, in one click: https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
-Spec (CI-executed claims): https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+Spec (CI-executed claims): https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 
 Happy to run a reviewer through the 30-minute protocol — live page, then a
 cold-clone replay — with no commitment implied.
@@ -106,7 +106,7 @@ out), tamper attempts name the exact flipped byte, and the spec's claims are
 executed by CI so a fork can prove it stayed honest.
 
 Live in one click, no server: https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
-Spec: https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+Spec: https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 
 A 30-minute walkthrough — live page, then a cold-clone replay — is available
 any time, with zero commitment.
@@ -142,7 +142,7 @@ You can see the real engine run in one click, no server, no clone:
 https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
 
 Spec — every claim on it is executed by CI, not trusted:
-https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 
 A 30-minute walkthrough (live page + cold-clone replay) is available any time,
 with zero commitment.
@@ -199,9 +199,9 @@ CoreGuard ميكانيكيًا أن التنفيذ جرى بإذن حقيقي و
 **الروابط:**
 - العرض الحي: https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
 - سجل الحوادث الحي: https://eslam-x.github.io/coreguard/raer/registry.json
-- الموجز الكامل للوزارة: https://github.com/EslaM-X/coreguard/blob/main/docs/mcit-aic-briefing-ar.md
-- ملف تقديم الحضانة (عند فتح باب المناقشة): https://github.com/EslaM-X/coreguard/blob/main/docs/aic-tiec-incubation-application-ar.md
-- المستودع: https://github.com/EslaM-X/coreguard
+- الموجز الكامل للوزارة: https://github.com/coreguard-global/CoreGuard/blob/main/docs/mcit-aic-briefing-ar.md
+- ملف تقديم الحضانة (عند فتح باب المناقشة): https://github.com/coreguard-global/CoreGuard/blob/main/docs/aic-tiec-incubation-application-ar.md
+- المستودع: https://github.com/coreguard-global/CoreGuard
 
 أؤكد بصدق كامل: كل ما سبق منتج مكتمل ومفتوح المصدر ومتاح للفحص الفني
 مباشرة، ولا توجد أي مطالبة بشراكة أو تمويل أو براءة مودعة — كل ذلك مسارات
@@ -288,8 +288,8 @@ review surface the next incident will need is public, CI-verified, and one
 click away — so the *next* months-long review has somewhere to start that
 isn't zero.
 
-Repo: https://github.com/EslaM-X/coreguard
-Spec (every claim CI-executed): https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+Repo: https://github.com/coreguard-global/CoreGuard
+Spec (every claim CI-executed): https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 
 Critique welcome — including "your threat model is wrong because X". A
 documented external critique upgrades the standard; that's a win we count.
@@ -334,10 +334,10 @@ The next time a multi-month review is announced, the question is no longer
 - Registry: https://eslam-x.github.io/coreguard/raer/registry.json
 - Feed: https://eslam-x.github.io/coreguard/raer/feed.json
 - AIE-1 spec (every claim CI-executed):
-  https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+  https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 - Live review page (no server, no clone):
   https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
-- Repo: https://github.com/EslaM-X/coreguard
+- Repo: https://github.com/coreguard-global/CoreGuard
 
 Critique welcome — including "your threat model is wrong because X". A
 documented external critique upgrades the standard; that's a win we count.

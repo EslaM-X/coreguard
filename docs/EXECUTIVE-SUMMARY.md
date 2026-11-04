@@ -93,5 +93,5 @@ node demo.mjs
 **EN:**  
 No revenue, customers, partnerships, funding, published pricing, live external integration, badge issuance, settlement/escrow/custody, or third-party security audit is claimed. Anything in those categories is `UNKNOWN`, `GATED`, or does **not** exist. Everything marked `SHIPPED`/`LIVE` is present in the committed tree and verifiable by running the commands above.
 
-**Repo:** [github.com/EslaM-X/coreguard](https://github.com/EslaM-X/coreguard)  
+**Repo:** [github.com/coreguard-global/CoreGuard](https://github.com/coreguard-global/CoreGuard)  
 **Pages:** [eslam-x.github.io/coreguard](https://eslam-x.github.io/coreguard/)

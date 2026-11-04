@@ -80,4 +80,4 @@ publish; the repository only produces the draft. Each post ≤ 280 chars.
 > MIT repo, one command, offline. If you're building agentic dispute
 > infrastructure, the verification layer is the missing piece.
 
-> https://github.com/EslaM-X/coreguard
+> https://github.com/coreguard-global/CoreGuard

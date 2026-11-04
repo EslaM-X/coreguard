@@ -15,7 +15,7 @@
 ## Step 1: Get the code | الخطوة ١: الحصول على الكود (30s)
 
 ```bash
-git clone https://github.com/EslaM-X/coreguard.git
+git clone https://github.com/coreguard-global/CoreGuard.git
 cd coreguard
 npm ci
 ```
@@ -96,4 +96,4 @@ node demo.mjs
 - **Honest by design** — `UNKNOWN` is never guessed. It is **HELD**.
 - **Reproducible** — verify from a clean clone, not from this working tree.
 
-**Start here:** [EXECUTIVE-SUMMARY.md](EXECUTIVE-SUMMARY.md) | **Repo:** [github.com/EslaM-X/coreguard](https://github.com/EslaM-X/coreguard)
+**Start here:** [EXECUTIVE-SUMMARY.md](EXECUTIVE-SUMMARY.md) | **Repo:** [github.com/coreguard-global/CoreGuard](https://github.com/coreguard-global/CoreGuard)

@@ -74,9 +74,9 @@ click away — so the next months-long review has somewhere to start that
 isn't zero.
 
 **A11/11**
-Repo: https://github.com/EslaM-X/coreguard
+Repo: https://github.com/coreguard-global/CoreGuard
 Spec (every claim CI-executed):
-https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 
 ---
 
@@ -140,11 +140,11 @@ Registry: https://eslam-x.github.io/coreguard/raer/registry.json
 Feed: https://eslam-x.github.io/coreguard/raer/feed.json
 
 Live review page: https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
-Repo: https://github.com/EslaM-X/coreguard
+Repo: https://github.com/coreguard-global/CoreGuard
 
 **B10/11**
 Spec (every claim CI-executed):
-https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 
 Critique welcome — including "your threat model is wrong because X".
 A documented external critique upgrades the standard; that's a win we count.
@@ -220,11 +220,11 @@ DEMO) يثبت الميكانيكا من طرف إلى طرف.
 البث: https://eslam-x.github.io/coreguard/raer/feed.json
 
 صفحة العرض الحية: https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
-المستودع: https://github.com/EslaM-X/coreguard
+المستودع: https://github.com/coreguard-global/CoreGuard
 
 **B10-AR/11**
 المواصفة (كل ادعاء تُنفّذه الآلة):
-https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 
 النقد مرحّب به — بما فيه «نموذج التهديد عندكم غلط لأن X». النقد الخارجي
 الموثّق يرقّى المعيار؛ وهذا مكسب نحتسبه.

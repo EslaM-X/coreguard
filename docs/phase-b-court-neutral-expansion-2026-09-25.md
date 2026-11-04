@@ -21,7 +21,7 @@ person. Dates and org lists can move.
   NOT_BUILT) + synthetic `examples/reference-tribunal`.
 - Conformance/determinism: `npm test` (1176, CI-enforced) + `npm run
   boundary:audit` (0 violations, committed-tree scope) + docs-node contract.
-- Public anchor: release `https://github.com/EsLaM-X/coreguard/releases/tag/v0.6.0`.
+- Public anchor: release `https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0`.
 
 ## B. Tracks
 

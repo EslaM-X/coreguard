@@ -70,7 +70,7 @@ Exact text **dispatched 2026-09-15** (owner-confirmed, sent verbatim):
 > If yes, we'd be happy to show the actual proof rather than a deck.
 >
 > CoreGuard repository:
-> https://github.com/EslaM-X/coreguard
+> https://github.com/coreguard-global/CoreGuard
 >
 > Best,
 > CoreGuard

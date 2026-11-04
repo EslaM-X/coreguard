@@ -51,9 +51,9 @@ CoreGuard ميكانيكيًا أن التنفيذ جرى بإذن حقيقي و
 **الروابط:**
 - العرض الحي: https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
 - سجل الحوادث الحي: https://eslam-x.github.io/coreguard/raer/registry.json
-- الموجز الكامل للوزارة: https://github.com/EslaM-X/coreguard/blob/main/docs/mcit-aic-briefing-ar.md
-- ملف تقديم الحضانة (عند فتح باب المناقشة): https://github.com/EslaM-X/coreguard/blob/main/docs/aic-tiec-incubation-application-ar.md
-- المستودع: https://github.com/EslaM-X/coreguard
+- الموجز الكامل للوزارة: https://github.com/coreguard-global/CoreGuard/blob/main/docs/mcit-aic-briefing-ar.md
+- ملف تقديم الحضانة (عند فتح باب المناقشة): https://github.com/coreguard-global/CoreGuard/blob/main/docs/aic-tiec-incubation-application-ar.md
+- المستودع: https://github.com/coreguard-global/CoreGuard
 
 أؤكد بصدق كامل: كل ما سبق منتج مكتمل ومفتوح المصدر ومتاح للفحص الفني
 مباشرة، ولا توجد أي مطالبة بشراكة أو تمويل أو براءة مودعة — كل ذلك مسارات

@@ -4,7 +4,7 @@
 public, sourceable record. Every *adoption* row is **GATED** — no conversation,
 no partnership, and no integration with any listed party has happened. What
 exists today is the surface itself, shipped and machine-verified in this repo:
-[docs/agent-incident-evidence.md](https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md)
+[docs/agent-incident-evidence.md](https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md)
 (spec, claims executed by CI), the live pages (API · SDK), and this repo's
 contracts. This map is an *outreach brief*, not a claims registry of wins.
 
@@ -95,7 +95,7 @@ identity-from-the-socket, and deterministic replay proven E2E in this repo.
   (on Core Mainnet) and is the natural complement: Karnak proves the *model*
   is national; AIE-1 proves the *agents' execution evidence* is reviewable.
 - **Full detail:** the Arabic-first briefing —
-  [docs/mcit-aic-briefing-ar.md](https://github.com/EslaM-X/coreguard/blob/main/docs/mcit-aic-briefing-ar.md)
+  [docs/mcit-aic-briefing-ar.md](https://github.com/coreguard-global/CoreGuard/blob/main/docs/mcit-aic-briefing-ar.md)
   — covering the sovereignty angle, the four trust pillars in decision-maker
   language, a no-commitment evaluation protocol, incubation/finance channels
   (TIEC / ITIDA / Egypt FWD), and an honest patent track.
@@ -116,7 +116,7 @@ identity-from-the-socket, and deterministic replay proven E2E in this repo.
 ## How to use this map (the outreach motion)
 
 0. **B6 owner gate:** the per-target letters live as unsigned drafts in
-   [`docs/outreach/`](https://github.com/EslaM-X/coreguard/blob/main/docs/outreach/README.md)
+   [`docs/outreach/`](https://github.com/coreguard-global/CoreGuard/blob/main/docs/outreach/README.md)
    — nothing is sent without the recorded owner sign-off on that letter.
 1. **Self-serve proof first:** every target can be sent exactly one link —
    the review page — and get a working verdict replay in one click with zero
@@ -127,7 +127,7 @@ identity-from-the-socket, and deterministic replay proven E2E in this repo.
 3. **One language everywhere:** the named-reasons format the SDK returns is
    the same one the wire returns; a reviewer who read one report can read all.
 4. **The public post** for agent-safety communities is drafted under the same
-   gate: [`docs/outreach/public-post-agent-safety.md`](https://github.com/EslaM-X/coreguard/blob/main/docs/outreach/public-post-agent-safety.md)
+   gate: [`docs/outreach/public-post-agent-safety.md`](https://github.com/coreguard-global/CoreGuard/blob/main/docs/outreach/public-post-agent-safety.md)
    — facts-only, ledger-carrying, owner-gated. **Gate record (2026-09-28):**
    the delegated B6 decision approved **X only** for this cycle (LinkedIn and
    Reddit deliberately deferred until the X thread's replies are worked under

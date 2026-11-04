@@ -56,8 +56,8 @@ review surface the next incident will need is public, CI-verified, and one
 click away — so the *next* months-long review has somewhere to start that
 isn't zero.
 
-Repo: https://github.com/EslaM-X/coreguard
-Spec (every claim CI-executed): https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+Repo: https://github.com/coreguard-global/CoreGuard
+Spec (every claim CI-executed): https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 
 Critique welcome — including "your threat model is wrong because X". A
 documented external critique upgrades the standard; that's a win we count.

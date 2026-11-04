@@ -64,10 +64,10 @@ Karnak Chat أثبت أن **النموذج** العربي يمكن أن يكون
 
 عرض تجريبي واحد، 30 دقيقة، بلا التزام: نفتح الصفحة الحية، نشغّل السيناريوهات الثلاثة، ثم من استنساخ بارد نعيد إنتاج الحكم حرفيًا. إن اقتنع الفريق الفني، الموجز نفسه يحتوي مسار القنوات الرسمية — والقرار كله لكم بلا أي ضغط.
 
-مسودة رسالة الإدخال الرسمية موجودة في [`docs/outreach/aic-karnak-ar.md`](https://github.com/EslaM-X/coreguard/blob/main/docs/outreach/aic-karnak-ar.md) — تحت بوابة توقيع المالك (B6): لا تُرسل قبل الموافقة المسجلة.
+مسودة رسالة الإدخال الرسمية موجودة في [`docs/outreach/aic-karnak-ar.md`](https://github.com/coreguard-global/CoreGuard/blob/main/docs/outreach/aic-karnak-ar.md) — تحت بوابة توقيع المالك (B6): لا تُرسل قبل الموافقة المسجلة.
 
 ---
 
-**المستودع**: https://github.com/EslaM-X/coreguard · **الصفحة الحية**: https://eslam-x.github.io/coreguard/ · **السلسلة**: Core Mainnet (chainId 1116) · كل ادعاء في هذا الموجز متتبع من شجرة المستودع.
+**المستودع**: https://github.com/coreguard-global/CoreGuard · **الصفحة الحية**: https://eslam-x.github.io/coreguard/ · **السلسلة**: Core Mainnet (chainId 1116) · كل ادعاء في هذا الموجز متتبع من شجرة المستودع.
 
-**ملف تقديم الحضانة** (AIC/TIEC — CoreGuard+RAER، مسار البراءة، خارطة 90 يومًا): [`docs/aic-tiec-incubation-application-ar.md`](https://github.com/EslaM-X/coreguard/blob/main/docs/aic-tiec-incubation-application-ar.md)
+**ملف تقديم الحضانة** (AIC/TIEC — CoreGuard+RAER، مسار البراءة، خارطة 90 يومًا): [`docs/aic-tiec-incubation-application-ar.md`](https://github.com/coreguard-global/CoreGuard/blob/main/docs/aic-tiec-incubation-application-ar.md)

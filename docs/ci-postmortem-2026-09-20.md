@@ -1,6 +1,6 @@
 # CI Postmortem & Red-Run Closure Register — 2026-09-20
 
-> **Purpose.** Every red workflow run on `EslaM-X/coreguard`, root-caused from
+> **Purpose.** Every red workflow run on `coreguard-global/CoreGuard`, root-caused from
 > actual run logs, mapped to its fix commit and its permanent guard. This is the
 > record a reviewer reads when they see red history — it proves the repo treats
 > every red run as a closed incident, not a forgotten failure.

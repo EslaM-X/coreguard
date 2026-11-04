@@ -35,9 +35,9 @@
 
 **الدليل الحي:** جدول الفن السابق المؤرَّخ (بما فيه أقرب جار مفاهيمي — بروتوكول
 التفويض عند الطلب x401، 2026-06-25) مع خارطة التفوق:
-[docs/competitive-intelligence-overtake-2026-09-20.md](https://github.com/EslaM-X/coreguard/blob/main/docs/competitive-intelligence-overtake-2026-09-20.md) —
+[docs/competitive-intelligence-overtake-2026-09-20.md](https://github.com/coreguard-global/CoreGuard/blob/main/docs/competitive-intelligence-overtake-2026-09-20.md) —
 والتفصيل في ملف البراءة:
-[submission/15-egypt-patent-file.md](https://github.com/EslaM-X/coreguard/blob/main/submission/15-egypt-patent-file.md).
+[submission/15-egypt-patent-file.md](https://github.com/coreguard-global/CoreGuard/blob/main/submission/15-egypt-patent-file.md).
 
 **إن سُئلت أكثر:** الفاحص يحكم؛ نحن نُظهر حدود الادعاء بأنفسنا قبل أن يسمّيها
 — وهذا يقصّر الطريق أمامه بدل أن يطوله.
@@ -51,9 +51,9 @@
 
 **الدليل الحي:** جدول الصدق في موجز الوزارة §7-8 وملف الحضانة §8 — سطر «براءة
 مودعة = GATED — لم يُقيَّم»:
-[docs/mcit-aic-briefing-ar.md](https://github.com/EslaM-X/coreguard/blob/main/docs/mcit-aic-briefing-ar.md)
+[docs/mcit-aic-briefing-ar.md](https://github.com/coreguard-global/CoreGuard/blob/main/docs/mcit-aic-briefing-ar.md)
 ·
-[docs/aic-tiec-incubation-application-ar.md](https://github.com/EslaM-X/coreguard/blob/main/docs/aic-tiec-incubation-application-ar.md).
+[docs/aic-tiec-incubation-application-ar.md](https://github.com/coreguard-global/CoreGuard/blob/main/docs/aic-tiec-incubation-application-ar.md).
 
 **إن سُئلت أكثر:** المسار المحلي الموصى به هو جهاز تنمية التكنولوجيا الحديثة —
 هيئة البراءات، بتغطية محلية أولًا ثم PCT خلال 12 شهرًا — ويُذكر بالاسم كخيار
@@ -68,7 +68,7 @@
 
 **الدليل الحي:** ملاحظة §6-4 في ملف الحضانة («هذا الملف نفسه وموجز MCIT
 يؤرخان الإفصاح العام») + تواريخ الالتزامات في المستودع:
-[https://github.com/EslaM-X/coreguard](https://github.com/EslaM-X/coreguard).
+[https://github.com/coreguard-global/CoreGuard](https://github.com/coreguard-global/CoreGuard).
 
 **إن سُئلت أكثر:** نناقش مع مستشار البراءات خيار ملكية المخترِع + إسناد
 للمستودع وتسجيل حقوق النشر كما هو — مسوَّدة الخيارات موجودة في ملف البراءة §تسوية الملكية.
@@ -81,9 +81,9 @@
 المُنفَّذ**.
 
 **الدليل الحي:** المواصفة التي ينفّذ كل ادعاء فيها آليًا:
-[docs/agent-incident-evidence.md](https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md) —
+[docs/agent-incident-evidence.md](https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md) —
 وحالة التكامل المستمر الحية:
-[https://github.com/EslaM-X/coreguard/actions](https://github.com/EslaM-X/coreguard/actions).
+[https://github.com/coreguard-global/CoreGuard/actions](https://github.com/coreguard-global/CoreGuard/actions).
 
 **إن سُئلت أكثر:** الجولة الكاملة الحالية 1225/1225 اختبارًا تمرّ على أكثر من
 محرك، وتشمل عقودًا تربط صفحات العرض الحية حرفيًا وتمنع انحراف أي رسالة
@@ -103,7 +103,7 @@
 
 **إن سُئلت أكثر:** على مستوى المختبر: 1,000 طفرة حتمية رُفضت كلها دون أي
 إفلات، و10,000 تنفيذ مولَّد حتمية بلا قبول خاطئ ولا رفض خاطئ — أوامر إعادة
-القياس موثقة في [سجل الحالة](https://github.com/EslaM-X/coreguard/blob/main/docs/STATUS.md).
+القياس موثقة في [سجل الحالة](https://github.com/coreguard-global/CoreGuard/blob/main/docs/STATUS.md).
 
 ### س6: «ما الجديد فوق عقد ذكي يُثبت التجزئة على سلسلة؟»
 
@@ -115,8 +115,8 @@
 
 **الدليل الحي:** إثبات سلسلة حي — عقد التثبيت على Core Mainnet (chainId
 1116)، حكم L1 VERIFIED، محفوظ في
-[scripts/verify-live.json](https://github.com/EslaM-X/coreguard/blob/main/scripts/verify-live.json)
-داخل [المستودع](https://github.com/EslaM-X/coreguard) — وإعادة التشغيل
+[scripts/verify-live.json](https://github.com/coreguard-global/CoreGuard/blob/main/scripts/verify-live.json)
+داخل [المستودع](https://github.com/coreguard-global/CoreGuard) — وإعادة التشغيل
 الحتمية نفسها: عقود 34/34 على عقد المشاركة V2/V3، منها عقد يقيس تسليمين
 مستقلين لنفس الحزمة بتقريرين متطابقين بايت-ببايت.
 
@@ -135,13 +135,13 @@
 تقنية كاملة، قبل أي تبنٍّ — وكل ما هو تبنٍّ/تمويل/شراكة GATED.
 
 **الدليل الحي:** جدول الصدق الكامل في
-[ملف الحضانة §8](https://github.com/EslaM-X/coreguard/blob/main/docs/aic-tiec-incubation-application-ar.md) —
+[ملف الحضانة §8](https://github.com/coreguard-global/CoreGuard/blob/main/docs/aic-tiec-incubation-application-ar.md) —
 وسجل النوايا نفسه آلي: سجل المطالبات CG-CL/1 (28 مطالبة، 16 موثقة بالأدلة،
 و11 منها معلقة على نتائج خارجية بلا تصعيد بلا سند)، وسجل السمعة بدرجة
 **UNPROVEN وscore 0** — بناها فاحصنا نحن أولًا قبل أن يبنيها فاحصكم.
 
 **إن سُئلت أكثر:** سجل المطالبات قابل للتفتيش:
-[docs/claims-registry.json](https://github.com/EslaM-X/coreguard/blob/main/docs/claims-registry.json) —
+[docs/claims-registry.json](https://github.com/coreguard-global/CoreGuard/blob/main/docs/claims-registry.json) —
 «VERIFIED» لا يُصل إليه إلا بدليل، وحكم التدقيق يسافر داخل الملف نفسه.
 
 ### س8: «ما الذي يجعل مشروعكم صعبًا على منافس محلي أو إقليمي؟»
@@ -175,7 +175,7 @@
 الملكية الفكرية، والقرار — **والقرار لكم حصريًا**.
 
 **الدليل الحي:** الخارطة كاملة بمقاييسها في
-[ملف الحضانة §7](https://github.com/EslaM-X/coreguard/blob/main/docs/aic-tiec-incubation-application-ar.md) —
+[ملف الحضانة §7](https://github.com/coreguard-global/CoreGuard/blob/main/docs/aic-tiec-incubation-application-ar.md) —
 كل مقياس GATED حتى يقع، ولا يُعلن أي منها قبل وقوعه.
 
 **إن سُئلت أكثر:** الملاءمة الوطنية سطر واحد: Karnak يثبت أصالة المحتوى،
@@ -190,10 +190,10 @@
 
 **الدليل الحي:** تقرير المطابقة CG-CR/1 — السعر LOCKED على 0 وعدد مُصدري
 الشارات 0:
-[docs/conformance-report.json](https://github.com/EslaM-X/coreguard/blob/main/docs/conformance-report.json) —
+[docs/conformance-report.json](https://github.com/coreguard-global/CoreGuard/blob/main/docs/conformance-report.json) —
 وبوابة الإصدار CG-RG/1 (18/18 فحصًا، استقلالية مُدقَّقة ذاتيًا) تمنع أي
 نشر بادعاء لم يُثبت:
-[docs/release-gate.json](https://github.com/EslaM-X/coreguard/blob/main/docs/release-gate.json).
+[docs/release-gate.json](https://github.com/coreguard-global/CoreGuard/blob/main/docs/release-gate.json).
 
 **إن سُئلت أكثر:** مسارات التمويل الرسمية المذكورة (TIEC / ITIDA / Egypt
 FWD / AIC) تُذكر كخيارات مسار لا كنتائج — ولا يوجد أي طلب مودع حتى الآن.
@@ -206,9 +206,9 @@ FWD / AIC) تُذكر كخيارات مسار لا كنتائج — ولا يو�
 من الرفض الموثق ونرقّي به الملف».
 
 **الدليل الحي:** عقد الحزمة الذي يمنع أي نص غير موقَّع من التسليم:
-[docs/outreach/paste-ready-2026-09-29.md](https://github.com/EslaM-X/coreguard/blob/main/docs/outreach/paste-ready-2026-09-29.md)
+[docs/outreach/paste-ready-2026-09-29.md](https://github.com/coreguard-global/CoreGuard/blob/main/docs/outreach/paste-ready-2026-09-29.md)
 مع عقد الاختبار الخاص به في المستودع — ومسودة الرسالة الرسمية الموقَّعة
-[docs/outreach/aic-mcit-intake-ar.md](https://github.com/EslaM-X/coreguard/blob/main/docs/outreach/aic-mcit-intake-ar.md).
+[docs/outreach/aic-mcit-intake-ar.md](https://github.com/coreguard-global/CoreGuard/blob/main/docs/outreach/aic-mcit-intake-ar.md).
 
 **إن سُئلت أكثر:** القاعدة الحاكمة في كل ردودنا الجاهزة: «ليس بعد؛ السجل هو
 الدعوة» — لا ألطف ولا أقسى، ولا مطالبة تسبق الحدوث.
@@ -221,7 +221,7 @@ FWD / AIC) تُذكر كخيارات مسار لا كنتائج — ولا يو�
 الوثائق من أن يتوقف عن العمل بصمت. التسويق لا يعيش تحت هذا الحكم؛ الأدلة
 تعيش.
 
-**الدليل الحي:** [سجل الحالة](https://github.com/EslaM-X/coreguard/blob/main/docs/STATUS.md) —
+**الدليل الحي:** [سجل الحالة](https://github.com/coreguard-global/CoreGuard/blob/main/docs/STATUS.md) —
 كل صف مقياس فيه يحمل طريقة إعادة القياس — والجولة الكاملة الحالية 1225/1225،
 وحدود الشجرة 853 ملفًا بلا مخالفات. المستند الذي بين يدي اللجنة الآن مكتوب
 بنفس القاعدة: جواب بلا رابط حي لا يُقال في الغرفة.
@@ -298,7 +298,7 @@ FWD / AIC) تُذكر كخيارات مسار لا كنتائج — ولا يو�
    والملاحظة النهائية للملف الموقَّع تُراجع مع مستشار براءات قبل أي إرسال
    (الإرسال نفسه إفصاح مؤرَّخ).
 4. **الأرقام تُقتبس من شجرة المستودع حصرًا** — لا رقم يُقال إن لم يوجد في
-   [سجل الحالة](https://github.com/EslaM-X/coreguard/blob/main/docs/STATUS.md)
+   [سجل الحالة](https://github.com/coreguard-global/CoreGuard/blob/main/docs/STATUS.md)
    أو أحد الملفات المرجعية أعلاه.
 5. **الرفض الموثق مكسب يُحتسب** — يُسجَّل، ويُرقّى به الملف، ويُعلن كذلك.
 6. **الإرسال الفعلي بيد المالك حصرًا** — هذا الملف تدريب على الجلسة، لا

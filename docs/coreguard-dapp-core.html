@@ -195,7 +195,7 @@
   // Live CI badge (identical honesty rule as the DDE board: offline → stays honest).
   (async()=>{
     try{
-      const r=await fetch("https://api.github.com/repos/EslaM-X/coreguard/actions/workflows/dde.yml",{headers:{accept:"application/vnd.github+json"}});
+      const r=await fetch("https://api.github.com/repos/coreguard-global/CoreGuard/actions/workflows/dde.yml",{headers:{accept:"application/vnd.github+json"}});
       if(!r.ok) throw new Error("http "+r.status);
       const wf=await r.json();
       const state=(wf.state||"").toLowerCase();

@@ -25,7 +25,7 @@ Everything is verifiable in one click, in your browser tab, with no server and
 no clone: https://eslam-x.github.io/coreguard/AIE-1-REVIEW.html
 
 Spec (every claim executed by CI):
-https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md
+https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md
 
 If it's useful, I'll walk a reviewer through the 30-minute protocol — live
 page, then a cold-clone replay — with zero commitment on your side.

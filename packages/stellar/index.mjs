@@ -178,3 +178,7 @@ export function selfCheck() {
     status: s,
   };
 }
+
+// Re-export Freighter & Soroban DEX modules
+export * from "./freighter.mjs";
+export * from "./soroban-dex.mjs";

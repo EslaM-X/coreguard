@@ -2,7 +2,7 @@
 
 Publish-ready 8-post thread. Author's account required to publish; the repo
 only produces the draft. Each post ≤ 280 chars. Release reference (the ONLY
-link used, never invent another): https://github.com/EslaM-X/coreguard/releases/tag/v0.6.0
+link used, never invent another): https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 ---
 
@@ -93,7 +93,7 @@ link used, never invent another): https://github.com/EslaM-X/coreguard/releases/
 >
 > Verification before trust.
 >
-> https://github.com/EslaM-X/coreguard/releases/tag/v0.6.0
+> https://github.com/coreguard-global/CoreGuard/releases/tag/v0.6.0
 
 *Char-check note: raw text is 302 chars; X counts the URL as a 23-char t.co
 link, so the live post is 273/280 and fits. Do not shorten the wording.*

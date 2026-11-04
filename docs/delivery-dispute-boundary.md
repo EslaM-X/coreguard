@@ -125,7 +125,7 @@ The two live pages cross-link each other: the same fixture runs through the SDK 
 Building an agent-incident review on this surface? The AIE-1 spec wraps the
 same endpoint and bundle as the verification surface any outside reviewer can
 inherit from a cold clone:
-[docs/agent-incident-evidence.md](https://github.com/EslaM-X/coreguard/blob/main/docs/agent-incident-evidence.md)
+[docs/agent-incident-evidence.md](https://github.com/coreguard-global/CoreGuard/blob/main/docs/agent-incident-evidence.md)
 — its claims are executed, not trusted.
 
 Prefer to *see* the wire contract before running anything? The published
@@ -134,7 +134,7 @@ embeds the real DDE/1 handler and captures every status code below live in your
 browser tab — plus an external-probe box you can point at any running endpoint.
 For a shareable one-page summary of this whole section (drop-in link for
 discussions and social posts), see
-[INTEGRATION.md](https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md)
+[INTEGRATION.md](https://github.com/coreguard-global/CoreGuard/blob/main/INTEGRATION.md)
 — its runnable fences execute in CI against the live endpoint.
 
 **Status codes (complete, fail-closed):**
@@ -621,7 +621,7 @@ call the app the primary limiter.
 
 ## 8. Using the one-page integration summary as a ready reply
 
-[INTEGRATION.md](https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md)
+[INTEGRATION.md](https://github.com/coreguard-global/CoreGuard/blob/main/INTEGRATION.md)
 (repo root) is the public-facing compression of this document: the boundary
 quote, the ten checks, the runnable fixture, the endpoint, the release law,
 and the People's Court projection — one page, absolute links. Its runnable
@@ -661,6 +661,6 @@ CoreGuard DDE: execution proof never decides delivery conformity. Ten
 fail-closed checks; a flipped artifact byte fails closed; payout opens only
 on a signed party acceptance over explicit criteria — never on a receipt.
 One-page integration (every command CI-executed):
-https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md
+https://github.com/coreguard-global/CoreGuard/blob/main/INTEGRATION.md
 Live engine, in-page: https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html
 ```
