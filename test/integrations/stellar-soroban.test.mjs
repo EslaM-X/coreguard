@@ -1,5 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   SOROBAN_VERSION,
   NETWORKS,
@@ -38,10 +41,10 @@ test("builders refuse mainnet fail-closed", () => {
   assert.equal(buildInvokeTx({ source: kp.publicKey(), contractId: "CCERTRITP7A6U4PQ7NUKHXKWL2BNRMSBLVAAAWWMRAZTICUN7ZGC5Q4R", functionName: "commit", commitmentId: Buffer.alloc(32), commitmentHash: Buffer.alloc(32), sequence: "1", network: "mainnet", fee: "100" }).state, "NOT_AUTHORIZED");
 });
 
-test("parseContractIdFromCreateResult reads v4 returnValue", async () => {
-  const fs = await import("node:fs");
-  const { xdr } = await import("@stellar/stellar-sdk");
-  const b64 = fs.readFileSync("C:/Users/DeLL-L/AppData/Local/Temp/opencode/create-meta-v4.b64.txt", "utf8");
+test("parseContractIdFromCreateResult reads v4 returnValue", () => {
+  // Fixture lives IN the tree (portable across machines/CI) — never a dev Temp path.
+  const fixture = join(dirname(fileURLToPath(import.meta.url)), "..", "fixtures", "create-meta-v4.b64.txt");
+  const b64 = readFileSync(fixture, "utf8");
   const r = parseContractIdFromCreateResult(b64.trim());
   assert.equal(r.state, "READ_OK");
   assert.ok(r.contractId && r.contractId.startsWith("C"));

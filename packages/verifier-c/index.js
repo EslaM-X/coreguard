@@ -16,7 +16,7 @@
  * not a cryptographic attestation of the interpreter/runtime itself).
  */
 
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -54,8 +54,30 @@ function loadMetadata() {
   }
 }
 
+/**
+ * Resolve the Python interpreter that hosts bridge.py (CLI-free, stdlib-only).
+ * CI runners (Ubuntu) ship `python3` without a bare `python` alias, while Windows
+ * installs register `python` (and the `py` launcher). The explicit PYTHON env var
+ * always wins; otherwise we probe each candidate with `--version` and use the
+ * first that answers. Fail LOUD if none exists — never a silent false pass.
+ */
+function resolvePythonPath() {
+  if (process.env.PYTHON) return process.env.PYTHON;
+  const candidates = process.platform === "win32" ? ["python", "python3", "py"] : ["python3", "python"];
+  for (const bin of candidates) {
+    const probe = spawnSync(bin, ["--version"], { encoding: "utf8", timeout: 10_000 });
+    if (!probe.error && probe.status === 0) return bin;
+  }
+  return null;
+}
+
 /** Load the bridge-backed Verifier C (one persistent Python process). */
-export async function loadVerifierC({ pythonPath = process.env.PYTHON ?? "python" } = {}) {
+export async function loadVerifierC({ pythonPath = resolvePythonPath() } = {}) {
+  if (!pythonPath) {
+    throw new Error(
+      "verifier-c: no Python interpreter found for bridge.py — set PYTHON=<path> or install python3; refusing to fake a pass"
+    );
+  }
   const metadata = loadMetadata();
   const child = spawn(pythonPath, [join(PACKAGE_ROOT, "bridge.py"), "--bridge"], {
     cwd: PACKAGE_ROOT,
