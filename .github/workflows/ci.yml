@@ -12,7 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        # Supported-LTS runtimes only (owner decision, 2026-11-04): Node 18
+        # (EOL 2025-04) and Node 20 (EOL 2026-04) are retired. Node 18 kept
+        # failing CI with a silent mid-suite child abort (run 41871078359:
+        # buffered TAP ends mid-line at "# Subtest: perf", no `not ok`, no
+        # summary, exit 1) while the same suite CLONE passes to completion on
+        # the same node:18 image in a local container — plus a long history of
+        # node18-specific CI lies (AGENTS.md C20/C28/C31: SIGTERM with no
+        # output, ESM/CJS detection, import.meta.dirname). A security product
+        # does not certify an unsupported runtime it cannot reproduce.
+        node-version: [22, 24]
     steps:
       # fetch-depth: 0 is load-bearing: the commit-anchored freeze verifier
       # (validate-freeze.mjs, exercised by test/verifier-c) hashes pinned files

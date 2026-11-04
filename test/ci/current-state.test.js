@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 // by scripts/run-tests.mjs after every green run.
 
 // Node 18 has no import.meta.dirname — use the repo-wide fileURLToPath idiom
-// so all three engine legs (18/20/22) load this file identically.
+// so all engine legs load this file identically.
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SNAPSHOT = join(REPO, "docs", "state-snapshot.json");
 const STATE = join(REPO, "scripts", "current-state.mjs");

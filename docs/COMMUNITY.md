@@ -7,7 +7,7 @@ complete its final v0.1 milestone: a live on-chain anchor on Core Testnet2.
 ## Why this is legitimate to post
 
 - We are not a concept. The public repo is: `github.com/EslaM-X/coreguard`
-- CI-green on Node 18/20/22 + Foundry + demos.
+- CI-green on Node 22/24 (supported LTS; Node 18/20 retired at EOL — 2025-04 / 2026-04) + Foundry + demos.
 - Staged, funding-gated Core Testnet2 validation campaign (contract + proof anchoring once tCORE2 is available).
 - The sole blocker is the official faucet returning 401 / CAPTCHA failures.
 
