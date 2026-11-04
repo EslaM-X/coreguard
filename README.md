@@ -8,19 +8,19 @@
 
 ### VERIFY&nbsp;•&nbsp;<b style="color:#ff8a00">PROTECT</b>&nbsp;•&nbsp;EMPOWER — Execution Integrity for a Smarter Onchain Future
 
-**Live&nbsp;·&nbsp;[eslam-x.github.io/coreguard](https://eslam-x.github.io/coreguard/)**
+**Live&nbsp;·&nbsp;[coreguard-global.github.io/CoreGuard](https://coreguard-global.github.io/CoreGuard/)**
 
 <p align="center">
-  <a href="https://eslam-x.github.io/coreguard/"><img src="https://eslam-x.github.io/coreguard/assets/badges/cgep-1-receipt.svg" alt="CGEP/1 receipt"></a>
-  <a href="https://eslam-x.github.io/coreguard/PRODUCTS.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/execution-firewall.svg" alt="Execution Firewall"></a>
-  <a href="https://eslam-x.github.io/coreguard/PRODUCTS.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/intent-policy.svg" alt="Intent + Policy"></a>
-  <a href="https://eslam-x.github.io/coreguard/PRODUCTS.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/verifier-x3.svg" alt="Verifier x3"></a>
-  <a href="https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/coreguard-sdk.svg" alt="@coreguard/sdk"></a>
-  <a href="https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/dde-dispute.svg" alt="DDE / dispute"></a>
-  <a href="https://eslam-x.github.io/coreguard/PRODUCTS.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/cg-bdg-1-badges.svg" alt="CG-BDG/1 badges"></a>
-  <a href="https://eslam-x.github.io/coreguard/GOVERNANCE-DASHBOARD.html"><img src="https://eslam-x.github.io/coreguard/assets/badges/cg-cl-1-claims.svg" alt="CG-CL/1 claims"></a>
-  <a href="https://eslam-x.github.io/coreguard/"><img src="https://eslam-x.github.io/coreguard/assets/badges/core-mainnet-anchor.svg" alt="Core Mainnet anchor"></a>
-  <a href="https://github.com/EslaM-X/coreguard/actions"><img src="https://eslam-x.github.io/coreguard/assets/badges/ci-1412-tests.svg" alt="CI 1412 tests"></a>
+  <a href="https://coreguard-global.github.io/CoreGuard/"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/cgep-1-receipt.svg" alt="CGEP/1 receipt"></a>
+  <a href="https://coreguard-global.github.io/CoreGuard/PRODUCTS.html"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/execution-firewall.svg" alt="Execution Firewall"></a>
+  <a href="https://coreguard-global.github.io/CoreGuard/PRODUCTS.html"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/intent-policy.svg" alt="Intent + Policy"></a>
+  <a href="https://coreguard-global.github.io/CoreGuard/PRODUCTS.html"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/verifier-x3.svg" alt="Verifier x3"></a>
+  <a href="https://coreguard-global.github.io/CoreGuard/DDE-SDK-REFERENCE.html"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/coreguard-sdk.svg" alt="@coreguard/sdk"></a>
+  <a href="https://coreguard-global.github.io/CoreGuard/DDE-API-REFERENCE.html"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/dde-dispute.svg" alt="DDE / dispute"></a>
+  <a href="https://coreguard-global.github.io/CoreGuard/PRODUCTS.html"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/cg-bdg-1-badges.svg" alt="CG-BDG/1 badges"></a>
+  <a href="https://coreguard-global.github.io/CoreGuard/GOVERNANCE-DASHBOARD.html"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/cg-cl-1-claims.svg" alt="CG-CL/1 claims"></a>
+  <a href="https://coreguard-global.github.io/CoreGuard/"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/core-mainnet-anchor.svg" alt="Core Mainnet anchor"></a>
+  <a href="https://github.com/coreguard-global/CoreGuard/actions"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/ci-1412-tests.svg" alt="CI 1412 tests"></a>
   <a href="https://www.linkedin.com/company/coreguard-global"><img src="https://img.shields.io/badge/LinkedIn-CoreGuard%20Global-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
   <a href="https://twitter.com/CoreGuardGlobal"><img src="https://img.shields.io/badge/Twitter-@CoreGuardGlobal-1DA1F2?style=flat-square&logo=twitter&logoColor=white" alt="Twitter"></a>
 </p>
@@ -30,14 +30,14 @@
 **CoreGuard doesn't tell you whether a transaction looks safe.**
 **It produces independently verifiable evidence of whether execution conformed to what was authorized.**
 
-[![CI](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/ci.yml)
-[![Core DAO Killer](https://eslam-x.github.io/coreguard/assets/badges/core-dao-killer.svg)](docs/COREDAO-KILLER-FEATURES.md)
+[![CI](https://github.com/coreguard-global/CoreGuard/actions/workflows/ci.yml/badge.svg)](https://github.com/coreguard-global/CoreGuard/actions/workflows/ci.yml)
+[![Core DAO Killer](https://coreguard-global.github.io/CoreGuard/assets/badges/core-dao-killer.svg)](docs/COREDAO-KILLER-FEATURES.md)
 [![Stellar Killer](https://img.shields.io/badge/Stellar-KILLER%20FEATURES-7B61FF.svg?logo=stellar&logoColor=white)](docs/STELLAR-KILLER-FEATURES.md)
 [![Pi Network Killer](https://img.shields.io/badge/Pi%20Network-KILLER%20FEATURES-F5A623.svg?logo=pi-network&logoColor=white)](docs/PI-KILLER-FEATURES.md)
 [![Trinity](https://img.shields.io/badge/CORE%20%2B%20STELLAR%20%2B%20PI-TRINITY-00D4AA.svg)](docs/TRINITY-CORE-STELLAR-PI.md)
-[![DDE Evidence Cycle](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/dde.yml)
-[![Docs](https://img.shields.io/badge/docs-API%20reference%20live-0969DA.svg?logo=githubpages&logoColor=white)](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html)
-[![Intake Pipeline](https://github.com/EslaM-X/coreguard/actions/workflows/intake.yml/badge.svg)](https://github.com/EslaM-X/coreguard/actions/workflows/intake.yml)
+[![DDE Evidence Cycle](https://github.com/coreguard-global/CoreGuard/actions/workflows/dde.yml/badge.svg)](https://github.com/coreguard-global/CoreGuard/actions/workflows/dde.yml)
+[![Docs](https://img.shields.io/badge/docs-API%20reference%20live-0969DA.svg?logo=githubpages&logoColor=white)](https://coreguard-global.github.io/CoreGuard/DDE-API-REFERENCE.html)
+[![Intake Pipeline](https://github.com/coreguard-global/CoreGuard/actions/workflows/intake.yml/badge.svg)](https://github.com/coreguard-global/CoreGuard/actions/workflows/intake.yml)
 [![DDE perf · engine](docs/badges/perf-engine.svg)](benchmarks/perf-history.jsonl)
 [![DDE perf · wire](docs/badges/perf-wire.svg)](benchmarks/perf-history.jsonl)
 [![DDE perf · sdk](docs/badges/perf-sdk.svg)](benchmarks/perf-history.jsonl)
@@ -50,9 +50,9 @@
 
 ### The Badge Shield — exclusive-source plates · درع الشارات بمصادر حصرية
 
-[![CoreGuard Badge Shield](https://eslam-x.github.io/coreguard/assets/badges/wall-badge-shield.svg)](https://eslam-x.github.io/coreguard/assets/badges/wall-badge-shield.svg)
+[![CoreGuard Badge Shield](https://coreguard-global.github.io/CoreGuard/assets/badges/wall-badge-shield.svg)](https://coreguard-global.github.io/CoreGuard/assets/badges/wall-badge-shield.svg)
 
-**The official brand page — [docs/BRAND.html](https://eslam-x.github.io/coreguard/BRAND.html) · صفحة الهوية الرسمية**: the shield, lockups, the audited color system (Core Orange #FF8A00 · Deep Core #0B0F14 · Graphite #4A5568 · Ice White #F5F7FA), the official gradient, the mark law, and the full downloadable asset kit.
+**The official brand page — [docs/BRAND.html](https://coreguard-global.github.io/CoreGuard/BRAND.html) · صفحة الهوية الرسمية**: the shield, lockups, the audited color system (Core Orange #FF8A00 · Deep Core #0B0F14 · Graphite #4A5568 · Ice White #F5F7FA), the official gradient, the mark law, and the full downloadable asset kit.
 
 ### The trust gate · legal node · the lab · the bot — بوابة الثقة والعقدة القانونية
 
@@ -92,7 +92,7 @@ One ladder, three ecosystems, one Trinity view: [Core DAO](docs/COREDAO-KILLER-F
 
 The agent-economy primitives run with zero keys and zero money:
 
-- **Live playground:** [PLAYGROUND.html](https://eslam-x.github.io/coreguard/PLAYGROUND.html) — open a job, lock escrow, carve shares, reserve before signing, deliver evidence, and watch ACCEPTED / REJECTED / UNKNOWN.
+- **Live playground:** [PLAYGROUND.html](https://coreguard-global.github.io/CoreGuard/PLAYGROUND.html) — open a job, lock escrow, carve shares, reserve before signing, deliver evidence, and watch ACCEPTED / REJECTED / UNKNOWN.
 - **Terminal demo:** the same cycle in one command, ending with `UNKNOWN → HELD`.
 - **Architecture:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — `agreed → executed → proven`, and why `UNKNOWN` stays held.
 - **Facts only:** [docs/ONE-PAGER.md](docs/ONE-PAGER.md).
@@ -120,7 +120,7 @@ LIVE / DRY_RUN / GATED / RESEARCH), is listed in one place:
   `node_modules/.git`), with paths and runnable commands.
 - **[docs/PRODUCTS.md](docs/PRODUCTS.md)** — curated complete catalog, each row
   mapped to a committed path or an executed command.
-- **[docs/PRODUCTS.html](https://eslam-x.github.io/coreguard/PRODUCTS.html)** —
+- **[docs/PRODUCTS.html](https://coreguard-global.github.io/CoreGuard/PRODUCTS.html)** —
   the bilingual (AR/EN) catalog page.
 
 Nothing in these catalogs claims revenue, customers, partners, funding, a price, a
@@ -495,9 +495,9 @@ else releasePayout();
 
 **See it run in the browser** — the two live reference pages replay these
 examples over the real fixture in your tab: the honest fixture → [HOLD on the
-API page](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html#run=honest) and [HOLD on the SDK page](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html#run=verify) · the
-counterfactual ACCEPTED → [RELEASE](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html#run=accepted) · a flipped artifact byte → [422 on the
-API page](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html#run=tamper) and [REFUSED on the SDK page](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html#run=tamper).
+API page](https://coreguard-global.github.io/CoreGuard/DDE-API-REFERENCE.html#run=honest) and [HOLD on the SDK page](https://coreguard-global.github.io/CoreGuard/DDE-SDK-REFERENCE.html#run=verify) · the
+counterfactual ACCEPTED → [RELEASE](https://coreguard-global.github.io/CoreGuard/DDE-SDK-REFERENCE.html#run=accepted) · a flipped artifact byte → [422 on the
+API page](https://coreguard-global.github.io/CoreGuard/DDE-API-REFERENCE.html#run=tamper) and [REFUSED on the SDK page](https://coreguard-global.github.io/CoreGuard/DDE-SDK-REFERENCE.html#run=tamper).
 
 (Inside this repo, import from `packages/delivery/sdk.js` — the package
 specifier above is the installed surface with the same exports.)
@@ -557,13 +557,13 @@ closure claim (422), and only RELEASES once `closedAtUtc` establishes the
 record is closed — any drift from the boundary fails them, and CI runs both on
 every push. Fixture and
 records: [examples/delivery-fixture/](examples/delivery-fixture/) · live
-bilingual demo: [DELIVERY-DISPUTE-DEMO.html](https://eslam-x.github.io/coreguard/DELIVERY-DISPUTE-DEMO.html) ·
-HTTP endpoint reference with an **in-page live engine**: [DDE-API-REFERENCE.html](https://eslam-x.github.io/coreguard/DDE-API-REFERENCE.html)
+bilingual demo: [DELIVERY-DISPUTE-DEMO.html](https://coreguard-global.github.io/CoreGuard/DELIVERY-DISPUTE-DEMO.html) ·
+HTTP endpoint reference with an **in-page live engine**: [DDE-API-REFERENCE.html](https://coreguard-global.github.io/CoreGuard/DDE-API-REFERENCE.html)
 (all six wire codes captured from the real DDE/1 handler running in the browser tab) ·
-SDK reference with `verifyFixture` + `releaseWhen` **running live in-page**: [DDE-SDK-REFERENCE.html](https://eslam-x.github.io/coreguard/DDE-SDK-REFERENCE.html)
+SDK reference with `verifyFixture` + `releaseWhen` **running live in-page**: [DDE-SDK-REFERENCE.html](https://coreguard-global.github.io/CoreGuard/DDE-SDK-REFERENCE.html)
 (the honest gate arc — HOLD, RELEASE, structural REFUSED — captured from the real SDK over the real fixture) ·
 one-page shareable integration summary (drop-in for discussions and social posts):
-[INTEGRATION.md](https://github.com/EslaM-X/coreguard/blob/main/INTEGRATION.md)
+[INTEGRATION.md](https://github.com/coreguard-global/CoreGuard/blob/main/INTEGRATION.md)
 — its every runnable fence executes in CI against the real endpoint.
 
 Got a **real** paid transaction with two consenting parties? The

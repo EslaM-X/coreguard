@@ -16,7 +16,7 @@ It produces independently verifiable evidence of whether execution conformed to 
 ### 📊 Proof by Numbers
 
 - **1412 tests passing** (machine-pinned)
-- **997 files scanned, 0 boundary violations**
+- **1009 files scanned, 0 boundary violations**
 - **10,000-run benchmark: 0 false accept, 0 false reject**
 - **1,000/1,000 mutants refused**
 - **18/18 release gate legs pass**
@@ -24,7 +24,7 @@ It produces independently verifiable evidence of whether execution conformed to 
 ### 🔗 Links
 
 - 🌐 Website: https://coreguard.app
-- 📚 Docs: https://eslam-x.github.io/coreguard/
+- 📚 Docs: https://coreguard-global.github.io/CoreGuard/
 - 💼 LinkedIn: https://www.linkedin.com/company/coreguard-global
 - 📧 Contact: inquire@coredao.org
 
