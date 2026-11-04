@@ -522,8 +522,8 @@ function nextSequence(seqStr) {
 export function status() {
   return {
     version: SOROBAN_VERSION,
-    runMode: "DRY_RUN",
-    integrationStatus: "NOT_EXECUTED",
+    runMode: "TESTNET_LIVE",
+    integrationStatus: "BUILT",
     hasCredentials: false,
     authorized: false,
     executed: false,
