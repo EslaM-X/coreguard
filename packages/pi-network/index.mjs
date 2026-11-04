@@ -186,6 +186,9 @@ export function piEcosystemMap() {
   };
 }
 
+// Re-export SDK module
+export * from "./sdk.mjs";
+
 export default {
   PI_NETWORK_VERSION,
   PI_API_BASE,
