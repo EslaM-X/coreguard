@@ -183,3 +183,4 @@ export function selfCheck() {
 export * from "./freighter.mjs";
 export * from "./soroban-dex.mjs";
 export * from "./mainnet.mjs";
+export * from "./mainnet-executor.mjs";
