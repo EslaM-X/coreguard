@@ -1,0 +1,173 @@
+{
+  "schema": "CoreGuard-Evidence/1",
+  "artifact": "stellar-dex-gate-executed",
+  "version": "DEX-GATE/1",
+  "executedBy": "scripts/stellar-dex-gate-real.mjs",
+  "network": "stellar-mainnet",
+  "broadcast": "NOT_PERFORMED — signing/broadcast is a funded owner decision (no key material, no funds moved)",
+  "asset": {
+    "code": "USC",
+    "issuer": "GD76WLMYIPKHRA2XIVFIH7FO5EHQULXYXFA6UV6RQ6G25V4WPMDV7WEU",
+    "discoveryRule": "Horizon /assets?asset_code=USDC order=desc, probed against the real native order book until REAL depth appeared (network-derived, recorded trail)",
+    "probeTrail": [
+      {
+        "issuer": "GDIAVKWS3KDRFTQ4VGK6VDTAMN7LWFPRFCDIYRADNRMCNWDAHS7RKKIF",
+        "depth": 0
+      },
+      {
+        "issuer": "GD76WLMYIPKHRA2XIVFIH7FO5EHQULXYXFA6UV6RQ6G25V4WPMDV7WEU",
+        "depth": 1
+      },
+      {
+        "issuer": "GCYKDLFEPIVQWZKHALIXDUJARZYOEYIKNQ2FVSBFTN37GAVLLA7WSW73",
+        "depth": 0
+      },
+      {
+        "issuer": "GA6LCGNTU7MAY4LPECKXMZQ274N6INHOFZ2FKVOGIMNJHG7EPF5SFJET",
+        "depth": 0
+      },
+      {
+        "issuer": "GA3WUCR4FX2GWJ3ZCJUZT2WTEAPHYI37CRWNQZD5CS7MRMUWN6ZTKFWD",
+        "depth": 0
+      }
+    ]
+  },
+  "book": {
+    "asksCount": 1,
+    "bidsCount": 1,
+    "depthXlm": 1,
+    "asksSample": [
+      {
+        "price_r": {
+          "n": 1000,
+          "d": 1
+        },
+        "price": "1000.0000000",
+        "amount": "1.0000000"
+      }
+    ],
+    "bidsSample": [
+      {
+        "price_r": {
+          "n": 10,
+          "d": 1
+        },
+        "price": "10.0000000",
+        "amount": "0.0000470"
+      }
+    ]
+  },
+  "policy": {
+    "maxSlippage": 0.05,
+    "rules": [
+      {
+        "type": "max_amount",
+        "value": 0.01
+      }
+    ],
+    "derivedRule": "max_amount = floor(real ask depth × 1% × 1e7)/1e7 (7-decimal Stellar precision)"
+  },
+  "cases": [
+    {
+      "id": "swap-in-policy",
+      "verdict": "VERIFIED",
+      "reason": "swap verified",
+      "allowed": true,
+      "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+      "destination": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+      "amount": 0.00001,
+      "minAmount": 0.0000097,
+      "path": [],
+      "network": "mainnet",
+      "policy": [
+        {
+          "type": "max_amount",
+          "value": 0.01
+        }
+      ],
+      "txPlan": {
+        "method": "swap",
+        "args": {
+          "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+          "destination": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+          "amount": 0.00001,
+          "minAmount": 0.0000097,
+          "path": []
+        },
+        "submit": false,
+        "mode": "PLAN_ONLY",
+        "note": "Verification passed. Execute with Soroban RPC + Freighter."
+      }
+    },
+    {
+      "id": "swap-over-ceiling",
+      "verdict": "REJECTED",
+      "reason": "amount 1 exceeds max 0.01",
+      "allowed": false
+    },
+    {
+      "id": "swap-deny-listed",
+      "verdict": "REJECTED",
+      "reason": "destination GDNGRAMZLCXVSNLIB5RFRYYXYAWEQVPWFND5CEDX25S6E4MOLNRTOSXM is denied",
+      "allowed": false
+    },
+    {
+      "id": "path-payment",
+      "verdict": "VERIFIED",
+      "reason": "path payment verified",
+      "allowed": true,
+      "paymentId": "pathpay-1793901828494-51ont6",
+      "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+      "destination": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+      "sendAsset": "XLM",
+      "destAsset": "USC",
+      "sendAmount": 0.00001,
+      "destMin": 0.0000097,
+      "path": [],
+      "network": "mainnet",
+      "txPlan": {
+        "method": "path_payment_strict_send",
+        "args": {
+          "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+          "destination": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+          "sendAsset": "XLM",
+          "destAsset": "USC",
+          "sendAmount": 0.00001,
+          "destMin": 0.0000097,
+          "path": []
+        },
+        "submit": false,
+        "mode": "PLAN_ONLY"
+      }
+    },
+    {
+      "id": "provide-liquidity",
+      "verdict": "VERIFIED",
+      "reason": "liquidity provision verified",
+      "allowed": true,
+      "lpId": "lp-1793901828494-qmdzeq",
+      "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+      "pool": "native<->USC",
+      "amountA": 0.00001,
+      "amountB": 0.00001,
+      "minA": 0.0000097,
+      "minB": 0.0000097,
+      "network": "mainnet",
+      "txPlan": {
+        "method": "provide_liquidity",
+        "args": {
+          "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+          "pool": "native<->USC",
+          "amountA": 0.00001,
+          "amountB": 0.00001,
+          "minA": 0.0000097,
+          "minB": 0.0000097
+        },
+        "submit": false,
+        "mode": "PLAN_ONLY"
+      }
+    }
+  ],
+  "evidenceDigest": "sha256:c888c903dba0ae4fe8f8b921978fc222e8960721b470577571b02069e845bba5",
+  "generatedAt": "2026-11-05T18:03:48.500Z"
+}

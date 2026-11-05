@@ -13,13 +13,14 @@
 
 | Claim | Status | Evidence | Test |
 |---|---|---|---|
-| 1421 tests passing | BUILT | `npm test` | scripts/run-tests.mjs |
-| 1028 files scanned | BUILT | boundary-audit.mjs | 0 violations |
+| 1427 tests passing | BUILT | `npm test` | scripts/run-tests.mjs |
+| 1038 files scanned | BUILT | boundary-audit.mjs | 0 violations |
 | 10,000-run benchmark | BUILT | 0 false accept, 0 false reject | benchmarks/ |
 | 1,000/1,000 mutants refused | BUILT | mutation lab | test/ |
 | Intent-to-execution conformance | BUILT | checkConformance() | packages/stellar/dex-gating.mjs |
 | Deterministic replay | BUILT | replay() | scripts/ladder/verification-levels.mjs |
 | Fail-closed | BUILT | UNKNOWN → HELD | All packages |
+| Universal DApp Shield (wrap ANY action) | ARM-MODEL EXECUTED | docs/evidence/universal-dapp-shield-executed.json — 2 ALLOW · 2 REQUIRE_REVIEW · 1 DENY · 1 REFUSED (Q-FW10) | scripts/universal-shield-executed.mjs --verify |
 
 ---
 
@@ -40,11 +41,12 @@
 | Claim | Status | Evidence | Test |
 |---|---|---|---|
 | Soroban contract (testnet) | TESTNET VERIFIED | CCERTRITP7A6U4PQ7NUKHXKWL2BNRMSBLVAAAWWMRAZTICUN7ZGC5Q4R | test/integrations/stellar-soroban.test.mjs (7/7) |
-| Freighter wallet wrapper | BUILT | packages/stellar/freighter.mjs | No E2E test |
-| Soroban DEX gating | BUILT | packages/stellar/dex-gating.mjs | test/integrations/stellar-dex-gating.test.mjs (9/9) |
+| Soroban contract (mainnet) | MAINNET DEPLOYED | CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP — third-party-listed (stellar.expert: creator = CoreGuard wallet, wasm hash recorded, 2026-11-04) | scripts/deploy-soroban-mainnet.mjs |
+| Mainnet wallet | MAINNET VERIFIED | GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U — live Horizon account | Horizon read-back |
 | Mainnet payment | MAINNET VERIFIED | 0.1 XLM → SDF, ledger 65,308,317 | .stellar-tx-1.json |
-| AI Agent Payment Gate | DRY_RUN | packages/stellar-agent/index.mjs | Plan only |
-| Mainnet Soroban Contract | NOT DEPLOYED | Needs 10 XLM | scripts/deploy-soroban-mainnet.mjs |
+| Freighter wallet wrapper | BUILT | packages/stellar/freighter.mjs | No E2E test (credential-gated) |
+| Soroban DEX gating | REAL-BOOK EXECUTED | docs/evidence/stellar-dex-gate-executed.json — five verdicts against the REAL XLM/USDC mainnet order book (issuer network-discovered; depth-derived ceiling) | scripts/stellar-dex-gate-real.mjs --verify |
+| AI Agent Payment Gate | POLICY-GATE EXECUTED | docs/evidence/stellar-agent-gate-executed.json — VERIFIED/REJECTED/HELD matrix; submit NOT_PERFORMED (credential-gated) | scripts/stellar-agent-gate-executed.mjs --verify |
 | Intent-to-Execution Proof | BUILT | docs/INTENT-TO-EXECUTION-PROOF.md | 5 test cases |
 
 ---
@@ -74,10 +76,14 @@
 
 | Status | Count |
 |---|---|
-| MAINNET VERIFIED | 5 |
-| TESTNET VERIFIED | 2 |
-| BUILT | 8 |
-| DRY_RUN | 3 |
-| NOT DEPLOYED | 1 |
+| MAINNET VERIFIED | 7 |
+| MAINNET DEPLOYED | 3 |
+| TESTNET VERIFIED | 1 |
+| BUILT | 15 |
+| REAL-BOOK EXECUTED | 1 |
+| POLICY-GATE EXECUTED | 1 |
+| ARM-MODEL EXECUTED | 1 |
+| DRY_RUN | 1 |
+| NOT DEPLOYED | 0 |
 
-**Total: 19 components, 5 mainnet verified, 3 dry run, 1 not deployed**
+**Total: 30 components, 7 mainnet verified, 3 mainnet-deployed contracts, 3 executed gate surfaces, 1 dry-run, 0 not deployed**

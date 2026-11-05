@@ -262,6 +262,27 @@ Then open <https://eslam-x.github.io/coreguard/PLAYGROUND.html> and
 
 ---
 
+## 11. Stellar — mainnet-verified and executed · ستيلار موثّق ومنفّذ
+
+Every Stellar deliverable that exists in this repository, with its honest network-verified status:
+
+| Deliverable | Status | Evidence |
+|---|---|---|
+| Mainnet wallet | **MAINNET VERIFIED** | `GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U` — live Horizon account |
+| First mainnet payment | **MAINNET VERIFIED** | `0.1 XLM → SDF`, ledger 65,308,317 · `docs/STELLAR-MAINNET-TX.md` |
+| Soroban anchor contract (mainnet) | **MAINNET DEPLOYED** | `CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP` — third-party-listed (stellar.expert: creator = the CoreGuard wallet, wasm hash recorded) · `scripts/deploy-soroban-mainnet.mjs` |
+| Soroban anchor contract (testnet) | TESTNET VERIFIED | `CCERTRITP7A6U4PQ7NUKHXKWL2BNRMSBLVAAAWWMRAZTICUN7ZGC5Q4R` · 7/7 tests |
+| AI Agent Payment Gate (STELLAR-AGENT/1) | **POLICY-GATE EXECUTED** | `docs/evidence/stellar-agent-gate-executed.json` (VERIFIED / REJECTED / HELD · submission stays credential-gated) — `node scripts/stellar-agent-gate-executed.mjs --verify` |
+| Soroban DEX gating (DEX-GATE/1) | **REAL-BOOK EXECUTED** | five verdicts against the REAL mainnet XLM/USDC order book (issuer network-discovered, depth-derived ceiling) · `docs/evidence/stellar-dex-gate-executed.json` — `node scripts/stellar-dex-gate-real.mjs --verify` · 9/9 tests |
+| Universal DApp Shield (guard.*) | **ARM-MODEL EXECUTED** | 2 ALLOW · 2 REQUIRE_REVIEW · 1 DENY · 1 REFUSED — `docs/evidence/universal-dapp-shield-executed.json` — `node scripts/universal-shield-executed.mjs --verify` |
+| Freighter wallet wrapper | BUILT (credential-gated) | `packages/stellar/freighter.mjs` |
+| Mainnet Executor | BUILT (credential-gated) | `packages/stellar/mainnet-executor.mjs` |
+| Stellar Integration Guide | SHIPPED | `docs/STELLAR-INTEGRATION-GUIDE.md` |
+| Intent-to-Execution Proof | BUILT | `docs/INTENT-TO-EXECUTION-PROOF.md` (5 test cases) |
+| Honest SCF Build application | SHIPPED | `docs/SCF-BUILD-APPLICATION.md` |
+
+**What is NOT claimed for Stellar:** signed mainnet sweeps (anchor CALL, funded swap) — credential-gated owner decisions; npm SDK publication — double-gated pending `NPM_TOKEN`; revenue, customers or partnerships — none.
+
 ## الملخص بالعربية
 
 هذه الصفحة فهرس كامل لكل ما يوجد فعليًا في المستودع: بروتوكول إيصال التنفيذ

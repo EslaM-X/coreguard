@@ -20,7 +20,7 @@
   <a href="https://coreguard-global.github.io/CoreGuard/PRODUCTS.html"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/cg-bdg-1-badges.svg" alt="CG-BDG/1 badges"></a>
   <a href="https://coreguard-global.github.io/CoreGuard/GOVERNANCE-DASHBOARD.html"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/cg-cl-1-claims.svg" alt="CG-CL/1 claims"></a>
   <a href="https://coreguard-global.github.io/CoreGuard/"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/core-mainnet-anchor.svg" alt="Core Mainnet anchor"></a>
-  <a href="https://github.com/coreguard-global/CoreGuard/actions"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/ci-1412-tests.svg" alt="CI 1412 tests"></a>
+  <a href="https://github.com/coreguard-global/CoreGuard/actions"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/ci-1427-tests.svg" alt="CI 1427 tests"></a>
   <a href="https://www.linkedin.com/company/coreguard-global"><img src="https://img.shields.io/badge/LinkedIn-CoreGuard%20Global-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
   <a href="https://twitter.com/CoreGuardGlobal"><img src="https://img.shields.io/badge/Twitter-@CoreGuardGlobal-1DA1F2?style=flat-square&logo=twitter&logoColor=white" alt="Twitter"></a>
 </p>
@@ -80,13 +80,15 @@ Every ecosystem entry — Core DAO · Stellar · Pi Network — pins the same se
 |---|---|
 | **Killer Feature** | Intent-to-Evidence Binding — every intent carries tamper-evident, replayable evidence; break the binding and verification fails closed |
 | **Killer Use** | AI Agent Payment Gate — agent proposals verified against policy + deterministic replay BEFORE submission; VERIFIED only, never auto-pay |
-| **Killer On-Chain** | Per-network Commitment Anchor — Core anchor live on chainId 1116 · Soroban anchor MAINNET DEPLOYED (CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP) — code status honestly DRY_RUN until real execution tested · Pi anchors carried honestly as DRY_RUN/PLAN_ONLY |
+| **Killer On-Chain** | Per-network Commitment Anchor — Core anchor live on chainId 1116 · Soroban anchor MAINNET DEPLOYED (CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP) and EXECUTED against real ledger data: the agent gate (STELLAR-AGENT/1), the DEX gate on the real mainnet order book (DEX-GATE/1) and the universal DApp-shield arms carry committed execution artifacts under `docs/evidence/` — signed mainnet sweeps stay credential-gated · Pi anchors carried honestly as DRY_RUN/PLAN_ONLY |
 | **Killer Utility** | Universal DApp Shield — wrap ANY app action (swap, lend, borrow, bridge, vote); ALLOW/DENY/HOLD with a verifiable commitment |
 | **Killer Adoption** | One-line integration across wallets, DEXs, contracts and AI agents of each ecosystem |
 | **Killer Reference** | Deterministic replay-before-submit: audit trail + replayHash + diff + report, re-runnable by anyone |
 | **Killer Customer** | Named per network — Core: DeFi, DApps, wallets, AI agents, validators, escrow/A2A · Stellar: Freighter, Soroban DEXs, agents · Pi: Browser DApps, Pi Wallet, Pi Commerce, bridges |
 
 One ladder, three ecosystems, one Trinity view: [Core DAO](docs/COREDAO-KILLER-FEATURES.md) · [Stellar](docs/STELLAR-KILLER-FEATURES.md) · [Pi Network](docs/PI-KILLER-FEATURES.md) · [Trinity](docs/TRINITY-CORE-STELLAR-PI.md).
+
+**Stellar mainnet — verified then executed · ستيلار موثّق ثم منفّذ:** the wallet is live (`GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U`, first tx `0.1 XLM → SDF` at ledger 65,308,317), the Soroban anchor contract is MAINNET DEPLOYED (`CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP`, third-party-listed with its wasm hash), and the gate surfaces are EXECUTED with committed, digest-checked artifacts: agent gate `docs/evidence/stellar-agent-gate-executed.json` · real-mainnet-book DEX gate `docs/evidence/stellar-dex-gate-executed.json` · universal DApp-shield arms `docs/evidence/universal-dapp-shield-executed.json`. Full row-by-row truth table: [docs/EVIDENCE-MATRIX.md](docs/EVIDENCE-MATRIX.md).
 
 ## Proof-first: run it, don't trust it
 
@@ -287,7 +289,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 1405 tests — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard, verification-platform suite
+npm test              # 1427 tests (machine-pinned) — canonicalization, policy, tamper, anchor, verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard, verification-platform suite, executed-evidence contract (agent gate · real-book DEX gate · universal shield)
 git config core.hooksPath .githooks   # install the Pages settle pre-push guard — every main push waits for the Pages build
 npm run corpus        # deterministic 73-scenario adversarial corpus
 npm run benchmark     # 73/73 pass

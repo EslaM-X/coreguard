@@ -46,7 +46,7 @@ CoreGuard is a verifiable execution truth layer. It produces independently verif
 ### 3. Technical Feasibility
 
 **Already built and tested:**
-- ✅ 1421 tests passing (machine-pinned)
+- ✅ 1427 tests passing (machine-pinned)
 - ✅ 1027 files, 0 boundary violations
 - ✅ 10,000-run benchmark: 0 false accept, 0 false reject
 - ✅ Soroban contract deployed on testnet
@@ -98,7 +98,7 @@ CoreGuard is a verifiable execution truth layer. It produces independently verif
 - **Twitter**: https://x.com/CoreGuardGlobal
 
 **Experience:**
-- Built CoreGuard from scratch (1421 tests, 1027 files)
+- Built CoreGuard from scratch (1427 tests, 1038 files)
 - Deployed 2 contracts on Core DAO mainnet
 - Deployed Soroban contract on Stellar testnet
 - Executed first mainnet transaction on Stellar
@@ -122,7 +122,7 @@ CoreGuard is a verifiable execution truth layer. It produces independently verif
 ### Traction (on other chains)
 
 - ✅ Core DAO mainnet: 2 contracts deployed & verified
-- ✅ 1421 tests passing
+- ✅ 1427 tests passing
 - ✅ 10,000-run benchmark: 0 false accept, 0 false reject
 - ✅ 1,000/1,000 mutants refused
 - ✅ 18/18 release gate legs pass

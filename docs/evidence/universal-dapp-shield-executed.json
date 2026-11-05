@@ -1,0 +1,82 @@
+{
+  "schema": "CoreGuard-Evidence/1",
+  "artifact": "universal-dapp-shield-executed",
+  "version": "GuardShield/1",
+  "executedBy": "scripts/universal-shield-executed.mjs",
+  "broadcast": "NOT_PERFORMED — PRE-only surface; no broadcast, no funds moved",
+  "rows": [
+    {
+      "kind": "swap",
+      "action": "SWAP",
+      "expect": "ALLOW",
+      "decision": "ALLOW",
+      "status": "OK",
+      "decisionRef": "0xa187a1391794c302418408d85009243e31945fa4a60025acc5ed19175a11b70f",
+      "intentHash": {},
+      "selector": "0x38ed1739",
+      "reviewPathConfigured": false
+    },
+    {
+      "kind": "deposit",
+      "action": "DEPOSIT",
+      "expect": "ALLOW",
+      "decision": "ALLOW",
+      "status": "OK",
+      "decisionRef": "0xfc64d101df0fde6d64c32a2bb1769ada1f73532b9f6c62f7e9b72eeafcd66822",
+      "intentHash": {},
+      "selector": "0xa9059cbb",
+      "reviewPathConfigured": false
+    },
+    {
+      "kind": "lend",
+      "action": "LEND",
+      "expect": "REQUIRE_REVIEW",
+      "decision": "REQUIRE_REVIEW",
+      "status": "OK",
+      "decisionRef": "0x18c1b98f8a213c8685cb9aa2f537e856a2004feeb1ad5c4bffec8ae2b6aed69f",
+      "intentHash": {},
+      "selector": "0xc3643def",
+      "reviewPathConfigured": true
+    },
+    {
+      "kind": "borrow",
+      "action": "BORROW",
+      "expect": "REQUIRE_REVIEW",
+      "decision": "REQUIRE_REVIEW",
+      "status": "OK",
+      "decisionRef": "0x9b153c93f734f84461e585d95195a7ad0a5d7202e482ae56c4ffe50a42b29723",
+      "intentHash": {},
+      "selector": "0xa415db7b",
+      "reviewPathConfigured": true
+    },
+    {
+      "kind": "vote",
+      "action": "VOTE",
+      "expect": "DENY",
+      "decision": "DENY",
+      "status": "OK",
+      "decisionRef": "0xdd8eff2c4176b7329481421a252b2444c0c41e45682baa90012afe06f2cee1c5",
+      "intentHash": {},
+      "selector": "0x9e463206",
+      "reviewPathConfigured": false
+    }
+  ],
+  "negative": {
+    "refused": true,
+    "message": "guard.authorize: execution evidence cannot enter a PRE-execution call (txHash); Q-FW10 seam (A6/A12)",
+    "code": "Q-FW10"
+  },
+  "summary": {
+    "wrappedKinds": 5,
+    "decisions": {
+      "swap": "ALLOW",
+      "deposit": "ALLOW",
+      "lend": "REQUIRE_REVIEW",
+      "borrow": "REQUIRE_REVIEW",
+      "vote": "DENY"
+    },
+    "smuggled": "REFUSED"
+  },
+  "evidenceDigest": "sha256:a824dfd57f0e721c7d11698a00807616c38526e380f5b2245f61c0aa9bd1d4f8",
+  "generatedAt": "2026-11-05T18:08:42.784Z"
+}

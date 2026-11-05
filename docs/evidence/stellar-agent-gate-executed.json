@@ -1,0 +1,125 @@
+{
+  "schema": "CoreGuard-Evidence/1",
+  "artifact": "stellar-agent-gate-executed",
+  "version": "STELLAR-AGENT/1",
+  "executedBy": "scripts/stellar-agent-gate-executed.mjs",
+  "network": "stellar-mainnet-declared",
+  "submit": "NOT_PERFORMED — credential-gated; no submitter injected (module honesty preserved)",
+  "cases": [
+    {
+      "id": "allow",
+      "verdict": "VERIFIED",
+      "reason": "agent payment verified against policy and replayed",
+      "agentId": "CG-AGENT-001",
+      "payment": {
+        "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+        "destination": "GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR",
+        "amount": "4.9",
+        "asset": "XLM"
+      },
+      "policy": {
+        "maxAmount": 10,
+        "allowedRecipients": [
+          "GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR"
+        ],
+        "allowedAssets": [
+          "XLM"
+        ]
+      },
+      "rules": [
+        {
+          "id": "VALUE_LIMIT"
+        },
+        {
+          "id": "RECIPIENT_ALLOWLIST"
+        },
+        {
+          "id": "ASSET_ALLOWLIST"
+        }
+      ],
+      "commitment": "0x4df4d3ab8b107059ec808562deb65922b0dbb0132009606c53bcdd5941c2ff6f",
+      "replay": {
+        "hash": "0x70e2cecd6d5fff3b7a8ead4fb1eb7d71531499b1dd6f2c6deeff8fd232c8bc49",
+        "consistent": true
+      }
+    },
+    {
+      "id": "above-max",
+      "verdict": "REJECTED",
+      "reason": "amount 99 exceeds max 10",
+      "agentId": "CG-AGENT-001",
+      "payment": {
+        "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+        "destination": "GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR",
+        "amount": "99",
+        "asset": "XLM"
+      },
+      "policy": {
+        "maxAmount": 10,
+        "allowedRecipients": [
+          "GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR"
+        ],
+        "allowedAssets": [
+          "XLM"
+        ]
+      },
+      "rules": [
+        {
+          "id": "VALUE_LIMIT"
+        },
+        {
+          "id": "RECIPIENT_ALLOWLIST"
+        },
+        {
+          "id": "ASSET_ALLOWLIST"
+        }
+      ],
+      "commitment": null,
+      "replay": null
+    },
+    {
+      "id": "missing-id",
+      "verdict": "HELD",
+      "reason": "agentId required",
+      "agentId": "",
+      "payment": {
+        "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+        "destination": "GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR",
+        "amount": "4.9",
+        "asset": "XLM"
+      },
+      "policy": {
+        "maxAmount": 10,
+        "allowedRecipients": [
+          "GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR"
+        ],
+        "allowedAssets": [
+          "XLM"
+        ]
+      },
+      "rules": [
+        {
+          "id": "VALUE_LIMIT"
+        },
+        {
+          "id": "RECIPIENT_ALLOWLIST"
+        },
+        {
+          "id": "ASSET_ALLOWLIST"
+        }
+      ],
+      "commitment": null,
+      "replay": null
+    }
+  ],
+  "summary": {
+    "executedCases": 3,
+    "verdicts": {
+      "allow": "VERIFIED",
+      "above-max": "REJECTED",
+      "missing-id": "HELD"
+    }
+  },
+  "evidenceDigest": "sha256:4ced1421acb672e8a226bae398dafee3a9cf4ab589a83493f2ea9ae56f34c507",
+  "generatedAt": "2026-11-05T17:57:56.399Z"
+}
