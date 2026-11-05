@@ -179,8 +179,9 @@ export function selfCheck() {
   };
 }
 
-// Re-export Freighter, Soroban DEX, Mainnet modules
+// Re-export Freighter, Soroban DEX, Mainnet, DEX Gating modules
 export * from "./freighter.mjs";
 export * from "./soroban-dex.mjs";
 export * from "./mainnet.mjs";
 export * from "./mainnet-executor.mjs";
+export * from "./dex-gating.mjs";
