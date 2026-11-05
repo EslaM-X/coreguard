@@ -6,8 +6,10 @@
  * gating engine (packages/stellar/dex-gating.mjs) against the REAL live
  * Stellar mainnet order book — no simulation, no mock chain:
  *
- *   1. discover the dominant USDC issuer on mainnet via Horizon /assets
- *      (ordered by accounts — network-derived, not hardcoded),
+ *   1. discover the dominant USDC issuer on mainnet by walking Horizon
+ *      /assets?asset_code=USDC (paging order, hard page cap), ranking every
+ *      variant by its real authorized-accounts universe, then order-book
+ *      probing the top variants — network-derived, nothing hardcoded;
  *   2. fetch the real XLM/USDC order book via Horizon /order_book,
  *   3. derive the policy ceiling FROM the real displayed depth,
  *   4. execute gate paths and record every verdict:
@@ -65,30 +67,57 @@ async function j(HttpUrl) {
   return r.json();
 }
 
-/** Dynamic discovery: probe USDC issuers (desc by adoption) until one has REAL depth on the native pair. */
-async function probeIssuer(depthFn) {
-  const list = await j(`${HORIZON}/assets?asset_code=USC&order=desc&limit=10`);    const trail = [];
-  const LIQUID_THRESHOLD = 10; // real XLM depth on the book must clear this bar for a "dominant liquid pair"
-  let best = null;
-  for (const rec of list._embedded.records) {
-    const asset = { code: rec.asset_code ?? "USDC", issuer: rec.asset_issuer, numAccounts: rec.num_accounts, issuedAmount: rec.amount };
+/** Dynamic discovery: rank every real USDC variant on Horizon by its authorized-accounts
+ *  universe (network-derived, nothing hardcoded), order-book-probe the top variants, and
+ *  select the first whose REAL native-pair ask depth clears the liquid bar. Fail-closed:
+ *  if no candidate clears the bar, this run refuses to fabricate depth and exits nonzero. */
+async function probeIssuer() {
+  const LIQUID_THRESHOLD = 10; // real XLM ask depth the selected book must clear
+  const ASSET_PAGES = 6; // hard cap on the /assets walk (each page carries <= 200 variants)
+  const PROBE_TOP = 3; // order-book probes are spent only on the top variants by accounts
+
+  const variants = [];
+  let url = `${HORIZON}/assets?asset_code=USDC&limit=200`;
+  let pagesWalked = 0;
+  while (url && pagesWalked < ASSET_PAGES) {
+    const d = await j(url);
+    pagesWalked += 1;
+    for (const rec of Array.isArray(d._embedded?.records) ? d._embedded.records : []) {
+      variants.push({
+        code: rec.asset_code ?? "USDC",
+        issuer: rec.asset_issuer,
+        authorizedAccounts: rec.accounts?.authorized ?? 0,
+      });
+    }
+    url = (d._links?.next?.href || null);
+  }
+  if (variants.length === 0) {
+    throw new Error("No USDC assets discovered on Horizon — refusing to fabricate depth (fail-closed)");
+  }
+  variants.sort((a, b) => b.authorizedAccounts - a.authorizedAccounts);
+  const trail = [];
+  for (const cand of variants.slice(0, PROBE_TOP)) {
     const book = await j(
-      `${HORIZON}/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=${asset.code}&buying_asset_issuer=${asset.issuer}&limit=10`
+      `${HORIZON}/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=${cand.code}&buying_asset_issuer=${cand.issuer}&limit=10`
     );
     const asks = Array.isArray(book.asks) ? book.asks : [];
     const depth = asks.reduce((acc, a) => acc + parseFloat(a.amount), 0);
-    trail.push({ issuer: asset.issuer, depth: depth });
-    if (depth >= LIQUID_THRESHOLD) return assetIssuerFinalize(asset, trail);
-    if (!best || depth > best.depth) best = { asset, depth };
+    trail.push({ issuer: cand.issuer, authorizedAccounts: cand.authorizedAccounts, askDepthXlm: depth });
+    if (depth >= LIQUID_THRESHOLD) {
+      return assetIssuerFinalize({ code: cand.code, issuer: cand.issuer, authorizedAccounts: cand.authorizedAccounts }, trail, pagesWalked);
+    }
   }
-  if (best && best.depth > 0) return assetIssuerFinalize(best.asset, trail);
-  throw new Error("No liquid USDC/native pair discovered on Horizon — refusing to fabricate depth (fail-closed)");
+  throw new Error(
+    `No USDC/native pair clears the ${LIQUID_THRESHOLD} XLM displayed ask-depth bar — refusing to fabricate depth (fail-closed)`
+  );
 }
 
-function assetIssuerFinalize(asset, trail) {
+function assetIssuerFinalize(asset, trail, pagesWalked) {
   return {
     ...asset,
-    discoveryRule: "Horizon /assets?asset_code=USDC order=desc, probed against the real native order book until REAL depth appeared (network-derived, recorded trail)",
+    discoveryRule:
+      "Horizon /assets?asset_code=USDC walked in paging order under a hard page cap, ranked by authorized-accounts universe, top variants order-book-probed; the selected pair's REAL native ask depth must clear the liquid bar or the run fails closed (network-derived, recorded trail)",
+    pagesWalked,
     probeTrail: trail,
   };
 }

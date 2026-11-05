@@ -6,54 +6,73 @@
   "network": "stellar-mainnet",
   "broadcast": "NOT_PERFORMED — signing/broadcast is a funded owner decision (no key material, no funds moved)",
   "asset": {
-    "code": "USC",
-    "issuer": "GD76WLMYIPKHRA2XIVFIH7FO5EHQULXYXFA6UV6RQ6G25V4WPMDV7WEU",
-    "discoveryRule": "Horizon /assets?asset_code=USDC order=desc, probed against the real native order book until REAL depth appeared (network-derived, recorded trail)",
+    "code": "USDC",
+    "issuer": "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+    "authorizedAccounts": 2527336,
+    "discoveryRule": "Horizon /assets?asset_code=USDC walked in paging order under a hard page cap, ranked by authorized-accounts universe, top variants order-book-probed; the selected pair's REAL native ask depth must clear the liquid bar or the run fails closed (network-derived, recorded trail)",
+    "pagesWalked": 6,
     "probeTrail": [
       {
-        "issuer": "GDIAVKWS3KDRFTQ4VGK6VDTAMN7LWFPRFCDIYRADNRMCNWDAHS7RKKIF",
-        "depth": 0
-      },
-      {
-        "issuer": "GD76WLMYIPKHRA2XIVFIH7FO5EHQULXYXFA6UV6RQ6G25V4WPMDV7WEU",
-        "depth": 1
-      },
-      {
-        "issuer": "GCYKDLFEPIVQWZKHALIXDUJARZYOEYIKNQ2FVSBFTN37GAVLLA7WSW73",
-        "depth": 0
-      },
-      {
-        "issuer": "GA6LCGNTU7MAY4LPECKXMZQ274N6INHOFZ2FKVOGIMNJHG7EPF5SFJET",
-        "depth": 0
-      },
-      {
-        "issuer": "GA3WUCR4FX2GWJ3ZCJUZT2WTEAPHYI37CRWNQZD5CS7MRMUWN6ZTKFWD",
-        "depth": 0
+        "issuer": "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+        "authorizedAccounts": 2527336,
+        "askDepthXlm": 28919.849355500002
       }
     ]
   },
   "book": {
-    "asksCount": 1,
-    "bidsCount": 1,
-    "depthXlm": 1,
+    "asksCount": 10,
+    "bidsCount": 10,
+    "depthXlm": 28919.849355500002,
     "asksSample": [
       {
         "price_r": {
-          "n": 1000,
-          "d": 1
+          "n": 5000000,
+          "d": 32195307
         },
-        "price": "1000.0000000",
-        "amount": "1.0000000"
+        "price": "0.1553021",
+        "amount": "4.9999995"
+      },
+      {
+        "price_r": {
+          "n": 1553507,
+          "d": 10000000
+        },
+        "price": "0.1553507",
+        "amount": "4000.0000000"
+      },
+      {
+        "price_r": {
+          "n": 1553553,
+          "d": 10000000
+        },
+        "price": "0.1553553",
+        "amount": "500.0000000"
       }
     ],
     "bidsSample": [
       {
         "price_r": {
-          "n": 10,
-          "d": 1
+          "n": 172371,
+          "d": 1111100
         },
-        "price": "10.0000000",
-        "amount": "0.0000470"
+        "price": "0.1551355",
+        "amount": "2.9398219"
+      },
+      {
+        "price_r": {
+          "n": 193791,
+          "d": 1250000
+        },
+        "price": "0.1550328",
+        "amount": "620.1312000"
+      },
+      {
+        "price_r": {
+          "n": 1549791,
+          "d": 10000000
+        },
+        "price": "0.1549791",
+        "amount": "619.9164000"
       }
     ]
   },
@@ -62,7 +81,7 @@
     "rules": [
       {
         "type": "max_amount",
-        "value": 0.01
+        "value": 289.1984935
       }
     ],
     "derivedRule": "max_amount = floor(real ask depth × 1% × 1e7)/1e7 (7-decimal Stellar precision)"
@@ -75,14 +94,14 @@
       "allowed": true,
       "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
       "destination": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
-      "amount": 0.00001,
-      "minAmount": 0.0000097,
+      "amount": 0.2891984,
+      "minAmount": 0.2805224,
       "path": [],
       "network": "mainnet",
       "policy": [
         {
           "type": "max_amount",
-          "value": 0.01
+          "value": 289.1984935
         }
       ],
       "txPlan": {
@@ -90,8 +109,8 @@
         "args": {
           "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
           "destination": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
-          "amount": 0.00001,
-          "minAmount": 0.0000097,
+          "amount": 0.2891984,
+          "minAmount": 0.2805224,
           "path": []
         },
         "submit": false,
@@ -102,7 +121,7 @@
     {
       "id": "swap-over-ceiling",
       "verdict": "REJECTED",
-      "reason": "amount 1 exceeds max 0.01",
+      "reason": "amount 28919.849349999997 exceeds max 289.1984935",
       "allowed": false
     },
     {
@@ -116,13 +135,13 @@
       "verdict": "VERIFIED",
       "reason": "path payment verified",
       "allowed": true,
-      "paymentId": "pathpay-1793901828494-51ont6",
+      "paymentId": "pathpay-1793910508926-9h3yjt",
       "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
       "destination": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
       "sendAsset": "XLM",
-      "destAsset": "USC",
-      "sendAmount": 0.00001,
-      "destMin": 0.0000097,
+      "destAsset": "USDC",
+      "sendAmount": 0.2891984,
+      "destMin": 0.2805224,
       "path": [],
       "network": "mainnet",
       "txPlan": {
@@ -131,9 +150,9 @@
           "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
           "destination": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
           "sendAsset": "XLM",
-          "destAsset": "USC",
-          "sendAmount": 0.00001,
-          "destMin": 0.0000097,
+          "destAsset": "USDC",
+          "sendAmount": 0.2891984,
+          "destMin": 0.2805224,
           "path": []
         },
         "submit": false,
@@ -145,29 +164,29 @@
       "verdict": "VERIFIED",
       "reason": "liquidity provision verified",
       "allowed": true,
-      "lpId": "lp-1793901828494-qmdzeq",
+      "lpId": "lp-1793910508926-jx0caj",
       "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
-      "pool": "native<->USC",
-      "amountA": 0.00001,
-      "amountB": 0.00001,
-      "minA": 0.0000097,
-      "minB": 0.0000097,
+      "pool": "native<->USDC",
+      "amountA": 0.2891984,
+      "amountB": 0.2891984,
+      "minA": 0.2805224,
+      "minB": 0.2805224,
       "network": "mainnet",
       "txPlan": {
         "method": "provide_liquidity",
         "args": {
           "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
-          "pool": "native<->USC",
-          "amountA": 0.00001,
-          "amountB": 0.00001,
-          "minA": 0.0000097,
-          "minB": 0.0000097
+          "pool": "native<->USDC",
+          "amountA": 0.2891984,
+          "amountB": 0.2891984,
+          "minA": 0.2805224,
+          "minB": 0.2805224
         },
         "submit": false,
         "mode": "PLAN_ONLY"
       }
     }
   ],
-  "evidenceDigest": "sha256:c888c903dba0ae4fe8f8b921978fc222e8960721b470577571b02069e845bba5",
-  "generatedAt": "2026-11-05T18:03:48.500Z"
+  "evidenceDigest": "sha256:98f3329a2cf6a63e3c6cbdf9ddd41bdf23a065e4607f7b89fa217330f7ba7f5e",
+  "generatedAt": "2026-11-05T20:28:28.928Z"
 }
