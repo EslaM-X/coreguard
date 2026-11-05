@@ -38,6 +38,6 @@
 <text x="74" y="45" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="8" fill="#FF8A00" letter-spacing="0.8">STELLAR-AGENT/1</text>
 <text x="74" y="60" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-size="9" fill="#C6CFDA" letter-spacing="0.3">PAYMENT GATE · JUDGED BEFORE SUBMIT</text>
 <text x="74" y="74" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="7" fill="#8B95A6">src packages/stellar-agent/index.mjs</text>
-<text x="74" y="83" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="7" fill="#565E6B">sha256:723f5e64b8520559…</text>
-<!-- CG-WALL/1 src="packages/stellar-agent/index.mjs" sha256="723f5e64b8520559f9c2010e844c1faeaecdce70713c1a4cb773391d810de36b" name="STELLAR AGENT" suite="STELLAR-AGENT/1" -->
+<text x="74" y="83" font-family="'JetBrains Mono', 'Cascadia Code', Consolas, monospace" font-size="7" fill="#565E6B">sha256:4a3e4b1e1c677d96…</text>
+<!-- CG-WALL/1 src="packages/stellar-agent/index.mjs" sha256="4a3e4b1e1c677d967ed82d9d02170ecc7858f084431bacf0dc44cf0686fef257" name="STELLAR AGENT" suite="STELLAR-AGENT/1" -->
 </svg>

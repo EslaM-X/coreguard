@@ -146,9 +146,9 @@ export async function submitAgentPayment({ verified, submitter, freighterSign })
   if (intent.state !== "BUILD_OK") {
     return { state: "HELD", reason: intent.error, hash: null };
   }
-  // If no submitter and no freighterSign, return plan only
+  // If no submitter and no freighterSign, return NOT_PERFORMED (honest DRY_RUN)
   if (!submitter && !freighterSign) {
-    return { state: "PLAN_OK", reason: "Plan only. Requires submitter or Freighter to execute.", hash: null, intent: intent.intent, txPlan: { submit: false, mode: "PLAN_ONLY" } };
+    return { state: "NOT_PERFORMED", reason: "DRY_RUN: no submitter injected", hash: null, intent: intent.intent };
   }
   // Execute with submitter
   try {
