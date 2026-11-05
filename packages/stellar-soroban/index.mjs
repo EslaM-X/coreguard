@@ -531,7 +531,14 @@ export function status() {
     defaultNetwork: "testnet",
     mainnetRefused: true,
     contractArtifact: "committed (soroban/commitment-anchor/artifacts/cg_commitment_anchor.wasm)",
-    note: "Soroban adapter builds REAL anchor transactions offline and executes ONLY via an injected testnet submitter. It refuses mainnet fail-closed. Status UNKNOWN until a real submitter + a real receipt are observed.",
+    contractDeployed: {
+      mainnet: true,
+      contractId: "CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP",
+      uploadTx: "271fc7a8a464af5b2c8046365360618af7c24de4941f9bc777c9c0b768f40c6e",
+      createTx: "5fb2b27974797c4298392deeb4fb8393a2b382e05eb2d1d47bba49d14634b4b7",
+      ledger: 65320936,
+    },
+    note: "Soroban adapter builds REAL anchor transactions offline. Contract DEPLOYED on mainnet. Code execution still DRY_RUN until a real submitter + receipt are observed.",
   };
 }
 
