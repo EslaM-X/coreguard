@@ -14,7 +14,22 @@ export const KILLER_FEATURES = Object.freeze([
   "SOROBAN_COMMITMENT_ANCHOR",
   "UNIVERSAL_DAPP_SHIELD",
   "ONE_LINE_INTEGRATION",
+  "AI_AGENT_FIRST",
+  "REAL_TIME_VERIFICATION",
+  "CROSS_BORDER_PAYMENTS",
+  "DEX_GATING",
+  "COMMITMENT_ANCHORING",
 ]);
+
+export const KILLER = Object.freeze({
+  feature: "INTENT_TO_EVIDENCE_BINDING",
+  use: "AI_AGENT_PAYMENT_GATE",
+  onChain: "SOROBAN_COMMITMENT_ANCHOR",
+  utility: "UNIVERSAL_DAPP_SHIELD",
+  adoption: "ONE_LINE_INTEGRATION",
+  reference: "DETERMINISTIC_REPLAY_BEFORE_SUBMIT",
+  customer: ["STELLAR_DAPPS", "STELLAR_WALLET", "STELLAR_COMMERCE", "AI_AGENTS", "STELLAR_ESCROW", "STELLAR_BRIDGES", "STELLAR_DEX"],
+});
 
 export function intentToEvidenceBinding({ intent, policy, evidence }) {
   if (!intent || !policy || !evidence) {
