@@ -80,7 +80,7 @@ Every ecosystem entry — Core DAO · Stellar · Pi Network — pins the same se
 |---|---|
 | **Killer Feature** | Intent-to-Evidence Binding — every intent carries tamper-evident, replayable evidence; break the binding and verification fails closed |
 | **Killer Use** | AI Agent Payment Gate — agent proposals verified against policy + deterministic replay BEFORE submission; VERIFIED only, never auto-pay |
-| **Killer On-Chain** | Per-network Commitment Anchor — Core anchor live on chainId 1116 · Soroban anchor now MAINNET DEPLOYED (CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP) · Pi anchors carried honestly as DRY_RUN/PLAN_ONLY |
+| **Killer On-Chain** | Per-network Commitment Anchor — Core anchor live on chainId 1116 · Soroban anchor MAINNET DEPLOYED (CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP) — code status honestly DRY_RUN until real execution tested · Pi anchors carried honestly as DRY_RUN/PLAN_ONLY |
 | **Killer Utility** | Universal DApp Shield — wrap ANY app action (swap, lend, borrow, bridge, vote); ALLOW/DENY/HOLD with a verifiable commitment |
 | **Killer Adoption** | One-line integration across wallets, DEXs, contracts and AI agents of each ecosystem |
 | **Killer Reference** | Deterministic replay-before-submit: audit trail + replayHash + diff + report, re-runnable by anyone |
