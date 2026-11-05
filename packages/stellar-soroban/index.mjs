@@ -523,7 +523,7 @@ export function status() {
   return {
     version: SOROBAN_VERSION,
     runMode: "DRY_RUN",
-    integrationStatus: "NOT_BUILT",
+    integrationStatus: "NOT_EXECUTED",
     hasCredentials: false,
     authorized: false,
     executed: false,
