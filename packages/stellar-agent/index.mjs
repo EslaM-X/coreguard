@@ -132,7 +132,7 @@ function checkPolicy(payment, policy) {
  * Submit a verified agent payment to Stellar.
  * Returns NOT_PERFORMED unless a submitter is injected.
  */
-export async function submitAgentPayment({ verified, submitter }) {
+export async function submitAgentPayment({ verified, submitter, freighterSign }) {
   if (!verified || verified.verdict !== "VERIFIED") {
     return { state: "HELD", reason: "payment not verified", hash: null };
   }
@@ -146,9 +146,17 @@ export async function submitAgentPayment({ verified, submitter }) {
   if (intent.state !== "BUILD_OK") {
     return { state: "HELD", reason: intent.error, hash: null };
   }
-  const result = await submitTransaction({ xdr: null, submitter: null });
-  // In DRY_RUN, no submitter → NOT_PERFORMED
-  return { state: "NOT_PERFORMED", reason: "DRY_RUN: no submitter injected", hash: null, intent: intent.intent };
+  // If no submitter and no freighterSign, return plan only
+  if (!submitter && !freighterSign) {
+    return { state: "PLAN_OK", reason: "Plan only. Requires submitter or Freighter to execute.", hash: null, intent: intent.intent, txPlan: { submit: false, mode: "PLAN_ONLY" } };
+  }
+  // Execute with submitter
+  try {
+    const result = await submitTransaction({ xdr: intent.intent.xdr, submitter });
+    return { state: "SUBMITTED", reason: "payment submitted", hash: result.hash, intent: intent.intent };
+  } catch (e) {
+    return { state: "HELD", reason: `submission failed: ${e.message}`, hash: null, intent: intent.intent };
+  }
 }
 
 /**
@@ -163,7 +171,7 @@ export function status() {
     authorized: false,
     executed: false,
     receiptCaptured: false,
-    note: "Stellar AI-agent payment verifier. Verifies agent proposals against policy, commits, replays. No secret key, no live submission. Status UNKNOWN until a real counterparty + credentials + receipt.",
+    note: "Stellar AI-agent payment verifier. Verifies agent proposals against policy, commits, replays. Supports real submission via injected submitter (Freighter). Status UNKNOWN until a real counterparty + credentials + receipt.",
   };
 }
 
