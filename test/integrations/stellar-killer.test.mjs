@@ -19,7 +19,7 @@ const RULES = [{ id: "VALUE_LIMIT" }, { id: "RECIPIENT_ALLOWLIST" }];
 
 test("STELLAR-KILLER/1 exports", () => {
   assert.equal(STELLAR_KILLER_VERSION, "STELLAR-KILLER/1");
-  assert.equal(KILLER_FEATURES.length, 5);
+  assert.equal(KILLER_FEATURES.length, 10);
   assert.ok(KILLER_FEATURES.includes("AI_AGENT_PAYMENT_GATE"));
 });
 
