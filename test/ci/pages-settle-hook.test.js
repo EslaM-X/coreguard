@@ -138,6 +138,7 @@ test("hook: file is honest (shebang + main-only gate + settle call), tracked + e
   assert.match(body, /PAGES_SETTLE_SHA="\$new_sha"/, "the pin must carry the NEW tip verbatim and non-empty — an empty pin (`PAGES_SETTLE_SHA=\"\"`) silently disables the commit match and re-opens the registration gap");
   assert.match(body, /PAGES_SETTLE_SITE_REQUIRED=1/, "the hook must run the SAME fail-closed meaning as CI: a 404 is UNOBSERVABLE, never no-build-yet ([C34])");
   assert.match(body, /git config core\.hooksPath \.githooks/);
+  assert.match(body, /PAGES_SETTLE_TOKEN/, "the hook must hand a token (env or gh auth token) to the settle call so a tokenless local push is not dead-locked by the anonymous Pages 404");
   const trackedHook = execFileSync("git", ["ls-files", "--", ".githooks/pre-push"], {
     cwd: REPO,
     encoding: "utf8",

@@ -146,11 +146,16 @@ async function readLatest({ repo, token, simFile, siteRequired }) {
 }
 
 /**
- * Is `sha` reachable from the Pages source branch tip on the remote?
+ * Is `sha` on the Pages source branch tip (ancestor-or-equal)?
  *   true   — yes: a build for it MUST appear (registration gap → keep waiting)
- *   false  — no: a pre-push call (the SHA is definitionally not on the remote
- *            yet) or a fresh/unrelated push → settle without waiting
+ *   false  — no: a pre-push call (the SHA is not on the remote yet; compare
+ *            answers 404 for an unknown ref → settle) or a fresh push →
+ *            settle without waiting
  *   null   — probe failed → caller falls back to legacy behavior
+ * Real-mode answers (wire-measured 2026-11-05): compare(base...head) is
+ * "ahead" when head descends from base, "behind" when head sits before base,
+ * so reachability maps to `ahead`/`identical` only — a pre-push commit (which
+ * compare reads "behind" before it lands) must settle, never wait.
  * In sim mode (PAGES_SETTLE_BRANCH_JSON) the branch probe is file-backed and
  * deterministic: tip == sha → true, any other tip → false, 404/missing → null.
  */
@@ -174,9 +179,16 @@ async function shaOnSourceBranch({ repo, token, sha, simFile }) {
     if (!tip) return null;
     if (tip === sha.toLowerCase()) return true;
     const cmp = await fetch(`${API}/repos/${repo}/compare/${sha}...${tip}`, { headers });
+    // A 404 here means the pinned SHA is unknown to the remote (a pre-push
+    // commit that has not landed yet) — that is the documented pre-push state,
+    // not a probe failure: settle, never wait for a build that cannot exist.
+    // Wire-measured 2026-11-05: compare(base...head) is "ahead" when head
+    // descends from base and "behind" when head sits before base, so "sha on
+    // the branch" maps to ahead/identical and a pre-push child reads "behind".
+    if (cmp.status === 404) return false;
     if (!cmp.ok) return null;
     const status = (await cmp.json())?.status;
-    return status === "behind" || status === "identical";
+    return status === "ahead" || status === "identical";
   } catch {
     return null;
   }

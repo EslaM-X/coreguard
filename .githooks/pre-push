@@ -47,16 +47,25 @@ if ! command -v node >/dev/null 2>&1; then
     exit 1
 fi
 
+# Local sight: when no token is present in the environment, inherit the gh
+# CLI's own credentials so the settle can read the real Pages queue instead of
+# failing closed on an anonymous 404 (GitHub answers the Pages builds API with
+# 404 even to unauthenticated callers on public repos). Without gh the token
+# stays empty and the guard keeps its fail-closed posture.
+if [ -z "${PAGES_SETTLE_TOKEN:-}" ] && [ -z "${GITHUB_TOKEN:-}" ] && command -v gh >/dev/null 2>&1; then
+    PAGES_SETTLE_TOKEN="$(gh auth token 2>/dev/null)"
+fi
+
 root="$(git rev-parse --show-toplevel)" || exit 1
 
 # Pin the settle to the NEW main tip being pushed: the guard waits for THAT
 # commit's own Pages build to register AND finish (closes the registration
 # gap — AGENTS.md [C18]). An empty SHA (no usable ref line) disables pinning,
 # same semantics as the all-zero deletion line.
-PAGES_SETTLE_SHA="$new_sha" PAGES_SETTLE_SITE_REQUIRED=1 node "$root/scripts/pages-settle.mjs" >&2
+PAGES_SETTLE_SHA="$new_sha" PAGES_SETTLE_TOKEN="${PAGES_SETTLE_TOKEN:-}" PAGES_SETTLE_SITE_REQUIRED=1 node "$root/scripts/pages-settle.mjs" >&2
 case $? in
     0)  exit 0 ;;
-    1)  echo "pre-push: ABORTED - GitHub Pages build is still in flight (see output above). Retry after it settles." >&2
+    1)  echo "pre-push: ABORTED - Pages settle guard did not settle (real reason in the settle report above: in-flight build, unobservable queue, or pinned SHA build not registered yet). Retry after it resolves." >&2
         exit 1 ;;
     *)  echo "pre-push: pages-settle failed ($?) - refusing to push." >&2
         exit 1 ;;
