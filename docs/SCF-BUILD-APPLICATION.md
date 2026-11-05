@@ -8,15 +8,22 @@
 
 ### 1. Project Overview
 
-CoreGuard is a verifiable execution truth layer that produces independently verifiable evidence of whether execution conformed to what was authorized. We are bringing this capability to Stellar, enabling every Stellar payment, Soroban contract invocation, and DEX transaction to be verified before submission with independently replayable evidence.
+CoreGuard is a verifiable execution truth layer. It produces independently verifiable evidence of whether execution conformed to what was authorized — not just whether it looked safe.
 
 **What we're building on Stellar:**
-- Soroban commitment anchor (deployed on mainnet)
-- Freighter wallet integration (sign & verify)
+- Intent-to-execution conformance verification
+- Soroban commitment anchor (testnet deployed)
+- Freighter wallet integration
 - Soroban DEX gating (swap/path payment/liquidity verification)
-- Payment verification before submission
-- AI agent payment gates for Stellar
+- AI agent payment gates
 - Cross-border payment verification
+
+**Current status (honest):**
+- Soroban contract: TESTNET deployed (CCERTRITP7A6U4PQ7NUKHXKWL2BNRMSBLVAAAWWMRAZTICUN7ZGC5Q4R)
+- Mainnet: 1 test transaction executed (0.1 XLM → SDF)
+- DEX gating: Built and tested (9 tests passing)
+- AI agent payments: Built (plan only, not executed)
+- Freighter: Wrapper built, not tested end-to-end
 
 ---
 
@@ -25,31 +32,34 @@ CoreGuard is a verifiable execution truth layer that produces independently veri
 **Problem**: Stellar has 8M+ accounts and processes billions in cross-border payments, but there is NO tool that verifies whether execution conformed to authorization. Payment failures are hard to diagnose. Compliance teams trust, not verify.
 
 **Solution**: CoreGuard on Stellar provides:
-1. **Pre-submission verification** — verify before you submit
-2. **Deterministic replay** — independently replay after submission
-3. **Fail-closed** — UNKNOWN → HELD (never silently pass)
-4. **AI agent gates** — verify AI agent payments before execution
-5. **DEX gating** — verify swaps, path payments, liquidity provision
+1. **Pre-execution verification** — verify before you submit
+2. **Execution conformance** — compare authorized intent vs actual execution
+3. **Deterministic replay** — independently replay after submission
+4. **Fail-closed** — UNKNOWN → HELD (never silently pass)
+5. **AI agent gates** — verify AI agent payments before execution
+6. **DEX gating** — verify swaps, path payments, liquidity provision
 
-**Unique value**: No other project on Stellar provides verifiable execution evidence. We are the only tool that produces independently replayable proof of conformance.
+**Unique value**: No other project on Stellar provides verifiable execution-conformance evidence. We are the only tool that produces independently replayable proof of conformance.
 
 ---
 
 ### 3. Technical Feasibility
 
-**Already built (verified on testnet):**
-- ✅ Soroban commitment anchor (testnet deployed, contract ID: CCERTRITP7A6U4PQ7NUKHXKWL2BNRMSBLVAAAWWMRAZTICUN7ZGC5Q4R)
-- ✅ Freighter wallet integration (`packages/stellar/freighter.mjs`)
-- ✅ Soroban DEX gating (`packages/stellar/soroban-dex.mjs`)
-- ✅ Mainnet executor (`packages/stellar/mainnet-executor.mjs`)
+**Already built and tested:**
+- ✅ 1421 tests passing (machine-pinned)
+- ✅ 1027 files, 0 boundary violations
+- ✅ 10,000-run benchmark: 0 false accept, 0 false reject
+- ✅ Soroban contract deployed on testnet
+- ✅ 7/7 Soroban integration tests passing
+- ✅ 9 DEX gating tests passing
+- ✅ Freighter wallet wrapper
 - ✅ Mainnet wallet created and funded
-- ✅ First mainnet transaction executed (0.1 XLM → SDF, ledger 65,308,317)
-- ✅ 1412 tests passing
-- ✅ 1022 files, 0 boundary violations
+- ✅ First mainnet transaction executed (0.1 XLM → SDF)
+- ✅ Independent verification proof (docs/INTENT-TO-EXECUTION-PROOF.md)
 
 **Tech stack:**
 - Stellar SDK (@stellar/stellar-sdk)
-- Soroban (Rust contract: cg-commitment-anchor)
+- Soroban (Rust contract: cg-commitment-anchor, soroban-sdk 23)
 - Freighter wallet integration
 - Node.js 22+
 - Rust (soroban-sdk 23)
@@ -60,24 +70,23 @@ CoreGuard is a verifiable execution truth layer that produces independently veri
 
 | Month | Milestone | Deliverable | Tranche |
 |---|---|---|---|
-| 1 | Soroban mainnet deployment | Contract deployed on mainnet | Tranche 1 (MVP) |
-| 2 | Freighter integration | Wallet verification live | Tranche 1 (MVP) |
-| 3 | DEX gating | Swap/path payment verification | Tranche 2 (Testnet) |
-| 4 | AI agent gates | Agent payment verification on Stellar | Tranche 2 (Testnet) |
-| 5 | Cross-border verification | Payment verification for remittances | Tranche 3 (Mainnet) |
-| 6 | Launch | Full Stellar integration live | Tranche 3 (Mainnet) |
+| 1 | Soroban testnet verification | DEX gating + conformance tests | Tranche 0 (10%) |
+| 2 | Freighter integration | Wallet verification live | Tranche 1 (20%) |
+| 3 | AI agent gates | Agent payment verification on Stellar | Tranche 2 (30%) |
+| 4 | Mainnet deployment | Soroban contract on mainnet | Tranche 3 (40%) |
 
 ---
 
-### 5. Budget
+### 5. Budget ($50,000)
 
 | Category | Amount | Justification |
 |---|---|---|
-| 2 Engineers (6 months) | $90,000 | Soroban contract development, SDK integration |
-| Stellar ecosystem integration | $20,000 | Freighter, DEX, cross-border |
-| Marketing & community | $10,000 | Developer outreach, documentation |
-| Infrastructure | $10,000 | RPC nodes, hosting, monitoring |
-| **Total** | **$130,000** | Within $150K cap |
+| Engineering & security | $25,000 | Soroban contract, SDK integration, testing |
+| Stellar integrations | $10,000 | Freighter, DEX, cross-border |
+| Independent security review | $5,000 | Third-party audit |
+| Infrastructure & testing | $5,000 | RPC nodes, hosting, monitoring |
+| Developer adoption & docs | $5,000 | Documentation, examples, tutorials |
+| **Total** | **$50,000** | Within Integration Track |
 
 ---
 
@@ -89,11 +98,13 @@ CoreGuard is a verifiable execution truth layer that produces independently veri
 - **Twitter**: https://x.com/CoreGuardGlobal
 
 **Experience:**
-- Built CoreGuard from scratch (1412 tests, 1022 files)
+- Built CoreGuard from scratch (1421 tests, 1027 files)
 - Deployed 2 contracts on Core DAO mainnet
 - Deployed Soroban contract on Stellar testnet
 - Executed first mainnet transaction on Stellar
 - 10,000-run benchmark: 0 false accepts, 0 false rejects
+
+**Team plan**: Solo founder + 1 Soroban engineer (post-funding) + 1 security reviewer (contract)
 
 ---
 
@@ -101,17 +112,17 @@ CoreGuard is a verifiable execution truth layer that produces independently veri
 
 - ✅ Soroban contract deployed on testnet
 - ✅ 7/7 Soroban integration tests passing
+- ✅ 9 DEX gating tests passing
 - ✅ Stellar agent payment verifier (STELLAR-AGENT/1)
-- ✅ Freighter wallet integration
-- ✅ Soroban DEX gating
+- ✅ Freighter wallet wrapper
 - ✅ Mainnet wallet created and funded
 - ✅ First mainnet transaction executed
-- ✅ Mainnet executor ready
+- ✅ Intent-to-execution conformance proof (docs/INTENT-TO-EXECUTION-PROOF.md)
 
 ### Traction (on other chains)
 
 - ✅ Core DAO mainnet: 2 contracts deployed & verified
-- ✅ 1412 tests passing
+- ✅ 1421 tests passing
 - ✅ 10,000-run benchmark: 0 false accept, 0 false reject
 - ✅ 1,000/1,000 mutants refused
 - ✅ 18/18 release gate legs pass
@@ -139,12 +150,13 @@ We have existing significant traction on Core DAO and are ready to build fast on
 - **LinkedIn**: https://www.linkedin.com/company/coreguard-global
 - **Twitter**: https://x.com/CoreGuardGlobal
 - **Org Profile**: https://github.com/coreguard-global
+- **Intent-to-Execution Proof**: docs/INTENT-TO-EXECUTION-PROOF.md
 
 ---
 
 ### 10. Contact
 
-- **Email**: inquire@coredao.org
+- **Email**: coreguard@proton.me (or inquire@coredao.org)
 - **GitHub**: https://github.com/coreguard-global
 - **LinkedIn**: https://www.linkedin.com/company/coreguard-global
 
@@ -152,4 +164,4 @@ We have existing significant traction on Core DAO and are ready to build fast on
 
 ### SCF Referral
 
-We are seeking an SCF referrer. If you are a Stellar community member, SDF employee, or partner, please reach out at inquire@coredao.org.
+We are seeking an SCF referrer. If you are a Stellar community member, SDF employee, or partner, please reach out.
