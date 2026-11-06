@@ -18,6 +18,9 @@ Universal DApp Shield (UDS/1) - Wrap ANY Stellar/Soroban action (swap, lend, bor
 ## Killer Adoption
 One-Line Integration (OLI/1) - aiAgentPaymentGate in 3 lines. Works with Freighter, wallets, DEXs, Soroban contracts, AI agents. **Publish truth:** the npm closure is publish-ready and CI-parity-checked (`npm run publish:check`); the registry steps remain double-gated pending the `NPM_TOKEN` Actions secret.
 
+## Killer Exchange
+First SIGNED funded mainnet swap (DEX-GATE/1) — **MAINNET VERIFIED (2026-11-06, owner-authorized):** the first SIGNED, FUNDED XLM→USDC swap on the REAL Stellar mainnet order book, gated by DEX-GATE/1 preflight (both gates VERIFIED before any submission), sized wallet-bounded within a real-depth-derived ceiling, `pathPaymentStrictSend` signed with the owner keypair and CONFIRMED — swap tx `ac2a7990b3387aab96b197c0c921d57756bd25d65ad0e75b93561ded640b9097`, ledger `65,338,112` (trustline tx `09243337fd04d7ead8e369a8a5d5ef48648179db84608b262d5379f34fa72d76`, ledger `65,338,111`); `4.0598146 XLM → 0.6306239 USDC` (0.1553331 USDC/XLM; destMin 0.6011661 cleared; wire read-back equals `fee_charged` to the stroop) · `docs/evidence/stellar-dex-swap-executed.json` — `node scripts/stellar-dex-swap-executed.mjs --verify`.
+
 ## Killer Reference
 - Fail-closed: UNKNOWN -> HELD, never auto-pay/auto-refund
 - L2 production-grade: audit trail + replayHash + diff + report
@@ -35,4 +38,4 @@ Targets: Freighter, Albedo, xBull, Lobstr, Rabet, Soroswap, Phoenix, Aquarius, B
 - Live testnet demo: npm run stellar:demo (real tx verified + replayed)
 - Packages: packages/stellar/, packages/stellar-agent/, packages/stellar-killer/
 - Tests: all passing, CI green
-- Measured: 1433 tests, 0 violations, 0 red checks
+- Measured: 1436 tests, 0 violations, 0 red checks

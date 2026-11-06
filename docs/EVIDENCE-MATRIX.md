@@ -13,8 +13,8 @@
 
 | Claim | Status | Evidence | Test |
 |---|---|---|---|
-| 1433 tests passing | BUILT | `npm test` | scripts/run-tests.mjs |
-| 1041 files scanned | BUILT | boundary-audit.mjs | 0 violations |
+| 1436 tests passing | BUILT | `npm test` | scripts/run-tests.mjs |
+| 1045 files scanned | BUILT | boundary-audit.mjs | 0 violations |
 | 10,000-run benchmark | BUILT | 0 false accept, 0 false reject | benchmarks/ |
 | 1,000/1,000 mutants refused | BUILT | mutation lab | test/ |
 | Intent-to-execution conformance | BUILT | checkConformance() | packages/stellar/dex-gating.mjs |
@@ -43,6 +43,7 @@
 | Soroban contract (testnet) | TESTNET VERIFIED | CCERTRITP7A6U4PQ7NUKHXKWL2BNRMSBLVAAAWWMRAZTICUN7ZGC5Q4R | test/integrations/stellar-soroban.test.mjs (11/11) |
 | Soroban contract (mainnet) | MAINNET DEPLOYED | CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP — third-party-listed (stellar.expert: creator = CoreGuard wallet, wasm hash recorded, 2026-11-04) | scripts/deploy-soroban-mainnet.mjs |
 | Soroban commitment-anchor commit CALL (mainnet) | MAINNET VERIFIED | `commit(proofId, commitment)` **INVOKED** — tx `69044807410f65027c1227f4e525ad83f23a6cb1a2bb79790d82849c5dbc9fec`, ledger 65,337,373 — exact chainId-1116 pair (proofId `0xecd9e6b3d8780c55ca3d60e88b7ff79317b3cba187e43240a540891e4cada6b8` = commitment content `0xc0dbfb45b6c8e13b3738822360ea737adfc045d4acb808bdaeac563c8af31052`), owner-authorized, NO deploy touched; on-chain read-back `read(proofId)` = `{hash: 0xc0dbfb45…1052, seq: 65337373}` exact (wire-verified) | docs/evidence/stellar-soroban-commit-executed.json · scripts/stellar-soroban-commit-executed.mjs --verify · test/integrations/execution-evidence-contract.test.mjs |
+| First signed funded swap (mainnet) | MAINNET VERIFIED | DEX-GATE/1 preflight VERIFIED (both gates) → owner-signed `pathPaymentStrictSend` **CONFIRMED** — swap tx `ac2a7990b3387aab96b197c0c921d57756bd25d65ad0e75b93561ded640b9097`, ledger 65,338,112 (USDC trustline tx `09243337fd04d7ead8e369a8a5d5ef48648179db84608b262d5379f34fa72d76`, ledger 65,338,111); `4.0598146 XLM → 0.6306239 USDC` (0.1553331 USDC/XLM), destMin 0.6011661 cleared, wallet-bounded within the real-depth ceiling (179,564.966163 × 1%) — wire read-back equals `fee_charged` to the stroop | docs/evidence/stellar-dex-swap-executed.json · scripts/stellar-dex-swap-executed.mjs --verify · test/integrations/execution-evidence-contract.test.mjs |
 | Mainnet wallet | MAINNET VERIFIED | GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U — live Horizon account | Horizon read-back |
 | Mainnet payment | MAINNET VERIFIED | 0.1 XLM → SDF, ledger 65,308,317 | .stellar-tx-1.json |
 | Freighter wallet wrapper | BUILT | packages/stellar/freighter.mjs | No E2E test (credential-gated) |
@@ -77,7 +78,7 @@
 
 | Status | Count |
 |---|---|
-| MAINNET VERIFIED | 8 |
+| MAINNET VERIFIED | 9 |
 | MAINNET DEPLOYED | 3 |
 | TESTNET VERIFIED | 1 |
 | BUILT | 15 |
@@ -87,4 +88,4 @@
 | DRY_RUN | 1 |
 | NOT DEPLOYED | 0 |
 
-**Total: 31 components, 8 mainnet verified, 3 mainnet-deployed contracts, 3 executed gate surfaces, 1 dry-run, 0 not deployed**
+**Total: 32 components, 9 mainnet verified, 3 mainnet-deployed contracts, 3 executed gate surfaces + 1 executed signed funded swap, 1 dry-run, 0 not deployed**

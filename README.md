@@ -20,7 +20,7 @@
   <a href="https://coreguard-global.github.io/CoreGuard/PRODUCTS.html"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/cg-bdg-1-badges.svg" alt="CG-BDG/1 badges"></a>
   <a href="https://coreguard-global.github.io/CoreGuard/GOVERNANCE-DASHBOARD.html"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/cg-cl-1-claims.svg" alt="CG-CL/1 claims"></a>
   <a href="https://coreguard-global.github.io/CoreGuard/"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/core-mainnet-anchor.svg" alt="Core Mainnet anchor"></a>
-  <a href="https://github.com/coreguard-global/CoreGuard/actions"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/ci-1433-tests.svg" alt="CI 1433 tests"></a>
+  <a href="https://github.com/coreguard-global/CoreGuard/actions"><img src="https://coreguard-global.github.io/CoreGuard/assets/badges/ci-1436-tests.svg" alt="CI 1436 tests"></a>
   <a href="https://www.linkedin.com/company/coreguard-global"><img src="https://img.shields.io/badge/LinkedIn-CoreGuard%20Global-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
   <a href="https://twitter.com/CoreGuardGlobal"><img src="https://img.shields.io/badge/Twitter-@CoreGuardGlobal-1DA1F2?style=flat-square&logo=twitter&logoColor=white" alt="Twitter"></a>
 </p>
@@ -289,7 +289,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for how to reproduce every value.
 npm install
 
 # 2. Test + benchmark
-npm test              # 1433 tests (machine-pinned) — canonicalization, policy, tamper, anchor,verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard, verification-platform suite, executed-evidence contract (agent gate · real-book DEX gate · universal shield)
+npm test              # 1436 tests (machine-pinned) — canonicalization, policy, tamper, anchor,verifier, P1/P2, provenance, pricing, encoding, attack-lab, DDE delivery/dispute suites (incl. doc-curl contract), pages-settle guard, verification-platform suite, executed-evidence contract (agent gate · real-book DEX gate · universal shield · first funded signed mainnet swap)
 git config core.hooksPath .githooks   # install the Pages settle pre-push guard — every main push waits for the Pages build
 npm run corpus        # deterministic 73-scenario adversarial corpus
 npm run benchmark     # 73/73 pass

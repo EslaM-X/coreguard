@@ -46,11 +46,12 @@ CoreGuard is a verifiable execution truth layer. It produces independently verif
 ### 3. Technical Feasibility
 
 **Already built and tested:**
-- ✅ 1433 tests passing (machine-pinned)
-- ✅ 1041 files, 0 boundary violations
+- ✅ 1436 tests passing (machine-pinned)
+- ✅ 1045 files, 0 boundary violations
 - ✅ 10,000-run benchmark: 0 false accept, 0 false reject
 - ✅ Soroban commitment anchor deployed on Stellar MAINNET (`CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP`)
 - ✅ First mainnet commitment-anchor CALL executed — owner-authorized `commit(proofId, commitment)` **INVOKED** (tx `69044807410f65027c1227f4e525ad83f23a6cb1a2bb79790d82849c5dbc9fec`, ledger 65,337,373; on-chain read-back `{hash, seq}` exact)
+- ✅ First SIGNED funded mainnet swap executed — DEX-GATE/1 preflight VERIFIED, `pathPaymentStrictSend` owner-signed and CONFIRMED (swap tx `ac2a7990b3387aab96b197c0c921d57756bd25d65ad0e75b93561ded640b9097`, ledger 65,338,112; trustline tx `09243337fd04d7ead8e369a8a5d5ef48648179db84608b262d5379f34fa72d76`, ledger 65,338,111; `4.0598146 XLM → 0.6306239 USDC`, wire read-back to the stroop)
 - ✅ 11/11 Soroban integration tests passing
 - ✅ 9 DEX gating tests passing
 - ✅ Freighter wallet wrapper
@@ -99,9 +100,10 @@ CoreGuard is a verifiable execution truth layer. It produces independently verif
 - **Twitter**: https://x.com/CoreGuardGlobal
 
 **Experience:**
-- Built CoreGuard from scratch (1433 tests, 1041 files)
+- Built CoreGuard from scratch (1436 tests, 1045 files)
 - Deployed 2 contracts on Core DAO mainnet
 - Deployed Soroban commitment anchor on Stellar MAINNET (`CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP`) and executed the first owner-authorized anchor CALL (INVOKED, tx `69044807410f65027c1227f4e525ad83f23a6cb1a2bb79790d82849c5dbc9fec`, ledger 65,337,373)
+- Executed the first SIGNED funded mainnet swap (DEX-GATE/1 gated, CONFIRMED, tx `ac2a7990b3387aab96b197c0c921d57756bd25d65ad0e75b93561ded640b9097`, ledger 65,338,112)
 - Executed first mainnet transaction on Stellar
 - 10,000-run benchmark: 0 false accepts, 0 false rejects
 
@@ -113,6 +115,7 @@ CoreGuard is a verifiable execution truth layer. It produces independently verif
 
 - ✅ Soroban commitment anchor deployed on Stellar MAINNET (`CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP`)
 - ✅ First mainnet commitment-anchor CALL executed — owner-authorized `commit(proofId, commitment)` **INVOKED** (tx `69044807410f65027c1227f4e525ad83f23a6cb1a2bb79790d82849c5dbc9fec`, ledger 65,337,373; on-chain read-back `{hash, seq}` exact)
+- ✅ First SIGNED funded mainnet swap (DEX-GATE/1 preflight VERIFIED, CONFIRMED — tx `ac2a7990b3387aab96b197c0c921d57756bd25d65ad0e75b93561ded640b9097`, ledger 65,338,112; `4.0598146 XLM → 0.6306239 USDC`)
 - ✅ 11/11 Soroban integration tests passing
 - ✅ 9 DEX gating tests passing
 - ✅ Stellar agent payment verifier (STELLAR-AGENT/1)
@@ -124,7 +127,7 @@ CoreGuard is a verifiable execution truth layer. It produces independently verif
 ### Traction (on other chains)
 
 - ✅ Core DAO mainnet: 2 contracts deployed & verified
-- ✅ 1433 tests passing
+- ✅ 1436 tests passing
 - ✅ 10,000-run benchmark: 0 false accept, 0 false reject
 - ✅ 1,000/1,000 mutants refused
 - ✅ 18/18 release gate legs pass
