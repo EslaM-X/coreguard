@@ -10,11 +10,19 @@
  * What this is NOT:
  *   - it is NOT a wallet. No secret key is stored; signing is the caller's
  *     job (signTransaction receives the caller's Keypair per-call only).
- *   - it is NOT a mainnet path. Every builder REFUSES mainnet fail-closed
- *     (NOT_AUTHORIZED), regardless of what is injected. Testnet-only worlds.
- *   - it is NOT a live integration claim by itself. status() reports DRY_RUN
- *     until a real submitter + a real receipt are observed by the caller (the
- *     live demo owns that proof surface).
+ *
+ *   - it is NOT a DEFAULT mainnet path. Every builder REFUSES mainnet
+ *     fail-closed (NOT_AUTHORIZED) unless the caller passes the OWNER'S
+ *     explicit decision per call (ownerAuthorization === true). That decision
+ *     is never assumed and never menu-default; when the owner gives it, the
+ *     owner-authorized lane is real — the first mainnet commit CALL on the
+ *     deployed commitment anchor is EXECUTED/INVOKED (tx 69044807410f65027c
+ *     1227f4e525ad83f23a6cb1a2bb79790d82849c5dbc9fec, ledger 65337373) via
+ *     scripts/stellar-soroban-commit-executed.mjs, with the artifact + digest
+ *     at docs/evidence/stellar-soroban-commit-executed.json.
+ *   - it is NOT a live integration claim by itself. status() reports the
+ *     module's own DRY_RUN posture; the executed commit fact is carried in
+ *     status().firstCommitExecuted and owned by the runner's artifact.
  *
  * The contract source + built WASM artifact live at soroban/commitment-anchor/
  * (committed): the artifact is re-derivable by anyone with the Rust toolchain.
@@ -100,12 +108,12 @@ export function readWasmArtifact() {
  * the plan surface the killer packages already model, now backed by REAL
  * transaction builders in this module.
  */
-export function planCommitmentAnchor({ commitment, network = "testnet" } = {}) {
+export function planCommitmentAnchor({ commitment, network = "testnet", ownerAuthorization = false } = {}) {
   if (!isNonEmptyString(commitment)) {
     return { ok: false, state: "GATED", error: "commitment required", plan: null };
   }
-  if (network === "mainnet") {
-    return { ok: false, state: "NOT_AUTHORIZED", error: "mainnet is never assumed (fail-closed)", plan: null };
+  if (network === "mainnet" && ownerAuthorization !== true) {
+    return { ok: false, state: "NOT_AUTHORIZED", error: "mainnet is never assumed (fail-closed): ownerAuthorization required", plan: null };
   }
   return {
     ok: true,
@@ -128,23 +136,30 @@ export function planCommitmentAnchor({ commitment, network = "testnet" } = {}) {
 function passphraseFor(network) {
   if (network === "testnet") return Networks.TESTNET;
   if (network === "futurenet") return Networks.FUTURENET;
-  return null; // mainnet never gets a passphrase here (fail-closed)
+  // Reached ONLY for an owner-authorized mainnet run (callers gate on
+  // ownerAuthorization before a mainnet passphrase is ever resolved) — the
+  // fail-closed posture lives in the network gates, not in this resolver.
+  if (network === "mainnet") return Networks.PUBLIC; // "Public Global Stellar Network ; September 2015"
+  return null; // unknown network -> GATED
 }
 
 function toBytes32(v) {
   if (v instanceof Uint8Array && v.length === 32) return Buffer.from(v);
   // hex strings accepted: the anchor flow surface (executeAnchorFlow) takes
-  // hex commitment ids/hashes; builders normalize to 32 bytes.
-  if (typeof v === "string" && /^[0-9a-fA-F]{64}$/.test(v)) return Buffer.from(v, "hex");
+  // hex commitment ids/hashes; builders normalize to 32 bytes. Accepts bare
+  // 64-hex AND "0x"-prefixed (the CGEP/1 domainHash outputs are "0x" + sha256
+  // hex, so an anchored id/hash taken from a plan/verifier never gates).
+  const hex = typeof v === "string" ? (v.startsWith("0x") ? v.slice(2) : v) : "";
+  if (typeof v === "string" && /^[0-9a-fA-F]{64}$/.test(hex)) return Buffer.from(hex, "hex");
   return null;
 }
 
 /**
  * Build the WASM-UPLOAD transaction OFFLINE (no network, no signing).
  */
-export function buildUploadTx({ wasm, source, sequence, network = "testnet", fee = "50000" } = {}) {
-  if (network === "mainnet") {
-    return { state: "NOT_AUTHORIZED", error: "mainnet is never assumed (fail-closed)", tx: null };
+export function buildUploadTx({ wasm, source, sequence, network = "testnet", fee = "50000", ownerAuthorization = false } = {}) {
+  if (network === "mainnet" && ownerAuthorization !== true) {
+    return { state: "NOT_AUTHORIZED", error: "mainnet is never assumed (fail-closed): ownerAuthorization required", tx: null };
   }
   const passphrase = passphraseFor(network);
   if (!passphrase) return { state: "GATED", error: `unknown network: ${network}`, tx: null };
@@ -173,9 +188,10 @@ export function buildCreateContractTx({
   network = "testnet",
   salt,
   fee = "50000",
+  ownerAuthorization = false,
 } = {}) {
-  if (network === "mainnet") {
-    return { state: "NOT_AUTHORIZED", error: "mainnet is never assumed (fail-closed)", tx: null };
+  if (network === "mainnet" && ownerAuthorization !== true) {
+    return { state: "NOT_AUTHORIZED", error: "mainnet is never assumed (fail-closed): ownerAuthorization required", tx: null };
   }
   const passphrase = passphraseFor(network);
   if (!passphrase) return { state: "GATED", error: `unknown network: ${network}`, tx: null };
@@ -219,9 +235,10 @@ export function buildInvokeTx({
   commitmentHash,
   network = "testnet",
   fee = "50000",
+  ownerAuthorization = false,
 } = {}) {
-  if (network === "mainnet") {
-    return { state: "NOT_AUTHORIZED", error: "mainnet is never assumed (fail-closed)", tx: null };
+  if (network === "mainnet" && ownerAuthorization !== true) {
+    return { state: "NOT_AUTHORIZED", error: "mainnet is never assumed (fail-closed): ownerAuthorization required", tx: null };
   }
   const passphrase = passphraseFor(network);
   if (!passphrase) return { state: "GATED", error: `unknown network: ${network}`, tx: null };
@@ -421,9 +438,13 @@ export async function executeAnchorFlow({
   commitmentHash,
   getSequence,
   submit,
+  wait = null,
+  deployedContractId = null,
+  ownerAuthorization = false,
+  fee = "1000000",
 } = {}) {
-  if (network === "mainnet") {
-    return { state: "NOT_AUTHORIZED", error: "mainnet is never assumed (fail-closed)", steps: [] };
+  if (network === "mainnet" && ownerAuthorization !== true) {
+    return { state: "NOT_AUTHORIZED", error: "mainnet is never assumed (fail-closed): ownerAuthorization required", steps: [] };
   }
   const nop = { state: "NOT_PERFORMED", error: "no submitter injected (DRY_RUN)", steps: [] };
   if (typeof submit !== "function" || typeof getSequence !== "function") return nop;
@@ -437,7 +458,56 @@ export async function executeAnchorFlow({
   const steps = [];
   const seq0 = String(await getSequence());
 
-  const builtUpload = buildUploadTx({ wasm, source: deployerPublicKey, sequence: seq0, network });
+  if (deployedContractId) {
+    // Owner-authorized run against an ALREADY-DEPLOYED commitment anchor
+    // (the deployment is a recorded fact — see .stellar-soroban-deploy.json):
+    // commit-only leg. The WASM upload + contract creation are skipped and the
+    // anchored commitment is written through the same verify-before-submit
+    // discipline (build -> sign -> injected submit -> optional finality wait).
+    const builtCommit = buildInvokeTx({
+      contractId: deployedContractId,
+      functionName: "commit",
+      source: deployerPublicKey,
+      sequence: seq0,
+      commitmentId,
+      commitmentHash,
+      network,
+      fee,
+      // Forward the flow's owner authorization: the commit-only leg runs
+      // EITHER on testnet (flag irrelevant) OR on mainnet after the flow gate
+      // above already verified ownerAuthorization === true — but buildInvokeTx
+      // re-gates independently (default false), so without this the mainnet
+      // commit would NOT_AUTHORIZED at build:commit even for an owner run.
+      ownerAuthorization,
+    });
+    if (builtCommit.state !== "BUILD_OK") {
+      return { state: builtCommit.state, error: builtCommit.error, steps: [...steps, { step: "build:commit", state: builtCommit.state }] };
+    }
+    const signedCommit = signTransaction(builtCommit.tx, deployerKey);
+    if (signedCommit.state !== "SIGNED") return { state: signedCommit.state, error: signedCommit.error, steps };
+    const cm = await submit(signedCommit.xdr);
+    steps.push({ step: "commit", ...normalize(cm) });
+    if (!cm || cm.state !== "SUBMITTED") {
+      return { state: "REJECTED", error: "commit submit rejected", steps };
+    }
+    let final = cm;
+    if (typeof wait === "function") final = await wait(cm.hash);
+    if (final && final.state === "FAILED") {
+      return { state: "REJECTED", error: "commit finality failed", steps };
+    }
+    return {
+      state: final && final.state === "INVOKED" ? "INVOKED" : "SUBMITTED",
+      contractId: deployedContractId,
+      steps,
+      commitHash: cm.hash || null,
+      ledger: (final && final.ledger) || cm.ledger || null,
+      anchored: { id: commitmentId, hash: commitmentHash },
+      ownerAuthorized: true,
+      network,
+    };
+  }
+
+  const builtUpload = buildUploadTx({ wasm, source: deployerPublicKey, sequence: seq0, network, ownerAuthorization });
   if (builtUpload.state !== "BUILD_OK") return { state: builtUpload.state, error: builtUpload.error, steps: [...steps, { step: "build:upload", state: builtUpload.state }] };
   const builtCreate = buildCreateContractTx({
     source: deployerPublicKey,
@@ -445,6 +515,7 @@ export async function executeAnchorFlow({
     wasmHash: builtUpload.wasmSha256Hex,
     network,
     salt: deriveSalt(deployerPublicKey, builtUpload.wasmSha256Hex),
+    ownerAuthorization,
   });
   if (builtCreate.state !== "BUILD_OK") return { state: builtCreate.state, error: builtCreate.error, steps: [...steps, { step: "build:create", state: builtCreate.state }] };
 
@@ -481,6 +552,7 @@ export async function executeAnchorFlow({
     commitmentId,
     commitmentHash,
     network,
+    ownerAuthorization,
   });
   if (builtCommit.state !== "BUILD_OK") return { state: builtCommit.state, error: builtCommit.error, steps };
   const signedCommit = signTransaction(builtCommit.tx, deployerKey);
@@ -538,7 +610,24 @@ export function status() {
       createTx: "5fb2b27974797c4298392deeb4fb8393a2b382e05eb2d1d47bba49d14634b4b7",
       ledger: 65320936,
     },
-    note: "Soroban adapter builds REAL anchor transactions offline. Contract DEPLOYED on mainnet. Code execution still DRY_RUN until a real submitter + receipt are observed.",
+    // Measured 2026-11-06 (owner-authorized commit on the DEPLOYED instance —
+    // no deploy touched): the first commitment-anchor CALL on Stellar mainnet,
+    // INVOKED with the exact planned pair, and pass-verified on-chain by the
+    // contract's own read-back (read(proofId) -> {hash, seq} matched exactly).
+    // Fail-closed hull unchanged: this module still executes nothing on its
+    // own — the fact lives in the runner + its digest-checked artifact.
+    firstCommitExecuted: {
+      state: "INVOKED",
+      network: "mainnet",
+      contractId: "CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP",
+      proofId: "0xecd9e6b3d8780c55ca3d60e88b7ff79317b3cba187e43240a540891e4cada6b8",
+      commitment: "0xc0dbfb45b6c8e13b3738822360ea737adfc045d4acb808bdaeac563c8af31052",
+      txHash: "69044807410f65027c1227f4e525ad83f23a6cb1a2bb79790d82849c5dbc9fec",
+      ledger: 65337373,
+      runner: "scripts/stellar-soroban-commit-executed.mjs",
+      evidence: "docs/evidence/stellar-soroban-commit-executed.json",
+    },
+    note: "Soroban adapter builds REAL anchor transactions offline. Contract DEPLOYED on mainnet; the first owner-authorized commit CALL is EXECUTED/INVOKED (tx 690448...9fec, ledger 65337373, on-chain read-back {hash, seq} exact). This module's own default lane stays fail-closed (mainnet requires ownerAuthorization === true); execution happens only through the named runner with an injected submitter.",
   };
 }
 
