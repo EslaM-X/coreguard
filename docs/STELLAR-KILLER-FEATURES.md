@@ -10,7 +10,7 @@ Intent-to-Evidence Binding (ITEB/1) - Bind every Stellar/Soroban intent to tampe
 AI Agent Payment Gate (AIPG/1) - Agents propose payments; CoreGuard verifies against policy and deterministic replay before Stellar submission. VERIFIED only. **Executed evidence:** `docs/evidence/stellar-agent-gate-executed.json` (VERIFIED / REJECTED / HELD matrix, digest-checked; submission stays credential-gated) — `node scripts/stellar-agent-gate-executed.mjs --verify`.
 
 ## Killer On-Chain
-Soroban Commitment Anchor (SCA/1) - **MAINNET DEPLOYED (2026-11-04): contract `CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP`, creator = the CoreGuard wallet, third-party-listed (stellar.expert). The first anchor CALL remains a credential-gated funded sweep.**
+Soroban Commitment Anchor (SCA/1) - **MAINNET DEPLOYED (2026-11-04) AND the first anchor CALL EXECUTED (2026-11-06, MAINNET VERIFIED):** contract `CCKA2GYVILX7YZVSXGVIHOPNLTRBBF2SSWKBTQBIE7M67N5N2QMMXPSP`, creator = the CoreGuard wallet, third-party-listed (stellar.expert). Owner-authorized `commit(proofId, commitment)` **INVOKED** (tx `69044807410f65027c1227f4e525ad83f23a6cb1a2bb79790d82849c5dbc9fec`, ledger `65,337,373`, exact chainId-1116 pair), pass-confirmed on-chain by the contract's own read-back (`read(proofId)` = `{hash, seq}` exact on the wire). **Executed evidence:** `docs/evidence/stellar-soroban-commit-executed.json` — `node scripts/stellar-soroban-commit-executed.mjs --verify`.
 
 ## Killer Utility
 Universal DApp Shield (UDS/1) - Wrap ANY Stellar/Soroban action (swap, lend, borrow, bridge, vote). ALLOW/DENY/HOLD with commitment and replayHash. **Executed evidence:** `docs/evidence/universal-dapp-shield-executed.json` (2 ALLOW · 2 REQUIRE_REVIEW · 1 DENY · 1 REFUSED Q-FW10 seam) — `node scripts/universal-shield-executed.mjs --verify`.
@@ -35,4 +35,4 @@ Targets: Freighter, Albedo, xBull, Lobstr, Rabet, Soroswap, Phoenix, Aquarius, B
 - Live testnet demo: npm run stellar:demo (real tx verified + replayed)
 - Packages: packages/stellar/, packages/stellar-agent/, packages/stellar-killer/
 - Tests: all passing, CI green
-- Measured: 1405 tests, 0 violations, 0 red checks
+- Measured: 1433 tests, 0 violations, 0 red checks
