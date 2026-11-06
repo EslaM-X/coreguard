@@ -1,11 +1,12 @@
 /**
  * Execution-evidence artifacts — digest-fidelity contract (CI-pinned).
  *
- * The four committed executed-evidence artifacts
+ * The five committed executed-evidence artifacts
  *   docs/evidence/stellar-agent-gate-executed.json  (STELLAR-AGENT/1)
  *   docs/evidence/stellar-dex-gate-executed.json    (DEX-GATE/1, REAL mainnet book)
  *   docs/evidence/universal-dapp-shield-executed.json (guard.* shield arms)
  *   docs/evidence/stellar-soroban-commit-executed.json (SOROBAN-ANCHOR/1 mainnet commit, INVOKED)
+ *   docs/evidence/stellar-dex-swap-executed.json    (DEX-GATE/1 first SIGNED funded mainnet swap, CONFIRMED)
  * must stay byte-faithful to their own payloads: their `evidenceDigest` is
  * re-derived here (same canonical rule as the runners) and every verdict
  * matrix is asserted. Tamper mutations each apply AND bite — a flipped
@@ -28,6 +29,7 @@ const AGENT = new URL("../../docs/evidence/stellar-agent-gate-executed.json", im
 const DEX = new URL("../../docs/evidence/stellar-dex-gate-executed.json", import.meta.url);
 const SHIELD = new URL("../../docs/evidence/universal-dapp-shield-executed.json", import.meta.url);
 const SOROBAN_COMMIT = new URL("../../docs/evidence/stellar-soroban-commit-executed.json", import.meta.url);
+const SWAP = new URL("../../docs/evidence/stellar-dex-swap-executed.json", import.meta.url);
 
 test("stellar-agent-gate artifact: digest faithful, verdict matrix VERIFIED/REJECTED/HELD, no submit performed", async () => {
   const a = JSON.parse(await readFile(AGENT, "utf8"));
@@ -99,10 +101,56 @@ test("tamper control: a flipped byte in the agent artifact breaks its digest", a
   assert.notEqual(digestOf(tampered), a.evidenceDigest);
 });
 
+test("stellar-dex-swap artifact: digest faithful, first SIGNED funded mainnet swap CONFIRMED through preflight gates", async () => {
+  const a = JSON.parse(await readFile(SWAP, "utf8"));
+  assert.equal(digestOf(a), a.evidenceDigest, "dex-swap digest must re-derive");
+  assert.equal(a.version, "DEX-GATE/1");
+  assert.equal(a.network, "stellar-mainnet");
+  assert.equal(a.ownerAuthorized, true, "funded swap is owner-authorized, never assumed");
+  assert.equal(a.asset.code, "USDC");
+  assert.match(a.asset.issuer, /^G[A-Z2-7]{55}$/);
+  assert.ok(a.book.depthXlm > 0, "real depth must be present");
+  assert.equal(a.policy.rules[0].value <= a.book.depthXlm, true, "ceiling derives from real depth");
+  assert.equal(a.gates.swap.verdict, "VERIFIED");
+  assert.equal(a.gates.pathPayment.verdict, "VERIFIED");
+  assert.ok(a.gates.preflight.includes("fail-closed"), "gates are preflight fail-closed semantics");
+  assert.equal(a.plan.sendAmount <= a.policy.rules[0].value, true, "send sits within the real-depth policy ceiling");
+  assert.ok(a.plan.destMin > 0 && a.plan.destMin <= a.plan.expectedReceiveUsdc, "destMin is a real floor under the expected receive");
+  assert.equal(a.trustline.created, true, "the first funded swap required creating the USDC trustline");
+  assert.equal(a.trustline.txHash, "09243337fd04d7ead8e369a8a5d5ef48648179db84608b262d5379f34fa72d76");
+  assert.equal(a.trustline.ledger, 65338111);
+  assert.equal(a.trustline.feeChargedStroops, 100);
+  assert.equal(a.swap.txHash, "ac2a7990b3387aab96b197c0c921d57756bd25d65ad0e75b93561ded640b9097");
+  assert.equal(a.swap.ledger, 65338112);
+  assert.equal(a.swap.successful, true);
+  assert.equal(a.swap.feeChargedStroops, 100);
+  assert.equal(a.swap.xlmSent, 4.0598146);
+  assert.equal(a.swap.usdcReceived, 0.6306239);
+  assert.equal(a.swap.usdcReceived >= a.plan.destMin, true, "wire receive must clear the planned floor");
+  assert.equal(a.summary.swapState, "CONFIRMED");
+  assert.ok(a.submit.includes("CONFIRMED"));
+});
+
 test("tamper control: extra unknown field in the dex artifact breaks its digest", async () => {
   const a = JSON.parse(await readFile(DEX, "utf8"));
   const tampered = JSON.parse(JSON.stringify(a));
   tampered.book.depthXlm += 0.0000001;
+  assert.notEqual(digestOf(tampered), a.evidenceDigest);
+});
+
+test("stellar-dex-swap wire read-backs: balance arithmetic equals fee_charged to the stroop", async () => {
+  const a = JSON.parse(await readFile(SWAP, "utf8"));
+  // destination == source -> the only XLM outflow is sendAmount + charged fee
+  const feeDerived = Math.round((a.swap.xlmBeforeSwap - a.swap.xlmAfterSwap - a.plan.sendAmount) * 1e7);
+  assert.equal(feeDerived, a.swap.feeChargedStroops, "balance arithmetic must equal the wire fee_charged");
+  assert.ok(a.swap.xlmAfterSwap >= 1.5, "post-swap balance must stay above the (2+1 subentry) reserve");
+  assert.ok(a.swap.usdcReceived > 0 && a.swap.usdcReceived <= a.plan.expectedReceiveUsdc * 1.01, "received must be near the walked expectation");
+});
+
+test("tamper control: a changed swap ledger breaks its digest", async () => {
+  const a = JSON.parse(await readFile(SWAP, "utf8"));
+  const tampered = JSON.parse(JSON.stringify(a));
+  tampered.swap.ledger = 999999999;
   assert.notEqual(digestOf(tampered), a.evidenceDigest);
 });
 

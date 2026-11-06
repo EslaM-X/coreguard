@@ -1,0 +1,157 @@
+{
+  "schema": "CoreGuard-Evidence/1",
+  "artifact": "stellar-dex-swap-executed",
+  "version": "DEX-GATE/1",
+  "executedBy": "scripts/stellar-dex-swap-executed.mjs",
+  "network": "stellar-mainnet",
+  "ownerAuthorized": true,
+  "authorization": {
+    "source": "owner explicit directive 2026-11-06 (binding session record)",
+    "scope": "milestone 3 of docs/STELLAR-MAINNET-TX.md — the first SIGNED DEX swap on mainnet",
+    "signing": "owner keypair (.stellar-wallet.json), per call only; no key material in any artifact"
+  },
+  "submit": "CONFIRMED — first signed gated swap executed on mainnet (tx ac2a7990b3387aab96b197c0c921d57756bd25d65ad0e75b93561ded640b9097, ledger 65338112)",
+  "asset": {
+    "code": "USDC",
+    "issuer": "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+    "authorizedAccounts": 2528904,
+    "discoveryRule": "Horizon /assets?asset_code=USDC walked in paging order under a hard page cap, ranked by authorized-accounts universe, top variants order-book-probed; the selected pair's REAL native ask depth must clear the liquid bar or the run fails closed (network-derived, recorded trail)",
+    "pagesWalked": 6,
+    "probeTrail": [
+      {
+        "issuer": "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+        "authorizedAccounts": 2528904,
+        "askDepthXlm": 24935.809486899998
+      }
+    ]
+  },
+  "book": {
+    "asksCount": 20,
+    "bidsCount": 20,
+    "depthXlm": 179564.966163,
+    "fetchedVia": "Horizon /order_book (selling native / buying USDC on GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN)",
+    "asksSample": [
+      {
+        "price_r": {
+          "n": 389677,
+          "d": 2500000
+        },
+        "price": "0.1558708",
+        "amount": "95.6245186"
+      },
+      {
+        "price_r": {
+          "n": 15587089,
+          "d": 100000000
+        },
+        "price": "0.1558709",
+        "amount": "46.8819547"
+      },
+      {
+        "price_r": {
+          "n": 157744713,
+          "d": 1012021051
+        },
+        "price": "0.1558710",
+        "amount": "12800.0000000"
+      }
+    ],
+    "bidsSample": [
+      {
+        "price_r": {
+          "n": 12500000,
+          "d": 80329597
+        },
+        "price": "0.1556089",
+        "amount": "9.3078169"
+      },
+      {
+        "price_r": {
+          "n": 777359,
+          "d": 5000000
+        },
+        "price": "0.1554718",
+        "amount": "621.8872000"
+      },
+      {
+        "price_r": {
+          "n": 1554281,
+          "d": 10000000
+        },
+        "price": "0.1554281",
+        "amount": "1554.2810000"
+      }
+    ]
+  },
+  "policy": {
+    "maxSlippage": 0.05,
+    "rules": [
+      {
+        "type": "max_amount",
+        "value": 1795.6496616
+      }
+    ],
+    "derivedRule": "max_amount = floor(real ask depth x 1% x 1e7)/1e7 (7-decimal Stellar precision)"
+  },
+  "plan": {
+    "sendAsset": "XLM",
+    "destAsset": {
+      "code": "USDC",
+      "issuer": "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN"
+    },
+    "destination": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+    "source": "GDJ3CRNLNDZ4AVWGPUG7DBC5BIAGMIONOONZGB5FSYAY44ZHOIPRKY7U",
+    "sendAmount": 4.0598146,
+    "minAmount": 3.9380201,
+    "destMin": 0.6011661,
+    "expectedReceiveUsdc": 0.6328065,
+    "op": "pathPaymentStrictSend",
+    "opPath": [],
+    "budgetRule": "sendAmount = min(policy ceiling (real ask depth x 1%), wallet-bounded budget = native balance - (2 + subentry_count + missing trustline) x 0.5 reserve - fees - safety margin), both floored at 1e-7",
+    "walkRule": "expectedReceive = real ask-chain fill of sendAmount across live levels using exact price_r (n/d); destMin = expectedReceive x (1 - maxSlippage), floored at 1e-7"
+  },
+  "gates": {
+    "preflight": "fail-closed; both gates must be strictly VERIFIED before any submission",
+    "swap": {
+      "verdict": "VERIFIED",
+      "reason": "swap verified",
+      "allowed": true
+    },
+    "pathPayment": {
+      "verdict": "VERIFIED",
+      "reason": "path payment verified",
+      "allowed": true
+    }
+  },
+  "trustline": {
+    "op": "changeTrust",
+    "created": true,
+    "asset": "USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+    "limit": "922337203685.4775807",
+    "reserveXlm": 0.5,
+    "txHash": "09243337fd04d7ead8e369a8a5d5ef48648179db84608b262d5379f34fa72d76",
+    "ledger": 65338111,
+    "feeOfferedStroopsPerOp": 10000,
+    "feeChargedStroops": 100
+  },
+  "swap": {
+    "txHash": "ac2a7990b3387aab96b197c0c921d57756bd25d65ad0e75b93561ded640b9097",
+    "successful": true,
+    "xlmSent": 4.0598146,
+    "usdcReceived": 0.6306239,
+    "xlmBeforeSwap": 5.5668046,
+    "xlmAfterSwap": 1.50698,
+    "usdcDeltaRule": "wire read-back: USDC credit balance after swap minus balance immediately before the swap, floored at 1e-7",
+    "ledger": 65338112,
+    "feeOfferedStroopsPerOp": 10000,
+    "feeChargedStroops": 100
+  },
+  "summary": {
+    "swapState": "CONFIRMED",
+    "usdcReceived": 0.6306239,
+    "exchangeRate": 0.1553331,
+    "verdict": "MAINNET SWAP EXECUTED — VERIFIED (owner-authorized; DEX-GATE/1 preflight gates ALLOW; wire read-back confirmed)"
+  },
+  "evidenceDigest": "sha256:837d063903f4905ececb6f051d9b2f5638079c2f35f4cc03163e9443e553ac2c",
+  "generatedAt": "2026-11-06T14:50:05.191Z"
+}

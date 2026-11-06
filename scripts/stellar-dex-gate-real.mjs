@@ -71,7 +71,7 @@ async function j(HttpUrl) {
  *  universe (network-derived, nothing hardcoded), order-book-probe the top variants, and
  *  select the first whose REAL native-pair ask depth clears the liquid bar. Fail-closed:
  *  if no candidate clears the bar, this run refuses to fabricate depth and exits nonzero. */
-async function probeIssuer() {
+export async function probeIssuer() {
   const LIQUID_THRESHOLD = 10; // real XLM ask depth the selected book must clear
   const ASSET_PAGES = 6; // hard cap on the /assets walk (each page carries <= 200 variants)
   const PROBE_TOP = 3; // order-book probes are spent only on the top variants by accounts
